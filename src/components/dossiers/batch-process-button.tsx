@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { markDossierError } from "@/app/actions/mark-dossier-error";
 
-const TIMEOUT_MS = 120_000;
+const TIMEOUT_MS = 270_000;
 
 type BatchState = {
   current: number;
