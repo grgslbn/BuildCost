@@ -22,7 +22,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "New Estimation", href: "/estimation/new", icon: PlusCircle },
+  { label: "New Estimation", href: "/estimate", icon: PlusCircle },
   { label: "Dossiers", href: "/admin/dossiers", icon: FolderOpen, group: "Admin" },
   { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
   { label: "Settings", href: "/admin/settings", icon: Settings, group: "Admin" },
