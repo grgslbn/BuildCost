@@ -12,6 +12,8 @@ import {
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { extractMetadata } from "@/lib/pdf/extract-metadata";
+import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
+import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibration";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -393,6 +395,22 @@ export async function POST(req: NextRequest) {
         prediction_residual: predictionError,
       }));
       await admin.from("qqp_discovery_log").insert(discoveryRows);
+    }
+
+    // ── Self-learning: evaluate discoveries & auto-calibrate ──────────────────
+    try {
+      await evaluateDiscoveries();
+    } catch (e) {
+      console.warn("[process-dossier] discovery evaluation failed (non-fatal)", e);
+    }
+
+    try {
+      if (await shouldAutoCalibrate()) {
+        await calibrateWeights();
+        console.log("[process-dossier] Auto-calibration triggered and completed.");
+      }
+    } catch (e) {
+      console.warn("[process-dossier] auto-calibration failed (non-fatal)", e);
     }
 
     return NextResponse.json({ success: true, status: "analyzed" });

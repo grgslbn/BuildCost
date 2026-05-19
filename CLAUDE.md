@@ -111,6 +111,14 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 - Auth (magic link) + tenant auto-provisioning built and deployed
 - Admin dossier upload page built (`/admin/dossiers`): drag-drop plan upload to Storage, full metadata form, reference dossier list with status tracking
 - Storage bucket `plans` created (private, 50 MB limit, PDF/PNG/JPG)
+- Full PDF processing pipeline: classify pages → extract metadata → SQM → QQP → prediction_error
+- Apartment building detection, duplicate prevention, per-row delete, Delete All
+- QQP self-learning loop built (`ws2/qqp-learning-loop`):
+  - `src/lib/qqp/discovery-engine.ts` — auto-activates proposed QQPs at threshold
+  - `src/lib/qqp/retroactive-extraction.ts` — extracts new QQP values from stored sqm_extraction
+  - `src/lib/qqp/weight-calibration.ts` — Pearson correlation weights, model version snapshots, re-evaluation
+  - `/admin/qqp` — QQP management page (active QQPs + weight bars, proposed review, model versions)
+  - Wired into process-dossier pipeline (auto-evaluate + auto-calibrate at interval)
 
 ## Supabase Details
 

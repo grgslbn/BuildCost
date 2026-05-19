@@ -52,9 +52,35 @@ The system:
 1. Starts with ~32 expert-seeded QQPs
 2. Extracts values from reference dossiers (plans with known prices)
 3. Discovers correlations between QQPs and price/m²
-4. Assigns and refines weights
+4. Assigns and refines weights via Pearson correlation calibration
 5. Proposes NEW QQPs from data analysis (recorded in `qqp_discovery_log`)
-6. Improves with every dossier processed
+6. Auto-activates new QQPs when proposed ≥ 3 times across different dossiers
+7. Improves with every dossier processed
+
+## QQP Self-Learning Cycle
+
+```
+Process dossier
+  → Extract SQM + QQP values
+  → Compare predicted coefficient vs known price
+  → If error > 15%: ask Claude for new QQP suggestions → log to qqp_discovery_log
+  → evaluateDiscoveries(): count proposals per name; auto-activate at threshold (default 3)
+  → shouldAutoCalibrate(): if N dossiers since last calibration ≥ interval (default 10)
+      → calibrateWeights(): Pearson r per QQP, update weights + weight_confidence
+      → create qqp_model_versions snapshot with accuracy metrics
+      → re-compute predicted_finishing_coefficient for all analyzed dossiers
+```
+
+When a new QQP is activated:
+- Retroactive extraction runs across all analyzed dossiers (batched, admin-triggered)
+- Values are inserted into `dossier_qqp_values` without re-processing the PDF
+- Next calibration picks up the new QQP automatically
+
+The finishing coefficient weights are automatically calibrated from:
+- `known_finishing_coefficient` (explicit) OR
+- `known_price_per_sqm / national_base_price_sqm` (derived)
+- Pearson r is stored directly as the weight in `qqp_definitions.weight`
+- `weight_confidence` scales from 0 → 1 as n approaches 30 training dossiers
 
 ## Finishing Levels
 
@@ -116,14 +142,16 @@ The system:
 - QQP value override UI
 - Confidence score display
 
-**QQP Model Improvement**
-- Weight calculation from reference dossier corpus
-- Correlation charts per QQP
-- QQP management UI: activate/deactivate, review AI-discovered candidates
+**QQP Model Improvement** ✅ (shipped in ws2/qqp-learning-loop)
+- Weight calibration via Pearson correlation from reference corpus
+- Auto-discovery activation at threshold
+- Retroactive extraction for newly activated QQPs
+- Model version snapshots with accuracy metrics (MAE, RMSE, R²)
+- Admin QQP page: active QQPs with weight bars, proposed QQP review, model history
 
-**Accuracy Dashboard**
-- `prediction_error` distribution over time
-- Per-QQP accuracy contribution
+**Accuracy Dashboard** *(not yet built)*
+- `prediction_error` distribution over time chart
+- Per-QQP accuracy contribution visualization
 
 **Other**
 - Landing page

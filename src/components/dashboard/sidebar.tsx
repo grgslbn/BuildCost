@@ -9,6 +9,7 @@ import {
   Settings,
   Building2,
   ChevronRight,
+  BrainCircuit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "New Estimation", href: "/estimation/new", icon: PlusCircle },
   { label: "Dossiers", href: "/admin/dossiers", icon: FolderOpen, group: "Admin" },
+  { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
   { label: "Settings", href: "/admin/settings", icon: Settings, group: "Admin" },
 ];
 
