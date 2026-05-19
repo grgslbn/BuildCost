@@ -21,6 +21,7 @@ import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
 import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
+import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
 import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +68,9 @@ export default async function AdminDossiersPage() {
   const dossiers = tenantId ? await getDossiers(tenantId) : [];
   const pendingIds = dossiers
     .filter((d) => d.status === "pending")
+    .map((d) => d.id);
+  const failedIds = dossiers
+    .filter((d) => d.status === "error")
     .map((d) => d.id);
   const allIds = dossiers.map((d) => d.id);
 
@@ -122,6 +126,7 @@ export default async function AdminDossiersPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <RetryFailedButton failedCount={failedIds.length} />
             <BatchProcessButton dossierIds={pendingIds} />
             <DeleteAllButton dossierIds={allIds} />
           </div>
