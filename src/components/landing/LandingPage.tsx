@@ -30,7 +30,6 @@ export default function LandingPage() {
 
   const scrollToDemo = () => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  const finishingClasses = ['fb-basic', 'fb-standard', 'fb-comfort', 'fb-luxury', 'fb-premium'];
 
   return (
     <div className="landing-root">
@@ -159,23 +158,6 @@ export default function LandingPage() {
             <ul className="belgium-list">
               {L.belgium.bullets.map((b, i) => <li key={i}>{b}</li>)}
             </ul>
-            <div className="belgium-card">
-              <h4>{L.belgium.table_title}</h4>
-              <table className="coeff-table">
-                <thead>
-                  <tr>{L.belgium.table_head.map((h, i) => <th key={i}>{h}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {L.belgium.table_rows.map((r, i) => (
-                    <tr key={i}>
-                      <td><span className={`finishing-badge ${finishingClasses[i]}`}>{r[0]}</span></td>
-                      <td className="desc">{r[1]}</td>
-                      <td>{r[2]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
       </section>
