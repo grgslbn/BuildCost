@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       .eq("key", "extraction_model")
       .single();
     const model =
-      (setting?.value as string) ?? "claude-sonnet-4-20250514";
+      (setting?.value as string) ?? "claude-sonnet-4-6";
 
     // Download PDF from Storage
     const { data: blob, error: storageErr } = await admin.storage

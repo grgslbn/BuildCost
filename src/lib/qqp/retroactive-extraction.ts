@@ -121,7 +121,7 @@ export async function retroactiveExtractForQQP(
     .select("value")
     .eq("key", "qqp_model")
     .single();
-  const model = (modelRow?.value as string) ?? "claude-sonnet-4-20250514";
+  const model = (modelRow?.value as string) ?? "claude-sonnet-4-6";
 
   // Find analyzed dossiers that already have this QQP value
   const { data: existing } = await admin
@@ -180,7 +180,7 @@ export async function reExtractAllDossiers(
     .select("value")
     .eq("key", "qqp_model")
     .single();
-  const model = (modelRow?.value as string) ?? "claude-sonnet-4-20250514";
+  const model = (modelRow?.value as string) ?? "claude-sonnet-4-6";
 
   const { data: qqpDefs } = await admin
     .from("qqp_definitions")

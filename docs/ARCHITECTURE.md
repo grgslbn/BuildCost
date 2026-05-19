@@ -14,7 +14,7 @@
 
 ## ADR-002: Claude Sonnet 4 for Vision
 
-**Decision:** Use Claude Sonnet 4 (`claude-sonnet-4-20250514`) as primary model for plan extraction.
+**Decision:** Use Claude Sonnet 4 (`claude-sonnet-4-6`) as primary model for plan extraction.
 
 **Why:** Best balance of vision quality, speed, and cost. Opus is overkill for structured extraction. GPT-4o is an alternative to benchmark.
 

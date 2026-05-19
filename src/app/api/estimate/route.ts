@@ -82,8 +82,8 @@ export async function POST(req: NextRequest) {
         "abex_reference_year", "abex_reference_semester",
       ]);
     const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
-    const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-20250514";
-    const qqpModel = (settings.qqp_model as string) ?? "claude-sonnet-4-20250514";
+    const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-6";
+    const qqpModel = (settings.qqp_model as string) ?? "claude-sonnet-4-6";
     const nationalBasePrice = (settings.national_base_price_sqm as number) ?? 1450;
     const abexYear = (settings.abex_reference_year as number) ?? 2026;
     const abexSemester = (settings.abex_reference_semester as number) ?? 1;

@@ -105,9 +105,9 @@ export async function POST(req: NextRequest) {
       (settingsRows ?? []).map((s) => [s.key, s.value])
     );
     const extractionModel =
-      (settings.extraction_model as string) ?? "claude-sonnet-4-20250514";
+      (settings.extraction_model as string) ?? "claude-sonnet-4-6";
     const qqpModel =
-      (settings.qqp_model as string) ?? "claude-sonnet-4-20250514";
+      (settings.qqp_model as string) ?? "claude-sonnet-4-6";
     const residualTrigger = 0.15;
     const nationalBasePriceSqm = (settings.national_base_price_sqm as number) ?? 1450;
 

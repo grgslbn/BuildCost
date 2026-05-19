@@ -95,7 +95,7 @@ WS1 produces this JSON for every uploaded plan. WS2 consumes it for QQP extracti
     "bathroom_count": 2
   },
   "extraction_metadata": {
-    "model_used": "claude-sonnet-4-20250514",
+    "model_used": "claude-sonnet-4-6",
     "processing_time_ms": 4200,
     "source_format": "pdf | image | cad",
     "source_pages": 3,
