@@ -134,6 +134,13 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
   - `/api/estimate` — full pipeline (SQM extraction → QQP → model weights → cost calc)
   - `/api/estimate-status/[id]` — status polling endpoint
   - `src/components/estimate/results-view.tsx` — hero cost, cost breakdown, finishing meter, expandable room/QQP tables
+- Google Drive import built (`ws2/gdrive-import`):
+  - `/admin/dossiers` — third tab "Import from Google Drive" alongside Batch upload and Detailed upload
+  - `src/lib/gdrive/client.ts` — googleapis OAuth2 client + folder URL parser
+  - `/api/gdrive-scan` — lists all PDFs in a Drive folder (paginated), returns file list with name/size/id
+  - `/api/gdrive-import` — imports one file at a time: Drive → Supabase Storage → reference_dossiers row
+  - `src/components/dossiers/gdrive-import-form.tsx` — folder URL input, file list with checkboxes, progress bar, summary
+  - Requires env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`
 
 ## Supabase Details
 

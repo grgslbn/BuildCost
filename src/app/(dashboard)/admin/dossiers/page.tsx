@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/tabs";
 import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
+import { GDriveImportForm } from "@/components/dossiers/gdrive-import-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
 import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
 import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
@@ -88,19 +89,21 @@ export default async function AdminDossiersPage() {
         <CardHeader>
           <CardTitle>Upload dossiers</CardTitle>
           <CardDescription>
-            Use <strong>Batch upload</strong> to drop many files at once (metadata filled later).
-            Use <strong>Detailed upload</strong> for a single file with full PDF analysis and
-            pre-filled metadata.
+            Use <strong>Batch upload</strong> to drop many files at once, <strong>Google Drive</strong> to import a whole folder, or <strong>Detailed upload</strong> for a single file with full PDF analysis.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="batch">
             <TabsList className="mb-6">
               <TabsTrigger value="batch">Batch upload</TabsTrigger>
+              <TabsTrigger value="gdrive">Import from Google Drive</TabsTrigger>
               <TabsTrigger value="detailed">Detailed upload (single)</TabsTrigger>
             </TabsList>
             <TabsContent value="batch">
               <BatchUploadForm />
+            </TabsContent>
+            <TabsContent value="gdrive">
+              <GDriveImportForm />
             </TabsContent>
             <TabsContent value="detailed">
               <DossierUploadForm />
