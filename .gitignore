@@ -34,3 +34,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# WS1: extraction pipeline artifacts (large rendered PDFs, JSON results)
+/output/
+/pdf-pages/
+/other/

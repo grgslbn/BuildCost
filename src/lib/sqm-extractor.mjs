@@ -44,18 +44,41 @@ export async function extractSqm(images, modelId, opts = {}) {
       : img.png;
     totalBytes += imageData.length;
 
+    const path = typeof img.png === 'string' ? img.png : '';
+    const mediaType = path.toLowerCase().endsWith('.jpg') || path.toLowerCase().endsWith('.jpeg')
+      ? 'image/jpeg'
+      : 'image/png';
+
     content.push({ type: 'text', text: `\n--- Image: ${img.name || img.label} ---` });
     content.push({
       type: 'image',
       source: {
         type: 'base64',
-        media_type: 'image/png',
+        media_type: mediaType,
         data: imageData.toString('base64')
       }
     });
   }
 
   const startTime = Date.now();
+
+  const timeoutMs = opts.timeoutMs || 300_000;
+  const useThinking = opts.thinking !== false; // default ON
+  const thinkingBudget = opts.thinkingBudget || 10000;
+
+  const requestBody = {
+    model: modelId,
+    max_tokens: useThinking ? thinkingBudget + 8192 : 8192,
+    system,
+    messages: [{ role: 'user', content }]
+  };
+
+  if (useThinking) {
+    requestBody.thinking = { type: 'enabled', budget_tokens: thinkingBudget };
+    // thinking requires temperature=1
+  } else {
+    requestBody.temperature = 0;
+  }
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -64,12 +87,8 @@ export async function extractSqm(images, modelId, opts = {}) {
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01'
     },
-    body: JSON.stringify({
-      model: modelId,
-      max_tokens: 8192,
-      system,
-      messages: [{ role: 'user', content }]
-    })
+    body: JSON.stringify(requestBody),
+    signal: AbortSignal.timeout(timeoutMs)
   });
 
   if (!response.ok) {
@@ -85,19 +104,40 @@ export async function extractSqm(images, modelId, opts = {}) {
   const costs = COST_PER_MTOK[modelId] || { input: 3, output: 15 };
   const costUsd = (inputTokens * costs.input + outputTokens * costs.output) / 1_000_000;
 
-  const rawText = result.content[0]?.text || '';
+  // Find the text block — thinking responses have thinking + text blocks
+  const textBlock = result.content?.find(b => b.type === 'text');
+  const thinkingBlock = result.content?.find(b => b.type === 'thinking');
+  const rawText = textBlock?.text || '';
+  const thinkingText = thinkingBlock?.thinking || '';
 
   let extraction = null;
   try {
-    const jsonStr = rawText.replace(/^```json?\s*\n?/m, '').replace(/\n?```\s*$/m, '');
-    extraction = JSON.parse(jsonStr);
-  } catch (e) {
-    // Return raw text if JSON parse fails
+    // Try 1: direct parse (clean JSON response)
+    extraction = JSON.parse(rawText);
+  } catch {
+    try {
+      // Try 2: strip markdown code fences
+      const fenced = rawText.match(/```json?\s*\n([\s\S]*?)\n```/);
+      if (fenced) {
+        extraction = JSON.parse(fenced[1]);
+      } else {
+        // Try 3: find first { and last } — model added prose around JSON
+        const firstBrace = rawText.indexOf('{');
+        const lastBrace = rawText.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace > firstBrace) {
+          extraction = JSON.parse(rawText.slice(firstBrace, lastBrace + 1));
+        }
+      }
+    } catch {
+      // Return raw text if all parsing fails
+    }
   }
 
   return {
     extraction,
     rawText,
+    thinkingText,
+    thinkingEnabled: useThinking,
     modelId,
     inputTokens,
     outputTokens,

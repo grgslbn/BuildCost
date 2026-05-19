@@ -32,7 +32,7 @@ export function compareExtraction(extraction, expertBreakdown) {
       if (aiBldg) {
         const bt = aiBldg.building_totals || {};
         totalAiEnclosed += bt.enclosed_sqm || 0;
-        totalAiTerraces += bt.terraces_sqm || 0;
+        totalAiTerraces += bt.balkons_sqm ?? bt.terraces_sqm ?? 0;
       }
       continue;
     }
@@ -48,7 +48,7 @@ export function compareExtraction(extraction, expertBreakdown) {
       const expertSqm = ef?.total_sqm || 0;
       const aiSqm = af?.floor_total_sqm || 0;
       const expertTerr = ef?.terraces_sqm || 0;
-      const aiTerr = af?.terraces_sqm || 0;
+      const aiTerr = af?.balkons_sqm ?? af?.terraces_sqm ?? 0;
 
       const enclosedDev = expertSqm > 0
         ? Math.round((aiSqm - expertSqm) / expertSqm * 10000) / 100
@@ -75,7 +75,7 @@ export function compareExtraction(extraction, expertBreakdown) {
     const bt = aiBldg.building_totals || {};
     totalAiEnclosed += bt.enclosed_sqm || 0;
     totalExpertTerraces += expertBldg.total_terraces_sqm || 0;
-    totalAiTerraces += bt.terraces_sqm || 0;
+    totalAiTerraces += bt.balkons_sqm ?? bt.terraces_sqm ?? 0;
   }
 
   const totalDevPct = totalExpertEnclosed > 0
