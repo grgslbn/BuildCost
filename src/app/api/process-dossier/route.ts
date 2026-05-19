@@ -310,6 +310,30 @@ export async function POST(req: NextRequest) {
       (sqmApartmentCount != null && sqmApartmentCount > 1) ||
       dossier.building_type === "apartment_building";
 
+    // ── Backfill known_* from sqm_extraction.summary if metadata extraction missed them ─
+    {
+      const backfill: Record<string, unknown> = {};
+      const sqmLivable = sqmSummary.total_livable_sqm as number | null;
+      const sqmReplacement =
+        (sqmSummary.total_replacement_value_incl_vat_eur as number | null) ??
+        (sqmSummary.total_replacement_value_eur as number | null);
+
+      if (!dossier.known_total_sqm && sqmLivable && sqmLivable > 0)
+        backfill.known_total_sqm = sqmLivable;
+      if (!dossier.known_total_price && sqmReplacement && sqmReplacement > 0)
+        backfill.known_total_price = sqmReplacement;
+
+      const effectivePrice = (backfill.known_total_price as number | undefined) ?? dossier.known_total_price;
+      const effectiveSqm = (backfill.known_total_sqm as number | undefined) ?? dossier.known_total_sqm;
+      if (!dossier.known_price_per_sqm && effectivePrice && effectiveSqm && effectiveSqm > 0)
+        backfill.known_price_per_sqm = effectivePrice / effectiveSqm;
+
+      if (Object.keys(backfill).length > 0) {
+        await admin.from("reference_dossiers").update(backfill).eq("id", dossierId);
+        Object.assign(dossier, backfill);
+      }
+    }
+
     if (isApartmentBuilding) {
       const aptCount = sqmApartmentCount ?? dossier.apartment_count ?? null;
       await admin
