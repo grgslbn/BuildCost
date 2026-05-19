@@ -102,7 +102,7 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 - [ ] WS1: First plan extraction working
 - [x] WS2: QQP definitions seeded (32 definitions across 4 categories)
 - [ ] WS2: First reference dossier processed
-- [ ] Integration: end-to-end flow working
+- [x] Integration: end-to-end estimation flow working (`/estimate`)
 - [ ] Landing page live
 - [ ] Demo ready
 
@@ -119,6 +119,15 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
   - `src/lib/qqp/weight-calibration.ts` — Pearson correlation weights, model version snapshots, re-evaluation
   - `/admin/qqp` — QQP management page (active QQPs + weight bars, proposed review, model versions)
   - Wired into process-dossier pipeline (auto-evaluate + auto-calibrate at interval)
+- End-user estimation flow built (`ws2/new-estimation`):
+  - `/estimate` — 3-phase page: Upload (drag-drop + postcode live-lookup) → Processing (animated steps polling) → Results
+  - `src/app/actions/upload-plan.ts` — uploads plan file to Storage (tenant-scoped, no dossier duplicate check)
+  - `src/app/actions/create-estimation.ts` — creates estimation row in DB
+  - `src/app/actions/lookup-postcode.ts` — postcode → region + base price lookup
+  - `src/lib/qqp/model-prediction.ts` — applies trained model weights for finishing coefficient
+  - `/api/estimate` — full pipeline (SQM extraction → QQP → model weights → cost calc)
+  - `/api/estimate-status/[id]` — status polling endpoint
+  - `src/components/estimate/results-view.tsx` — hero cost, cost breakdown, finishing meter, expandable room/QQP tables
 
 ## Supabase Details
 
