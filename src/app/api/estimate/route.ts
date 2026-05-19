@@ -12,6 +12,7 @@ import {
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
+import { logApiCall } from "@/lib/ai/log-api-call";
 import type Anthropic from "@anthropic-ai/sdk";
 
 export const maxDuration = 300;
@@ -110,7 +111,15 @@ export async function POST(req: NextRequest) {
 
     if (isPdf) {
       const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
+      const classifyStart = Date.now();
       const classifications = await classifyPages(pages, extractionModel);
+      logApiCall({
+        call_type: "page_classification",
+        estimation_id: estimationId,
+        model_used: extractionModel,
+        duration_ms: Date.now() - classifyStart,
+        status: "success",
+      });
       const floorPlanNums = new Set(
         classifications.filter((c) => c.type === "floor_plan").map((c) => c.pageNumber)
       );
@@ -135,11 +144,21 @@ export async function POST(req: NextRequest) {
     }
 
     // ── SQM extraction ────────────────────────────────────────────────────────
+    const sqmCallStart = Date.now();
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
       max_tokens: 4096,
       system: SQM_SYSTEM_PROMPT,
       messages: [{ role: "user", content: sqmContent }],
+    });
+    logApiCall({
+      call_type: "sqm_extraction",
+      estimation_id: estimationId,
+      model_used: extractionModel,
+      tokens_input: sqmResponse.usage.input_tokens,
+      tokens_output: sqmResponse.usage.output_tokens,
+      duration_ms: Date.now() - sqmCallStart,
+      status: "success",
     });
 
     const sqmRaw = sqmResponse.content[0].type === "text" ? sqmResponse.content[0].text : "";
@@ -175,11 +194,21 @@ export async function POST(req: NextRequest) {
       .order("sort_order");
 
     const qqpUserPrompt = buildQQPUserPrompt(sqmExtraction, qqpDefs ?? []);
+    const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
       model: qqpModel,
       max_tokens: 4096,
       system: QQP_SYSTEM_PROMPT,
       messages: [{ role: "user", content: qqpUserPrompt }],
+    });
+    logApiCall({
+      call_type: "qqp_extraction",
+      estimation_id: estimationId,
+      model_used: qqpModel,
+      tokens_input: qqpResponse.usage.input_tokens,
+      tokens_output: qqpResponse.usage.output_tokens,
+      duration_ms: Date.now() - qqpCallStart,
+      status: "success",
     });
 
     const qqpRaw = qqpResponse.content[0].type === "text" ? qqpResponse.content[0].text : "";

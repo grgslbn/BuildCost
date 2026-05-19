@@ -14,6 +14,7 @@ import { classifyPages } from "@/lib/pdf/classify-pages";
 import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
 import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibration";
+import { logApiCall } from "@/lib/ai/log-api-call";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -133,7 +134,15 @@ export async function POST(req: NextRequest) {
 
       // ── Step A: Classify pages if not already stored ──────────────────────
       if (!effectiveClassifications) {
+        const classifyStart = Date.now();
         effectiveClassifications = await classifyPages(pages, extractionModel);
+        logApiCall({
+          call_type: "page_classification",
+          dossier_id: dossierId,
+          model_used: extractionModel,
+          duration_ms: Date.now() - classifyStart,
+          status: "success",
+        });
         await admin
           .from("reference_dossiers")
           .update({ page_classifications: effectiveClassifications })
@@ -142,10 +151,24 @@ export async function POST(req: NextRequest) {
 
       // ── Step B: Extract metadata from expert_report / pricing_table pages ──
       let extractedMeta = null;
+      const metaStart = Date.now();
       try {
         extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel);
+        logApiCall({
+          call_type: "metadata_extraction",
+          dossier_id: dossierId,
+          model_used: extractionModel,
+          duration_ms: Date.now() - metaStart,
+          status: "success",
+        });
       } catch {
-        // Non-fatal — metadata extraction failure doesn't block plan processing
+        logApiCall({
+          call_type: "metadata_extraction",
+          dossier_id: dossierId,
+          model_used: extractionModel,
+          duration_ms: Date.now() - metaStart,
+          status: "error",
+        });
       }
 
       if (extractedMeta) {
@@ -221,11 +244,21 @@ export async function POST(req: NextRequest) {
     // ── SQM Extraction ────────────────────────────────────────────────────────
     await setStatus(admin, dossierId, "extracting_sqm", { error_message: null });
 
+    const sqmCallStart = Date.now();
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
       max_tokens: 4096,
       system: SQM_SYSTEM_PROMPT,
       messages: [{ role: "user", content: sqmContent }],
+    });
+    logApiCall({
+      call_type: "sqm_extraction",
+      dossier_id: dossierId,
+      model_used: extractionModel,
+      tokens_input: sqmResponse.usage.input_tokens,
+      tokens_output: sqmResponse.usage.output_tokens,
+      duration_ms: Date.now() - sqmCallStart,
+      status: "success",
     });
 
     const sqmRaw =
@@ -290,11 +323,21 @@ export async function POST(req: NextRequest) {
         : undefined
     );
 
+    const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
       model: qqpModel,
       max_tokens: 4096,
       system: QQP_SYSTEM_PROMPT,
       messages: [{ role: "user", content: qqpUserPrompt }],
+    });
+    logApiCall({
+      call_type: "qqp_extraction",
+      dossier_id: dossierId,
+      model_used: qqpModel,
+      tokens_input: qqpResponse.usage.input_tokens,
+      tokens_output: qqpResponse.usage.output_tokens,
+      duration_ms: Date.now() - qqpCallStart,
+      status: "success",
     });
 
     const qqpRaw =

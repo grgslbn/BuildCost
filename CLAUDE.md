@@ -107,6 +107,12 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 - [ ] Demo ready
 
 **Additional progress (WS2):**
+- Analytics dashboard built (`/analytics`):
+  - 5-section server-rendered page: Overview · Training Progress · QQP Discovery · System Health · Recent Activity
+  - `api_call_log` table migrated; every Claude API call in process-dossier and estimate routes is now logged (call type, model, tokens, duration)
+  - Learning curve chart (recharts) shows MAE/R² over model versions
+  - Auto-refresh every 30s when jobs are in flight; manual Refresh button
+  - Activity feed merges dossiers, estimations, discovery log, model versions, API errors → sorted by time
 - ABEX index seeded (10 entries) and regional postcode coefficients imported
 - Auth (magic link) + tenant auto-provisioning built and deployed
 - Admin dossier upload page built (`/admin/dossiers`): drag-drop plan upload to Storage, full metadata form, reference dossier list with status tracking
