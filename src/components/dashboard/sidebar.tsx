@@ -10,6 +10,7 @@ import {
   Building2,
   ChevronRight,
   BrainCircuit,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "New Estimation", href: "/estimate", icon: PlusCircle },
   { label: "Dossiers", href: "/admin/dossiers", icon: FolderOpen, group: "Admin" },
   { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
