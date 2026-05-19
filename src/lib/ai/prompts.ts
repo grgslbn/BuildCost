@@ -182,11 +182,23 @@ export function buildQQPUserPrompt(
   return prompt;
 }
 
+export const STRICT_JSON_RETRY_MESSAGE =
+  "You MUST return ONLY valid JSON. No markdown, no backticks, no explanation. Start with { and end with }.";
+
+function cleanJsonText(text: string): string {
+  let s = text.trim();
+  // Strip markdown code fences
+  s = s.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```\s*$/g, "");
+  s = s.trim();
+  // Extract from first { to last } to tolerate leading/trailing prose
+  const first = s.indexOf("{");
+  const last = s.lastIndexOf("}");
+  if (first !== -1 && last !== -1 && last > first) {
+    s = s.slice(first, last + 1);
+  }
+  return s;
+}
+
 export function parseClaudeJson(text: string): unknown {
-  const cleaned = text
-    .trim()
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/\s*```$/, "");
-  return JSON.parse(cleaned);
+  return JSON.parse(cleanJsonText(text));
 }

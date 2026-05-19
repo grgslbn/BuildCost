@@ -8,6 +8,7 @@ import {
   QQP_SYSTEM_PROMPT,
   buildQQPUserPrompt,
   parseClaudeJson,
+  STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { classifyPages } from "@/lib/pdf/classify-pages";
@@ -268,10 +269,36 @@ export async function POST(req: NextRequest) {
     try {
       sqmExtraction = parseClaudeJson(sqmRaw) as Record<string, unknown>;
     } catch {
-      await setStatus(admin, dossierId, "error", {
-        error_message: "SQM extraction returned invalid JSON.",
-      });
-      return NextResponse.json({ error: "SQM parse error" }, { status: 500 });
+      // Retry once with a stricter prompt (show Claude its bad output and ask to fix)
+      try {
+        const retryStart = Date.now();
+        const retryRes = await anthropic.messages.create({
+          model: extractionModel,
+          max_tokens: 4096,
+          system: SQM_SYSTEM_PROMPT,
+          messages: [
+            { role: "user", content: sqmContent },
+            { role: "assistant", content: sqmRaw },
+            { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
+          ],
+        });
+        logApiCall({
+          call_type: "sqm_extraction",
+          dossier_id: dossierId,
+          model_used: extractionModel,
+          tokens_input: retryRes.usage.input_tokens,
+          tokens_output: retryRes.usage.output_tokens,
+          duration_ms: Date.now() - retryStart,
+          status: "success",
+        });
+        const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
+        sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
+      } catch {
+        await setStatus(admin, dossierId, "error", {
+          error_message: `SQM extraction returned invalid JSON. Raw response: ${sqmRaw.substring(0, 500)}`,
+        });
+        return NextResponse.json({ error: "SQM parse error" }, { status: 500 });
+      }
     }
 
     // ── Apartment building detection ──────────────────────────────────────────
@@ -365,10 +392,35 @@ export async function POST(req: NextRequest) {
     try {
       qqpExtraction = parseClaudeJson(qqpRaw) as QQPExtractionResult;
     } catch {
-      await setStatus(admin, dossierId, "error", {
-        error_message: "QQP extraction returned invalid JSON.",
-      });
-      return NextResponse.json({ error: "QQP parse error" }, { status: 500 });
+      try {
+        const retryStart = Date.now();
+        const retryRes = await anthropic.messages.create({
+          model: qqpModel,
+          max_tokens: 4096,
+          system: QQP_SYSTEM_PROMPT,
+          messages: [
+            { role: "user", content: qqpUserPrompt },
+            { role: "assistant", content: qqpRaw },
+            { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
+          ],
+        });
+        logApiCall({
+          call_type: "qqp_extraction",
+          dossier_id: dossierId,
+          model_used: qqpModel,
+          tokens_input: retryRes.usage.input_tokens,
+          tokens_output: retryRes.usage.output_tokens,
+          duration_ms: Date.now() - retryStart,
+          status: "success",
+        });
+        const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
+        qqpExtraction = parseClaudeJson(retryRaw) as QQPExtractionResult;
+      } catch {
+        await setStatus(admin, dossierId, "error", {
+          error_message: `QQP extraction returned invalid JSON. Raw response: ${qqpRaw.substring(0, 500)}`,
+        });
+        return NextResponse.json({ error: "QQP parse error" }, { status: 500 });
+      }
     }
 
     const qqpDefMap = Object.fromEntries(
