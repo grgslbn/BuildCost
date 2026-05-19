@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { uploadFile } from "@/app/actions/upload-file";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { saveDossier } from "@/app/actions/save-dossier";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type { ExtractedDossierMetadata } from "@/lib/pdf/extract-metadata";
@@ -174,35 +174,57 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     if (!file) return;
     setError(null);
 
-    // Step 1: upload to Storage
+    // Step 1: get a signed upload URL from the server (tiny request — no file bytes through Vercel)
     setPhase("uploading");
-    const fd = new FormData();
-    fd.append("file", file);
-    const uploadResult = await uploadFile(fd);
+    const urlRes = await fetch("/api/upload-signed-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: file.name, checkDuplicate: true }),
+    });
+    const urlData = (await urlRes.json()) as {
+      status: string; id?: string; path?: string; token?: string;
+      existingId?: string; error?: string;
+    };
 
-    if (uploadResult.status === "reused") {
-      setDuplicateId(uploadResult.existingDossierId);
+    if (urlData.status === "duplicate") {
+      setDuplicateId(urlData.existingId ?? null);
       setError("This file has already been uploaded.");
       setPhase("select");
       return;
     }
-
-    if (uploadResult.status === "error") {
-      setError(uploadResult.message);
+    if (!urlRes.ok || !urlData.path || !urlData.token) {
+      setError(urlData.error ?? "Failed to prepare upload.");
       setPhase("select");
       return;
     }
 
-    setUploadedFile(uploadResult);
+    // Step 2: upload file directly from browser to Supabase Storage (bypasses Vercel size limit)
+    const supabase = createSupabaseBrowserClient();
+    const { error: uploadError } = await supabase.storage
+      .from("plans")
+      .uploadToSignedUrl(urlData.path, urlData.token, file);
+    if (uploadError) {
+      setError(uploadError.message);
+      setPhase("select");
+      return;
+    }
 
-    // Step 2: for PDFs, run analysis
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+    setUploadedFile({
+      dossierId: urlData.id!,
+      storagePath: urlData.path,
+      fileName: file.name,
+      fileType: ext === "pdf" ? "pdf" : "image",
+    });
+
+    // For PDFs, run analysis
     if (file.type === "application/pdf") {
       setPhase("analyzing");
       try {
         const res = await fetch("/api/analyze-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storagePath: uploadResult.storagePath }),
+          body: JSON.stringify({ storagePath: urlData.path }),
         });
         if (res.ok) {
           const data = (await res.json()) as AnalysisResult;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { uploadPlan } from "@/app/actions/upload-plan";
 import { createEstimation } from "@/app/actions/create-estimation";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { lookupPostcode, type PostcodeLookupResult } from "@/app/actions/lookup-postcode";
 import { ResultsView, type EstimationResult } from "@/components/estimate/results-view";
 import { Button } from "@/components/ui/button";
@@ -165,19 +165,37 @@ export default function EstimatePage() {
     setProcessingStatus("uploading");
     setProcessingError(null);
 
-    const fd = new FormData();
-    fd.append("file", file);
-    const uploadResult = await uploadPlan(fd);
-    if (uploadResult.status === "error") {
-      setProcessingError(uploadResult.message);
+    // Step 1: get signed URL — no file bytes through Vercel
+    const urlRes = await fetch("/api/upload-signed-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: file.name }),
+    });
+    const urlData = (await urlRes.json()) as {
+      status: string; id?: string; path?: string; token?: string; error?: string;
+    };
+    if (!urlRes.ok || !urlData.path || !urlData.token || !urlData.id) {
+      setProcessingError(urlData.error ?? "Failed to prepare upload.");
       setPhase("error");
       return;
     }
 
+    // Step 2: upload directly from browser to Supabase Storage
+    const supabase = createSupabaseBrowserClient();
+    const { error: uploadError } = await supabase.storage
+      .from("plans")
+      .uploadToSignedUrl(urlData.path, urlData.token, file);
+    if (uploadError) {
+      setProcessingError(uploadError.message);
+      setPhase("error");
+      return;
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
     const createResult = await createEstimation({
-      storagePath: uploadResult.storagePath,
-      fileName: uploadResult.fileName,
-      fileType: uploadResult.fileType,
+      storagePath: urlData.path,
+      fileName: file.name,
+      fileType: ext === "pdf" ? "pdf" : "image",
       postcode: postcode.trim(),
     });
     if (createResult.status === "error") {

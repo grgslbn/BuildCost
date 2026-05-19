@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { uploadFile } from "@/app/actions/upload-file";
 import { saveDossier } from "@/app/actions/save-dossier";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,40 +117,59 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     setPhase("uploading");
     setProgress({ done: 0, total: validEntries.length });
     const uploadResults: UploadResult[] = [];
+    const supabase = createSupabaseBrowserClient();
 
     for (let i = 0; i < validEntries.length; i++) {
       setProgress({ done: i, total: validEntries.length });
       const entry = validEntries[i];
       try {
-        const fd = new FormData();
-        fd.append("file", entry.file);
-        const uploadResult = await uploadFile(fd);
+        // Step 1: get signed URL — no file bytes through Vercel
+        const urlRes = await fetch("/api/upload-signed-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: entry.file.name, checkDuplicate: true }),
+        });
+        const urlData = (await urlRes.json()) as {
+          status: string; id?: string; path?: string; token?: string;
+          existingId?: string; error?: string;
+        };
 
-        if (uploadResult.status === "reused") {
+        if (urlData.status === "duplicate") {
           uploadResults.push({
             fileName: entry.file.name,
             ok: false,
-            reused: true,
-            existingId: uploadResult.existingDossierId,
-            error: "Already in storage",
+            duplicate: true,
+            existingId: urlData.existingId,
+            error: "Already uploaded",
           });
           continue;
         }
 
-        if (uploadResult.status === "error") {
+        if (!urlRes.ok || !urlData.path || !urlData.token || !urlData.id) {
           uploadResults.push({
             fileName: entry.file.name,
             ok: false,
-            error: uploadResult.message,
+            error: urlData.error ?? "Failed to prepare upload",
           });
           continue;
         }
 
+        // Step 2: upload directly from browser to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from("plans")
+          .uploadToSignedUrl(urlData.path, urlData.token, entry.file);
+
+        if (uploadError) {
+          uploadResults.push({ fileName: entry.file.name, ok: false, error: uploadError.message });
+          continue;
+        }
+
+        const ext = entry.file.name.split(".").pop()?.toLowerCase() ?? "pdf";
         const saveResult = await saveDossier({
-          dossierId: uploadResult.dossierId,
-          storagePath: uploadResult.storagePath,
-          fileName: uploadResult.fileName,
-          fileType: uploadResult.fileType,
+          dossierId: urlData.id,
+          storagePath: urlData.path,
+          fileName: entry.file.name,
+          fileType: ext === "pdf" ? "pdf" : "image",
           pageClassifications: null,
           address: "",
           postcode: defaultPostcode,
