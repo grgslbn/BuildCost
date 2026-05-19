@@ -27,6 +27,7 @@ import {
   DossierMetadataForm,
   type DossierMeta,
 } from "@/components/dossiers/dossier-metadata-form";
+import { DebugLog } from "@/components/dossiers/debug-log";
 
 export const dynamic = "force-dynamic";
 
@@ -233,6 +234,18 @@ export default async function DossierDetailPage({
           </Tabs>
         </>
       )}
+
+      {/* Debug log */}
+      <Separator />
+      <DebugLog
+        status={dossier.status}
+        errorMessage={dossier.error_message ?? null}
+        createdAt={dossier.created_at}
+        updatedAt={dossier.updated_at}
+        processingTimeMs={dossier.processing_time_ms ?? null}
+        sqmExtraction={dossier.sqm_extraction ?? null}
+        qqpExtraction={dossier.qqp_extraction ?? null}
+      />
     </div>
   );
 }

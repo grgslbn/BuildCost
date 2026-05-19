@@ -29,7 +29,7 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   const { data, error } = await admin
     .from("reference_dossiers")
     .select(
-      "id, address, postcode, building_type, known_price_per_sqm, expert_finishing_level, status, created_at"
+      "id, address, postcode, building_type, known_price_per_sqm, expert_finishing_level, status, error_message, created_at"
     )
     .eq("tenant_id", tenantId)
     .order("created_at", { ascending: false });

@@ -38,14 +38,17 @@ async function setStatus(
 }
 
 export async function POST(req: NextRequest) {
+  // Hoisted so the catch block can write the error to the DB
+  let dossierId: string | undefined;
+  const admin = createSupabaseAdminClient();
+  const startTime = Date.now();
+
   try {
     const body = await req.json();
-    const { dossierId } = body as { dossierId?: string };
+    dossierId = (body as { dossierId?: string }).dossierId;
     if (!dossierId) {
       return NextResponse.json({ error: "Missing dossierId" }, { status: 400 });
     }
-
-    const admin = createSupabaseAdminClient();
 
     if (!SKIP_AUTH) {
       const supabase = createSupabaseServerClient();
@@ -123,7 +126,6 @@ export async function POST(req: NextRequest) {
     const classifications = dossier.page_classifications as PageClassification[] | null;
 
     if (dossier.plan_file_type === "pdf") {
-      // Split PDF and use only floor_plan pages (or all if no classifications)
       const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
 
       const floorPlanNums = classifications
@@ -156,7 +158,6 @@ export async function POST(req: NextRequest) {
         { type: "text", text: SQM_USER_PROMPT },
       ];
     } else {
-      // Image file
       const base64 = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(dossier.plan_file_name ?? "plan.jpg");
       sqmContent = [
@@ -252,19 +253,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "QQP parse error" }, { status: 500 });
     }
 
-    // Build name→def map (with id)
     const qqpDefMap = Object.fromEntries(
       (qqpDefs ?? []).map((d) => [d.name, d])
     );
 
-    // Upsert dossier_qqp_values
     const qqpValueRows = Object.entries(qqpExtraction.qqp_values ?? {})
       .map(([name, data]) => {
         const def = qqpDefMap[name];
         if (!def) return null;
         const val = data.value;
         return {
-          dossier_id: dossierId,
+          dossier_id: dossierId as string,
           qqp_id: def.id,
           value_numeric: typeof val === "number" ? val : null,
           value_boolean: typeof val === "boolean" ? val : null,
@@ -273,9 +272,7 @@ export async function POST(req: NextRequest) {
           extraction_notes: data.notes ?? null,
         };
       })
-      .filter(
-        (r): r is NonNullable<typeof r> => r !== null
-      );
+      .filter((r): r is NonNullable<typeof r> => r !== null);
 
     if (qqpValueRows.length > 0) {
       await admin
@@ -295,7 +292,9 @@ export async function POST(req: NextRequest) {
         qqp_extraction: qqpExtraction,
         predicted_finishing_coefficient: predictedCoeff,
         prediction_error: predictionError,
+        processing_time_ms: Date.now() - startTime,
         status: "analyzed",
+        error_message: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", dossierId);
@@ -308,7 +307,7 @@ export async function POST(req: NextRequest) {
       Math.abs(predictionError) > residualTrigger
     ) {
       const discoveryRows = suggestions.map((s) => ({
-        dossier_id: dossierId,
+        dossier_id: dossierId as string,
         proposed_name: s.name,
         proposed_description: s.description,
         reasoning: s.reasoning,
@@ -320,6 +319,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, status: "analyzed" });
   } catch (err) {
     console.error("[process-dossier]", err);
+    const msg = err instanceof Error ? err.message : "Unexpected internal error";
+    if (dossierId) {
+      await admin
+        .from("reference_dossiers")
+        .update({
+          status: "error",
+          error_message: msg,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", dossierId);
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
