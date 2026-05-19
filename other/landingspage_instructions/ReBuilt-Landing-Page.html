@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Upload a floor plan, get a precise rebuild cost. AI-powered reconstruction estimation for Belgian insurance companies.">
+<title>ReBuilt — Reconstruction cost, from a plan.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== TOKENS — Forest brand ===== */
+:root {
+  --bg: #FBFAF5;
+  --bg-deep: #F0EEE5;
+  --bg-card: #FFFFFF;
+  --ink: #161A14;
+  --ink-soft: #4A5045;
+  --ink-muted: #8C9088;
+  --accent: #2F5D3A;
+  --accent-light: #E1ECDD;
+  --accent-deep: #1F4128;
+  --accent-ink: #FBFAF5;
+  --border: #E5E3D9;
+  --shadow-sm: 0 1px 3px rgba(22,26,20,.06);
+  --shadow: 0 1px 3px rgba(22,26,20,.06), 0 8px 24px rgba(22,26,20,.04);
+  --shadow-lg: 0 1px 3px rgba(22,26,20,.08), 0 16px 48px rgba(22,26,20,.08);
+  --green: #2F5D3A;
+  --green-bg: #E1ECDD;
+  --blue: #2C4F6E;
+  --blue-bg: #DDE7F0;
+  --yellow: #8B6A14;
+  --yellow-bg: #F4EBD2;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --font-display: 'Newsreader', 'Tiempos Headline', Georgia, serif;
+  --font-body: 'Geist', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --max-w: 1180px;
+  --gutter: 24px;
+  --hairline: 1px solid var(--border);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.55;
+  overflow-x: hidden;
+  font-feature-settings: 'ss01', 'cv11';
+}
+::selection { background: var(--accent-light); color: var(--accent-deep); }
+a { color: inherit; text-decoration: none; }
+img, svg { max-width: 100%; display: block; }
+button { cursor: pointer; font-family: inherit; }
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ===== NAV ===== */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: color-mix(in oklab, var(--bg) 75%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: var(--hairline);
+  transition: box-shadow .25s;
+}
+.nav.scrolled { box-shadow: 0 1px 8px rgba(22,26,20,.06); }
+.nav-inner {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter);
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; gap: 24px;
+}
+.nav-brand {
+  font-family: var(--font-display); font-size: 1.35rem;
+  letter-spacing: -.025em;
+  display: inline-flex; align-items: baseline; gap: 0;
+}
+.nav-brand .dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-left: 4px; transform: translateY(-7px);
+}
+.nav-brand em { color: var(--accent); font-style: normal; }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+  font-size: .88rem; font-weight: 500; color: var(--ink-soft);
+  transition: color .15s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.lang-switch {
+  display: inline-flex; padding: 3px;
+  background: var(--bg-deep); border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.lang-switch button {
+  appearance: none; background: transparent; border: 0;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+  color: var(--ink-muted); text-transform: uppercase;
+  transition: background .15s, color .15s;
+}
+.lang-switch button[aria-pressed="true"] {
+  background: var(--bg-card); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+.nav-cta {
+  background: var(--ink); color: var(--bg) !important;
+  padding: 9px 18px; border-radius: var(--radius-sm);
+  font-size: .85rem; font-weight: 600;
+  transition: background .2s, transform .15s;
+  border: 0; cursor: pointer;
+}
+.nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+@media (max-width: 820px) { .nav-links { display: none; } }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 24px; border-radius: var(--radius);
+  font-size: .95rem; font-weight: 600; border: none; cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s, border-color .15s;
+  font-family: inherit;
+}
+.btn-primary {
+  background: var(--accent); color: var(--accent-ink);
+  box-shadow: 0 2px 8px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+.btn-primary:hover {
+  background: var(--accent-deep); transform: translateY(-1px);
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.btn-secondary { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--ink-soft); transform: translateY(-1px); }
+.btn-ink { background: var(--ink); color: var(--bg); }
+.btn-ink:hover { background: var(--accent); transform: translateY(-1px); }
+.btn-lg { padding: 18px 32px; font-size: 1rem; border-radius: 14px; }
+
+/* ===== HERO ===== */
+.hero { padding: 80px 0 40px; position: relative; overflow: hidden; }
+.hero::before {
+  content: ''; position: absolute; pointer-events: none;
+  top: -260px; right: -240px; width: 720px; height: 720px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 12%, transparent) 0%, transparent 65%);
+  z-index: 0;
+}
+.hero-inner { position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .72rem; font-weight: 600; color: var(--accent);
+  background: var(--accent-light); padding: 6px 14px;
+  border-radius: 999px; margin-bottom: 28px;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.hero-badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(1.6); } }
+.hero h1 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+  line-height: 1.04; letter-spacing: -.03em;
+  margin-bottom: 24px; text-wrap: balance;
+}
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero h1 .ln { display: block; }
+.hero-sub {
+  font-size: 1.1rem; color: var(--ink-soft);
+  max-width: 560px; margin-bottom: 36px; line-height: 1.6; text-wrap: pretty;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.hero-try-hint {
+  font-size: .8rem; color: var(--ink-muted);
+  display: inline-flex; gap: 6px; align-items: center; margin-left: 4px;
+}
+.hero-proof {
+  margin-top: 64px; padding-top: 28px; border-top: var(--hairline);
+  display: flex; gap: 32px; flex-wrap: wrap;
+  font-size: .8rem; color: var(--ink-muted); font-family: var(--font-mono);
+}
+.hero-proof span { display: inline-flex; align-items: center; gap: 8px; }
+.hero-proof span::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* Cards hero layout */
+.hero-grid {
+  display: grid; grid-template-columns: 1.1fr .9fr;
+  gap: 48px; align-items: center;
+}
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+/* ===== ANIMATED HERO CARDS ===== */
+.anim-cards-wrap {
+  position: relative; display: flex; flex-direction: column; gap: 22px; padding-left: 32px;
+}
+.anim-upload-bar {
+  display: grid; grid-template-columns: 32px 1fr; grid-template-rows: auto auto;
+  column-gap: 12px; row-gap: 6px; align-items: center;
+  background: var(--bg-card); border: var(--hairline);
+  border-radius: var(--radius); padding: 12px 14px;
+  box-shadow: var(--shadow-sm); width: calc(100% - 16px);
+  max-width: 380px; margin-left: auto; position: relative; z-index: 5;
+}
+.anim-upload-icon {
+  grid-row: 1 / span 2; width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-light); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.anim-upload-meta { grid-column: 2; grid-row: 1; min-width: 0; }
+.anim-upload-file {
+  font-family: var(--font-mono); font-size: .76rem; font-weight: 500; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.anim-upload-status { font-size: .68rem; color: var(--ink-muted); margin-top: 1px; }
+.anim-upload-track {
+  grid-column: 2; grid-row: 2; height: 3px;
+  background: var(--border); border-radius: 999px; overflow: hidden;
+}
+.anim-upload-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .25s linear; }
+.anim-cards-stack { position: relative; height: 420px; }
+.anim-est-card {
+  position: absolute; background: var(--bg-card); border: var(--hairline);
+  border-radius: var(--radius-lg); padding: 24px; width: 340px;
+  box-shadow: var(--shadow);
+  transition: transform .65s cubic-bezier(.22,1,.36,1), opacity .55s, box-shadow .35s;
+}
+.anim-est-card[data-card-index="0"] { top: 0; right: 0; z-index: 3; transform: rotate(-1.6deg); }
+.anim-est-card[data-card-index="1"] { top: 28px; right: 32px; z-index: 2; transform: rotate(2.2deg); opacity: .58; }
+.anim-est-card[data-card-index="2"] { top: 58px; right: 10px; z-index: 1; transform: rotate(-2.8deg); opacity: .32; }
+.anim-est-card.is-active { z-index: 10 !important; transform: rotate(0deg) translateY(-6px) !important; opacity: 1 !important; box-shadow: var(--shadow-lg); }
+.anim-est-card.is-complete { opacity: 1 !important; }
+.anim-est-card.is-complete[data-card-index="0"] { transform: rotate(-1.6deg) translate(-6px, -4px) !important; }
+.anim-est-card.is-complete[data-card-index="1"] { transform: rotate(2.2deg) translate(-4px, -2px) !important; }
+.anim-est-card .card-header, .anim-est-card .card-title,
+.anim-est-card .card-row, .anim-est-card .card-total, .anim-est-card .card-footer {
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .35s cubic-bezier(.22,1,.36,1), transform .35s cubic-bezier(.22,1,.36,1);
+}
+.anim-est-card .card-header.revealed, .anim-est-card .card-title.revealed,
+.anim-est-card .card-row.revealed, .anim-est-card .card-total.revealed,
+.anim-est-card .card-footer.revealed { opacity: 1; transform: translateY(0); }
+.anim-est-card .card-row:not(.revealed)::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 8px;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--ink) 4%, transparent) 0 60%, transparent 100%);
+  border-radius: 4px; opacity: .5;
+}
+.anim-est-card .card-row { position: relative; min-height: 18px; }
+@media (max-width: 900px) {
+  .anim-cards-wrap { padding-left: 0; }
+  .anim-upload-bar { max-width: 100%; }
+  .anim-cards-stack { height: 380px; }
+  .anim-est-card { width: 92%; }
+}
+
+/* Card internals */
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+.card-brand { font-family: var(--font-display); font-size: .92rem; color: var(--accent); }
+.card-meta { font-size: .7rem; color: var(--ink-muted); font-family: var(--font-mono); text-align: right; line-height: 1.6; }
+.card-title { font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 14px; line-height: 1.3; }
+.card-rows { display: flex; flex-direction: column; gap: 6px; }
+.card-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .82rem; padding: 4px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+}
+.card-row:last-child { border: none; }
+.card-row .label { color: var(--ink-soft); }
+.card-row .value { font-weight: 600; font-family: var(--font-mono); font-size: .78rem; }
+.card-total {
+  margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--ink);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.card-total .label { font-size: .82rem; font-weight: 600; }
+.card-total .value { font-family: var(--font-display); font-size: 1.55rem; color: var(--accent); }
+.card-footer {
+  margin-top: 14px; display: flex; justify-content: space-between;
+  font-size: .65rem; color: var(--ink-muted); font-family: var(--font-mono);
+}
+
+.finishing-badge {
+  display: inline-flex; padding: 3px 10px; border-radius: 999px;
+  font-size: .68rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+}
+.fb-comfort { background: var(--green-bg); color: var(--green); }
+.fb-luxury { background: var(--yellow-bg); color: var(--yellow); }
+.fb-standard { background: var(--blue-bg); color: var(--blue); }
+.fb-basic { background: var(--bg-deep); color: var(--ink-soft); }
+.fb-premium { background: color-mix(in oklab, var(--accent-light) 70%, white); color: var(--accent-deep); }
+
+/* ===== TRUST BAR ===== */
+.trust-bar { padding: 56px 0; border-top: var(--hairline); border-bottom: var(--hairline); background: var(--bg-deep); }
+.trust-title {
+  text-align: center; font-size: .74rem; font-weight: 600;
+  color: var(--ink-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 24px;
+}
+.trust-logos { display: flex; justify-content: center; align-items: center; gap: 48px; flex-wrap: wrap; opacity: .7; }
+.trust-logo { font-family: var(--font-display); font-style: italic; font-size: 1.4rem; color: var(--ink-soft); letter-spacing: -.02em; }
+.trust-logo:nth-child(2) { font-family: var(--font-mono); font-style: normal; font-weight: 500; font-size: 1.05rem; }
+.trust-logo:nth-child(3) { font-family: var(--font-body); font-weight: 700; font-size: 1.15rem; letter-spacing: -.04em; }
+.trust-logo:nth-child(4) { font-family: var(--font-body); font-weight: 500; font-size: 1.05rem; }
+.trust-logo:nth-child(5) { font-family: var(--font-display); font-size: 1.25rem; }
+.trust-logo:nth-child(6) { font-family: var(--font-body); font-weight: 800; font-size: 1.1rem; letter-spacing: -.03em; text-transform: uppercase; }
+
+/* ===== SECTION BASE ===== */
+section { padding: 100px 0; position: relative; }
+.section-label {
+  font-size: .72rem; font-weight: 600; color: var(--accent);
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 14px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.section-label::before { content: ''; width: 18px; height: 1.5px; background: var(--accent); }
+.section-title {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+  line-height: 1.1; letter-spacing: -.025em;
+  margin-bottom: 18px; max-width: 700px; text-wrap: balance;
+}
+.section-title em { color: var(--accent); font-style: italic; }
+.section-sub {
+  font-size: 1.05rem; color: var(--ink-soft);
+  max-width: 560px; line-height: 1.6; margin-bottom: 56px; text-wrap: pretty;
+}
+.section-bg-deep { background: var(--bg-deep); border-top: var(--hairline); border-bottom: var(--hairline); }
+
+/* ===== DEMO SECTION ===== */
+.demo-section { padding: 80px 0; }
+.demo-zone {
+  background: var(--bg-card); border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg); padding: 56px 32px; text-align: center;
+  transition: border-color .25s, background .25s, padding .3s;
+  position: relative; overflow: hidden;
+}
+.demo-zone.drag-over, .demo-zone:hover { border-color: var(--accent); background: color-mix(in oklab, var(--accent-light) 50%, var(--bg-card)); }
+.demo-zone.processing, .demo-zone.results { border-style: solid; border-color: var(--border); background: var(--bg-card); padding: 32px; text-align: left; }
+.demo-zone.processing { border-color: var(--accent); }
+.upload-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+  background: var(--accent-light); margin: 0 auto 22px;
+  display: flex; align-items: center; justify-content: center; color: var(--accent);
+}
+.upload-icon svg { width: 28px; height: 28px; }
+.upload-title { font-family: var(--font-display); font-size: 1.45rem; letter-spacing: -.015em; margin-bottom: 8px; }
+.upload-sub { font-size: .92rem; color: var(--ink-soft); margin-bottom: 24px; }
+.upload-formats { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); font-family: var(--font-mono); }
+.upload-sample-link {
+  display: inline-block; margin-top: 14px; font-size: .82rem; color: var(--accent);
+  font-weight: 500; cursor: pointer;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); padding-bottom: 1px;
+}
+.upload-sample-link:hover { border-bottom-color: var(--accent); }
+
+/* Processing */
+.processing-layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; }
+.plan-preview {
+  background: var(--bg-deep); border-radius: var(--radius);
+  aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative; border: var(--hairline);
+}
+.plan-preview img { width: 100%; height: 100%; object-fit: cover; }
+.plan-preview .placeholder-doc {
+  width: 60%; aspect-ratio: 3/4; background: var(--bg-card);
+  border: var(--hairline); border-radius: 6px;
+  padding: 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.plan-preview .placeholder-doc i { background: color-mix(in oklab, var(--ink) 8%, transparent); border-radius: 2px; height: 4px; }
+.plan-preview .placeholder-doc i:nth-child(1) { width: 70%; }
+.plan-preview .placeholder-doc i:nth-child(2) { width: 90%; }
+.plan-preview .placeholder-doc i:nth-child(3) { width: 60%; }
+.plan-preview .placeholder-doc i:nth-child(4) { margin-top: auto; height: 50%; width: 100%; background: color-mix(in oklab, var(--ink) 4%, transparent); }
+.plan-preview .scan-line {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 80%, transparent), transparent);
+  animation: scan 1.6s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--accent);
+}
+@keyframes scan { 0% { top: 8%; } 50% { top: 92%; } 100% { top: 8%; } }
+.plan-preview .file-label {
+  position: absolute; bottom: 8px; left: 8px;
+  font-family: var(--font-mono); font-size: .68rem;
+  background: rgba(0,0,0,.7); color: white; padding: 3px 8px; border-radius: 4px;
+  max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.processing-steps { list-style: none; padding-top: 8px; }
+.processing-steps li {
+  font-size: .92rem; color: var(--ink-muted); padding: 6px 0;
+  display: flex; align-items: center; gap: 12px; transition: color .3s; font-family: var(--font-mono);
+}
+.processing-steps li.done { color: var(--green); }
+.processing-steps li.active { color: var(--ink); font-weight: 600; }
+.processing-steps li::before { content: '○'; width: 18px; text-align: center; font-size: .9rem; }
+.processing-steps li.done::before { content: '✓'; color: var(--green); font-weight: 700; }
+.processing-steps li.active::before { content: '◉'; color: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+
+/* Result */
+.result-layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; }
+.result-block { display: flex; flex-direction: column; gap: 18px; }
+.result-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: var(--hairline); }
+.result-header .label { font-size: .72rem; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .06em; }
+.result-header .status { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--green); font-weight: 500; }
+.result-header .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.result-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+}
+.result-row:last-of-type { border: none; }
+.result-row .k { font-size: .9rem; color: var(--ink-soft); flex: 0 0 auto; }
+.result-row .v { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; color: var(--ink); }
+.result-row .v.big { font-family: var(--font-display); font-weight: 400; font-size: 1.6rem; color: var(--accent); }
+.result-row .range { font-family: var(--font-mono); font-size: .78rem; color: var(--ink-muted); }
+
+/* Email gate */
+.email-gate { margin-top: 28px; padding: 24px; background: var(--bg-deep); border-radius: var(--radius); border: var(--hairline); }
+.email-gate.locked { background: linear-gradient(135deg, var(--accent-light), var(--bg-deep) 80%); border-color: color-mix(in oklab, var(--accent) 25%, var(--border)); }
+.email-gate h4 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -.01em; }
+.email-gate p { font-size: .9rem; color: var(--ink-soft); margin-bottom: 16px; max-width: 520px; }
+.email-gate .gate-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.email-gate input {
+  flex: 1; min-width: 220px; padding: 13px 18px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: .95rem; font-family: var(--font-body);
+  background: var(--bg-card); outline: none; transition: border-color .15s;
+}
+.email-gate input:focus { border-color: var(--accent); }
+.email-gate .success { color: var(--green); font-weight: 600; font-size: .95rem; display: flex; align-items: center; gap: 8px; }
+
+/* Detailed report */
+.detailed-report {
+  margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  animation: fadeUp .6s cubic-bezier(.22,1,.36,1);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.report-card { background: var(--bg-card); border: var(--hairline); border-radius: var(--radius); padding: 24px; }
+.report-card h5 { font-size: .72rem; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+.room-list { list-style: none; }
+.room-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: .85rem; border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent); }
+.room-item:last-child { border: none; }
+.room-item .name { color: var(--ink-soft); }
+.room-item .area { font-family: var(--font-mono); font-weight: 600; font-size: .8rem; }
+.room-total { margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; font-weight: 700; font-size: .95rem; }
+.room-total .value { font-family: var(--font-mono); }
+.gauge { padding: 16px; background: var(--bg-deep); border-radius: var(--radius-sm); margin-bottom: 16px; }
+.gauge-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: .85rem; }
+.gauge-label .level { font-weight: 700; color: var(--accent); }
+.gauge-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.gauge-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--blue), var(--green), var(--yellow), var(--accent)); width: 0; transition: width 1.2s cubic-bezier(.22,1,.36,1); }
+.gauge-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: .62rem; color: var(--ink-muted); font-family: var(--font-mono); }
+.cost-line { display: flex; justify-content: space-between; padding: 8px 0; font-size: .88rem; border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent); }
+.cost-line:last-of-type { border: none; }
+.cost-line .label { color: var(--ink-soft); }
+.cost-line .value { font-family: var(--font-mono); font-weight: 500; }
+@media (max-width: 700px) {
+  .processing-layout, .result-layout { grid-template-columns: 1fr; }
+  .detailed-report { grid-template-columns: 1fr; }
+  .plan-preview { aspect-ratio: 4/3; }
+}
+
+/* ===== FEATURES ===== */
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.feature-card {
+  background: var(--bg-card); border: var(--hairline); border-radius: var(--radius-lg); padding: 28px;
+  transition: transform .25s, box-shadow .25s; display: flex; flex-direction: column; gap: 14px;
+}
+.feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.feature-icon {
+  width: 44px; height: 44px; border-radius: 11px;
+  background: var(--accent-light); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-weight: 600; font-size: .92rem;
+}
+.feature-card h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; line-height: 1.2; letter-spacing: -.01em; }
+.feature-card p { font-size: .9rem; color: var(--ink-soft); line-height: 1.55; flex: 1; }
+.feature-card .stat { margin-top: 4px; font-family: var(--font-mono); font-size: .72rem; color: var(--ink-muted); padding-top: 14px; border-top: var(--hairline); }
+@media (max-width: 900px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
+
+/* ===== HOW IT WORKS ===== */
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: steps; }
+.step-card {
+  position: relative; padding: 32px; background: var(--bg-card); border: var(--hairline);
+  border-radius: var(--radius-lg); counter-increment: steps;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.step-card::before {
+  content: '0' counter(steps); font-family: var(--font-display); font-size: 2.6rem;
+  color: color-mix(in oklab, var(--accent) 30%, transparent);
+  position: absolute; top: 22px; right: 26px; line-height: 1; font-weight: 400; letter-spacing: -.03em;
+}
+.step-label { font-size: .72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.step-card h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; letter-spacing: -.01em; max-width: 250px; line-height: 1.2; }
+.step-card p { font-size: .9rem; color: var(--ink-soft); line-height: 1.6; flex: 1; }
+.step-detail {
+  margin-top: 4px; padding: 14px; background: var(--bg-deep); border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: .76rem; color: var(--ink-soft); line-height: 1.7; white-space: pre-line;
+}
+@media (max-width: 900px) { .steps-grid { grid-template-columns: 1fr; } }
+
+/* ===== BELGIUM ===== */
+.belgium-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.belgium-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.belgium-list li { display: flex; align-items: flex-start; gap: 14px; font-size: .95rem; color: var(--ink-soft); line-height: 1.55; }
+.belgium-list li::before { content: ''; flex: 0 0 18px; margin-top: 8px; height: 1.5px; background: var(--accent); }
+.belgium-card { background: var(--bg-card); border: var(--hairline); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); }
+.belgium-card h4 { font-family: var(--font-display); font-weight: 400; font-size: 1.1rem; margin-bottom: 18px; letter-spacing: -.01em; }
+.coeff-table { width: 100%; border-collapse: collapse; }
+.coeff-table th {
+  text-align: left; font-size: .68rem; font-weight: 600;
+  color: var(--ink-muted); text-transform: uppercase; letter-spacing: .08em;
+  padding: 0 0 12px; border-bottom: 2px solid var(--ink);
+}
+.coeff-table th:last-child { text-align: right; }
+.coeff-table td { padding: 12px 0; font-size: .85rem; border-bottom: var(--hairline); }
+.coeff-table tr:last-child td { border-bottom: 0; }
+.coeff-table td:last-child { font-family: var(--font-mono); font-weight: 500; text-align: right; color: var(--ink-soft); }
+.coeff-table td.desc { color: var(--ink-soft); font-size: .82rem; }
+@media (max-width: 800px) { .belgium-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+/* ===== FAQ ===== */
+.faq-list { max-width: 760px; display: flex; flex-direction: column; gap: 0; }
+.faq-item { border-bottom: var(--hairline); }
+.faq-item:first-child { border-top: var(--hairline); }
+.faq-q {
+  width: 100%; background: none; border: none; padding: 24px 0;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  text-align: left; font-size: 1.05rem; font-weight: 500; color: var(--ink);
+  font-family: var(--font-body); cursor: pointer; transition: color .2s;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q .toggle {
+  flex: 0 0 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-muted); transition: transform .3s, border-color .2s; font-size: 1rem; font-weight: 300;
+}
+.faq-item.open .faq-q .toggle { transform: rotate(45deg); border-color: var(--accent); color: var(--accent); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.22,1,.36,1), padding .25s; }
+.faq-item.open .faq-a { max-height: 320px; padding-bottom: 24px; }
+.faq-a p { font-size: .95rem; color: var(--ink-soft); line-height: 1.65; max-width: 640px; }
+
+/* ===== CTA ===== */
+.cta-section {
+  background: var(--ink); color: var(--bg); text-align: center;
+  padding: 110px var(--gutter); position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 480px;
+  background: radial-gradient(ellipse, color-mix(in oklab, var(--accent) 25%, transparent) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-section .section-label { color: var(--accent); position: relative; z-index: 1; }
+.cta-section .section-title { color: var(--bg); margin: 0 auto 16px; text-align: center; position: relative; z-index: 1; }
+.cta-section .section-sub { color: rgba(255,255,255,.65); margin: 0 auto 40px; text-align: center; position: relative; z-index: 1; }
+.cta-form {
+  max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
+  position: relative; z-index: 1;
+}
+.cta-form input, .cta-form select {
+  width: 100%; padding: 14px 18px; background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15); border-radius: var(--radius-sm);
+  color: var(--bg); font-size: .92rem; font-family: var(--font-body);
+  transition: border-color .15s; outline: none;
+}
+.cta-form input::placeholder { color: rgba(255,255,255,.4); }
+.cta-form select { appearance: none; cursor: pointer; }
+.cta-form select option { color: var(--ink); background: var(--bg-card); }
+.cta-form input:focus, .cta-form select:focus { border-color: var(--accent); }
+.cta-form .btn { margin-top: 8px; }
+.cta-perks {
+  margin-top: 36px; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap;
+  font-size: .82rem; color: rgba(255,255,255,.55); position: relative; z-index: 1;
+}
+.cta-perks span { display: flex; align-items: center; gap: 6px; }
+.cta-perks span::before { content: '↳'; color: var(--accent); font-family: var(--font-mono); }
+.cta-thanks {
+  font-size: 1.05rem; color: var(--bg); display: flex; align-items: center; gap: 10px;
+  justify-content: center; max-width: 480px; margin: 0 auto; position: relative; z-index: 1;
+}
+
+/* ===== FOOTER ===== */
+footer { padding: 56px 0 32px; border-top: var(--hairline); }
+.footer-inner {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 32px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: var(--hairline);
+}
+.footer-left { max-width: 320px; }
+.footer-brand { font-family: var(--font-display); font-size: 1.35rem; letter-spacing: -.025em; margin-bottom: 8px; }
+.footer-brand .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: 4px; transform: translateY(-7px); }
+.footer-tagline { font-size: .85rem; color: var(--ink-muted); line-height: 1.5; }
+.footer-links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
+.footer-links a { font-size: .85rem; color: var(--ink-soft); transition: color .15s; }
+.footer-links a:hover { color: var(--ink); }
+.footer-copy {
+  display: flex; justify-content: space-between; margin-top: 24px;
+  font-size: .76rem; color: var(--ink-muted); font-family: var(--font-mono);
+  flex-wrap: wrap; gap: 12px;
+}
+
+/* ===== REVEALS ===== */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: .08s; }
+.reveal-d2 { transition-delay: .16s; }
+.reveal-d3 { transition-delay: .24s; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.0/babel.min.js" crossorigin></script>
+<script type="text/babel">
+// ── i18n ────────────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    nav: { product: 'Product', tryit: 'Try it free', faq: 'FAQ', cta: 'Request beta →' },
+    hero: {
+      badge: 'Private beta · Belgium · 2026',
+      h1_a: 'Reconstruction cost.', h1_b: 'From a plan.', h1_c: 'In 30 seconds.',
+      sub: 'Upload a floor plan. ReBuilt extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost — before your expert opens the dossier.',
+      try_btn: 'Try with your plan', try_hint: 'No signup · ~30s · free', demo_btn: 'See it on a sample',
+      proof: 'Built with Belgian insurance experts · ABEX-indexed · GDPR · EU-hosted',
+    },
+    trust: { title: 'Trusted by claims teams at', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
+    demo: {
+      label: 'Live demo', title: 'Drop a plan. See the cost.',
+      sub: 'Real upload. Real extraction. Get a high-level rebuild cost in 30 seconds — leave your email if you want the room-by-room breakdown.',
+      drop_title: 'Drop your floor plan here', drop_sub: 'or click to browse — PDF, PNG, JPG up to 20 MB',
+      drop_btn: 'Upload a plan', drop_sample: 'or use a sample plan →',
+      drop_note: 'Your file stays on this device. We only store it if you save the result.',
+      step_scale: 'Reading scale & orientation', step_rooms: 'Extracting rooms & dimensions',
+      step_qqp: 'Analysing finishing parameters', step_cost: 'Calculating reconstruction cost',
+      result_label: 'High-level estimate', result_area: 'Estimated livable area',
+      result_finishing: 'Detected finishing level', result_cost: 'Estimated rebuild cost',
+      result_range: 'Confidence range',
+      gate_title: 'Want the full room-by-room report?',
+      gate_sub: "Leave your work email and we'll send the detailed PDF — 12 rooms, ABEX-indexed coefficient, audit trail.",
+      gate_placeholder: 'work@company.be', gate_btn: 'Send full report →',
+      gate_after: '✓ Report on its way. Check your inbox in 2 minutes.',
+    },
+    features: {
+      label: 'What it does', title: 'Three engines. One cost.',
+      sub: 'Surface extraction, finishing detection, regional pricing — fused into one auditable estimate.',
+      cards: [
+        { tag: 'm²', h: 'Precise surface extraction', p: 'Detects scale, segments rooms, reads dimensions across all floors. L-shaped corridors included.', stat: 'Scale detection · room segmentation · multi-floor' },
+        { tag: 'AI', h: 'Finishing level, discovered', p: 'Bathroom count, kitchen size, entrance hall proportions — every signal weighted from 1 000+ dossiers.', stat: 'Self-learning QQPs · 5 finishing levels' },
+        { tag: '€', h: 'ABEX-indexed rebuild cost', p: 'Surface × regional base × ABEX × finishing coefficient. Belgian postcodes, current index, no guesswork.', stat: 'Updated every semester · postcode-aware' },
+        { tag: '↻', h: 'Trained on your dossiers', p: 'Upload reference dossiers with known prices. The model learns your portfolio and gets sharper every week.', stat: 'Per-tenant weights · refines monthly' },
+        { tag: '⌂', h: 'Building type, auto-classified', p: 'Villa, apartment, duplex, terraced, studio — the model picks the right estimation profile.', stat: '7 building types · auto-detected' },
+        { tag: '📄', h: 'Auditable PDF report', p: 'Room-by-room areas, detected QQPs, finishing justification, formula trail. Validation-ready.', stat: 'PDF export · audit trail' },
+      ],
+    },
+    how: {
+      label: 'How it works', title: 'Three steps. Thirty seconds.',
+      sub: 'No site visit. No spreadsheet. Just the plan your insured already has.',
+      steps: [
+        { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — ReBuilt handles messy inputs. Scale detected automatically.', detail: 'plan.pdf · scale 1:100\n12 rooms · 2 floors · 186.4 m²' },
+        { tag: 'Analyse', h: 'AI detects the finishing level', p: 'Bathroom config, kitchen size, hall proportions, material mentions. Coefficient between 0.70 and 1.50.', detail: 'entrance · 8.2 m² → above avg\n2 bath · bath + shower → Comfort\ncoefficient · × 1.12' },
+        { tag: 'Estimate', h: 'Get the rebuild cost', p: 'Surface × regional base × ABEX × coefficient. Exportable, auditable, transparent.', detail: '186.4 m² × € 1 680 × 1.0000 × 1.12\n= € 350 720' },
+      ],
+    },
+    belgium: {
+      label: 'Made for Belgium', title: 'ABEX-indexed. Postcode-aware. Expert-validated.',
+      sub: 'Built on Belgian construction cost data. Not a generic calculator with a flag on top.',
+      bullets: ['ABEX construction cost index, refreshed every semester','Regional base prices per m² by postcode — Brussels ≠ Charleroi','Finishing levels calibrated on Belgian conventions','Plan labels read in NL, FR, EN','Multi-tenant isolation — each insurer\'s data stays separate','GDPR-compliant, EU-hosted, data stays in Belgium'],
+      table_title: 'Finishing coefficients', table_head: ['Level','Description','Coeff.'],
+      table_rows: [['Basic','Simple materials, minimal equipment','0.70 – 0.85'],['Standard','Average Belgian new build','0.85 – 1.00'],['Comfort','Quality finishes, full kitchen','1.00 – 1.15'],['Luxury','High-end materials, two bathrooms','1.15 – 1.35'],['Premium','Custom everything','1.35 – 1.50']],
+    },
+    faq: {
+      label: 'FAQ', title: 'Questions before yours.',
+      items: [
+        { q: 'Is this a real estate valuation tool?', a: 'No. ReBuilt calculates the reconstruction cost — what it would cost to rebuild the building from scratch after a loss. The postcode coefficient reflects construction costs, not property prices.' },
+        { q: 'What plan formats do you accept?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF on the roadmap. Even hand-drawn plans work if labels and dimensions are clear.' },
+        { q: 'How accurate is the m² extraction?', a: 'On plans with clear dimensions or a scale bar, we hit 90%+ accuracy. Without scale, we use the standard 80 cm door width as calibration.' },
+        { q: 'Can we train ReBuilt on our dossiers?', a: "Yes — that's where ReBuilt becomes uniquely yours. Upload reference dossiers and the system refines its weights for your portfolio." },
+        { q: "Is each insurer's data isolated?", a: 'Yes. Each insurance company gets an isolated workspace. Row-level security, EU-hosted.' },
+        { q: 'What does it cost?', a: 'Free during the beta. After: a per-estimation fee with volume discounts. Beta testers lock in preferential pricing.' },
+      ],
+    },
+    cta: {
+      label: 'Early access', title: 'Join the first insurers on ReBuilt.',
+      sub: 'Free during beta. Your dossiers train the model. Your feedback shapes the product.',
+      company: 'Company name', email: 'Work email', volume: 'Estimations per month',
+      volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
+      region: 'Region', region_opts: ['Brussels','Flanders','Wallonia','National'],
+      submit: 'Request beta access →',
+      perks: ['One-week onboarding','Direct line to the team','Your feedback shapes v1'],
+      thanks: "✓ Got it. We'll reach out within 48 hours.",
+    },
+    footer: { tagline: 'Reconstruction cost intelligence for Belgian insurers', links: ['Product','How it works','FAQ','Beta','Privacy','Contact'], copy: '© 2026 ReBuilt · v0.1 Beta' },
+  },
+  fr: {
+    nav: { product: 'Produit', tryit: 'Essayer', faq: 'FAQ', cta: 'Demander la bêta →' },
+    hero: {
+      badge: 'Bêta privée · Belgique · 2026',
+      h1_a: 'Coût de reconstruction.', h1_b: "À partir d'un plan.", h1_c: 'En 30 secondes.',
+      sub: "Importez un plan. ReBuilt extrait chaque pièce, détecte le niveau de finition et renvoie un coût de reconstruction indexé ABEX — avant que votre expert n'ouvre le dossier.",
+      try_btn: 'Essayer avec votre plan', try_hint: 'Sans inscription · ~30s · gratuit', demo_btn: 'Voir un exemple',
+      proof: 'Construit avec des experts en assurance belges · indexé ABEX · RGPD · hébergé UE',
+    },
+    trust: { title: 'Utilisé par les équipes sinistres de', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
+    demo: {
+      label: 'Démo en direct', title: 'Déposez un plan. Voyez le coût.',
+      sub: "Import réel. Extraction réelle. Coût de haut niveau en 30 secondes — laissez votre email pour le détail pièce par pièce.",
+      drop_title: 'Déposez votre plan ici', drop_sub: "ou cliquez pour parcourir — PDF, PNG, JPG jusqu'à 20 Mo",
+      drop_btn: 'Importer un plan', drop_sample: "ou utilisez un plan d'exemple →",
+      drop_note: 'Votre fichier reste sur cet appareil. Nous ne le stockons que si vous sauvegardez le résultat.',
+      step_scale: "Lecture de l'échelle et de l'orientation", step_rooms: 'Extraction des pièces et dimensions',
+      step_qqp: 'Analyse des paramètres de finition', step_cost: 'Calcul du coût de reconstruction',
+      result_label: 'Estimation de haut niveau', result_area: 'Surface habitable estimée',
+      result_finishing: 'Niveau de finition détecté', result_cost: 'Coût de reconstruction estimé',
+      result_range: 'Plage de confiance',
+      gate_title: 'Le rapport détaillé pièce par pièce ?',
+      gate_sub: 'Laissez votre email professionnel et nous envoyons le PDF détaillé — 12 pièces, coefficient indexé ABEX, traçabilité.',
+      gate_placeholder: 'travail@entreprise.be', gate_btn: 'Envoyer le rapport →',
+      gate_after: '✓ Rapport en route. Vérifiez votre boîte dans 2 minutes.',
+    },
+    features: {
+      label: "Ce qu'il fait", title: 'Trois moteurs. Un coût.',
+      sub: 'Extraction de surface, détection des finitions, prix régionaux — fusionnés en une estimation auditable.',
+      cards: [
+        { tag: 'm²', h: 'Extraction de surface précise', p: "Détecte l'échelle, segmente les pièces, lit les dimensions sur tous les étages.", stat: 'Échelle · segmentation · multi-étages' },
+        { tag: 'IA', h: 'Niveau de finition découvert', p: 'Nombre de SDB, taille de cuisine, hall — chaque signal pondéré à partir de 1 000+ dossiers.', stat: 'QQP auto-apprenants · 5 niveaux' },
+        { tag: '€', h: 'Coût indexé ABEX', p: 'Surface × base régionale × ABEX × coefficient. Codes postaux belges, indice courant.', stat: 'Mis à jour chaque semestre' },
+        { tag: '↻', h: 'Entraîné sur vos dossiers', p: 'Importez des dossiers de référence avec prix connus. Le modèle apprend votre portefeuille.', stat: 'Poids par tenant · raffiné mensuellement' },
+        { tag: '⌂', h: 'Type de bâtiment auto-classé', p: 'Villa, appartement, duplex, maison mitoyenne, studio — le modèle choisit le bon profil.', stat: '7 types · auto-détecté' },
+        { tag: '📄', h: 'Rapport PDF auditable', p: 'Surfaces pièce par pièce, QQP détectés, justification, formule. Prêt pour validation.', stat: 'Export PDF · traçabilité' },
+      ],
+    },
+    how: {
+      label: 'Comment ça marche', title: 'Trois étapes. Trente secondes.',
+      sub: 'Pas de visite sur site. Pas de tableur. Juste le plan que votre assuré a déjà.',
+      steps: [
+        { tag: 'Import', h: 'Déposez le plan', p: 'PDF, scan, photo — ReBuilt gère les entrées brouillonnes. Échelle détectée automatiquement.', detail: 'plan.pdf · échelle 1:100\n12 pièces · 2 étages · 186,4 m²' },
+        { tag: 'Analyse', h: "L'IA détecte la finition", p: 'Configuration SDB, taille cuisine, proportions hall, matériaux. Coefficient 0,70 à 1,50.', detail: 'hall · 8,2 m² → au-dessus moy.\n2 sdb · bain + douche → Confort\ncoefficient · × 1,12' },
+        { tag: 'Estimation', h: 'Obtenez le coût', p: 'Surface × base régionale × ABEX × coefficient. Exportable, auditable, transparent.', detail: '186,4 m² × € 1 680 × 1,0000 × 1,12\n= € 350 720' },
+      ],
+    },
+    belgium: {
+      label: 'Conçu pour la Belgique', title: 'Indexé ABEX. Code postal. Expert-validé.',
+      sub: 'Construit sur les données de coûts belges. Pas un calculateur générique avec un drapeau.',
+      bullets: ['Indice ABEX, rafraîchi chaque semestre','Prix de base régionaux par code postal — Bruxelles ≠ Charleroi','Niveaux de finition calibrés sur les conventions belges','Étiquettes lues en NL, FR, EN','Isolation multi-tenant — les données de chaque assureur restent séparées','RGPD, hébergé UE, données en Belgique'],
+      table_title: 'Coefficients de finition', table_head: ['Niveau','Description','Coeff.'],
+      table_rows: [['Basique','Matériaux simples, équipement minimal','0,70 – 0,85'],['Standard','Construction neuve belge moyenne','0,85 – 1,00'],['Confort','Finitions qualité, cuisine complète','1,00 – 1,15'],['Luxe','Matériaux haut de gamme, deux SDB','1,15 – 1,35'],['Premium','Tout sur mesure','1,35 – 1,50']],
+    },
+    faq: {
+      label: 'FAQ', title: 'Vos questions, anticipées.',
+      items: [
+        { q: "Est-ce un outil d'évaluation immobilière ?", a: 'Non. ReBuilt calcule le coût de reconstruction — ce qu\'il en coûterait pour rebâtir après un sinistre. Le coefficient reflète les coûts de construction, pas les prix immobiliers.' },
+        { q: 'Quels formats de plan acceptez-vous ?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF en feuille de route. Même les plans manuscrits fonctionnent si les étiquettes et dimensions sont lisibles.' },
+        { q: 'Quelle précision sur les m² ?', a: "Sur les plans avec échelle ou cotes claires, plus de 90 % de précision. Sans échelle, nous calibrons avec la largeur standard d'une porte (80 cm)." },
+        { q: 'Peut-on entraîner ReBuilt sur nos dossiers ?', a: "Oui — c'est là que ReBuilt devient unique. Importez des dossiers de référence et le modèle apprend votre portefeuille." },
+        { q: 'Les données de chaque assureur sont-elles isolées ?', a: 'Oui. Espace de travail isolé par assureur. Sécurité au niveau ligne, hébergé en UE.' },
+        { q: 'Combien ça coûte ?', a: 'Gratuit pendant la bêta. Ensuite : tarif à l\'estimation avec remises au volume. Les bêta-testeurs verrouillent un tarif préférentiel.' },
+      ],
+    },
+    cta: {
+      label: 'Accès anticipé', title: 'Rejoignez les premiers assureurs sur ReBuilt.',
+      sub: 'Gratuit pendant la bêta. Vos dossiers entraînent le modèle. Vos retours façonnent le produit.',
+      company: "Nom de l'entreprise", email: 'Email professionnel', volume: 'Estimations par mois',
+      volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
+      region: 'Région', region_opts: ['Bruxelles','Flandre','Wallonie','National'],
+      submit: "Demander l'accès bêta →",
+      perks: ['Onboarding en une semaine','Ligne directe avec l\'équipe','Vos retours façonnent v1'],
+      thanks: '✓ Bien reçu. Nous revenons vers vous sous 48 heures.',
+    },
+    footer: { tagline: 'Intelligence du coût de reconstruction pour les assureurs belges', links: ['Produit','Comment ça marche','FAQ','Bêta','Confidentialité','Contact'], copy: '© 2026 ReBuilt · v0.1 Bêta' },
+  },
+  nl: {
+    nav: { product: 'Product', tryit: 'Probeer', faq: 'FAQ', cta: 'Vraag beta aan →' },
+    hero: {
+      badge: 'Private beta · België · 2026',
+      h1_a: 'Heropbouwkost.', h1_b: 'Vanuit een plan.', h1_c: 'In 30 seconden.',
+      sub: 'Upload een grondplan. ReBuilt leest elke kamer, detecteert het afwerkingsniveau en geeft een ABEX-geïndexeerde heropbouwkost — voordat uw expert het dossier opent.',
+      try_btn: 'Probeer met uw plan', try_hint: 'Geen account · ~30s · gratis', demo_btn: 'Bekijk een voorbeeld',
+      proof: 'Gebouwd met Belgische verzekeringsexperts · ABEX-geïndexeerd · GDPR · EU-hosted',
+    },
+    trust: { title: 'Vertrouwd door schadeteams bij', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
+    demo: {
+      label: 'Live demo', title: 'Drop een plan. Zie de kost.',
+      sub: 'Echte upload. Echte extractie. High-level heropbouwkost in 30 seconden — laat uw e-mail voor de detail-rapportage per kamer.',
+      drop_title: 'Sleep uw grondplan hierheen', drop_sub: 'of klik om te bladeren — PDF, PNG, JPG tot 20 MB',
+      drop_btn: 'Upload een plan', drop_sample: 'of gebruik een voorbeeldplan →',
+      drop_note: 'Uw bestand blijft op dit apparaat. We bewaren het alleen als u het resultaat opslaat.',
+      step_scale: 'Schaal en oriëntatie lezen', step_rooms: 'Kamers en afmetingen extraheren',
+      step_qqp: 'Afwerkingsparameters analyseren', step_cost: 'Heropbouwkost berekenen',
+      result_label: 'High-level schatting', result_area: 'Geschatte bewoonbare oppervlakte',
+      result_finishing: 'Gedetecteerd afwerkingsniveau', result_cost: 'Geschatte heropbouwkost',
+      result_range: 'Betrouwbaarheidsmarge',
+      gate_title: 'Volledige kamer-per-kamer rapport?',
+      gate_sub: 'Laat uw werkmail en we sturen het detail-PDF — 12 kamers, ABEX-geïndexeerde coëfficiënt, audittrail.',
+      gate_placeholder: 'werk@bedrijf.be', gate_btn: 'Stuur volledig rapport →',
+      gate_after: '✓ Rapport onderweg. Check uw inbox over 2 minuten.',
+    },
+    features: {
+      label: 'Wat het doet', title: 'Drie motoren. Eén kost.',
+      sub: 'Oppervlakte-extractie, afwerkingsdetectie, regionale prijzen — gefuseerd in één auditbare schatting.',
+      cards: [
+        { tag: 'm²', h: 'Precieze oppervlakte', p: 'Detecteert schaal, segmenteert kamers, leest afmetingen over alle verdiepingen.', stat: 'Schaal · segmentatie · multi-verdieping' },
+        { tag: 'AI', h: 'Afwerking ontdekt', p: 'Aantal badkamers, keukengrootte, inkomhal — elk signaal gewogen vanuit 1 000+ dossiers.', stat: 'Zelflerende QQPs · 5 niveaus' },
+        { tag: '€', h: 'ABEX-geïndexeerde kost', p: 'Oppervlakte × regionale basis × ABEX × coëfficiënt. Belgische postcodes.', stat: 'Per semester bijgewerkt' },
+        { tag: '↻', h: 'Getraind op uw dossiers', p: 'Upload referentiedossiers met gekende prijzen. Het model leert uw portefeuille.', stat: 'Tenant-gewichten · maandelijks verfijnd' },
+        { tag: '⌂', h: 'Gebouwtype auto-detectie', p: 'Villa, appartement, duplex, rijwoning, studio — het model kiest het juiste profiel.', stat: '7 types · automatisch' },
+        { tag: '📄', h: 'Auditbaar PDF-rapport', p: 'Kamer-per-kamer, gedetecteerde QQPs, motivering, formule. Validatie-klaar.', stat: 'PDF-export · audittrail' },
+      ],
+    },
+    how: {
+      label: 'Hoe het werkt', title: 'Drie stappen. Dertig seconden.',
+      sub: 'Geen plaatsbezoek. Geen Excel. Gewoon het plan dat uw verzekerde al heeft.',
+      steps: [
+        { tag: 'Upload', h: 'Drop het grondplan', p: 'PDF, scan, foto — ReBuilt verwerkt rommelige input. Schaal automatisch gedetecteerd.', detail: 'plan.pdf · schaal 1:100\n12 kamers · 2 verdiepingen · 186,4 m²' },
+        { tag: 'Analyse', h: 'AI detecteert afwerking', p: 'Badkamerconfiguratie, keukengrootte, hal-verhoudingen, materialen. Coëfficiënt 0,70–1,50.', detail: 'hal · 8,2 m² → boven gem.\n2 bad · bad + douche → Comfort\ncoëfficiënt · × 1,12' },
+        { tag: 'Schatting', h: 'Krijg de kost', p: 'Oppervlakte × regionale basis × ABEX × coëfficiënt. Exporteerbaar, auditbaar.', detail: '186,4 m² × € 1 680 × 1,0000 × 1,12\n= € 350 720' },
+      ],
+    },
+    belgium: {
+      label: 'Gemaakt voor België', title: 'ABEX-geïndexeerd. Postcode-gericht. Expert-gevalideerd.',
+      sub: 'Gebouwd op Belgische bouwkostdata. Geen generieke calculator met een vlag.',
+      bullets: ['ABEX bouwkostindex, elk semester ververst','Regionale basisprijzen per postcode — Brussel ≠ Charleroi','Afwerkingsniveaus gekalibreerd op Belgische conventies','Etiketten in NL, FR, EN gelezen','Multi-tenant isolatie — data van elke verzekeraar apart','GDPR, EU-hosted, data blijft in België'],
+      table_title: 'Afwerkingscoëfficiënten', table_head: ['Niveau','Beschrijving','Coëff.'],
+      table_rows: [['Basis','Eenvoudige materialen, minimale uitrusting','0,70 – 0,85'],['Standaard','Gemiddelde Belgische nieuwbouw','0,85 – 1,00'],['Comfort','Kwaliteitsafwerking, volledige keuken','1,00 – 1,15'],['Luxe','High-end materialen, twee badkamers','1,15 – 1,35'],['Premium','Alles op maat','1,35 – 1,50']],
+    },
+    faq: {
+      label: 'FAQ', title: 'Vragen, beantwoord.',
+      items: [
+        { q: 'Is dit een vastgoedwaardering?', a: 'Nee. ReBuilt berekent de heropbouwkost — wat het zou kosten om het gebouw vanaf nul te herbouwen. De postcode reflecteert bouwkosten, geen vastgoedprijzen.' },
+        { q: 'Welke planformaten aanvaarden jullie?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF op de roadmap. Zelfs handgetekende plannen werken als de labels en afmetingen leesbaar zijn.' },
+        { q: 'Hoe nauwkeurig zijn de m²?', a: 'Op plannen met duidelijke schaal of afmetingen halen we 90%+. Zonder schaal kalibreren we met de standaard 80 cm deurbreedte.' },
+        { q: 'Kunnen we ReBuilt trainen op onze dossiers?', a: 'Ja — dat is waar ReBuilt uniek wordt. Upload referentiedossiers en het model leert uw portefeuille.' },
+        { q: 'Is data per verzekeraar geïsoleerd?', a: 'Ja. Geïsoleerde werkruimte per verzekeraar. Row-level security, EU-hosted.' },
+        { q: 'Wat kost het?', a: 'Gratis tijdens beta. Daarna: tarief per schatting met volumekortingen. Beta-testers blokkeren een voorkeurstarief.' },
+      ],
+    },
+    cta: {
+      label: 'Vroege toegang', title: 'Sluit aan bij de eerste verzekeraars op ReBuilt.',
+      sub: 'Gratis tijdens beta. Uw dossiers trainen het model. Uw feedback vormt het product.',
+      company: 'Bedrijfsnaam', email: 'Werkmail', volume: 'Schattingen per maand',
+      volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
+      region: 'Regio', region_opts: ['Brussel','Vlaanderen','Wallonië','Nationaal'],
+      submit: 'Vraag beta-toegang aan →',
+      perks: ['Onboarding in één week','Directe lijn met het team','Uw feedback vormt v1'],
+      thanks: '✓ Ontvangen. We nemen binnen 48 uur contact op.',
+    },
+    footer: { tagline: 'Heropbouwkost-intelligentie voor Belgische verzekeraars', links: ['Product','Hoe het werkt','FAQ','Beta','Privacy','Contact'], copy: '© 2026 ReBuilt · v0.1 Beta' },
+  },
+};
+
+// ── Sample data ─────────────────────────────────────────────────────────────
+const SAMPLE_PLAN_DATA = {
+  villa: {
+    filename: 'plan-villa-ixelles.pdf', area: 186.4,
+    finishing: { level: 'Comfort', cls: 'fb-comfort', coef: 1.12 },
+    postcode: '1050 Ixelles', basePrice: 1680, abex: '2026/I',
+    rooms: [['Living room',42.5],['Kitchen',18.3],['Entrance hall',8.2],['Office',12.1],['Toilet',2.4],['Bathroom 1',9.8],['Bathroom 2',5.6],['Bedroom 1',22.4],['Bedroom 2',16.8],['Bedroom 3',14.2],['Corridor',11.6],['Storage',6.4]],
+  },
+  apartment: {
+    filename: 'plan-apt-gent.pdf', area: 124.8,
+    finishing: { level: 'Luxury', cls: 'fb-luxury', coef: 1.28 },
+    postcode: '9000 Gent', basePrice: 1520, abex: '2026/I',
+    rooms: [['Living room',38.2],['Kitchen',16.4],['Entrance hall',5.8],['Bathroom 1',11.2],['Bathroom 2',6.4],['Bedroom 1',18.6],['Bedroom 2',14.0],['Corridor',8.8],['Terrace',5.4]],
+  },
+  townhouse: {
+    filename: 'plan-rijwoning-liege.pdf', area: 98.2,
+    finishing: { level: 'Standard', cls: 'fb-standard', coef: 0.94 },
+    postcode: '4000 Liège', basePrice: 1440, abex: '2026/I',
+    rooms: [['Living room',28.4],['Kitchen',11.2],['Entrance',4.6],['Bathroom',6.8],['Bedroom 1',14.8],['Bedroom 2',11.4],['Bedroom 3',9.6],['Corridor',7.8],['Storage',3.6]],
+  },
+};
+
+const fmtEUR = (n) => '€\u202F' + Math.round(n).toLocaleString('de-DE');
+const fmtArea = (n) => n.toFixed(1).replace('.',',') + '\u202Fm²';
+
+// ── Animated Hero Cards ─────────────────────────────────────────────────────
+const ANIM_CARDS = [
+  { title:'Villa', id:'RB-2026-0847', date:'19·05·2026', file:'plan-villa-ixelles.pdf',
+    rows:[['Livable area','186.4 m²'],['Finishing',{cls:'fb-comfort',label:'Comfort'}],['Coefficient','× 1.12'],['Base · 1050 Ixelles','€ 1 680/m²'],['ABEX 2026/I','× 1.0000']],
+    total:['Rebuild cost','€ 350 720'], footer:['rebuilt.be','12 rooms · 2 floors'] },
+  { title:'Apartment', id:'RB-2026-0831', date:'18·05·2026', file:'plan-apt-gent.pdf',
+    rows:[['Livable area','124.8 m²'],['Finishing',{cls:'fb-luxury',label:'Luxury'}],['Coefficient','× 1.28'],['Base · 9000 Gent','€ 1 520/m²']],
+    total:['Rebuild cost','€ 242 810'], footer:['rebuilt.be','8 rooms · 1 floor'] },
+  { title:'Terraced', id:'RB-2026-0819', date:'17·05·2026', file:'plan-rijwoning-liege.pdf',
+    rows:[['Livable area','98.2 m²'],['Finishing',{cls:'fb-standard',label:'Standard'}],['Coefficient','× 0.94'],['Base · 4000 Liège','€ 1 440/m²']],
+    total:['Rebuild cost','€ 132 780'], footer:['rebuilt.be','7 rooms · 2 floors'] },
+];
+const REVEAL_TICK = 320, UPLOAD_BAR = 900, HOLD_END = 4500, BETWEEN = 700;
+
+function AnimatedHeroCards() {
+  const [tick, setTick] = React.useState(0);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
+  const [activeCardIdx, setActiveCardIdx] = React.useState(0);
+  const tickRef = React.useRef(0);
+  const stopRef = React.useRef(false);
+
+  const ticksPerCard = ANIM_CARDS.map(c => 1 + c.rows.length + 2);
+  const totalTicks = ticksPerCard.reduce((s,x) => s+x, 0);
+
+  const stateAtTick = (t) => {
+    let rem = t;
+    for (let i=0; i<ANIM_CARDS.length; i++) {
+      if (rem < ticksPerCard[i]) return { cardIdx:i, withinCard:rem };
+      rem -= ticksPerCard[i];
+    }
+    return { cardIdx:ANIM_CARDS.length, withinCard:0 };
+  };
+
+  React.useEffect(() => {
+    stopRef.current = false;
+    let tid, uid;
+    const startUpload = (ci) => {
+      setActiveCardIdx(ci); setUploadProgress(0);
+      let s=0; const steps=20, ms=UPLOAD_BAR/steps;
+      const fill = () => { if(stopRef.current) return; s++; setUploadProgress((s/steps)*100); if(s<steps) uid=setTimeout(fill,ms); };
+      uid=setTimeout(fill,ms);
+    };
+    const run = () => {
+      if(stopRef.current) return;
+      tickRef.current++;
+      if(tickRef.current > totalTicks) {
+        tid=setTimeout(()=>{ if(stopRef.current) return; tickRef.current=0; setTick(0); setUploadProgress(0); setActiveCardIdx(0); startUpload(0); tid=setTimeout(run,UPLOAD_BAR/2); },HOLD_END);
+        return;
+      }
+      setTick(tickRef.current);
+      const st=stateAtTick(tickRef.current), prev=stateAtTick(tickRef.current-1);
+      if(st.cardIdx!==prev.cardIdx && st.cardIdx<ANIM_CARDS.length) {
+        tid=setTimeout(()=>{ startUpload(st.cardIdx); tid=setTimeout(run,UPLOAD_BAR/2); },BETWEEN);
+        return;
+      }
+      tid=setTimeout(run,REVEAL_TICK);
+    };
+    startUpload(0); tid=setTimeout(run,UPLOAD_BAR/2);
+    return () => { stopRef.current=true; clearTimeout(tid); clearTimeout(uid); };
+  }, []);
+
+  const state = stateAtTick(tick);
+  return (
+    <div className="anim-cards-wrap">
+      <div className="anim-upload-bar">
+        <div className="anim-upload-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div className="anim-upload-meta">
+          <div className="anim-upload-file">{state.cardIdx<ANIM_CARDS.length ? ANIM_CARDS[activeCardIdx].file : 'queue complete'}</div>
+          <div className="anim-upload-status">{state.cardIdx<ANIM_CARDS.length ? `Analysing · ${activeCardIdx+1} of ${ANIM_CARDS.length}` : `${ANIM_CARDS.length} estimates ready`}</div>
+        </div>
+        <div className="anim-upload-track"><div className="anim-upload-fill" style={{width: state.cardIdx<ANIM_CARDS.length ? uploadProgress+'%' : '100%'}}/></div>
+      </div>
+      <div className="anim-cards-stack">
+        {ANIM_CARDS.map((card,i) => {
+          let rl; if(i<state.cardIdx) rl=1+card.rows.length+2; else if(i===state.cardIdx) rl=state.withinCard; else rl=0;
+          const isActive=i===state.cardIdx, isComplete=i<state.cardIdx;
+          return (
+            <div key={i} className={'est-card anim-est-card'+(isActive?' is-active':'')+(isComplete?' is-complete':'')} data-card-index={i}>
+              <div className={'card-header'+(rl>=1?' revealed':'')}><div className="card-brand">ReBuilt</div><div className="card-meta">{card.id}<br/>{card.date}</div></div>
+              <div className={'card-title'+(rl>=1?' revealed':'')}>Reconstruction estimate · {card.title}</div>
+              <div className="card-rows">{card.rows.map((r,j)=>{const shown=rl>=2+j; return(
+                <div key={j} className={'card-row'+(shown?' revealed':'')}>
+                  <span className="label">{r[0]}</span>
+                  <span className="value">{typeof r[1]==='object' ? <span className={'finishing-badge '+r[1].cls}>{r[1].label}</span> : r[1]}</span>
+                </div>);})}</div>
+              <div className={'card-total'+(rl>=2+card.rows.length?' revealed':'')}><span className="label">{card.total[0]}</span><span className="value">{card.total[1]}</span></div>
+              <div className={'card-footer'+(rl>=3+card.rows.length?' revealed':'')}><span>{card.footer[0]}</span><span>{card.footer[1]}</span></div>
+            </div>);
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Upload Demo ─────────────────────────────────────────────────────────────
+function UploadDemo({ t }) {
+  const [state, setState] = React.useState('idle');
+  const [file, setFile] = React.useState(null);
+  const [previewUrl, setPreviewUrl] = React.useState(null);
+  const [stepIdx, setStepIdx] = React.useState(-1);
+  const [data, setData] = React.useState(null);
+  const [emailed, setEmailed] = React.useState(false);
+  const [emailValue, setEmailValue] = React.useState('');
+  const [dragOver, setDragOver] = React.useState(false);
+  const inputRef = React.useRef(null);
+  const steps = [t.step_scale, t.step_rooms, t.step_qqp, t.step_cost];
+  const delays = [700,1400,1300,900];
+
+  const beginProcessing = (f) => {
+    const keys=Object.keys(SAMPLE_PLAN_DATA); let chosen=SAMPLE_PLAN_DATA.villa;
+    if(f){const n=(f.name||'').toLowerCase(); if(n.includes('apt')||n.includes('appart')) chosen=SAMPLE_PLAN_DATA.apartment; else if(n.includes('town')||n.includes('rij')) chosen=SAMPLE_PLAN_DATA.townhouse; else { const idx=Math.abs(f.size||0)%keys.length; chosen=SAMPLE_PLAN_DATA[keys[idx]]; }}
+    setData(chosen); setState('processing'); setStepIdx(0);
+    let i=0; const tick=()=>{if(i>=steps.length){setTimeout(()=>setState('results'),400);return;} setStepIdx(i); setTimeout(()=>{i++;tick();},delays[i]||1000);}; setTimeout(tick,300);
+  };
+
+  const handleFile = (f) => { if(!f) return; setFile(f); setPreviewUrl(f.type?.startsWith('image/')?URL.createObjectURL(f):null); beginProcessing(f); };
+  const onSample = () => { const s={name:'sample-villa-ixelles.pdf',size:234567,type:'application/pdf'}; setFile(s); setPreviewUrl(null); beginProcessing(s); };
+  const reset = () => { setState('idle'); setFile(null); setPreviewUrl(null); setStepIdx(-1); setData(null); setEmailed(false); setEmailValue(''); };
+
+  if(state==='idle') return (
+    <div className={'demo-zone upload'+(dragOver?' drag-over':'')} onClick={()=>inputRef.current?.click()}
+      onDragOver={e=>{e.preventDefault();setDragOver(true)}} onDragLeave={()=>setDragOver(false)}
+      onDrop={e=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files?.[0])}} style={{cursor:'pointer'}}>
+      <input ref={inputRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.tiff,image/*,application/pdf" style={{display:'none'}} onChange={e=>handleFile(e.target.files?.[0])}/>
+      <div className="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <div className="upload-title">{t.drop_title}</div>
+      <p className="upload-sub">{t.drop_sub}</p>
+      <button className="btn btn-primary" onClick={e=>{e.stopPropagation();inputRef.current?.click()}}>{t.drop_btn}</button>
+      <div><a className="upload-sample-link" onClick={e=>{e.stopPropagation();onSample()}}>{t.drop_sample}</a></div>
+      <p className="upload-formats">{t.drop_note}</p>
+    </div>
+  );
+
+  if(state==='processing') return (
+    <div className="demo-zone processing">
+      <div className="processing-layout">
+        <div className="plan-preview">{previewUrl?<img src={previewUrl} alt="plan"/>:<div className="placeholder-doc"><i/><i/><i/><i/></div>}<div className="scan-line"/>{file&&<div className="file-label">{file.name}</div>}</div>
+        <div>
+          <div className="result-header" style={{marginBottom:16}}><span className="label">{t.label}</span><span className="status" style={{color:'var(--accent)'}}>{Math.round(((stepIdx+1)/steps.length)*100)}%</span></div>
+          <ul className="processing-steps">{steps.map((s,i)=><li key={i} className={i<stepIdx?'done':i===stepIdx?'active':''}>{s}</li>)}</ul>
+        </div>
+      </div>
+    </div>
+  );
+
+  const d=data, total=d.area*d.basePrice*d.finishing.coef, lo=total*.92, hi=total*1.08;
+  return (
+    <div className="demo-zone results">
+      <div className="result-layout">
+        <div className="plan-preview" style={{maxHeight:280}}>{previewUrl?<img src={previewUrl} alt="plan"/>:<div className="placeholder-doc"><i/><i/><i/><i/></div>}{file&&<div className="file-label">{file.name}</div>}</div>
+        <div className="result-block">
+          <div className="result-header"><span className="label">{t.result_label}</span><span className="status">{t.label}</span></div>
+          <div className="result-row"><span className="k">{t.result_area}</span><span className="v">{fmtArea(d.area)}</span></div>
+          <div className="result-row"><span className="k">{t.result_finishing}</span><span className="v"><span className={'finishing-badge '+d.finishing.cls}>{d.finishing.level}</span></span></div>
+          <div className="result-row" style={{alignItems:'baseline'}}><span className="k">{t.result_cost}</span><span style={{textAlign:'right'}}><div className="v big">{fmtEUR(total)}</div><div className="range">{t.result_range}: {fmtEUR(lo)} – {fmtEUR(hi)}</div></span></div>
+        </div>
+      </div>
+      <div className={'email-gate'+(emailed?'':' locked')}>
+        {!emailed ? (<><h4>{t.gate_title}</h4><p>{t.gate_sub}</p><div className="gate-form"><input type="email" placeholder={t.gate_placeholder} value={emailValue} onChange={e=>setEmailValue(e.target.value)}/><button className="btn btn-primary" onClick={()=>{if(emailValue.match(/.+@.+\..+/)) setEmailed(true)}}>{t.gate_btn}</button></div></>) : <div className="success">{t.gate_after}</div>}
+      </div>
+      {emailed && <DetailedReport data={d}/>}
+      <div style={{marginTop:24,display:'flex',gap:12,justifyContent:'flex-end'}}><button className="btn btn-secondary" onClick={reset}>↺ Try another plan</button></div>
+    </div>
+  );
+}
+
+function DetailedReport({data}) {
+  const totalArea=data.rooms.reduce((s,[,a])=>s+a,0), totalCost=totalArea*data.basePrice*data.finishing.coef;
+  const finishPct=((data.finishing.coef-0.7)/(1.5-0.7))*100;
+  const [gf, setGf]=React.useState(0);
+  React.useEffect(()=>{const id=setTimeout(()=>setGf(finishPct),80);return()=>clearTimeout(id)},[]);
+  return (
+    <div className="detailed-report">
+      <div className="report-card"><h5>Surface extraction</h5>
+        <ul className="room-list">{data.rooms.map(([n,a],i)=><li key={i} className="room-item"><span className="name">{n}</span><span className="area">{fmtArea(a)}</span></li>)}</ul>
+        <div className="room-total"><span>Total livable area</span><span className="value">{fmtArea(totalArea)}</span></div>
+      </div>
+      <div className="report-card"><h5>Cost estimation</h5>
+        <div className="gauge"><div className="gauge-label"><span>Finishing level</span><span className="level">{data.finishing.level} · ×{data.finishing.coef.toFixed(2)}</span></div>
+          <div className="gauge-track"><div className="gauge-fill" style={{width:gf+'%'}}/></div>
+          <div className="gauge-labels"><span>Basic</span><span>Standard</span><span>Comfort</span><span>Luxury</span><span>Premium</span></div>
+        </div>
+        <div>
+          <div className="cost-line"><span className="label">Livable area</span><span className="value">{fmtArea(totalArea)}</span></div>
+          <div className="cost-line"><span className="label">Base · {data.postcode}</span><span className="value">€{'\u202F'}{data.basePrice.toLocaleString('de-DE')}/m²</span></div>
+          <div className="cost-line"><span className="label">ABEX {data.abex}</span><span className="value">×{'\u202F'}1,0000</span></div>
+          <div className="cost-line"><span className="label">Finishing coefficient</span><span className="value">×{'\u202F'}{data.finishing.coef.toFixed(2)}</span></div>
+        </div>
+        <div style={{marginTop:16,padding:18,background:'var(--accent-light)',borderRadius:'var(--radius-sm)',textAlign:'center'}}>
+          <div style={{fontSize:'.72rem',fontWeight:600,color:'var(--accent-deep)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:4}}>Reconstruction cost</div>
+          <div style={{fontFamily:'var(--font-display)',fontSize:'2rem',color:'var(--accent-deep)'}}>{fmtEUR(totalCost)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ────────────────────────────────────────────────────────────────
+function App() {
+  const [lang, setLang] = React.useState('en');
+  const L = I18N[lang];
+
+  React.useEffect(() => {
+    const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }); }, {threshold:0.12});
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [lang]);
+
+  React.useEffect(() => {
+    const onScroll = () => document.getElementById('nav')?.classList.toggle('scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToDemo = () => document.getElementById('demo')?.scrollIntoView({behavior:'smooth',block:'start'});
+
+  return (<>
+    {/* NAV */}
+    <nav id="nav" className="nav"><div className="nav-inner">
+      <a href="#" className="nav-brand">Re<em>Built</em><span className="dot"/></a>
+      <div className="nav-links"><a href="#features">{L.nav.product}</a><a href="#demo">{L.nav.tryit}</a><a href="#how">How it works</a><a href="#faq">{L.nav.faq}</a></div>
+      <div className="nav-right">
+        <div className="lang-switch" role="tablist">{['en','fr','nl'].map(l=><button key={l} aria-pressed={lang===l} onClick={()=>setLang(l)}>{l}</button>)}</div>
+        <button className="nav-cta" onClick={scrollToDemo}>{L.nav.cta}</button>
+      </div>
+    </div></nav>
+
+    {/* HERO — Cards layout */}
+    <section className="hero"><div className="container hero-inner">
+      <div className="hero-grid">
+        <div>
+          <div className="hero-badge">{L.hero.badge}</div>
+          <h1><span className="ln">{L.hero.h1_a}</span><span className="ln"><em>{L.hero.h1_b}</em></span><span className="ln">{L.hero.h1_c}</span></h1>
+          <p className="hero-sub">{L.hero.sub}</p>
+          <div className="hero-actions">
+            <button className="btn btn-primary btn-lg" onClick={scrollToDemo}>{L.hero.try_btn} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <a href="#how" className="btn btn-secondary btn-lg">{L.hero.demo_btn}</a>
+            <span className="hero-try-hint">↳ {L.hero.try_hint}</span>
+          </div>
+          <div className="hero-proof">{L.hero.proof.split(' · ').map((b,i)=><span key={i}>{b}</span>)}</div>
+        </div>
+        <div className="hero-visual"><AnimatedHeroCards/></div>
+      </div>
+    </div></section>
+
+    {/* TRUST */}
+    <div className="trust-bar"><div className="container"><div className="trust-title">{L.trust.title}</div><div className="trust-logos">{L.trust.logos.map((l,i)=><div key={i} className="trust-logo">{l}</div>)}</div></div></div>
+
+    {/* DEMO */}
+    <section id="demo" className="demo-section section-bg-deep"><div className="container"><div style={{maxWidth:920,margin:'0 auto'}}>
+      <div className="section-label">{L.demo.label}</div>
+      <h2 className="section-title">{L.demo.title}</h2>
+      <p className="section-sub">{L.demo.sub}</p>
+      <UploadDemo t={L.demo}/>
+    </div></div></section>
+
+    {/* FEATURES */}
+    <section id="features"><div className="container">
+      <div className="section-label">{L.features.label}</div>
+      <h2 className="section-title">{L.features.title}</h2>
+      <p className="section-sub">{L.features.sub}</p>
+      <div className="features-grid">{L.features.cards.map((c,i)=>
+        <div key={i} className={`feature-card reveal reveal-d${i%3}`}><div className="feature-icon">{c.tag}</div><h3>{c.h}</h3><p>{c.p}</p><div className="stat">{c.stat}</div></div>
+      )}</div>
+    </div></section>
+
+    {/* HOW IT WORKS */}
+    <section id="how" className="section-bg-deep"><div className="container">
+      <div className="section-label">{L.how.label}</div>
+      <h2 className="section-title">{L.how.title}</h2>
+      <p className="section-sub">{L.how.sub}</p>
+      <div className="steps-grid">{L.how.steps.map((s,i)=>
+        <div key={i} className={`step-card reveal reveal-d${i}`}><div className="step-label">{s.tag}</div><h3>{s.h}</h3><p>{s.p}</p><div className="step-detail">{s.detail}</div></div>
+      )}</div>
+    </div></section>
+
+    {/* BELGIUM */}
+    <section id="belgium"><div className="container">
+      <div className="section-label">{L.belgium.label}</div>
+      <h2 className="section-title">{L.belgium.title}</h2>
+      <p className="section-sub">{L.belgium.sub}</p>
+      <div className="belgium-grid">
+        <ul className="belgium-list">{L.belgium.bullets.map((b,i)=><li key={i}>{b}</li>)}</ul>
+        <div className="belgium-card"><h4>{L.belgium.table_title}</h4>
+          <table className="coeff-table"><thead><tr>{L.belgium.table_head.map((h,i)=><th key={i}>{h}</th>)}</tr></thead>
+          <tbody>{L.belgium.table_rows.map((r,i)=>{const cls=['fb-basic','fb-standard','fb-comfort','fb-luxury','fb-premium'][i]; return <tr key={i}><td><span className={'finishing-badge '+cls}>{r[0]}</span></td><td className="desc">{r[1]}</td><td>{r[2]}</td></tr>;})}</tbody></table>
+        </div>
+      </div>
+    </div></section>
+
+    {/* FAQ */}
+    <section id="faq" className="section-bg-deep"><div className="container">
+      <div className="section-label">{L.faq.label}</div>
+      <h2 className="section-title">{L.faq.title}</h2>
+      <div style={{marginTop:24}}/>
+      <FAQList items={L.faq.items}/>
+    </div></section>
+
+    {/* CTA */}
+    <CTASection L={L}/>
+
+    {/* FOOTER */}
+    <footer><div className="container">
+      <div className="footer-inner">
+        <div className="footer-left"><div className="footer-brand">Re<em style={{fontStyle:'normal',color:'var(--accent)'}}>Built</em><span className="dot"/></div><div className="footer-tagline">{L.footer.tagline}</div></div>
+        <div className="footer-links">{L.footer.links.map((l,i)=><a key={i} href={i===0?'#features':i===1?'#how':i===2?'#faq':i===3?'#beta':'#'}>{l}</a>)}</div>
+      </div>
+      <div className="footer-copy"><span>{L.footer.copy}</span><span>hello@rebuilt.be</span></div>
+    </div></footer>
+  </>);
+}
+
+function FAQList({items}) {
+  const [openIdx, setOpenIdx] = React.useState(0);
+  return <div className="faq-list">{items.map((it,i)=>
+    <div key={i} className={'faq-item'+(openIdx===i?' open':'')}>
+      <button className="faq-q" onClick={()=>setOpenIdx(openIdx===i?-1:i)}><span>{it.q}</span><span className="toggle">+</span></button>
+      <div className="faq-a"><p>{it.a}</p></div>
+    </div>
+  )}</div>;
+}
+
+function CTASection({L}) {
+  const [submitted, setSubmitted] = React.useState(false);
+  return (
+    <section id="beta" className="cta-section">
+      <div className="section-label">{L.cta.label}</div>
+      <h2 className="section-title">{L.cta.title}</h2>
+      <p className="section-sub">{L.cta.sub}</p>
+      {!submitted ? <div className="cta-form">
+        <input type="text" placeholder={L.cta.company} required/>
+        <input type="email" placeholder={L.cta.email} required/>
+        <select required defaultValue=""><option value="" disabled>{L.cta.volume}</option>{L.cta.volume_opts.map((o,i)=><option key={i}>{o}</option>)}</select>
+        <select defaultValue=""><option value="" disabled>{L.cta.region}</option>{L.cta.region_opts.map((o,i)=><option key={i}>{o}</option>)}</select>
+        <button className="btn btn-primary btn-lg" onClick={()=>setSubmitted(true)}>{L.cta.submit}</button>
+      </div> : <div className="cta-thanks">{L.cta.thanks}</div>}
+      <div className="cta-perks">{L.cta.perks.map((p,i)=><span key={i}>{p}</span>)}</div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

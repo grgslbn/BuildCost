@@ -8,11 +8,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log("[dashboard/layout] skip-auth check", {
-    NEXT_PUBLIC_SKIP_AUTH: process.env.NEXT_PUBLIC_SKIP_AUTH,
-    SKIP_AUTH_ENV: process.env.SKIP_AUTH,
-    SKIP_AUTH_CONST: SKIP_AUTH,
-  });
+  console.log("[dashboard/layout] SKIP_AUTH=" + process.env.SKIP_AUTH + " const=" + SKIP_AUTH);
   if (!SKIP_AUTH) {
     const supabase = createSupabaseServerClient();
     const {
