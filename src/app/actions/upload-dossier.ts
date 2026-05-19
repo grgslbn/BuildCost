@@ -6,6 +6,7 @@ import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
+import { SKIP_AUTH, DEV_TENANT_ID } from "@/lib/dev-auth";
 
 export type UploadDossierState =
   | { status: "idle" }
@@ -16,26 +17,30 @@ export async function uploadDossier(
   _prev: UploadDossierState,
   formData: FormData
 ): Promise<UploadDossierState> {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let tenantId: string;
 
-  if (!user) return { status: "error", message: "Not authenticated" };
+  if (SKIP_AUTH) {
+    tenantId = DEV_TENANT_ID;
+  } else {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const admin = createSupabaseAdminClient();
+    if (!user) return { status: "error", message: "Not authenticated" };
 
-  const userRow = await admin
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single();
+    const userRow = await createSupabaseAdminClient().from("users")
+      .select("tenant_id")
+      .eq("id", user.id)
+      .single();
 
-  if (userRow.error || !userRow.data?.tenant_id) {
-    return { status: "error", message: "Could not resolve tenant" };
+    if (userRow.error || !userRow.data?.tenant_id) {
+      return { status: "error", message: "Could not resolve tenant" };
+    }
+    tenantId = userRow.data.tenant_id;
   }
 
-  const tenantId: string = userRow.data.tenant_id;
+  const admin = createSupabaseAdminClient();
 
   const file = formData.get("plan_file") as File | null;
   if (!file || file.size === 0) {

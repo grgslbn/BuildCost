@@ -2,6 +2,7 @@ import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
+import { SKIP_AUTH, DEV_TENANT_ID } from "@/lib/dev-auth";
 import {
   Card,
   CardContent,
@@ -33,19 +34,28 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
 }
 
 export default async function AdminDossiersPage() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let tenantId: string | null = null;
 
-  const admin = createSupabaseAdminClient();
-  const { data: userRow } = await admin
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user!.id)
-    .single();
+  if (SKIP_AUTH) {
+    tenantId = DEV_TENANT_ID;
+  } else {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const dossiers = userRow?.tenant_id ? await getDossiers(userRow.tenant_id) : [];
+    if (user) {
+      const admin = createSupabaseAdminClient();
+      const { data: userRow } = await admin
+        .from("users")
+        .select("tenant_id")
+        .eq("id", user.id)
+        .single();
+      tenantId = userRow?.tenant_id ?? null;
+    }
+  }
+
+  const dossiers = tenantId ? await getDossiers(tenantId) : [];
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
