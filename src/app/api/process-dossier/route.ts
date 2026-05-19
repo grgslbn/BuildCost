@@ -493,6 +493,7 @@ export async function POST(req: NextRequest) {
       .update({
         qqp_extraction: qqpExtraction,
         predicted_finishing_coefficient: predictedCoeff,
+        predicted_finishing_level: qqpExtraction.finishing_assessment.level ?? null,
         prediction_error: predictionError,
         processing_time_ms: Date.now() - startTime,
         status: "analyzed",

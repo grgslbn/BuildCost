@@ -24,6 +24,7 @@ export type DossierRow = {
   apartment_count: number | null;
   known_price_per_sqm: number | null;
   expert_finishing_level: string | null;
+  predicted_finishing_level: string | null;
   status: string;
   error_message: string | null;
   created_at: string;
@@ -160,7 +161,13 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                   <BuildingTypeBadge type={d.building_type} apartmentCount={d.apartment_count} />
                 </TableCell>
                 <TableCell>{formatCurrency(d.known_price_per_sqm)}</TableCell>
-                <TableCell className="capitalize">{d.expert_finishing_level ?? "—"}</TableCell>
+                <TableCell className="capitalize">
+                  {d.expert_finishing_level
+                    ? d.expert_finishing_level
+                    : d.predicted_finishing_level
+                    ? <span className="text-muted-foreground">{d.predicted_finishing_level}</span>
+                    : "—"}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5">
                     <Badge variant={STATUS_VARIANT[d.status] ?? "secondary"}>
