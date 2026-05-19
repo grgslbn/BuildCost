@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { FileText, X, CheckCircle, AlertCircle, AlertTriangle, Loader2, Upload } from "lucide-react";
+import { FileText, X, CheckCircle, AlertCircle, AlertTriangle, Loader2, Upload, Info } from "lucide-react";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -51,6 +51,7 @@ type UploadResult = {
   fileName: string;
   ok: boolean;
   duplicate?: boolean;
+  reused?: boolean;
   existingId?: string;
   error?: string;
 };
@@ -125,6 +126,17 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
         fd.append("file", entry.file);
         const uploadResult = await uploadFile(fd);
 
+        if (uploadResult.status === "reused") {
+          uploadResults.push({
+            fileName: entry.file.name,
+            ok: false,
+            reused: true,
+            existingId: uploadResult.existingDossierId,
+            error: "Already in storage",
+          });
+          continue;
+        }
+
         if (uploadResult.status === "error") {
           uploadResults.push({
             fileName: entry.file.name,
@@ -190,17 +202,39 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
   if (phase === "done") {
     const successCount = results.filter((r) => r.ok).length;
     const duplicateResults = results.filter((r) => r.duplicate);
-    const errorResults = results.filter((r) => !r.ok && !r.duplicate);
+    const reusedResults = results.filter((r) => r.reused);
+    const errorResults = results.filter((r) => !r.ok && !r.duplicate && !r.reused);
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
           <p className="text-sm font-medium">
             {successCount} file{successCount !== 1 ? "s" : ""} uploaded successfully
+            {reusedResults.length > 0 && `, ${reusedResults.length} already in storage`}
             {duplicateResults.length > 0 && `, ${duplicateResults.length} duplicate${duplicateResults.length !== 1 ? "s" : ""} skipped`}
             {errorResults.length > 0 && `, ${errorResults.length} failed`}.
           </p>
         </div>
+        {reusedResults.length > 0 && (
+          <ul className="space-y-1">
+            {reusedResults.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-blue-600">
+                <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  {r.fileName} — already in storage.{" "}
+                  {r.existingId && (
+                    <a
+                      href={`/admin/dossiers/${r.existingId}`}
+                      className="underline underline-offset-4"
+                    >
+                      View existing →
+                    </a>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
         {duplicateResults.length > 0 && (
           <ul className="space-y-1">
             {duplicateResults.map((r, i) => (

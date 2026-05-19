@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -12,7 +13,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, AlertCircle } from "lucide-react";
+import { ArrowUpDown, AlertCircle, Trash2, Loader2 } from "lucide-react";
+import { deleteDossier } from "@/app/actions/delete-dossier";
 
 export type DossierRow = {
   id: string;
@@ -70,8 +72,19 @@ function BuildingTypeBadge({ type, apartmentCount }: { type: string | null; apar
 }
 
 export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
+  const router = useRouter();
   const [sortAsc, setSortAsc] = useState(false);
   const [expandedErrors, setExpandedErrors] = useState<Set<string>>(new Set());
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    setDeletingId(id);
+    const result = await deleteDossier(id);
+    setDeletingId(null);
+    setConfirmId(null);
+    if (result.success) router.refresh();
+  }
 
   const sorted = [...dossiers].sort((a, b) => {
     const diff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -116,6 +129,7 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                 <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
               </Button>
             </TableHead>
+            <TableHead className="w-[80px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -123,7 +137,7 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
             <>
               <TableRow
                 key={d.id}
-                className="cursor-pointer hover:bg-muted/50"
+                className="group cursor-pointer hover:bg-muted/50"
                 onClick={() => {
                   if (d.status === "error" && d.error_message) {
                     toggleError(d.id);
@@ -165,11 +179,45 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{formatDate(d.created_at)}</TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {confirmId === d.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={deletingId === d.id}
+                        onClick={() => handleDelete(d.id)}
+                        className="rounded px-1.5 py-0.5 text-xs font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                      >
+                        {deletingId === d.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Yes"
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmId(null)}
+                        className="rounded px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmId(d.id)}
+                      className="rounded p-1 text-muted-foreground opacity-0 hover:bg-muted hover:text-destructive group-hover:opacity-100"
+                      title="Delete dossier"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </TableCell>
               </TableRow>
 
               {d.status === "error" && d.error_message && expandedErrors.has(d.id) && (
                 <TableRow key={`${d.id}-error`} className="bg-destructive/5 hover:bg-destructive/5">
-                  <TableCell colSpan={7} className="py-2 pl-4">
+                  <TableCell colSpan={8} className="py-2 pl-4">
                     <div className="flex items-start gap-2">
                       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                       <div className="space-y-0.5">

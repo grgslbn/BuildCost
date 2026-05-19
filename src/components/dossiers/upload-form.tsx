@@ -180,6 +180,13 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     fd.append("file", file);
     const uploadResult = await uploadFile(fd);
 
+    if (uploadResult.status === "reused") {
+      setDuplicateId(uploadResult.existingDossierId);
+      setError("This file has already been uploaded.");
+      setPhase("select");
+      return;
+    }
+
     if (uploadResult.status === "error") {
       setError(uploadResult.message);
       setPhase("select");

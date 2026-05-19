@@ -21,6 +21,7 @@ import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
 import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
+import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,7 @@ export default async function AdminDossiersPage() {
   const pendingIds = dossiers
     .filter((d) => d.status === "pending")
     .map((d) => d.id);
+  const allIds = dossiers.map((d) => d.id);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
@@ -119,7 +121,10 @@ export default async function AdminDossiersPage() {
               )}
             </p>
           </div>
-          <BatchProcessButton dossierIds={pendingIds} />
+          <div className="flex items-center gap-2">
+            <BatchProcessButton dossierIds={pendingIds} />
+            <DeleteAllButton dossierIds={allIds} />
+          </div>
         </div>
         <DossierTable dossiers={dossiers} />
       </div>

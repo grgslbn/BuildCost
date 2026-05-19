@@ -6,6 +6,7 @@ import { SKIP_AUTH, DEV_TENANT_ID } from "@/lib/dev-auth";
 
 export type UploadFileResult =
   | { status: "success"; dossierId: string; storagePath: string; fileName: string; fileType: string }
+  | { status: "reused"; existingDossierId: string; storagePath: string; fileName: string; fileType: string }
   | { status: "error"; message: string };
 
 export async function uploadFile(formData: FormData): Promise<UploadFileResult> {
@@ -37,12 +38,31 @@ export async function uploadFile(formData: FormData): Promise<UploadFileResult> 
     return { status: "error", message: "No file provided" };
   }
 
+  const admin = createSupabaseAdminClient();
+
+  // Check if this filename already exists for this tenant
+  const { data: existing } = await admin
+    .from("reference_dossiers")
+    .select("id, plan_storage_path, plan_file_name, plan_file_type")
+    .eq("tenant_id", tenantId)
+    .eq("plan_file_name", file.name)
+    .maybeSingle();
+
+  if (existing) {
+    return {
+      status: "reused",
+      existingDossierId: existing.id,
+      storagePath: existing.plan_storage_path,
+      fileName: existing.plan_file_name,
+      fileType: existing.plan_file_type ?? "pdf",
+    };
+  }
+
   const dossierId = randomUUID();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
   const storagePath = `${tenantId}/${dossierId}/${file.name}`;
   const fileType = ext === "pdf" ? "pdf" : "image";
 
-  const admin = createSupabaseAdminClient();
   const arrayBuffer = await file.arrayBuffer();
 
   const { error } = await admin.storage
