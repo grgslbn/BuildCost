@@ -90,9 +90,29 @@ When processing a new reference dossier:
 3. Compare with actual (from known price)
 4. If residual > 15%:
    - Ask Claude to analyze what in this plan might explain the gap
-   - Propose new QQP candidates
-   - Store as `discovery_source = 'ai_discovered'` with `is_active = false`
-   - Activate after seeing the same QQP proposed 3+ times across different dossiers
+   - Propose new QQP candidates (stored in `qqp_discovery_log` with `status = 'proposed'`)
+   - `evaluateDiscoveries()` runs after each dossier — auto-activates any proposed QQP
+     that has been suggested across ≥ `qqp_discovery_threshold` (default: 3) distinct dossiers
+   - Activated QQPs are created in `qqp_definitions` with `discovery_source = 'ai_discovered'`,
+     `is_active = true`, and `weight = 0` (pending calibration)
+   - Matching `qqp_discovery_log` rows are updated to `status = 'accepted'`
+
+## AI-Discovered QQPs
+
+QQPs auto-activated by the system are stored with `discovery_source = 'ai_discovered'`.
+They are immediately included in future QQP extraction prompts.
+
+Retroactive extraction (`/api/retroactive-extract`) can fill in values for all
+existing analyzed dossiers using their stored `sqm_extraction` JSON, without re-processing
+any PDF. This is triggered manually from `/admin/qqp`.
+
+## Activation Threshold
+
+Controlled by the `qqp_discovery_threshold` system setting (default: 3).
+A proposed QQP is activated when it has been proposed by at least this many
+**distinct dossiers** — not just total proposals from the same dossier.
+
+To change: go to `/admin/settings` → QQP Engine → QQP Discovery Threshold.
 
 ## Finishing Coefficient Mapping
 
