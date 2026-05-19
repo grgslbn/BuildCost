@@ -310,7 +310,7 @@ export async function POST(req: NextRequest) {
       (sqmApartmentCount != null && sqmApartmentCount > 1) ||
       dossier.building_type === "apartment_building";
 
-    // ── Backfill known_* from sqm_extraction.summary if metadata extraction missed them ─
+    // ── Backfill flat columns from sqm_extraction if metadata extraction missed them ──
     {
       const backfill: Record<string, unknown> = {};
       const sqmLivable = sqmSummary.total_livable_sqm as number | null;
@@ -318,6 +318,8 @@ export async function POST(req: NextRequest) {
         (sqmSummary.total_replacement_value_incl_vat_eur as number | null) ??
         (sqmSummary.total_replacement_value_eur as number | null);
 
+      if (!dossier.building_type && sqmBuildingPrimary)
+        backfill.building_type = sqmBuildingPrimary;
       if (!dossier.known_total_sqm && sqmLivable && sqmLivable > 0)
         backfill.known_total_sqm = sqmLivable;
       if (!dossier.known_total_price && sqmReplacement && sqmReplacement > 0)

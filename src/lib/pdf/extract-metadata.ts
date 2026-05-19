@@ -41,11 +41,12 @@ export async function extractMetadata(
       .map((c) => c.pageNumber)
   );
 
-  const relevant = pages
-    .filter((p) => relevantNums.has(p.pageNumber))
-    .slice(0, 6);
-
-  if (relevant.length === 0) return EMPTY;
+  // Prefer expert_report/pricing_table pages; fall back to first pages of the
+  // document (cover, other) which almost always carry address + postcode in
+  // Belgian insurance VerzamelPDFs.
+  const relevant = relevantNums.size > 0
+    ? pages.filter((p) => relevantNums.has(p.pageNumber)).slice(0, 6)
+    : pages.slice(0, 4);
 
   const content: Anthropic.MessageParam["content"] = relevant.map((p) => ({
     type: "document",
