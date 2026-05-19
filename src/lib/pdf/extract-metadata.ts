@@ -1,0 +1,95 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { anthropic } from "@/lib/ai/client";
+import { parseClaudeJson } from "@/lib/ai/prompts";
+import type { SplitPage } from "./split-pages";
+import type { PageClassification } from "./classify-pages";
+
+export type ExtractedDossierMetadata = {
+  address: string | null;
+  postcode: string | null;
+  municipality: string | null;
+  building_type: string | null;
+  known_total_price: number | null;
+  known_total_sqm: number | null;
+  known_price_per_sqm: number | null;
+  expert_finishing_level: string | null;
+  expert_notes: string | null;
+};
+
+const EMPTY: ExtractedDossierMetadata = {
+  address: null,
+  postcode: null,
+  municipality: null,
+  building_type: null,
+  known_total_price: null,
+  known_total_sqm: null,
+  known_price_per_sqm: null,
+  expert_finishing_level: null,
+  expert_notes: null,
+};
+
+export async function extractMetadata(
+  pages: SplitPage[],
+  classifications: PageClassification[],
+  model: string
+): Promise<ExtractedDossierMetadata> {
+  const relevantNums = new Set(
+    classifications
+      .filter((c) => c.type === "expert_report" || c.type === "pricing_table")
+      .map((c) => c.pageNumber)
+  );
+
+  const relevant = pages
+    .filter((p) => relevantNums.has(p.pageNumber))
+    .slice(0, 6);
+
+  if (relevant.length === 0) return EMPTY;
+
+  const content: Anthropic.MessageParam["content"] = relevant.map((p) => ({
+    type: "document",
+    source: {
+      type: "base64",
+      media_type: "application/pdf",
+      data: p.base64,
+    },
+  } as Anthropic.DocumentBlockParam));
+
+  content.push({
+    type: "text",
+    text: `These pages are from a Belgian building insurance dossier. Extract metadata.
+
+Return ONLY valid JSON:
+{
+  "address": "full street address or null",
+  "postcode": "4-digit Belgian postcode or null",
+  "municipality": "city name or null",
+  "building_type": "house|apartment|villa|duplex|studio|commercial or null",
+  "known_total_price": reconstruction cost in EUR as number or null,
+  "known_total_sqm": total area in m² as number or null,
+  "known_price_per_sqm": price per m² as number or null,
+  "expert_finishing_level": "basic|standard|comfort|luxury|premium or null",
+  "expert_notes": "2-3 sentence summary of expert description or null"
+}
+
+Rules:
+- Extract the RECONSTRUCTION cost, not the real estate value
+- postcode must be exactly 4 digits
+- Return null for anything not present or unclear
+No markdown, no explanation.`,
+  });
+
+  const response = await anthropic.messages.create({
+    model,
+    max_tokens: 1024,
+    messages: [{ role: "user", content }],
+  });
+
+  const raw =
+    response.content[0].type === "text" ? response.content[0].text : "{}";
+
+  try {
+    return parseClaudeJson(raw) as ExtractedDossierMetadata;
+  } catch {
+    return EMPTY;
+  }
+}
