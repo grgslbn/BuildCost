@@ -4,6 +4,7 @@ import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
+import { SKIP_AUTH, DEV_TENANT_ID } from "@/lib/dev-auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +23,10 @@ import {
 import { ProcessingControls } from "@/components/dossiers/processing-controls";
 import { SqmResults } from "@/components/dossiers/sqm-results";
 import { QqpResults } from "@/components/dossiers/qqp-results";
+import {
+  DossierMetadataForm,
+  type DossierMeta,
+} from "@/components/dossiers/dossier-metadata-form";
 
 export const dynamic = "force-dynamic";
 
@@ -38,41 +43,38 @@ const STATUS_VARIANT: Record<
   error: "destructive",
 };
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-right">{value}</span>
-    </div>
-  );
-}
-
 export default async function DossierDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) notFound();
-
   const admin = createSupabaseAdminClient();
+  let tenantId: string;
 
-  const { data: userRow } = await admin
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single();
+  if (SKIP_AUTH) {
+    tenantId = DEV_TENANT_ID;
+  } else {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) notFound();
 
-  if (!userRow?.tenant_id) notFound();
+    const { data: userRow } = await admin
+      .from("users")
+      .select("tenant_id")
+      .eq("id", user.id)
+      .single();
+
+    if (!userRow?.tenant_id) notFound();
+    tenantId = userRow.tenant_id;
+  }
 
   const { data: dossier, error } = await admin
     .from("reference_dossiers")
     .select("*")
     .eq("id", params.id)
-    .eq("tenant_id", userRow.tenant_id)
+    .eq("tenant_id", tenantId)
     .single();
 
   if (error || !dossier) notFound();
@@ -87,6 +89,20 @@ export default async function DossierDetailPage({
   }
 
   const isImage = dossier.plan_file_type === "image";
+
+  const meta: DossierMeta = {
+    id: dossier.id,
+    address: dossier.address,
+    postcode: dossier.postcode,
+    building_type: dossier.building_type,
+    known_total_price: dossier.known_total_price,
+    known_total_sqm: dossier.known_total_sqm,
+    known_price_per_sqm: dossier.known_price_per_sqm,
+    expert_finishing_level: dossier.expert_finishing_level,
+    expert_notes: dossier.expert_notes,
+    price_abex_year: dossier.price_abex_year,
+    price_abex_semester: dossier.price_abex_semester,
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-8">
@@ -118,73 +134,13 @@ export default async function DossierDetailPage({
       <Separator />
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Known data */}
+        {/* Known data — editable */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Known data</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <InfoRow
-              label="Known price/m²"
-              value={
-                dossier.known_price_per_sqm != null
-                  ? new Intl.NumberFormat("fr-BE", {
-                      style: "currency",
-                      currency: "EUR",
-                    }).format(dossier.known_price_per_sqm)
-                  : "—"
-              }
-            />
-            <InfoRow
-              label="Total price"
-              value={
-                dossier.known_total_price != null
-                  ? new Intl.NumberFormat("fr-BE", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    }).format(dossier.known_total_price)
-                  : "—"
-              }
-            />
-            <InfoRow
-              label="Total area"
-              value={
-                dossier.known_total_sqm != null
-                  ? `${dossier.known_total_sqm} m²`
-                  : "—"
-              }
-            />
-            <InfoRow
-              label="Finishing coefficient"
-              value={
-                dossier.known_finishing_coefficient != null
-                  ? dossier.known_finishing_coefficient.toFixed(3)
-                  : "—"
-              }
-            />
-            <InfoRow
-              label="Finishing level"
-              value={dossier.expert_finishing_level ?? "—"}
-            />
-            <InfoRow
-              label="ABEX reference"
-              value={
-                dossier.price_abex_year
-                  ? `${dossier.price_abex_year} S${dossier.price_abex_semester}`
-                  : "—"
-              }
-            />
-            {dossier.expert_notes && (
-              <div className="border-t pt-2">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Expert notes
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {dossier.expert_notes}
-                </p>
-              </div>
-            )}
+          <CardContent>
+            <DossierMetadataForm dossier={meta} />
           </CardContent>
         </Card>
 

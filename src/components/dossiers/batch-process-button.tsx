@@ -8,10 +8,7 @@ import { Loader2 } from "lucide-react";
 export function BatchProcessButton({ dossierIds }: { dossierIds: string[] }) {
   const router = useRouter();
   const [running, setRunning] = useState(false);
-  const [progress, setProgress] = useState<{
-    done: number;
-    total: number;
-  } | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
 
   if (dossierIds.length === 0) return null;
 
@@ -31,23 +28,34 @@ export function BatchProcessButton({ dossierIds }: { dossierIds: string[] }) {
       } catch (e) {
         console.error(`Failed to process dossier ${dossierIds[i]}:`, e);
       }
+      // Refresh after each dossier so status updates in the table immediately
+      router.refresh();
     }
 
     setProgress({ done: dossierIds.length, total: dossierIds.length });
     setRunning(false);
-    router.refresh();
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col items-end gap-1.5">
       <Button variant="outline" size="sm" onClick={handleBatch} disabled={running}>
         {running && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Process All Pending ({dossierIds.length})
+        {running ? "Processing…" : `Process All Pending (${dossierIds.length})`}
       </Button>
       {running && progress && (
-        <span className="text-xs text-muted-foreground">
-          {progress.done}/{progress.total} processed
-        </span>
+        <div className="w-full space-y-1">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-1.5 rounded-full bg-primary transition-all duration-300"
+              style={{
+                width: `${Math.round((progress.done / progress.total) * 100)}%`,
+              }}
+            />
+          </div>
+          <p className="text-right text-xs text-muted-foreground">
+            Processing {progress.done + 1}/{progress.total}…
+          </p>
+        </div>
       )}
     </div>
   );

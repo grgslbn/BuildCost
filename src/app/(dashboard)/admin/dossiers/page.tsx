@@ -11,7 +11,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { DossierUploadForm } from "@/components/dossiers/upload-form";
+import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
 import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
 
@@ -70,33 +77,46 @@ export default async function AdminDossiersPage() {
         </p>
       </div>
 
-      {/* Section 1 — Upload form */}
+      {/* Upload card with tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload a dossier</CardTitle>
+          <CardTitle>Upload dossiers</CardTitle>
           <CardDescription>
-            Attach a building plan (PDF / PNG / JPG) along with the known expert data.
-            The plan is stored in Supabase Storage bucket{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">plans</code>; make
-            sure the bucket exists before uploading (Storage → New bucket → name:{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">plans</code>, public:{" "}
-            <span className="font-medium">off</span>).
+            Use <strong>Batch upload</strong> to drop many files at once (metadata filled later).
+            Use <strong>Detailed upload</strong> for a single file with full PDF analysis and
+            pre-filled metadata.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DossierUploadForm />
+          <Tabs defaultValue="batch">
+            <TabsList className="mb-6">
+              <TabsTrigger value="batch">Batch upload</TabsTrigger>
+              <TabsTrigger value="detailed">Detailed upload (single)</TabsTrigger>
+            </TabsList>
+            <TabsContent value="batch">
+              <BatchUploadForm />
+            </TabsContent>
+            <TabsContent value="detailed">
+              <DossierUploadForm />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
       <Separator />
 
-      {/* Section 2 — Dossier list */}
+      {/* Dossier list */}
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-medium">All dossiers</h2>
             <p className="text-sm text-muted-foreground">
               {dossiers.length} dossier{dossiers.length !== 1 ? "s" : ""} in your workspace.
+              {pendingIds.length > 0 && (
+                <span className="ml-1 text-amber-600">
+                  {pendingIds.length} pending processing.
+                </span>
+              )}
             </p>
           </div>
           <BatchProcessButton dossierIds={pendingIds} />
