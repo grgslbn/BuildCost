@@ -19,6 +19,7 @@ export type DossierRow = {
   address: string | null;
   postcode: string | null;
   building_type: string | null;
+  apartment_count: number | null;
   known_price_per_sqm: number | null;
   expert_finishing_level: string | null;
   status: string;
@@ -36,6 +37,16 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   error: "destructive",
 };
 
+const BUILDING_TYPE_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
+  house: "outline",
+  apartment: "secondary",
+  apartment_building: "default",
+  villa: "outline",
+  duplex: "secondary",
+  studio: "secondary",
+  commercial: "outline",
+};
+
 function formatCurrency(v: number | null) {
   if (!v) return "—";
   return new Intl.NumberFormat("fr-BE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(v);
@@ -43,6 +54,19 @@ function formatCurrency(v: number | null) {
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-BE", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function BuildingTypeBadge({ type, apartmentCount }: { type: string | null; apartmentCount: number | null }) {
+  if (!type) return <span className="text-muted-foreground">—</span>;
+  const label =
+    type === "apartment_building"
+      ? `Apt. building${apartmentCount ? ` (${apartmentCount})` : ""}`
+      : type.charAt(0).toUpperCase() + type.slice(1).replace("_", " ");
+  return (
+    <Badge variant={BUILDING_TYPE_VARIANT[type] ?? "outline"} className="text-xs capitalize">
+      {label}
+    </Badge>
+  );
 }
 
 export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
@@ -114,11 +138,13 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                     className="hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {d.address ?? <span className="text-muted-foreground">—</span>}
+                    {d.address ?? <span className="text-muted-foreground">{d.postcode ?? "—"}</span>}
                   </Link>
                 </TableCell>
                 <TableCell>{d.postcode ?? "—"}</TableCell>
-                <TableCell className="capitalize">{d.building_type ?? "—"}</TableCell>
+                <TableCell>
+                  <BuildingTypeBadge type={d.building_type} apartmentCount={d.apartment_count} />
+                </TableCell>
                 <TableCell>{formatCurrency(d.known_price_per_sqm)}</TableCell>
                 <TableCell className="capitalize">{d.expert_finishing_level ?? "—"}</TableCell>
                 <TableCell>
@@ -141,7 +167,6 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                 <TableCell className="text-muted-foreground">{formatDate(d.created_at)}</TableCell>
               </TableRow>
 
-              {/* Expandable error row */}
               {d.status === "error" && d.error_message && expandedErrors.has(d.id) && (
                 <TableRow key={`${d.id}-error`} className="bg-destructive/5 hover:bg-destructive/5">
                   <TableCell colSpan={7} className="py-2 pl-4">

@@ -136,6 +136,7 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [form, setForm] = useState<FormValues>(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
+  const [duplicateId, setDuplicateId] = useState<string | null>(null);
 
   const pricePerSqm =
     form.known_total_price && form.known_total_sqm && Number(form.known_total_sqm) > 0
@@ -224,6 +225,13 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
       pageClassifications: analysis?.classifications ?? null,
       ...form,
     });
+
+    if (result.status === "duplicate") {
+      setDuplicateId(result.id);
+      setError("A dossier with this filename already exists.");
+      setPhase("review");
+      return;
+    }
 
     if (result.status === "error") {
       setError(result.message);
@@ -322,6 +330,7 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
           setAnalysis(null);
           setForm(EMPTY_FORM);
           setError(null);
+          setDuplicateId(null);
         }}>
           Upload another
         </Button>
@@ -378,7 +387,19 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
       )}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <div className="text-sm text-destructive">
+          {error}
+          {duplicateId && (
+            <a
+              href={`/admin/dossiers/${duplicateId}`}
+              className="ml-2 underline underline-offset-4"
+            >
+              View existing dossier →
+            </a>
+          )}
+        </div>
+      )}
 
       {/* File info */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -24,6 +24,7 @@ export type SaveDossierInput = {
 
 export type SaveDossierResult =
   | { status: "success"; id: string }
+  | { status: "duplicate"; id: string }
   | { status: "error"; message: string };
 
 export async function saveDossier(input: SaveDossierInput): Promise<SaveDossierResult> {
@@ -50,6 +51,21 @@ export async function saveDossier(input: SaveDossierInput): Promise<SaveDossierR
     tenantId = userRow.tenant_id;
   }
 
+  const admin = createSupabaseAdminClient();
+
+  // Duplicate filename check — remove the just-uploaded storage file and return early
+  const { data: existing } = await admin
+    .from("reference_dossiers")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("plan_file_name", input.fileName)
+    .maybeSingle();
+
+  if (existing) {
+    await admin.storage.from("plans").remove([input.storagePath]);
+    return { status: "duplicate", id: existing.id };
+  }
+
   const knownTotalPrice = input.known_total_price ? Number(input.known_total_price) : null;
   const knownTotalSqm = input.known_total_sqm ? Number(input.known_total_sqm) : null;
   const knownPricePerSqm =
@@ -62,8 +78,6 @@ export async function saveDossier(input: SaveDossierInput): Promise<SaveDossierR
   const abexSuffix =
     abexYear && abexSemester ? `\n\n[ABEX ref: ${abexYear} S${abexSemester}]` : "";
   const expertNotes = input.expert_notes ? input.expert_notes + abexSuffix : null;
-
-  const admin = createSupabaseAdminClient();
 
   const { error } = await admin.from("reference_dossiers").insert({
     id: input.dossierId,
