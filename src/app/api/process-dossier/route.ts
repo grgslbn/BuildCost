@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
+import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
   SQM_SYSTEM_PROMPT,
@@ -8,8 +9,11 @@ import {
   buildQQPUserPrompt,
   parseClaudeJson,
 } from "@/lib/ai/prompts";
+import { splitPdfPages } from "@/lib/pdf/split-pages";
+import type { PageClassification } from "@/lib/pdf/classify-pages";
+import type Anthropic from "@anthropic-ai/sdk";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 function getImageMediaType(
   fileName: string
@@ -41,44 +45,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing dossierId" }, { status: 400 });
     }
 
-    const supabase = createSupabaseServerClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const admin = createSupabaseAdminClient();
 
-    const { data: userRow } = await admin
-      .from("users")
-      .select("tenant_id")
-      .eq("id", user.id)
-      .single();
-
-    if (!userRow?.tenant_id) {
-      return NextResponse.json({ error: "No tenant" }, { status: 403 });
+    if (!SKIP_AUTH) {
+      const supabase = createSupabaseServerClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      const { data: userRow } = await admin
+        .from("users")
+        .select("tenant_id")
+        .eq("id", user.id)
+        .single();
+      if (!userRow?.tenant_id) {
+        return NextResponse.json({ error: "No tenant" }, { status: 403 });
+      }
     }
 
     const { data: dossier, error: dossierError } = await admin
       .from("reference_dossiers")
       .select("*")
       .eq("id", dossierId)
-      .eq("tenant_id", userRow.tenant_id)
       .single();
 
     if (dossierError || !dossier) {
       return NextResponse.json({ error: "Dossier not found" }, { status: 404 });
-    }
-
-    if (dossier.plan_file_type === "pdf") {
-      await setStatus(admin, dossierId, "error", {
-        error_message:
-          "PDF processing not yet supported. Please upload a PNG or JPG image.",
-      });
-      return NextResponse.json({ error: "PDF not yet supported" }, { status: 422 });
     }
 
     if (!dossier.plan_storage_path) {
@@ -121,8 +116,57 @@ export async function POST(req: NextRequest) {
     }
 
     const arrayBuffer = await fileBlob.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const mediaType = getImageMediaType(dossier.plan_file_name ?? "plan.jpg");
+
+    // ── Build SQM content blocks ──────────────────────────────────────────────
+    let sqmContent: Anthropic.MessageParam["content"];
+
+    const classifications = dossier.page_classifications as PageClassification[] | null;
+
+    if (dossier.plan_file_type === "pdf") {
+      // Split PDF and use only floor_plan pages (or all if no classifications)
+      const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
+
+      const floorPlanNums = classifications
+        ? new Set(
+            classifications
+              .filter((c) => c.type === "floor_plan")
+              .map((c) => c.pageNumber)
+          )
+        : null;
+
+      const planPages =
+        floorPlanNums && floorPlanNums.size > 0
+          ? pages.filter((p) => floorPlanNums.has(p.pageNumber))
+          : pages;
+
+      if (planPages.length === 0) {
+        await setStatus(admin, dossierId, "error", {
+          error_message: "No floor plan pages found in PDF to extract SQM from.",
+        });
+        return NextResponse.json({ error: "No floor plan pages" }, { status: 422 });
+      }
+
+      sqmContent = [
+        ...planPages.map(
+          (p): Anthropic.DocumentBlockParam => ({
+            type: "document",
+            source: { type: "base64", media_type: "application/pdf", data: p.base64 },
+          })
+        ),
+        { type: "text", text: SQM_USER_PROMPT },
+      ];
+    } else {
+      // Image file
+      const base64 = Buffer.from(arrayBuffer).toString("base64");
+      const mediaType = getImageMediaType(dossier.plan_file_name ?? "plan.jpg");
+      sqmContent = [
+        {
+          type: "image",
+          source: { type: "base64", media_type: mediaType, data: base64 },
+        },
+        { type: "text", text: SQM_USER_PROMPT },
+      ];
+    }
 
     // ── SQM Extraction ────────────────────────────────────────────────────────
     await setStatus(admin, dossierId, "extracting_sqm", { error_message: null });
@@ -131,18 +175,7 @@ export async function POST(req: NextRequest) {
       model: extractionModel,
       max_tokens: 4096,
       system: SQM_SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType, data: base64 },
-            },
-            { type: "text", text: SQM_USER_PROMPT },
-          ],
-        },
-      ],
+      messages: [{ role: "user", content: sqmContent }],
     });
 
     const sqmRaw =
