@@ -9,6 +9,7 @@ export type ExtractedDossierMetadata = {
   postcode: string | null;
   municipality: string | null;
   building_type: string | null;
+  apartment_count: number | null;
   known_total_price: number | null;
   known_total_sqm: number | null;
   known_price_per_sqm: number | null;
@@ -21,6 +22,7 @@ const EMPTY: ExtractedDossierMetadata = {
   postcode: null,
   municipality: null,
   building_type: null,
+  apartment_count: null,
   known_total_price: null,
   known_total_sqm: null,
   known_price_per_sqm: null,
@@ -56,17 +58,18 @@ export async function extractMetadata(
 
   content.push({
     type: "text",
-    text: `These pages are from a Belgian building insurance dossier. Extract metadata.
+    text: `These pages are from a Belgian building insurance/reconstruction dossier. Extract metadata.
 
 Return ONLY valid JSON:
 {
   "address": "full street address or null",
   "postcode": "4-digit Belgian postcode or null",
   "municipality": "city name or null",
-  "building_type": "house|apartment|villa|duplex|studio|commercial or null",
+  "building_type": "house|apartment|apartment_building|villa|duplex|studio|commercial or null",
+  "apartment_count": number of units if this is an apartment_building (e.g. 12 for '12 appartementen'), else null,
   "known_total_price": reconstruction cost in EUR as number or null,
-  "known_total_sqm": total area in m² as number or null,
-  "known_price_per_sqm": price per m² as number or null,
+  "known_total_sqm": total habitable area in m² as number or null,
+  "known_price_per_sqm": reconstruction price per m² as number or null,
   "expert_finishing_level": "basic|standard|comfort|luxury|premium or null",
   "expert_notes": "2-3 sentence summary of expert description or null"
 }
@@ -74,6 +77,8 @@ Return ONLY valid JSON:
 Rules:
 - Extract the RECONSTRUCTION cost, not the real estate value
 - postcode must be exactly 4 digits
+- Use building_type "apartment_building" when multiple units are listed (e.g. "12 appartementen", "résidence de 8 appartements")
+- apartment_count is the total number of units (integer), only for apartment_building
 - Return null for anything not present or unclear
 No markdown, no explanation.`,
   });

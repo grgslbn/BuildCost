@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { FileText, X, CheckCircle, AlertCircle, Loader2, Upload } from "lucide-react";
+import { FileText, X, CheckCircle, AlertCircle, AlertTriangle, Loader2, Upload } from "lucide-react";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,8 @@ type UploadPhase = "select" | "uploading" | "done";
 type UploadResult = {
   fileName: string;
   ok: boolean;
+  duplicate?: boolean;
+  existingId?: string;
   error?: string;
 };
 
@@ -149,7 +151,15 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
           expert_notes: "",
         });
 
-        if (saveResult.status === "error") {
+        if (saveResult.status === "duplicate") {
+          uploadResults.push({
+            fileName: entry.file.name,
+            ok: false,
+            duplicate: true,
+            existingId: saveResult.id,
+            error: "Already uploaded",
+          });
+        } else if (saveResult.status === "error") {
           uploadResults.push({ fileName: entry.file.name, ok: false, error: saveResult.message });
         } else {
           uploadResults.push({ fileName: entry.file.name, ok: true });
@@ -179,28 +189,48 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
 
   if (phase === "done") {
     const successCount = results.filter((r) => r.ok).length;
-    const errorCount = results.filter((r) => !r.ok).length;
+    const duplicateResults = results.filter((r) => r.duplicate);
+    const errorResults = results.filter((r) => !r.ok && !r.duplicate);
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
           <p className="text-sm font-medium">
             {successCount} file{successCount !== 1 ? "s" : ""} uploaded successfully
-            {errorCount > 0 && `, ${errorCount} failed`}.
+            {duplicateResults.length > 0 && `, ${duplicateResults.length} duplicate${duplicateResults.length !== 1 ? "s" : ""} skipped`}
+            {errorResults.length > 0 && `, ${errorResults.length} failed`}.
           </p>
         </div>
-        {errorCount > 0 && (
+        {duplicateResults.length > 0 && (
           <ul className="space-y-1">
-            {results
-              .filter((r) => !r.ok)
-              .map((r, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-destructive">
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>
-                    {r.fileName}: {r.error}
-                  </span>
-                </li>
-              ))}
+            {duplicateResults.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-amber-600">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  {r.fileName} — already uploaded.{" "}
+                  {r.existingId && (
+                    <a
+                      href={`/admin/dossiers/${r.existingId}`}
+                      className="underline underline-offset-4"
+                    >
+                      View existing →
+                    </a>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {errorResults.length > 0 && (
+          <ul className="space-y-1">
+            {errorResults.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  {r.fileName}: {r.error}
+                </span>
+              </li>
+            ))}
           </ul>
         )}
         <Button variant="outline" size="sm" onClick={handleReset}>

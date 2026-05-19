@@ -10,6 +10,8 @@ import {
   parseClaudeJson,
 } from "@/lib/ai/prompts";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
+import { classifyPages } from "@/lib/pdf/classify-pages";
+import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -38,7 +40,6 @@ async function setStatus(
 }
 
 export async function POST(req: NextRequest) {
-  // Hoisted so the catch block can write the error to the DB
   let dossierId: string | undefined;
   const admin = createSupabaseAdminClient();
   const startTime = Date.now();
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
         "extraction_model",
         "qqp_model",
         "qqp_residual_trigger",
-        "qqp_discovery_threshold",
+        "national_base_price_sqm",
       ]);
 
     const settings = Object.fromEntries(
@@ -104,7 +105,8 @@ export async function POST(req: NextRequest) {
       (settings.extraction_model as string) ?? "claude-sonnet-4-20250514";
     const qqpModel =
       (settings.qqp_model as string) ?? "claude-sonnet-4-20250514";
-    const residualTrigger = (settings.qqp_residual_trigger as number) ?? 0.15;
+    const residualTrigger = 0.15;
+    const nationalBasePriceSqm = (settings.national_base_price_sqm as number) ?? 1450;
 
     // Download plan from Storage
     const { data: fileBlob, error: storageError } = await admin.storage
@@ -122,22 +124,66 @@ export async function POST(req: NextRequest) {
 
     // ── Build SQM content blocks ──────────────────────────────────────────────
     let sqmContent: Anthropic.MessageParam["content"];
-
-    const classifications = dossier.page_classifications as PageClassification[] | null;
+    let effectiveClassifications = dossier.page_classifications as PageClassification[] | null;
 
     if (dossier.plan_file_type === "pdf") {
       const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
 
-      const floorPlanNums = classifications
-        ? new Set(
-            classifications
-              .filter((c) => c.type === "floor_plan")
-              .map((c) => c.pageNumber)
-          )
-        : null;
+      // ── Step A: Classify pages if not already stored ──────────────────────
+      if (!effectiveClassifications) {
+        effectiveClassifications = await classifyPages(pages, extractionModel);
+        await admin
+          .from("reference_dossiers")
+          .update({ page_classifications: effectiveClassifications })
+          .eq("id", dossierId);
+      }
+
+      // ── Step B: Extract metadata from expert_report / pricing_table pages ──
+      let extractedMeta = null;
+      try {
+        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel);
+      } catch {
+        // Non-fatal — metadata extraction failure doesn't block plan processing
+      }
+
+      if (extractedMeta) {
+        const metaUpdate: Record<string, unknown> = {};
+        if (!dossier.address && extractedMeta.address) metaUpdate.address = extractedMeta.address;
+        if (!dossier.postcode && extractedMeta.postcode) metaUpdate.postcode = extractedMeta.postcode;
+        if (!dossier.municipality && extractedMeta.municipality) metaUpdate.municipality = extractedMeta.municipality;
+        if (!dossier.building_type && extractedMeta.building_type) metaUpdate.building_type = extractedMeta.building_type;
+        if (!dossier.known_total_price && extractedMeta.known_total_price) metaUpdate.known_total_price = extractedMeta.known_total_price;
+        if (!dossier.known_total_sqm && extractedMeta.known_total_sqm) metaUpdate.known_total_sqm = extractedMeta.known_total_sqm;
+        if (!dossier.known_price_per_sqm) {
+          const derivedPrice =
+            extractedMeta.known_price_per_sqm ??
+            (extractedMeta.known_total_price && extractedMeta.known_total_sqm && extractedMeta.known_total_sqm > 0
+              ? extractedMeta.known_total_price / extractedMeta.known_total_sqm
+              : null);
+          if (derivedPrice) metaUpdate.known_price_per_sqm = derivedPrice;
+        }
+        if (!dossier.expert_finishing_level && extractedMeta.expert_finishing_level)
+          metaUpdate.expert_finishing_level = extractedMeta.expert_finishing_level;
+        if (extractedMeta.apartment_count != null && extractedMeta.apartment_count > 1) {
+          metaUpdate.apartment_count = extractedMeta.apartment_count;
+          metaUpdate.building_type = "apartment_building";
+        }
+
+        if (Object.keys(metaUpdate).length > 0) {
+          await admin.from("reference_dossiers").update(metaUpdate).eq("id", dossierId);
+          Object.assign(dossier, metaUpdate);
+        }
+      }
+
+      // ── Step C: Build floor-plan page content for SQM extraction ──────────
+      const floorPlanNums = new Set(
+        effectiveClassifications
+          .filter((c) => c.type === "floor_plan")
+          .map((c) => c.pageNumber)
+      );
 
       const planPages =
-        floorPlanNums && floorPlanNums.size > 0
+        floorPlanNums.size > 0
           ? pages.filter((p) => floorPlanNums.has(p.pageNumber))
           : pages;
 
@@ -158,6 +204,7 @@ export async function POST(req: NextRequest) {
         { type: "text", text: SQM_USER_PROMPT },
       ];
     } else {
+      // Image file — no classification or metadata extraction
       const base64 = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(dossier.plan_file_name ?? "plan.jpg");
       sqmContent = [
@@ -192,6 +239,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "SQM parse error" }, { status: 500 });
     }
 
+    // ── Apartment building detection ──────────────────────────────────────────
+    const sqmSummary = (sqmExtraction.summary ?? {}) as Record<string, unknown>;
+    const sqmBuildingPrimary = ((sqmExtraction.building_type ?? {}) as Record<string, unknown>).primary as string | undefined;
+    const sqmApartmentCount = sqmSummary.apartment_count as number | null | undefined;
+    const isApartmentBuilding =
+      sqmBuildingPrimary === "apartment_building" ||
+      (sqmApartmentCount != null && sqmApartmentCount > 1) ||
+      dossier.building_type === "apartment_building";
+
+    if (isApartmentBuilding) {
+      const aptCount = sqmApartmentCount ?? dossier.apartment_count ?? null;
+      await admin
+        .from("reference_dossiers")
+        .update({
+          building_type: "apartment_building",
+          apartment_count: aptCount,
+          sqm_extraction: sqmExtraction,
+          processing_time_ms: Date.now() - startTime,
+          status: "analyzed",
+          error_message: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", dossierId);
+      return NextResponse.json({ success: true, status: "analyzed", apartment_building: true });
+    }
+
     await setStatus(admin, dossierId, "sqm_done", { sqm_extraction: sqmExtraction });
 
     // ── QQP Extraction ────────────────────────────────────────────────────────
@@ -206,7 +279,7 @@ export async function POST(req: NextRequest) {
     const qqpUserPrompt = buildQQPUserPrompt(
       sqmExtraction,
       qqpDefs ?? [],
-      dossier.known_finishing_coefficient != null
+      dossier.known_finishing_coefficient != null || dossier.known_price_per_sqm != null
         ? {
             knownPricePerSqm: dossier.known_price_per_sqm,
             knownCoefficient: dossier.known_finishing_coefficient,
@@ -281,10 +354,16 @@ export async function POST(req: NextRequest) {
     }
 
     const predictedCoeff = qqpExtraction.finishing_assessment.coefficient;
-    const predictionError =
-      dossier.known_finishing_coefficient != null
-        ? predictedCoeff - dossier.known_finishing_coefficient
-        : null;
+
+    // ── prediction_error: prefer explicit known coefficient, fall back to
+    //    deriving an effective coefficient from known_price_per_sqm ──────────
+    let predictionError: number | null = null;
+    if (dossier.known_finishing_coefficient != null) {
+      predictionError = predictedCoeff - dossier.known_finishing_coefficient;
+    } else if (dossier.known_price_per_sqm != null && nationalBasePriceSqm > 0) {
+      const effectiveCoeff = dossier.known_price_per_sqm / nationalBasePriceSqm;
+      predictionError = predictedCoeff - effectiveCoeff;
+    }
 
     await admin
       .from("reference_dossiers")

@@ -156,6 +156,12 @@ export default async function DossierDetailPage({
                 dossierId={dossier.id}
                 initialStatus={dossier.status}
               />
+              {dossier.building_type === "apartment_building" && (
+                <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  Apartment building
+                  {dossier.apartment_count ? ` (${dossier.apartment_count} units)` : ""} — per-unit analysis coming soon. QQP extraction was skipped.
+                </p>
+              )}
               {dossier.status === "error" && dossier.error_message && (
                 <p className="mt-2 text-sm text-destructive">
                   {dossier.error_message}

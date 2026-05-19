@@ -25,7 +25,7 @@ export const SQM_USER_PROMPT = `Analyze this building plan and extract all room 
     "notes": "how you determined the scale"
   },
   "building_type": {
-    "primary": "house|apartment|villa|duplex|studio",
+    "primary": "house|apartment|apartment_building|villa|duplex|studio",
     "style": "detached|semi-detached|terraced|flat",
     "confidence": 0.0
   },
@@ -71,13 +71,15 @@ export const SQM_USER_PROMPT = `Analyze this building plan and extract all room 
     "has_pool": false,
     "room_count": 0,
     "bedroom_count": 0,
-    "bathroom_count": 0
+    "bathroom_count": 0,
+    "apartment_count": null
   },
   "extraction_warnings": []
 }
 
 IMPORTANT:
 - If this is a multi-page PDF, each page is likely a different floor. Process all floors.
+- If this is an apartment building with multiple identical units, set building_type.primary to "apartment_building" and set summary.apartment_count to the number of units.
 - If dimensions are written on the plan, USE THEM. Don't estimate when exact numbers are given.
 - For rooms with L-shapes or irregular shapes, break into rectangles and sum.
 - Include ALL circulation (halls, corridors, stairs) — they count toward livable area.
