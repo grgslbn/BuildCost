@@ -95,16 +95,22 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 
 > **Update this section after every significant milestone!**
 
-- [ ] Repository created
-- [ ] Supabase project created
+- [x] Repository created
+- [x] Supabase project created (`sqmpgzzjxsmywmpsplmu`, eu-west-1)
 - [ ] Vercel project connected
-- [ ] Database schema migrated
+- [x] Database schema migrated
 - [ ] WS1: First plan extraction working
-- [ ] WS2: QQP definitions seeded
+- [x] WS2: QQP definitions seeded (32 definitions across 4 categories)
 - [ ] WS2: First reference dossier processed
 - [ ] Integration: end-to-end flow working
 - [ ] Landing page live
 - [ ] Demo ready
+
+**Additional progress (WS2):**
+- ABEX index seeded (10 entries) and regional postcode coefficients imported
+- Auth (magic link) + tenant auto-provisioning built and deployed
+- Admin dossier upload page built (`/admin/dossiers`): drag-drop plan upload to Storage, full metadata form, reference dossier list with status tracking
+- Storage bucket `plans` created (private, 50 MB limit, PDF/PNG/JPG)
 
 ## Supabase Details
 

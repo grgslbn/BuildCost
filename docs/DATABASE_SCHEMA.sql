@@ -48,6 +48,26 @@ CREATE TABLE abex_index (
 );
 
 -- ============================================================
+-- SYSTEM SETTINGS
+-- ============================================================
+
+CREATE TABLE system_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  description TEXT,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Helper: read a setting with an optional default
+CREATE OR REPLACE FUNCTION get_setting(p_key TEXT, p_default TEXT DEFAULT NULL)
+RETURNS TEXT LANGUAGE sql STABLE AS $$
+  SELECT COALESCE(
+    (SELECT value FROM system_settings WHERE key = p_key),
+    p_default
+  );
+$$;
+
+-- ============================================================
 -- QQP ENGINE
 -- ============================================================
 
@@ -85,7 +105,7 @@ CREATE TABLE qqp_definitions (
 CREATE TABLE reference_dossiers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID REFERENCES tenants(id),
-  
+
   -- Known info from the dossier
   address TEXT,
   postcode TEXT,
@@ -97,20 +117,24 @@ CREATE TABLE reference_dossiers (
   known_finishing_coefficient DECIMAL,
   expert_notes TEXT, -- original expert description
   expert_finishing_level TEXT, -- 'basic', 'standard', 'comfort', 'luxury', 'premium'
-  
+
+  -- ABEX period when the expert price was set
+  price_abex_year INTEGER,
+  price_abex_semester INTEGER CHECK (price_abex_semester IN (1, 2)),
+
   -- File storage
   plan_storage_path TEXT, -- Supabase Storage path
   plan_file_name TEXT,
   plan_file_type TEXT, -- 'pdf', 'image', 'cad'
-  
+
   -- AI extraction results
   sqm_extraction JSONB, -- full WS1 output (SQM_CONTRACT format)
   qqp_extraction JSONB, -- extracted QQP values
-  
+
   -- Predicted vs actual
   predicted_finishing_coefficient DECIMAL,
   prediction_error DECIMAL, -- predicted - actual
-  
+
   -- Status
   status TEXT DEFAULT 'pending' CHECK (status IN (
     'pending',        -- uploaded, not yet processed
@@ -122,7 +146,7 @@ CREATE TABLE reference_dossiers (
     'error'           -- processing failed
   )),
   error_message TEXT,
-  
+
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -142,63 +166,7 @@ CREATE TABLE dossier_qqp_values (
 );
 
 -- ============================================================
--- ESTIMATIONS (Production Usage)
--- ============================================================
-
-CREATE TABLE estimations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id UUID REFERENCES tenants(id),
-  created_by UUID REFERENCES users(id),
-  
-  -- Input
-  plan_storage_path TEXT,
-  plan_file_name TEXT,
-  postcode TEXT,
-  postcode_provided_by TEXT DEFAULT 'user' CHECK (postcode_provided_by IN ('user', 'plan', 'auto')),
-  
-  -- Extracted data
-  building_type TEXT,
-  sqm_extraction JSONB, -- full WS1 output
-  total_livable_sqm DECIMAL,
-  total_gross_sqm DECIMAL,
-  sub_areas JSONB, -- simplified: {living: 35.2, kitchen: 18.0, ...}
-  
-  -- QQP analysis
-  extracted_qqps JSONB, -- {qqp_name: value, ...}
-  finishing_level TEXT, -- 'basic', 'standard', 'comfort', 'luxury', 'premium'
-  finishing_coefficient DECIMAL,
-  
-  -- Cost calculation
-  base_price_per_sqm DECIMAL, -- from postcode lookup
-  abex_factor DECIMAL, -- current ABEX index ratio
-  estimated_price_per_sqm DECIMAL, -- final price/m²
-  estimated_total_cost DECIMAL, -- final total
-  
-  -- Confidence
-  sqm_confidence DECIMAL,
-  qqp_confidence DECIMAL,
-  overall_confidence DECIMAL,
-  
-  -- Status
-  status TEXT DEFAULT 'uploading' CHECK (status IN (
-    'uploading',
-    'extracting_sqm',
-    'analyzing_qqp',
-    'calculating',
-    'complete',
-    'error'
-  )),
-  error_message TEXT,
-  
-  -- Metadata
-  processing_time_ms INTEGER,
-  model_version_id UUID REFERENCES qqp_model_versions(id),
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- ============================================================
--- QQP MODEL VERSIONING
+-- QQP MODEL VERSIONING  (must come before estimations)
 -- ============================================================
 
 CREATE TABLE qqp_model_versions (
@@ -210,6 +178,62 @@ CREATE TABLE qqp_model_versions (
   notes TEXT,
   is_active BOOLEAN DEFAULT false, -- only one active at a time
   created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
+-- ESTIMATIONS (Production Usage)
+-- ============================================================
+
+CREATE TABLE estimations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES tenants(id),
+  created_by UUID REFERENCES users(id),
+
+  -- Input
+  plan_storage_path TEXT,
+  plan_file_name TEXT,
+  postcode TEXT,
+  postcode_provided_by TEXT DEFAULT 'user' CHECK (postcode_provided_by IN ('user', 'plan', 'auto')),
+
+  -- Extracted data
+  building_type TEXT,
+  sqm_extraction JSONB, -- full WS1 output
+  total_livable_sqm DECIMAL,
+  total_gross_sqm DECIMAL,
+  sub_areas JSONB, -- simplified: {living: 35.2, kitchen: 18.0, ...}
+
+  -- QQP analysis
+  extracted_qqps JSONB, -- {qqp_name: value, ...}
+  finishing_level TEXT, -- 'basic', 'standard', 'comfort', 'luxury', 'premium'
+  finishing_coefficient DECIMAL,
+
+  -- Cost calculation
+  base_price_per_sqm DECIMAL, -- from postcode lookup
+  abex_factor DECIMAL, -- current ABEX index ratio
+  estimated_price_per_sqm DECIMAL, -- final price/m²
+  estimated_total_cost DECIMAL, -- final total
+
+  -- Confidence
+  sqm_confidence DECIMAL,
+  qqp_confidence DECIMAL,
+  overall_confidence DECIMAL,
+
+  -- Status
+  status TEXT DEFAULT 'uploading' CHECK (status IN (
+    'uploading',
+    'extracting_sqm',
+    'analyzing_qqp',
+    'calculating',
+    'complete',
+    'error'
+  )),
+  error_message TEXT,
+
+  -- Metadata
+  processing_time_ms INTEGER,
+  model_version_id UUID REFERENCES qqp_model_versions(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- ============================================================
@@ -275,6 +299,44 @@ CREATE POLICY "Users see own tenant estimations" ON estimations
 
 -- QQP definitions and reference data are public read
 -- (no RLS needed — they're shared across tenants)
+
+-- ============================================================
+-- HELPER FUNCTIONS
+-- ============================================================
+
+-- Returns the base price/m² for a postcode; falls back to the regional
+-- average, then to the national default stored in system_settings.
+CREATE OR REPLACE FUNCTION get_regional_coefficient(p_postcode TEXT)
+RETURNS DECIMAL LANGUAGE plpgsql STABLE AS $$
+DECLARE
+  v_price DECIMAL;
+  v_region TEXT;
+  v_default DECIMAL;
+BEGIN
+  -- Exact postcode match
+  SELECT base_price_per_sqm INTO v_price
+  FROM postcode_prices
+  WHERE postcode = p_postcode
+  LIMIT 1;
+
+  IF v_price IS NOT NULL THEN
+    RETURN v_price;
+  END IF;
+
+  -- Regional average (first 2 digits of postcode = province prefix)
+  SELECT AVG(base_price_per_sqm) INTO v_price
+  FROM postcode_prices
+  WHERE LEFT(postcode, 2) = LEFT(p_postcode, 2);
+
+  IF v_price IS NOT NULL THEN
+    RETURN v_price;
+  END IF;
+
+  -- National fallback from system_settings
+  v_default := get_setting('default_base_price_per_sqm', '1000')::DECIMAL;
+  RETURN v_default;
+END;
+$$;
 
 -- ============================================================
 -- SEED QQP CATEGORIES
