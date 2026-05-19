@@ -12,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
+import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,9 @@ export default async function AdminDossiersPage() {
     .single();
 
   const dossiers = userRow?.tenant_id ? await getDossiers(userRow.tenant_id) : [];
+  const pendingIds = dossiers
+    .filter((d) => d.status === "pending")
+    .map((d) => d.id);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
@@ -78,11 +82,14 @@ export default async function AdminDossiersPage() {
 
       {/* Section 2 — Dossier list */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-medium">All dossiers</h2>
-          <p className="text-sm text-muted-foreground">
-            {dossiers.length} dossier{dossiers.length !== 1 ? "s" : ""} in your workspace.
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-medium">All dossiers</h2>
+            <p className="text-sm text-muted-foreground">
+              {dossiers.length} dossier{dossiers.length !== 1 ? "s" : ""} in your workspace.
+            </p>
+          </div>
+          <BatchProcessButton dossierIds={pendingIds} />
         </div>
         <DossierTable dossiers={dossiers} />
       </div>
