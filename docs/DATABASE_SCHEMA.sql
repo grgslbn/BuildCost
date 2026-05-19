@@ -53,16 +53,19 @@ CREATE TABLE abex_index (
 
 CREATE TABLE system_settings (
   key TEXT PRIMARY KEY,
-  value TEXT NOT NULL,
+  value JSONB NOT NULL,           -- stored as JSONB; use #>> '{}' to read as text
+  display_name TEXT NOT NULL,
   description TEXT,
+  category TEXT NOT NULL,
+  updated_by UUID REFERENCES auth.users(id),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Helper: read a setting with an optional default
+-- Helper: read a setting as text with an optional default
 CREATE OR REPLACE FUNCTION get_setting(p_key TEXT, p_default TEXT DEFAULT NULL)
 RETURNS TEXT LANGUAGE sql STABLE AS $$
   SELECT COALESCE(
-    (SELECT value FROM system_settings WHERE key = p_key),
+    (SELECT value #>> '{}' FROM system_settings WHERE key = p_key),
     p_default
   );
 $$;
