@@ -187,10 +187,7 @@ export const STRICT_JSON_RETRY_MESSAGE =
 
 function cleanJsonText(text: string): string {
   let s = text.trim();
-  // Strip markdown code fences
-  s = s.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```\s*$/g, "");
-  s = s.trim();
-  // Extract from first { to last } to tolerate leading/trailing prose
+  s = s.replace(/^(?:```json)?\s*\n?/i, "").replace(/\n?\s*```\s*$/i, "").trim();
   const first = s.indexOf("{");
   const last = s.lastIndexOf("}");
   if (first !== -1 && last !== -1 && last > first) {
@@ -200,5 +197,11 @@ function cleanJsonText(text: string): string {
 }
 
 export function parseClaudeJson(text: string): unknown {
-  return JSON.parse(cleanJsonText(text));
+  const cleaned = cleanJsonText(text);
+  if (!cleaned.endsWith("}")) {
+    throw new Error(
+      "JSON response truncated — building may be too complex. Try increasing max_tokens."
+    );
+  }
+  return JSON.parse(cleaned);
 }
