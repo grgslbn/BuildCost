@@ -87,6 +87,7 @@ function PromptBlock({
   const [system, setSystem] = useState(systemText);
   const [user, setUser] = useState(userText);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const combined =
@@ -106,17 +107,27 @@ function PromptBlock({
 
   function handleSave() {
     startTransition(async () => {
-      await savePrompt(config.key, combined);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      const result = await savePrompt(config.key, combined);
+      if (result.error) {
+        setSaveError(result.error);
+      } else {
+        setSaveError(null);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
     });
   }
 
   function handleReset() {
     startTransition(async () => {
-      await resetPrompt(config.key);
-      setSystem(defaults.system);
-      setUser(defaults.user);
+      const result = await resetPrompt(config.key);
+      if (result.error) {
+        setSaveError(result.error);
+      } else {
+        setSaveError(null);
+        setSystem(defaults.system);
+        setUser(defaults.user);
+      }
     });
   }
 
@@ -177,6 +188,12 @@ function PromptBlock({
             ))}
           </div>
         </details>
+      )}
+
+      {saveError && (
+        <p className="text-xs text-destructive rounded-md bg-destructive/10 px-3 py-2">
+          {saveError}
+        </p>
       )}
 
       <div className="flex items-center justify-between pt-1">
