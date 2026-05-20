@@ -228,23 +228,34 @@ export default function EstimatePage() {
 
       const id = createResult.estimationId;
       console.log("[estimate] step 4 — estimation row created, id:", id);
+
+      // Step 4: validate with /api/estimate (fast, <1s)
+      console.log("[estimate] step 4 — validating via /api/estimate, id:", id);
+      const validateRes = await fetch("/api/estimate", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ estimationId: id }),
+      });
+      if (!validateRes.ok) {
+        const errBody = await validateRes.json().catch(() => null);
+        throw new Error(errBody?.error ?? "Validation failed before processing.");
+      }
+
+      // Step 5: fire /api/estimate-process — do NOT await. Vercel runs it
+      // synchronously for up to 300s; the browser just doesn't wait for the
+      // response. Polling (triggered below) tracks progress via DB status.
+      console.log("[estimate] step 5 — firing /api/estimate-process (no await)");
+      fetch("/api/estimate-process", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ estimationId: id }),
+      }).catch((err) => {
+        console.error("[estimate] estimate-process network error:", err);
+      });
+
       setEstimationId(id);
       setProcessingStatus("extracting_sqm");
-
-      // Step 4: POST /api/estimate — awaited so errors surface here, not silently
-      console.log("[estimate] step 4 — POSTing /api/estimate with estimationId:", id, "storagePath:", urlData.path);
-      const estimateRes = await fetch("/api/estimate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ estimationId: id }),
-      });
-      console.log("[estimate] step 4 — /api/estimate responded:", estimateRes.status);
-      if (!estimateRes.ok) {
-        const errBody = await estimateRes.json().catch(() => null);
-        console.error("[estimate] step 4 — /api/estimate error body:", errBody);
-        // Don't throw: server may have already written an error status to DB
-        // and polling will surface it. Only throw on network-level failure.
-      }
+      // Polling starts automatically: the useEffect watching phase + estimationId
     } catch (err) {
       console.error("[estimate] handleSubmit error:", err);
       setProcessingError(

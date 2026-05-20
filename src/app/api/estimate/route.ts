@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import { SKIP_AUTH } from "@/lib/dev-auth";
 
-// Thin gate: validates auth + row, kicks off /api/estimate-process in the
-// background, and returns 200 immediately so the client can start polling.
-// All heavy AI work lives in /api/estimate-process (maxDuration = 300).
+// Fast gate: validates auth + confirms the estimation row has a storage path,
+// then returns the estimationId. The client is responsible for firing
+// /api/estimate-process directly (without awaiting) — that route holds the
+// connection open for up to 300s and updates DB status as it progresses.
 
 export async function POST(req: NextRequest) {
   const admin = createSupabaseAdminClient();
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Verify the row exists and has a storage path before kicking off processing
+    // Verify the row exists and has a storage path
     const { data: est, error: estError } = await admin
       .from("estimations")
       .select("id, plan_storage_path")
@@ -46,17 +47,6 @@ export async function POST(req: NextRequest) {
         .eq("id", estimationId);
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
     }
-
-    // Fire /api/estimate-process without awaiting — it runs as a separate
-    // Vercel function instance and updates the DB status as it progresses.
-    const origin = new URL(req.url).origin;
-    fetch(`${origin}/api/estimate-process`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ estimationId }),
-    }).catch((err) => {
-      console.error("[estimate] failed to kick off estimate-process:", err);
-    });
 
     return NextResponse.json({ estimationId });
   } catch (err) {
