@@ -116,7 +116,14 @@ export default function EstimatePage() {
         const res = await fetch(`/api/estimate-status/${estimationId}`);
         if (!res.ok) return;
         const data = (await res.json()) as EstimationResult & { error_message?: string };
-        setProcessingStatus(data.status);
+
+        // Only advance the status — never regress (e.g. DB "uploading" must not
+        // override a client-set "extracting_sqm" before the server catches up).
+        setProcessingStatus((prev) => {
+          const prevIdx = STATUS_ORDER.indexOf(prev);
+          const newIdx  = STATUS_ORDER.indexOf(data.status);
+          return newIdx > prevIdx ? data.status : prev;
+        });
 
         if (data.status === "complete") {
           clearInterval(poll);
@@ -165,55 +172,74 @@ export default function EstimatePage() {
     setProcessingStatus("uploading");
     setProcessingError(null);
 
-    // Step 1: get signed URL — no file bytes through Vercel
-    const urlRes = await fetch("/api/upload-signed-url", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: file.name }),
-    });
-    const urlData = (await urlRes.json()) as {
-      status: string; id?: string; path?: string; token?: string; error?: string;
-    };
-    if (!urlRes.ok || !urlData.path || !urlData.token || !urlData.id) {
-      setProcessingError(urlData.error ?? "Failed to prepare upload.");
+    try {
+      // Step 1: get a signed upload URL (no file bytes through Vercel)
+      console.log("[estimate] step 1 — requesting signed URL for", file.name);
+      const urlRes = await fetch("/api/upload-signed-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name }),
+      });
+      const urlData = (await urlRes.json()) as {
+        status: string; id?: string; path?: string; token?: string; error?: string;
+      };
+      console.log("[estimate] step 1 result:", urlRes.status, urlData);
+      if (!urlRes.ok || !urlData.path || !urlData.token || !urlData.id) {
+        throw new Error(urlData.error ?? "Failed to prepare upload.");
+      }
+
+      // Step 2: upload file directly from browser → Supabase Storage
+      console.log("[estimate] step 2 — uploading to storage path:", urlData.path);
+      const supabase = createSupabaseBrowserClient();
+      const { error: uploadError } = await supabase.storage
+        .from("plans")
+        .uploadToSignedUrl(urlData.path, urlData.token, file);
+      if (uploadError) {
+        console.error("[estimate] step 2 upload error:", uploadError);
+        throw new Error(uploadError.message);
+      }
+      console.log("[estimate] step 2 — file in storage ✓");
+
+      // Step 3: create estimation row in DB with plan_storage_path
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+      console.log("[estimate] step 3 — creating estimation row, storagePath:", urlData.path);
+      const createResult = await createEstimation({
+        storagePath: urlData.path,
+        fileName: file.name,
+        fileType: ext === "pdf" ? "pdf" : "image",
+        postcode: postcode.trim(),
+      });
+      console.log("[estimate] step 3 result:", createResult);
+      if (createResult.status === "error") {
+        throw new Error(createResult.message);
+      }
+
+      const id = createResult.estimationId;
+      console.log("[estimate] step 4 — estimation row created, id:", id);
+      setEstimationId(id);
+      setProcessingStatus("extracting_sqm");
+
+      // Step 4: POST /api/estimate — awaited so errors surface here, not silently
+      console.log("[estimate] step 4 — POSTing /api/estimate with estimationId:", id, "storagePath:", urlData.path);
+      const estimateRes = await fetch("/api/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estimationId: id }),
+      });
+      console.log("[estimate] step 4 — /api/estimate responded:", estimateRes.status);
+      if (!estimateRes.ok) {
+        const errBody = await estimateRes.json().catch(() => null);
+        console.error("[estimate] step 4 — /api/estimate error body:", errBody);
+        // Don't throw: server may have already written an error status to DB
+        // and polling will surface it. Only throw on network-level failure.
+      }
+    } catch (err) {
+      console.error("[estimate] handleSubmit error:", err);
+      setProcessingError(
+        err instanceof Error ? err.message : "Unexpected error. Please try again."
+      );
       setPhase("error");
-      return;
     }
-
-    // Step 2: upload directly from browser to Supabase Storage
-    const supabase = createSupabaseBrowserClient();
-    const { error: uploadError } = await supabase.storage
-      .from("plans")
-      .uploadToSignedUrl(urlData.path, urlData.token, file);
-    if (uploadError) {
-      setProcessingError(uploadError.message);
-      setPhase("error");
-      return;
-    }
-
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
-    const createResult = await createEstimation({
-      storagePath: urlData.path,
-      fileName: file.name,
-      fileType: ext === "pdf" ? "pdf" : "image",
-      postcode: postcode.trim(),
-    });
-    if (createResult.status === "error") {
-      setProcessingError(createResult.message);
-      setPhase("error");
-      return;
-    }
-
-    const id = createResult.estimationId;
-    setEstimationId(id);
-    setProcessingStatus("extracting_sqm");
-
-    // Fire and don't await — polling catches completion/error
-    fetch("/api/estimate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estimationId: id }),
-    }).catch(() => {/* polling will observe the error state */});
   }
 
   // ── Reset ─────────────────────────────────────────────────────────────────────
