@@ -454,35 +454,13 @@ export async function POST(req: NextRequest) {
     // ── Finishing coefficient ─────────────────────────────────────────────────
     await setStatus(admin, estimationId, "calculating");
 
-    // Default to 1.0 ("Standard") until enough reference dossiers are
-    // processed to train a reliable model. The QQP call now receives plan
-    // images for better qqp_values extraction, but the raw AI coefficient
-    // is not used — only a trained model can override the default.
-    const DEFAULT_FINISHING_COEFFICIENT = 1.0;
-
-    let finishingCoefficient = DEFAULT_FINISHING_COEFFICIENT;
-    let modelVersionId: string | null = null;
-
-    const { data: activeModel } = await admin
-      .from("qqp_model_versions")
-      .select("id, weights")
-      .eq("is_active", true)
-      .order("version", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (activeModel?.weights) {
-      const flatValues      = flattenQQPValues(qqpExtraction.qqp_values);
-      const modelPrediction = applyModelWeights(
-        flatValues,
-        (qqpDefs ?? []).map((d) => ({ name: d.name, data_type: d.data_type })),
-        activeModel.weights as Record<string, unknown>
-      );
-      if (modelPrediction !== null) {
-        finishingCoefficient = modelPrediction;
-        modelVersionId = activeModel.id;
-      }
-    }
+    // Hard-coded to 1.0 ("Standard"). The current model (v21) has poorly
+    // calibrated weights (almost all positive → always predicts 1.5/luxury).
+    // QQP values are still extracted and stored for future model training,
+    // but the coefficient is fixed until the model is retrained on enough
+    // reference dossiers with known prices.
+    const finishingCoefficient = 1.0;
+    const modelVersionId: string | null = null;
 
     // ── Regional factor & ABEX ────────────────────────────────────────────────
     const { data: postcodeRow } = await admin
