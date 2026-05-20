@@ -11,6 +11,7 @@ import {
   ChevronRight,
   BrainCircuit,
   BarChart3,
+  Terminal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ const NAV: NavItem[] = [
   { label: "New Estimation", href: "/estimate", icon: PlusCircle },
   { label: "Dossiers", href: "/admin/dossiers", icon: FolderOpen, group: "Admin" },
   { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
+  { label: "Prompts", href: "/admin/prompts", icon: Terminal, group: "Admin" },
   { label: "Settings", href: "/admin/settings", icon: Settings, group: "Admin" },
 ];
 
