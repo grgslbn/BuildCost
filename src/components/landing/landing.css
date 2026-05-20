@@ -24,7 +24,7 @@
   --radius: 12px;
   --radius-lg: 18px;
   --radius-xl: 24px;
-  --font-display: 'Newsreader', 'Tiempos Headline', Georgia, serif;
+  --font-display: var(--font-bricolage), 'Bricolage Grotesque', sans-serif;
   --font-body: 'Geist', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --max-w: 1180px;
@@ -159,7 +159,7 @@
   line-height: 1.04; letter-spacing: -.03em;
   margin-bottom: 24px; text-wrap: balance;
 }
-.landing-root .hero h1 em { font-style: italic; color: var(--accent); }
+.landing-root .hero h1 em { font-style: normal; font-weight: 700; color: var(--accent); }
 .landing-root .hero h1 .ln { display: block; }
 .landing-root .hero-sub {
   font-size: 1.1rem; color: var(--ink-soft);
