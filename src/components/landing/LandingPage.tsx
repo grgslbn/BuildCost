@@ -74,7 +74,6 @@ export default function LandingPage() {
                     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                   </svg>
                 </button>
-                <a href="#how" className="btn btn-secondary btn-lg">{L.hero.demo_btn}</a>
                 <span className="hero-try-hint">↳ {L.hero.try_hint}</span>
               </div>
               <div className="hero-proof">
