@@ -27,22 +27,33 @@ const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\Bui
 // Total enclosed (incl garageboxen): 6414 + 560 = 6974 m²
 // Total terrassen: 7 × 105 = 735 m²
 const EXPERT = {
-  buildings: [{
-    name: 'Residentie Frascati',
-    total_enclosed_sqm: 6974,
-    total_terraces_sqm: 735,
-    floors: [
-      { level: -1, total_sqm: 730, terraces_sqm: 0 },    // kelder
-      { level: 0,  total_sqm: 730, terraces_sqm: 0 },    // GVL appartementen + gemene delen
-      { level: 1,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 2,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 3,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 4,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 5,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 6,  total_sqm: 700, terraces_sqm: 105 },
-      { level: 7,  total_sqm: 700, terraces_sqm: 105 },
-    ]
-  }]
+  buildings: [
+    {
+      name: 'Residentie Frascati',
+      total_enclosed_sqm: 6414,
+      total_terraces_sqm: 735,
+      floors: [
+        { level: -1, total_sqm: 730, terraces_sqm: 0 },
+        { level: 0,  total_sqm: 730, terraces_sqm: 0 },
+        { level: 1,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 2,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 3,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 4,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 5,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 6,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 7,  total_sqm: 700, terraces_sqm: 105 },
+        { level: 8,  total_sqm: 54,  terraces_sqm: 0 },
+      ]
+    },
+    {
+      name: 'Garageboxen',
+      total_enclosed_sqm: 560,
+      total_terraces_sqm: 0,
+      floors: [
+        { level: 0, total_sqm: 560, terraces_sqm: 0 },
+      ]
+    }
+  ]
 };
 
 const modelName = process.argv[2] || 'sonnet';
