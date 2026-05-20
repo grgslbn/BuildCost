@@ -77,7 +77,7 @@ export const ANIM_CARDS: AnimCard[] = [
 export const REVEAL_TICK = 700;
 export const UPLOAD_BAR = 2000;
 export const HOLD_END = 7000;
-export const BETWEEN = 1800;
+export const BETWEEN = 300;
 
 export const fmtEUR = (n: number) =>
   '€ ' + Math.round(n).toLocaleString('de-DE');

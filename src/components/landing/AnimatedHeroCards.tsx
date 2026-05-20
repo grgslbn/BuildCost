@@ -118,11 +118,11 @@ export default function AnimatedHeroCards() {
               className={`est-card anim-est-card${isActive ? ' is-active' : ''}${isComplete ? ' is-complete' : ''}`}
               data-card-index={i}
             >
-              <div className={`card-header${rl >= 1 ? ' revealed' : ''}`}>
+              <div className={`card-header${(isActive || rl >= 1) ? ' revealed' : ''}`}>
                 <div className="card-brand">ReBuilt</div>
                 <div className="card-meta">{card.id}<br/>{card.date}</div>
               </div>
-              <div className={`card-title${rl >= 1 ? ' revealed' : ''}`}>
+              <div className={`card-title${(isActive || rl >= 1) ? ' revealed' : ''}`}>
                 Reconstruction estimate · {card.title}
               </div>
               <div className="card-rows">
