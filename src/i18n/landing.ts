@@ -81,9 +81,9 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'How it works', title: 'Three steps. Thirty seconds.',
       sub: ['No site visit.', 'No spreadsheet.', 'Just the plan your insured already has.'],
       steps: [
-        { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — ReBuilt handles messy inputs. Scale detected automatically.', detail: 'plan.pdf · scale 1:100\n12 rooms · 2 floors · 186.4 m²' },
-        { tag: 'Analyse', h: 'AI detects the finishing level', p: 'Bathroom config, kitchen size, hall proportions, material mentions.', detail: '' },
-        { tag: 'Estimate', h: 'Get the rebuild cost', p: 'Surface × regional base × ABEX × coefficient. Exportable, auditable, transparent.', detail: '186.4 m² × € 1 680 × 1.0000 × 1.12\n= € 350 720' },
+        { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — ReBuilt handles messy inputs. Scale detected automatically.', detail: 'Format recognised · scale detected\nRooms segmented · dimensions read' },
+        { tag: 'Analyse', h: 'AI detects the finishing level', p: 'Bathroom config, kitchen size, hall proportions, material mentions.', detail: 'Every signal weighted against\nhundreds of Belgian reference dossiers' },
+        { tag: 'Estimate', h: 'Get the rebuild cost', p: 'Regional construction costs, current index and finishing level — combined into one estimate.', detail: 'Rebuild cost calculated\nPDF report ready to share' },
       ],
     },
     belgium: {
@@ -158,9 +158,9 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'Comment ça fonctionne', title: 'Trois étapes. Trente secondes.',
       sub: ['Pas de visite sur place.', 'Pas de tableur.', 'Juste le plan que votre assuré possède déjà.'],
       steps: [
-        { tag: 'Télécharger', h: 'Déposez le plan', p: 'PDF, scan, photo — ReBuilt gère aussi les fichiers imparfaits. L\'échelle est détectée automatiquement.', detail: 'plan.pdf · échelle 1:100\n12 pièces · 2 étages · 186,4 m²' },
-        { tag: 'Analyser', h: 'L\'AI détecte le niveau de finition', p: 'Configuration des salles de bains, taille de la cuisine, proportions du hall, mentions de matériaux.', detail: '' },
-        { tag: 'Estimer', h: 'Obtenez le coût de reconstruction', p: 'Surface × base régionale × ABEX × coefficient. Exportable, contrôlable, transparent.', detail: '186,4 m² × € 1.680 × 1,0000 × 1,12\n= € 350.720' },
+        { tag: 'Télécharger', h: 'Déposez le plan', p: 'PDF, scan, photo — ReBuilt gère aussi les fichiers imparfaits. L\'échelle est détectée automatiquement.', detail: 'Format reconnu · échelle détectée\nPièces segmentées · dimensions lues' },
+        { tag: 'Analyser', h: 'L\'AI détecte le niveau de finition', p: 'Configuration des salles de bains, taille de la cuisine, proportions du hall, mentions de matériaux.', detail: 'Chaque signal pondéré sur base de\ncentaines de dossiers belges de référence' },
+        { tag: 'Estimer', h: 'Obtenez le coût de reconstruction', p: 'Coûts de construction régionaux, index actuel et niveau de finition — combinés en une estimation.', detail: 'Coût de reconstruction calculé\nRapport PDF prêt à partager' },
       ],
     },
     belgium: {
@@ -235,9 +235,9 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'Hoe het werkt', title: 'Drie stappen. Dertig seconden.',
       sub: ['Geen plaatsbezoek.', 'Geen spreadsheet.', 'Alleen het plan dat je verzekerde al heeft.'],
       steps: [
-        { tag: 'Upload', h: 'Laad het grondplan op', p: 'PDF, scan, foto — ReBuilt verwerkt ook rommelige input. De schaal wordt automatisch gedetecteerd.', detail: 'plan.pdf · schaal 1:100\n12 ruimtes · 2 verdiepingen · 186,4 m²' },
-        { tag: 'Analyse', h: 'AI detecteert het afwerkingsniveau', p: 'Badkamerconfiguratie, keukengrootte, verhoudingen van de inkomhal, materiaalvermeldingen.', detail: '' },
-        { tag: 'Raming', h: 'Ontvang de heropbouwwaarde', p: 'Oppervlakte × regionale basis × ABEX × coëfficiënt. Exporteerbaar, controleerbaar en transparant.', detail: '186,4 m² × € 1.680 × 1,0000 × 1,12\n= € 350.720' },
+        { tag: 'Upload', h: 'Laad het grondplan op', p: 'PDF, scan, foto — ReBuilt verwerkt ook rommelige input. De schaal wordt automatisch gedetecteerd.', detail: 'Formaat herkend · schaal gedetecteerd\nRuimtes gesegmenteerd · afmetingen gelezen' },
+        { tag: 'Analyse', h: 'AI detecteert het afwerkingsniveau', p: 'Badkamerconfiguratie, keukengrootte, verhoudingen van de inkomhal, materiaalvermeldingen.', detail: 'Elk signaal gewogen op basis van\nhonderden Belgische referentiedossiers' },
+        { tag: 'Raming', h: 'Ontvang de heropbouwwaarde', p: 'Regionale bouwkosten, actuele index en afwerkingsniveau — gecombineerd in één raming.', detail: 'Heropbouwwaarde berekend\nPDF-rapport klaar om te delen' },
       ],
     },
     belgium: {
