@@ -403,14 +403,8 @@ export async function POST(req: NextRequest) {
         .update({
           building_type: "apartment_building",
           apartment_count: aptCount,
-          sqm_extraction: sqmExtraction,
-          processing_time_ms: Date.now() - startTime,
-          status: "analyzed",
-          error_message: null,
-          updated_at: new Date().toISOString(),
         })
         .eq("id", dossierId);
-      return NextResponse.json({ success: true, status: "analyzed", apartment_building: true });
     }
 
     await setStatus(admin, dossierId, "sqm_done", { sqm_extraction: sqmExtraction });
@@ -434,7 +428,10 @@ export async function POST(req: NextRequest) {
             expertNotes: dossier.expert_notes,
           }
         : undefined,
-      prompts.qqpUserTemplate
+      prompts.qqpUserTemplate,
+      isApartmentBuilding
+        ? { unitCount: sqmUnitCount ?? dossier.apartment_count ?? null }
+        : undefined
     );
 
     const qqpCallStart = Date.now();

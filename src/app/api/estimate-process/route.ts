@@ -9,9 +9,9 @@ import {
 import { renderPdfPagesToImages, type RenderedImage } from "@/lib/pdf/render-plans";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
-import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
+
 import { logApiCall } from "@/lib/ai/log-api-call";
-import { categorizeAreas, getTotalGrossSqm, getBuildingType } from "@/lib/cost/area-categories";
+import { categorizeAreas, getTotalGrossSqm, getBuildingType, getUnitCount } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type Anthropic from "@anthropic-ai/sdk";
@@ -355,10 +355,15 @@ export async function POST(req: NextRequest) {
 
     // v11b+legacy compatible data extraction
     const sqmBuildingType = getBuildingType(sqmExtraction);
+    const sqmUnitCount = getUnitCount(sqmExtraction);
     const totalGrossSqm = getTotalGrossSqm(sqmExtraction);
     // v11b doesn't separate livable from gross; cat1 = livable enclosed
     const areasForDisplay = categorizeAreas(sqmExtraction);
     const totalLivableSqm = areasForDisplay.cat1_sqm > 0 ? areasForDisplay.cat1_sqm : totalGrossSqm;
+
+    const isApartmentBuilding =
+      sqmBuildingType === "apartment_building" ||
+      (sqmUnitCount != null && sqmUnitCount > 1);
 
     // Confidence: v11b uses project-level scale_confidence; legacy uses per-room confidence
     const v11bScaleConf = (sqmExtraction.project as Record<string, unknown> | undefined)?.scale_confidence as number | undefined;
@@ -384,7 +389,10 @@ export async function POST(req: NextRequest) {
       sqmExtraction,
       qqpDefs ?? [],
       undefined,
-      prompts.qqpUserTemplate
+      prompts.qqpUserTemplate,
+      isApartmentBuilding
+        ? { unitCount: sqmUnitCount ?? null }
+        : undefined
     );
 
     // Build QQP content: text prompt + plan images so Claude can assess

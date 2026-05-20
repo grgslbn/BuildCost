@@ -468,11 +468,16 @@ type KnownData = {
   expertNotes: string | null;
 };
 
+type ApartmentContext = {
+  unitCount: number | null;
+};
+
 export function buildQQPUserPrompt(
   sqmExtraction: Record<string, unknown>,
   qqpDefs: QQPDef[],
   knownData?: KnownData,
-  userTemplate?: string
+  userTemplate?: string,
+  apartmentContext?: ApartmentContext
 ): string {
   const qqpList = qqpDefs
     .map(
@@ -484,6 +489,15 @@ export function buildQQPUserPrompt(
   let prompt = (userTemplate ?? QQP_USER_PROMPT_TEMPLATE)
     .replace("{sqm_extraction_json}", JSON.stringify(sqmExtraction, null, 2))
     .replace("{list_of_active_qqp_definitions}", qqpList);
+
+  if (apartmentContext) {
+    const units = apartmentContext.unitCount ?? "multiple";
+    prompt += `\n\nAPARTMENT BUILDING CONTEXT:
+This is an apartment building with ${units} units.
+For per-room QQPs (living_room_sqm, master_bedroom_sqm, kitchen_sqm, etc.), evaluate a TYPICAL/REPRESENTATIVE unit — use a standard floor (not the top floor/penthouse, not the ground floor commercial space). Pick the most common apartment layout visible in the plan data.
+For building-level QQPs (floor_count, has_basement, has_garage, has_elevator, etc.), evaluate the entire building as normal.
+The finishing coefficient should reflect the typical unit quality, not the best or worst unit.\n`;
+  }
 
   if (knownData) {
     prompt += "\n\nKNOWN DATA FOR THIS DOSSIER:\n";
