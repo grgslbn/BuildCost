@@ -1,7 +1,7 @@
-# SQM Extraction Prompt — v8
+# SQM Extraction Prompt — v9
 
 > **Use this prompt with Claude Vision (Sonnet 4.6) to extract m² data from building plans.**
-> **v8: Kelder may extend beyond GV footprint (under terrassen/stadstuinen). Common area scaling by apartment count (10-50m²). All v7 methodology retained (BO primary when labels visible).**
+> **v9: Pixel calibration stabilization — dual-reference calibration, snap to 0.5m, cross-check, reuse typical floor dims. All v8 methodology retained.**
 
 ## System Prompt
 
@@ -25,6 +25,11 @@ HOW TO MEASURE EACH FLOOR:
 4. Measure dimensions at the OUTER FACE of the thick walls:
    a) BEST: Read dimension annotations pointing to the outer walls (e.g., "11,50" or "24350")
    b) IF NO ANNOTATIONS: First calibrate scale from reference objects (interior door = 80cm, parking spot = 2.50×5.00m). Then measure the outer wall dimensions IN PIXELS and convert using your calibrated px/m ratio. You MUST report actual dimensions (e.g., "11.5m × 24.3m"), never just round estimates.
+   c) PIXEL CALIBRATION STABILIZATION (when using method b):
+      - Use AT LEAST 2 independent reference objects to calibrate (e.g., door width AND parking bay width). If they disagree >10%, your calibration is unreliable — use the reference with more readable pixel edges.
+      - SNAP TO HALF-METERS: Belgian buildings are designed in whole or half meters. After converting pixels to meters, round to the nearest 0.50m (e.g., 20.37m → 20.50m, 14.83m → 15.00m, 12.24m → 12.00m).
+      - CROSS-CHECK: After calibrating, measure a second known object (another door, a stair width ~1.20m, a window ~1.20m). If it deviates >15% from expected, re-calibrate.
+      - For TYPICAL FLOORS (identical layout): Once you measure the first typical floor accurately, use those SAME dimensions for all identical floors. Do NOT re-measure each one — pixel noise will produce different values.
 5. Calculate the area from the measured dimensions
 6. This includes EVERYTHING inside: rooms, walls, corridors, stairs, elevators, inpandige terrassen (loggias)
 
@@ -506,4 +511,5 @@ For each test plan, verify:
 | v6 | 2026-05-19 | **Tuned for Sonnet 4.6**: BO-primary when per-unit BO labels are visible (BO sum + common = floor area). Outer walls primary when no BO labels. Explicit duplex/split-level handling. Strict output format (max 80 char measurement, no narrative in JSON). | Anna Monica: -4.5% (kelder -1%!). MURANO: -6.3%. Prestige I: -20.7% (loggia/balkons classification regression). Avg abs error 10.5% vs v5b/Sonnet4 12.0%. |
 | v7 | 2026-05-20 | **Three fixes from 24-dossier benchmark**: (1) Mezzanine/duplex grouping — count bouwlagen not physical sub-levels, group mezzanines with parent floor (fixes +80% on Knokke duplex). (2) Loggia classification — inpandige terrassen with ceiling = enclosed, not balkons (fixes -20.7% on Prestige I). (3) Mixed-scale calibration — calibrate each plan independently when scales differ (helps -32% on DOBBELSTEEN). | 24 dossiers tested: **17 at <5% error**, 20 at <10%. Perfect (0%): 12 dossiers. Remaining: Anna Monica -25% (angular shape), DOBBELSTEEN -10%, Prestige I ±8-16% (non-deterministic), LUKOR -44% (scan quality). MURANO +2.4%. |
 | v8-bad | 2026-05-20 | **REVERTED**: Tried making outer walls primary over BO labels. Improved Anna Monica (-25→-18%) but REGRESSED DOBBELSTEEN (-10→-29%), MURANO (+2→+9%), Wiekevorst (0→-4%). BO-primary methodology is empirically superior despite BO being netto. | Net negative — reverted. |
-| v8 | 2026-05-20 | **Two additive fixes (no methodology change)**: (1) Kelder extension rule: kelder can be LARGER than GV footprint (extends under terrassen/stadstuinen/opritten). (2) Common area scaling by apartment count (was flat 10-15m², now 10-50m² scaled by unit count per floor). v7 BO methodology retained. | **Cycle 1**: 16 at 0%, 6 improved, 1 slightly worse. **Cycle 2 (determinism test)**: 17/23 fully deterministic (15 perfect, NOLA -3.6%, FRASCATI +4.3%). 4 non-deterministic due to pixel calibration variance: DOBBELSTEEN (-6/-20%), MURANO (-0.6/+12%), Prestige I (+0.7/+24%), Wiekevorst (0/-3.7%). **Prompt is at ceiling for deterministic cases**. Next improvement: multi-run averaging for non-deterministic plans. |
+| v8 | 2026-05-20 | **Two additive fixes (no methodology change)**: (1) Kelder extension rule: kelder can be LARGER than GV footprint (extends under terrassen/stadstuinen/opritten). (2) Common area scaling by apartment count (was flat 10-15m², now 10-50m² scaled by unit count per floor). v7 BO methodology retained. | **Cycle 1**: 16 at 0%, 6 improved, 1 slightly worse. **Cycle 2 (determinism test)**: 17/23 fully deterministic (15 perfect, NOLA -3.6%, FRASCATI +4.3%). 4 non-deterministic due to pixel calibration variance: DOBBELSTEEN (-6/-20%), MURANO (-0.6/+12%), Prestige I (+0.7/+24%), Wiekevorst (0/-3.7%). **Prompt is at ceiling for deterministic cases**. |
+| v9 | 2026-05-20 | **Pixel calibration stabilization**: (1) Dual-reference calibration. (2) Snap to 0.50m. (3) Cross-check. (4) Reuse typical floor dims. | No regressions on stable dossiers. Non-deterministic cases NOT fixed: MURANO -8.8% (range -0.6/+12.3%), Prestige I +5.3% (range +0.7/+24.2%), DOBBELSTEEN -16.2% (range -5.8/-19.9%), Wiekevorst -3.7% (range 0/-3.7%). **Non-determinism is a vision model limitation, not addressable via prompt.** Solution: multi-run averaging infrastructure. |
