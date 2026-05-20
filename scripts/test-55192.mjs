@@ -18,17 +18,18 @@ const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\Bui
 //   + Fietsenstalling (Nivo 0, apart): 60 m²
 //
 // Total enclosed (main building): 448.44 + 1183.70 + 1069.00 + 448.44 + 127.00 = 3276.58 m²
+// + Berging 32 m² + Fietsenstalling 60 m² (apart, niveau 0)
 // Total enclosed (incl outbuildings): 3276.58 + 32 + 60 = 3368.58 m²
 // NO terrassen/balkons mentioned.
 // NOTE: No kelder plan available. No plan for 127 m² casco pastorie zolder.
 const EXPERT = {
   buildings: [{
     name: 'De Vierhoekhoeve',
-    total_enclosed_sqm: 3277,
+    total_enclosed_sqm: 3369,
     total_terraces_sqm: 0,
     floors: [
       { level: -1, total_sqm: 448, terraces_sqm: 0 },    // kelders (no plan — same footprint as 2de verdieping)
-      { level: 0,  total_sqm: 1184, terraces_sqm: 0 },   // GVL ateliers, leefruimtes, sanitair, slaapkamers
+      { level: 0,  total_sqm: 1276, terraces_sqm: 0 },   // GVL 1183.70 + berging 32 + fietsenstalling 60
       { level: 1,  total_sqm: 1069, terraces_sqm: 0 },   // leefruimtes, gemeenschappelijke ruimtes
       { level: 2,  total_sqm: 576, terraces_sqm: 0 },    // zolder 448.44 + casco pastorie 127
     ]

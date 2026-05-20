@@ -38,7 +38,17 @@ export function compareExtraction(extraction, expertBreakdown) {
     }
 
     const expertFloors = new Map((expertBldg.floors || []).map(f => [f.level, f]));
-    const aiFloors = new Map((aiBldg.floors || []).map(f => [f.level, f]));
+    const aiFloors = new Map();
+    for (const f of aiBldg.floors || []) {
+      if (aiFloors.has(f.level)) {
+        const agg = aiFloors.get(f.level);
+        agg.floor_total_sqm = (agg.floor_total_sqm || 0) + (f.floor_total_sqm || 0);
+        agg.balkons_sqm = (agg.balkons_sqm || 0) + (f.balkons_sqm || 0);
+        if (f.terraces_sqm) agg.terraces_sqm = (agg.terraces_sqm || 0) + (f.terraces_sqm || 0);
+      } else {
+        aiFloors.set(f.level, { ...f });
+      }
+    }
     const allLevels = new Set([...expertFloors.keys(), ...aiFloors.keys()]);
 
     for (const level of [...allLevels].sort((a, b) => a - b)) {

@@ -42,17 +42,15 @@ const modelId = resolveModel(modelName);
 
 console.log(`\n=== Testing Villa Anna Monica De Haan (55079) on ${modelName} (${modelId}) ===\n`);
 
-// Pages in logical floor order (kelder → GV → V1 → V2 → V3), plus section for context
-const hires = process.argv.includes('--hires');
-const imgDir = hires ? 'output/test-55079-hires' : 'output/test-55079';
-const ext = hires ? 'jpg' : 'png';
+// VerzamelPDF landscape pages p36-p41 are the architect's A3 floor plans (schaal 1/50).
+// Pages 1-35 are A4 CED report/admin pages (NOT floor plans).
 const images = [
-  { name: 'kelder (p3)',       png: `${imgDir}/p3.${ext}` },
-  { name: 'gelijkvloers (p5)', png: `${imgDir}/p5.${ext}` },
-  { name: 'verdieping 1 (p4)', png: `${imgDir}/p4.${ext}` },
-  { name: 'verdieping 2 (p2)', png: `${imgDir}/p2.${ext}` },
-  { name: 'verdieping 3 (p1)', png: `${imgDir}/p1.${ext}` },
-  { name: 'snede AB (p6)',     png: `${imgDir}/p6.${ext}` },
+  { name: 'p38 Kelder (-1) schaal 1/50',        png: 'output/test-55079-hires/p38.jpg' },
+  { name: 'p40 Gelijkvloers (0) schaal 1/50',   png: 'output/test-55079-hires/p40.jpg' },
+  { name: 'p39 Verdieping +1 schaal 1/50',      png: 'output/test-55079-hires/p39.jpg' },
+  { name: 'p37 Verdieping +2 schaal 1/50',      png: 'output/test-55079-hires/p37.jpg' },
+  { name: 'p36 Verdieping +3 schaal 1/50',      png: 'output/test-55079-hires/p36.jpg' },
+  { name: 'p41 Doorsnede AB (cross-section)',    png: 'output/test-55079-hires/p41.jpg' },
 ];
 
 console.log(`Sending ${images.length} images: ${images.map(i => i.name).join(', ')}`);
@@ -90,7 +88,7 @@ PAGE GUIDE:
 IMPORTANT: Measure each floor INDEPENDENTLY from its own plan. Do NOT copy the kelder area to above-ground floors — the enclosed area may differ per floor.`;
 
 const useThinking = process.argv.includes('--think');
-console.log(`Mode: ${hires ? 'HIRES' : 'standard'}, thinking: ${useThinking ? 'ON' : 'off'}`);
+console.log(`Mode: HIRES, thinking: ${useThinking ? 'ON' : 'off'}`);
 
 // Also need to update sqm-extractor to handle .jpg media type
 try {
@@ -108,7 +106,7 @@ try {
   console.log(`Cost: $${result.costUsd}`);
   console.log(`Images: ${result.imageCount} (${result.imageSizeMb} MB)\n`);
 
-  writeFileSync(`output/test-55079/result-${modelName}.json`, JSON.stringify(result, null, 2));
+  writeFileSync(`output/test-55079-hires/result-${modelName}.json`, JSON.stringify(result, null, 2));
   if (result.thinkingText) {
     writeFileSync(`output/test-55079/thinking-${modelName}.txt`, result.thinkingText);
   }
