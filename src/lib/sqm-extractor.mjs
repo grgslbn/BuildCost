@@ -81,7 +81,7 @@ export async function extractSqm(images, modelId, opts = {}) {
   if (useThinking) {
     requestBody.thinking = { type: 'enabled', budget_tokens: thinkingBudget };
     // thinking requires temperature=1
-  } else {
+  } else if (!modelId.includes('opus')) {
     requestBody.temperature = 0;
   }
 
