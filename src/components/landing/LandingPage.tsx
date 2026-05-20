@@ -142,7 +142,7 @@ export default function LandingPage() {
       <section id="belgium">
         <div className="container">
           <div className="section-label">{L.belgium.label}</div>
-          <h2 className="section-title">{L.belgium.title}</h2>
+          <h2 className="section-title">{L.belgium.title.map((line, i) => <span key={i}>{line}{i < L.belgium.title.length - 1 && <br/>}</span>)}</h2>
           <p className="section-sub">{L.belgium.sub}</p>
           <div className="belgium-grid">
             <ul className="belgium-list">

@@ -24,7 +24,7 @@ export interface LandingI18N {
     steps: { tag: string; h: string; p: string; detail: string }[];
   };
   belgium: {
-    label: string; title: string; sub: string; bullets: string[];
+    label: string; title: string[]; sub: string; bullets: string[];
     table_title: string; table_head: string[];
     table_rows: [string, string, string][];
   };
@@ -87,7 +87,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       ],
     },
     belgium: {
-      label: 'Made for Belgium', title: 'ABEX-indexed. Postcode-aware. Expert-validated.',
+      label: 'Made for Belgium', title: ['ABEX-indexed.', 'Postcode-aware.', 'Expert-validated.'],
       sub: 'Built on Belgian construction cost data. Not a generic calculator with a flag on top.',
       bullets: ['ABEX construction cost index, refreshed every semester','Regional base prices per m² by postcode — Building cost in a narrow street in Brussels Centre ≠ rural Hainaut','Finishing levels calibrated on Belgian conventions','Plan labels read in NL, FR, EN','Multi-tenant isolation — each insurer\'s data stays separate','GDPR-compliant, EU-hosted, data stays in Belgium'],
       table_title: 'Finishing coefficients', table_head: ['Level','Description','Coeff.'],
@@ -164,7 +164,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       ],
     },
     belgium: {
-      label: 'Conçu pour la Belgique', title: 'Indexé ABEX. Code postal. Expert-validé.',
+      label: 'Conçu pour la Belgique', title: ['Indexé ABEX.', 'Code postal.', 'Expert-validé.'],
       sub: 'Construit sur les données de coûts belges. Pas un calculateur générique avec un drapeau.',
       bullets: ['Indice ABEX, rafraîchi chaque semestre','Prix de base régionaux par code postal — Coût de construction dans une rue étroite à Bruxelles-Centre ≠ campagne hennuyère','Niveaux de finition calibrés sur les conventions belges','Étiquettes lues en NL, FR, EN','Isolation multi-tenant — les données de chaque assureur restent séparées','RGPD, hébergé UE, données en Belgique'],
       table_title: 'Coefficients de finition', table_head: ['Niveau','Description','Coeff.'],
@@ -241,7 +241,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       ],
     },
     belgium: {
-      label: 'Gemaakt voor België', title: 'ABEX-geïndexeerd. Postcode-gericht. Expert-gevalideerd.',
+      label: 'Gemaakt voor België', title: ['ABEX-geïndexeerd.', 'Postcode-gericht.', 'Expert-gevalideerd.'],
       sub: 'Gebouwd op Belgische bouwkostdata. Geen generieke calculator met een vlag.',
       bullets: ['ABEX bouwkostindex, elk semester ververst','Regionale basisprijzen per postcode — Bouwkost in een smalle straat in Brussel Centrum ≠ platteland Henegouwen','Afwerkingsniveaus gekalibreerd op Belgische conventies','Etiketten in NL, FR, EN gelezen','Multi-tenant isolatie — data van elke verzekeraar apart','GDPR, EU-hosted, data blijft in België'],
       table_title: 'Afwerkingscoëfficiënten', table_head: ['Niveau','Beschrijving','Coëff.'],
