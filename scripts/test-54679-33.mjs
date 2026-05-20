@@ -18,15 +18,15 @@ const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\Bui
 //     Total enclosed: 640 m², terrassen: 226 m²
 //
 //   Gebouw B (6 app):
-//     V0-2: gemeensch 94 + app 774 = 868 m² total
-//     Terrassen (0): 80 m², Dakterrassen (1-2): 128 m²
-//     Total enclosed: 868 m², terrassen: 208 m²
+//     V0-2: gemeensch 64 + app 774 = 838 m² total
+//     Terrassen (0): 60 m², Dakterrassen (1-2): 128 m²
+//     Total enclosed: 838 m², terrassen: 188 m²
 //
 //   Garages + fietsenberging + afvalberging:
-//     Niveau 0: 269 m²
+//     Niveau 0: 264 m²
 //
-// Grand total enclosed: 640 + 868 + 269 = 1777 m²
-// Grand total terrassen: 226 + 208 = 434 m²
+// Grand total enclosed: 640 + 838 + 264 = 1742 m²
+// Grand total terrassen: 226 + 188 = 414 m²
 const EXPERT = {
   buildings: [
     {
@@ -42,20 +42,20 @@ const EXPERT = {
     },
     {
       name: 'Gebouw B',
-      total_enclosed_sqm: 868,
-      total_terraces_sqm: 208,
+      total_enclosed_sqm: 838,
+      total_terraces_sqm: 188,
       floors: [
-        { level: 0, total_sqm: 289, terraces_sqm: 80 },
-        { level: 1, total_sqm: 290, terraces_sqm: 64 },
-        { level: 2, total_sqm: 289, terraces_sqm: 64 },
+        { level: 0, total_sqm: 279, terraces_sqm: 60 },
+        { level: 1, total_sqm: 280, terraces_sqm: 64 },
+        { level: 2, total_sqm: 279, terraces_sqm: 64 },
       ]
     },
     {
       name: 'Garages',
-      total_enclosed_sqm: 269,
+      total_enclosed_sqm: 264,
       total_terraces_sqm: 0,
       floors: [
-        { level: 0, total_sqm: 269, terraces_sqm: 0 },
+        { level: 0, total_sqm: 264, terraces_sqm: 0 },
       ]
     }
   ]
@@ -91,16 +91,16 @@ THREE STRUCTURES:
    - Liftinstallatie. 28 zonnepanelen. Thuisbatterij.
 
 2. GEBOUW B (6 appartementen, 3 bouwlagen):
-   - Niveau 0-2 (3 floors): totaal gemeensch 94 + app 774 = 868 m²
-     Per floor: ~289 m² enclosed
-   - Terrassen GVL: 80 m², Dakterrassen V1-2: 128 m² total
-   - Total enclosed: 868 m², terrassen: 208 m²
+   - Niveau 0-2 (3 floors): totaal gemeensch 64 + app 774 = 838 m²
+     Per floor: ~279 m² enclosed
+   - Terrassen GVL: 60 m², Dakterrassen V1-2: 128 m² total
+   - Total enclosed: 838 m², terrassen: 188 m²
    - Liftinstallatie. 32 zonnepanelen.
 
 3. GARAGES + FIETSENBERGING + AFVALBERGING:
-   - Niveau 0: 269 m² (11 garages + afvalberging + fietsenstalling)
+   - Niveau 0: 264 m² (11 garages + afvalberging + fietsenstalling)
 
-Total enclosed: 1777 m². Total terrassen: 434 m².
+Total enclosed: 1742 m². Total terrassen: 414 m².
 
 PLAN SHEETS (architect plans by DAT architecten, scale 1:100):
 - p15 = UV/3/D — Gebouw A: 2 doorsnedes (top), fundering/riolering (bottom left), Niv 0 GVL plan (bottom right)
@@ -110,7 +110,7 @@ PLAN SHEETS (architect plans by DAT architecten, scale 1:100):
 - p19 = UV/7/E — Gebouw B: 2 doorsnedes (top), GVL plan (bottom left), V1 plan (bottom center), V2 (bottom right, small)
   Shows App B.01 through B.06 across 3 floors. Terrassen shown in green/yellow
 - p17 = UV/9/A — Garages: 3 gevels (top), garage plan (bottom left) showing "11 garages - Afvalberging - Fietsenstalling"
-  Also shows site context. Garage footprint 278 m² per site plan, 269 m² per Berekening
+  Also shows site context. Garage footprint 278 m² per site plan, 264 m² per Berekening
 
 NOTE: Gebouw A has 4 above-ground levels (GVL + V1-3). V3 plan on separate sheet (p18, not included).
 V1-3 are similar layout but with stepback — the Berekening groups them.
