@@ -119,7 +119,7 @@ export default function AnimatedHeroCards() {
               data-card-index={i}
             >
               <div className={`card-header${(isActive || rl >= 1) ? ' revealed' : ''}`}>
-                <div className="card-brand">ReBuilt</div>
+                <div className="card-brand">Plan Based</div>
                 <div className="card-meta">{card.id}<br/>{card.date}</div>
               </div>
               <div className={`card-title${(isActive || rl >= 1) ? ' revealed' : ''}`}>

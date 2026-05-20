@@ -21,7 +21,7 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "BuildCost",
+  title: "Plan Based",
   description: "Reconstruction cost estimation from building plans",
 };
 

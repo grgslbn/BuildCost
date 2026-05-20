@@ -38,7 +38,7 @@ export default function LandingPage() {
       {/* NAV */}
       <nav id="rb-nav" className="nav">
         <div className="nav-inner">
-          <a href="#" className="nav-brand">Re<em>Built</em><span className="dot"/></a>
+          <a href="#" className="nav-brand">Plan <em>Based</em><span className="dot"/></a>
           <div className="nav-links">
             <a href="#features">{L.nav.product}</a>
             <a href="#demo">{L.nav.tryit}</a>
@@ -171,7 +171,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="footer-inner">
             <div className="footer-left">
-              <div className="footer-brand">Re<em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>Built</em><span className="dot"/></div>
+              <div className="footer-brand">Plan <em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>Based</em><span className="dot"/></div>
               <div className="footer-tagline">{L.footer.tagline}</div>
             </div>
             <div className="footer-links">

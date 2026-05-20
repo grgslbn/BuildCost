@@ -44,7 +44,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     hero: {
       badge: 'Private beta · Belgium · 2026',
       h1_a: 'Reconstruction cost.', h1_b: 'From a plan.', h1_c: 'In 30 seconds.',
-      sub: 'Upload a floor plan. ReBuilt extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost.',
+      sub: 'Upload a floor plan. Plan Based extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost.',
       try_btn: 'Try with your plan', try_hint: 'No signup · ~30s · free', demo_btn: 'See it on a sample',
       proof: 'Built with Belgian architects and insurance experts · ABEX-indexed · GDPR · EU-hosted',
     },
@@ -81,7 +81,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'How it works', title: 'Three steps. Thirty seconds.',
       sub: ['No site visit.', 'No spreadsheet.', 'Just the plan your insured already has.'],
       steps: [
-        { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — ReBuilt handles messy inputs. Scale detected automatically.', detail: 'Format recognised · scale detected\nRooms segmented · dimensions read' },
+        { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — Plan Based handles messy inputs. Scale detected automatically.', detail: 'Format recognised · scale detected\nRooms segmented · dimensions read' },
         { tag: 'Analyse', h: 'AI detects the finishing level', p: 'Bathroom config, kitchen size, hall proportions, material mentions.', detail: 'Every signal weighted against\nhundreds of Belgian reference dossiers' },
         { tag: 'Estimate', h: 'Get the rebuild cost', p: 'Regional construction costs, current index and finishing level — combined into one estimate.', detail: 'Rebuild cost calculated\nPDF report ready to share' },
       ],
@@ -96,16 +96,16 @@ export const I18N: Record<Lang, LandingI18N> = {
     faq: {
       label: 'FAQ', title: 'Questions before yours.',
       items: [
-        { q: 'Is this a real estate valuation tool?', a: 'No. ReBuilt calculates the reconstruction cost — what it would cost to rebuild the building from scratch after a loss. The postcode coefficient reflects construction costs, not property prices.' },
+        { q: 'Is this a real estate valuation tool?', a: 'No. Plan Based calculates the reconstruction cost — what it would cost to rebuild the building from scratch after a loss. The postcode coefficient reflects construction costs, not property prices.' },
         { q: 'What plan formats do you accept?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF on the roadmap. Even hand-drawn plans work if labels and dimensions are clear.' },
         { q: 'How accurate is the m² extraction?', a: 'On plans with clear dimensions or a scale bar, we hit 90%+ accuracy. Without scale, we use the standard 80 cm door width as calibration.' },
-        { q: 'Can we train ReBuilt on our dossiers?', a: "Yes — that's where ReBuilt becomes uniquely yours. Upload reference dossiers and the system refines its weights for your portfolio." },
+        { q: 'Can we train Plan Based on our dossiers?', a: "Yes — that's where Plan Based becomes uniquely yours. Upload reference dossiers and the system refines its weights for your portfolio." },
         { q: "Is each insurer's data isolated?", a: 'Yes. Each insurance company gets an isolated workspace. Row-level security, EU-hosted.' },
         { q: 'What does it cost?', a: 'Free during the beta. After: a per-estimation fee with volume discounts. Beta testers lock in preferential pricing.' },
       ],
     },
     cta: {
-      label: 'Early access', title: 'Join the first insurers on ReBuilt.',
+      label: 'Early access', title: 'Join the first insurers on Plan Based.',
       sub: 'Free during beta. Your dossiers train the model. Your feedback shapes the product.',
       company: 'Company name', email: 'Work email', volume: 'Estimations per month',
       volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
@@ -114,14 +114,14 @@ export const I18N: Record<Lang, LandingI18N> = {
       perks: ['One-week onboarding','Direct line to the team','Your feedback shapes v1'],
       thanks: "✓ Got it. We'll reach out within 48 hours.",
     },
-    footer: { tagline: 'Reconstruction cost intelligence for Belgian insurers', links: ['Product','How it works','FAQ','Beta','Privacy','Contact'], copy: '© 2026 ReBuilt · v0.1 Beta' },
+    footer: { tagline: 'Reconstruction cost intelligence for Belgian insurers', links: ['Product','How it works','FAQ','Beta','Privacy','Contact'], copy: '© 2026 Plan Based · v0.1 Beta' },
   },
   fr: {
     nav: { product: 'Produit', tryit: 'Essayer', faq: 'FAQ', cta: 'Demander la bêta →' },
     hero: {
       badge: 'Beta privée · Belgique · 2026',
       h1_a: 'Coût de reconstruction.', h1_b: "À partir d'un plan.", h1_c: 'En 30 secondes.',
-      sub: "Téléchargez un plan. ReBuilt extrait chaque pièce, détecte le niveau de finition et calcule un coût de reconstruction indexé ABEX.",
+      sub: "Téléchargez un plan. Plan Based extrait chaque pièce, détecte le niveau de finition et calcule un coût de reconstruction indexé ABEX.",
       try_btn: 'Essayez avec votre plan', try_hint: 'Sans inscription · ~30 sec · gratuit', demo_btn: 'Voir un exemple',
       proof: 'Développé avec des architectes et experts belges en assurance · Indexé ABEX · RGPD · Hébergé dans l\'UE',
     },
@@ -143,7 +143,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       gate_after: '✓ Rapport en route. Vérifiez votre boîte dans 2 minutes.',
     },
     features: {
-      label: 'Ce que fait ReBuilt', title: 'Trois moteurs. Un seul coût.',
+      label: 'Ce que fait Plan Based', title: 'Trois moteurs. Un seul coût.',
       sub: 'Extraction des surfaces, détection du niveau de finition, prix régionaux — réunis dans une estimation contrôlable.',
       cards: [
         { tag: 'm²', h: 'Extraction précise des surfaces', p: "Détecte l'échelle, segmente les pièces et lit les dimensions sur tous les étages. Couloirs en L inclus.", stat: 'Détection d\'échelle · segmentation des pièces · multi-étages' },
@@ -158,7 +158,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'Comment ça fonctionne', title: 'Trois étapes. Trente secondes.',
       sub: ['Pas de visite sur place.', 'Pas de tableur.', 'Juste le plan que votre assuré possède déjà.'],
       steps: [
-        { tag: 'Télécharger', h: 'Déposez le plan', p: 'PDF, scan, photo — ReBuilt gère aussi les fichiers imparfaits. L\'échelle est détectée automatiquement.', detail: 'Format reconnu · échelle détectée\nPièces segmentées · dimensions lues' },
+        { tag: 'Télécharger', h: 'Déposez le plan', p: 'PDF, scan, photo — Plan Based gère aussi les fichiers imparfaits. L\'échelle est détectée automatiquement.', detail: 'Format reconnu · échelle détectée\nPièces segmentées · dimensions lues' },
         { tag: 'Analyser', h: 'L\'AI détecte le niveau de finition', p: 'Configuration des salles de bains, taille de la cuisine, proportions du hall, mentions de matériaux.', detail: 'Chaque signal pondéré sur base de\ncentaines de dossiers belges de référence' },
         { tag: 'Estimer', h: 'Obtenez le coût de reconstruction', p: 'Coûts de construction régionaux, index actuel et niveau de finition — combinés en une estimation.', detail: 'Coût de reconstruction calculé\nRapport PDF prêt à partager' },
       ],
@@ -173,16 +173,16 @@ export const I18N: Record<Lang, LandingI18N> = {
     faq: {
       label: 'FAQ', title: 'Les questions avant les vôtres.',
       items: [
-        { q: "Est-ce un outil d'évaluation immobilière ?", a: "Non. ReBuilt calcule le coût de reconstruction — ce qu'il coûterait de reconstruire le bâtiment à neuf après un sinistre. Le coefficient postal reflète les coûts de construction, pas les prix immobiliers." },
+        { q: "Est-ce un outil d'évaluation immobilière ?", a: "Non. Plan Based calcule le coût de reconstruction — ce qu'il coûterait de reconstruire le bâtiment à neuf après un sinistre. Le coefficient postal reflète les coûts de construction, pas les prix immobiliers." },
         { q: 'Quels formats de plans acceptez-vous ?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF en feuille de route. Même les plans manuscrits fonctionnent si les étiquettes et dimensions sont lisibles.' },
         { q: 'Quelle est la précision de l\'extraction des m² ?', a: "Sur les plans avec échelle ou cotes claires, plus de 90 % de précision. Sans échelle, nous calibrons avec la largeur standard d'une porte (80 cm)." },
-        { q: 'Pouvons-nous entraîner ReBuilt sur nos dossiers ?', a: "Oui — c'est là que ReBuilt devient uniquement vôtre. Importez des dossiers de référence et le modèle apprend votre portefeuille." },
+        { q: 'Pouvons-nous entraîner Plan Based sur nos dossiers ?', a: "Oui — c'est là que Plan Based devient uniquement vôtre. Importez des dossiers de référence et le modèle apprend votre portefeuille." },
         { q: 'Les données de chaque assureur sont-elles isolées ?', a: 'Oui. Espace de travail isolé par assureur. Sécurité au niveau ligne, hébergé en UE.' },
         { q: 'Combien cela coûte-t-il ?', a: "Gratuit pendant la beta. Ensuite : tarif à l'estimation avec remises au volume. Les bêta-testeurs verrouillent un tarif préférentiel." },
       ],
     },
     cta: {
-      label: 'Accès anticipé', title: 'Rejoignez les premiers assureurs sur ReBuilt.',
+      label: 'Accès anticipé', title: 'Rejoignez les premiers assureurs sur Plan Based.',
       sub: 'Gratuit pendant la beta. Vos dossiers entraînent le modèle. Vos retours façonnent le produit.',
       company: "Nom de l'entreprise", email: 'E-mail professionnel', volume: 'Estimations par mois',
       volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
@@ -191,14 +191,14 @@ export const I18N: Record<Lang, LandingI18N> = {
       perks: ['Onboarding en une semaine','Ligne directe avec l\'équipe','Vos retours façonnent la v1'],
       thanks: '✓ Bien reçu. Nous revenons vers vous sous 48 heures.',
     },
-    footer: { tagline: 'Intelligence du coût de reconstruction pour les assureurs belges', links: ['Produit','Comment ça fonctionne','FAQ','Beta','Confidentialité','Contact'], copy: '© 2026 ReBuilt · v0.1 Beta' },
+    footer: { tagline: 'Intelligence du coût de reconstruction pour les assureurs belges', links: ['Produit','Comment ça fonctionne','FAQ','Beta','Confidentialité','Contact'], copy: '© 2026 Plan Based · v0.1 Beta' },
   },
   nl: {
     nav: { product: 'Product', tryit: 'Probeer', faq: 'FAQ', cta: 'Vraag beta aan →' },
     hero: {
       badge: 'Private beta · België · 2026',
       h1_a: 'Heropbouwwaarde.', h1_b: 'Op basis van een plan.', h1_c: 'In 30 seconden.',
-      sub: 'Upload een grondplan. ReBuilt haalt elke ruimte eruit, detecteert het afwerkingsniveau en berekent een ABEX-geïndexeerde heropbouwwaarde.',
+      sub: 'Upload een grondplan. Plan Based haalt elke ruimte eruit, detecteert het afwerkingsniveau en berekent een ABEX-geïndexeerde heropbouwwaarde.',
       try_btn: 'Test met je plan', try_hint: 'Geen registratie · ~30 sec · gratis', demo_btn: 'Bekijk een voorbeeld',
       proof: 'Gebouwd met Belgische architecten en verzekeringsexperts · ABEX-geïndexeerd · GDPR · Gehost in de EU',
     },
@@ -235,7 +235,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       label: 'Hoe het werkt', title: 'Drie stappen. Dertig seconden.',
       sub: ['Geen plaatsbezoek.', 'Geen spreadsheet.', 'Alleen het plan dat je verzekerde al heeft.'],
       steps: [
-        { tag: 'Upload', h: 'Laad het grondplan op', p: 'PDF, scan, foto — ReBuilt verwerkt ook rommelige input. De schaal wordt automatisch gedetecteerd.', detail: 'Formaat herkend · schaal gedetecteerd\nRuimtes gesegmenteerd · afmetingen gelezen' },
+        { tag: 'Upload', h: 'Laad het grondplan op', p: 'PDF, scan, foto — Plan Based verwerkt ook rommelige input. De schaal wordt automatisch gedetecteerd.', detail: 'Formaat herkend · schaal gedetecteerd\nRuimtes gesegmenteerd · afmetingen gelezen' },
         { tag: 'Analyse', h: 'AI detecteert het afwerkingsniveau', p: 'Badkamerconfiguratie, keukengrootte, verhoudingen van de inkomhal, materiaalvermeldingen.', detail: 'Elk signaal gewogen op basis van\nhonderden Belgische referentiedossiers' },
         { tag: 'Raming', h: 'Ontvang de heropbouwwaarde', p: 'Regionale bouwkosten, actuele index en afwerkingsniveau — gecombineerd in één raming.', detail: 'Heropbouwwaarde berekend\nPDF-rapport klaar om te delen' },
       ],
@@ -250,16 +250,16 @@ export const I18N: Record<Lang, LandingI18N> = {
     faq: {
       label: 'FAQ', title: 'Vragen vóór die van jou.',
       items: [
-        { q: 'Is dit een vastgoedwaarderingstool?', a: 'Nee. ReBuilt berekent de heropbouwwaarde — wat het zou kosten om het gebouw volledig opnieuw op te bouwen na een schadegeval. De postcodecoëfficiënt weerspiegelt bouwkosten, geen vastgoedprijzen.' },
+        { q: 'Is dit een vastgoedwaarderingstool?', a: 'Nee. Plan Based berekent de heropbouwwaarde — wat het zou kosten om het gebouw volledig opnieuw op te bouwen na een schadegeval. De postcodecoëfficiënt weerspiegelt bouwkosten, geen vastgoedprijzen.' },
         { q: 'Welke planformaten aanvaarden jullie?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF op de roadmap. Zelfs handgetekende plannen werken als de labels en afmetingen leesbaar zijn.' },
         { q: 'Hoe nauwkeurig is de m²-extractie?', a: 'Op plannen met duidelijke schaal of afmetingen halen we 95%+. Zonder schaal kalibreren we op standaard maten als diepte van de keuken en breedte van een deur.' },
-        { q: 'Kunnen we ReBuilt trainen op onze dossiers?', a: 'Ja — dat is waar ReBuilt uniek wordt. Upload referentiedossiers en het model leert je portefeuille.' },
+        { q: 'Kunnen we Plan Based trainen op onze dossiers?', a: 'Ja — dat is waar Plan Based uniek wordt. Upload referentiedossiers en het model leert je portefeuille.' },
         { q: 'Is de data van elke verzekeraar geïsoleerd?', a: 'Ja. Geïsoleerde werkruimte per verzekeraar. Row-level security, EU-hosted.' },
         { q: 'Wat kost het?', a: 'Gratis tijdens beta. Daarna: tarief per schatting met volumekortingen. Beta-testers blokkeren een voorkeurstarief.' },
       ],
     },
     cta: {
-      label: 'Early access', title: 'Word een van de eerste verzekeraars op ReBuilt.',
+      label: 'Early access', title: 'Word een van de eerste verzekeraars op Plan Based.',
       sub: 'Gratis tijdens de beta. Je dossiers trainen het model. Je feedback vormt het product.',
       company: 'Bedrijfsnaam', email: 'Werkmail', volume: 'Ramingen per maand',
       volume_opts: ['1 – 10','10 – 50','50 – 200','200+'],
@@ -268,6 +268,6 @@ export const I18N: Record<Lang, LandingI18N> = {
       perks: ['Onboarding in één week','Directe lijn met het team','Jouw feedback vormt v1'],
       thanks: '✓ Ontvangen. We nemen binnen 48 uur contact op.',
     },
-    footer: { tagline: 'Reconstruction cost intelligence voor Belgische verzekeraars', links: ['Product','Hoe het werkt','FAQ','Beta','Privacy','Contact'], copy: '© 2026 ReBuilt · v0.1 Beta' },
+    footer: { tagline: 'Reconstruction cost intelligence voor Belgische verzekeraars', links: ['Product','Hoe het werkt','FAQ','Beta','Privacy','Contact'], copy: '© 2026 Plan Based · v0.1 Beta' },
   },
 };
