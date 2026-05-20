@@ -53,6 +53,7 @@ type UploadResult = {
   duplicate?: boolean;
   reused?: boolean;
   existingId?: string;
+  dossierId?: string;
   error?: string;
 };
 
@@ -193,7 +194,7 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
         } else if (saveResult.status === "error") {
           uploadResults.push({ fileName: entry.file.name, ok: false, error: saveResult.message });
         } else {
-          uploadResults.push({ fileName: entry.file.name, ok: true });
+          uploadResults.push({ fileName: entry.file.name, ok: true, dossierId: urlData.id });
         }
       } catch {
         uploadResults.push({ fileName: entry.file.name, ok: false, error: "Unexpected error" });
@@ -205,6 +206,18 @@ export function BatchUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     setPhase("done");
     router.refresh();
     onSuccess?.();
+
+    // Auto-trigger processing for successfully uploaded dossiers
+    const successIds = uploadResults.filter((r) => r.ok && r.dossierId).map((r) => r.dossierId!);
+    for (const id of successIds) {
+      fetch("/api/process-dossier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dossierId: id }),
+      }).catch(() => {
+        // Fire-and-forget — errors will show in dossier status
+      });
+    }
   }
 
   function handleReset() {

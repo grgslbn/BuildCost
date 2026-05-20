@@ -23,6 +23,7 @@ import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-tab
 import { BatchProcessButton, type BatchDossier } from "@/components/dossiers/batch-process-button";
 import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
 import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
+import { AutoRefresh } from "@/components/dossiers/auto-refresh";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -138,6 +139,7 @@ export default async function AdminDossiersPage() {
           </div>
         </div>
         <DossierTable dossiers={dossiers} />
+        <AutoRefresh statuses={dossiers.map((d) => d.status)} />
       </div>
     </div>
   );

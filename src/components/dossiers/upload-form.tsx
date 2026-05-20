@@ -271,6 +271,15 @@ export function DossierUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     setPhase("success");
     router.refresh();
     onSuccess?.();
+
+    // Auto-trigger processing
+    fetch("/api/process-dossier", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dossierId: uploadedFile.dossierId }),
+    }).catch(() => {
+      // Fire-and-forget — errors show in dossier status
+    });
   }
 
   // ── Render: select ───────────────────────────────────────────────────────
