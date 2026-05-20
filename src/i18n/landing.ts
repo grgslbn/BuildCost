@@ -24,7 +24,7 @@ export interface LandingI18N {
     steps: { tag: string; h: string; p: string; detail: string }[];
   };
   belgium: {
-    label: string; title: string[]; sub: string; bullets: string[];
+    label: string; title: string[]; sub: string[]; bullets: string[];
     table_title: string; table_head: string[];
     table_rows: [string, string, string][];
   };
@@ -88,7 +88,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     belgium: {
       label: 'Made for Belgium', title: ['ABEX-indexed.', 'Postcode-aware.', 'Expert-validated.'],
-      sub: 'Built on Belgian construction cost data. Not a generic calculator with a flag on top.',
+      sub: ['Built on Belgian construction cost data.', 'Not a generic calculator with a flag on top.'],
       bullets: ['ABEX construction cost index, refreshed every semester','Regional base prices per m² by postcode — Building cost in a narrow street in Brussels Centre ≠ rural Hainaut','Finishing levels calibrated on Belgian conventions','Plan labels read in NL, FR, EN','Multi-tenant isolation — each insurer\'s data stays separate','GDPR-compliant, EU-hosted, data stays in Belgium'],
       table_title: 'Finishing coefficients', table_head: ['Level','Description','Coeff.'],
       table_rows: [['Basic','Simple materials, minimal equipment','0.70 – 0.85'],['Standard','Average Belgian new build','0.85 – 1.00'],['Comfort','Quality finishes, full kitchen','1.00 – 1.15'],['Luxury','High-end materials, two bathrooms','1.15 – 1.35'],['Premium','Custom everything','1.35 – 1.50']],
@@ -165,7 +165,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     belgium: {
       label: 'Conçu pour la Belgique', title: ['Indexé ABEX.', 'Sensible au code postal.', 'Validé par des experts.'],
-      sub: 'Construit sur des données belges de coûts de construction. Pas une calculatrice générique avec un drapeau belge ajouté dessus.',
+      sub: ['Construit sur des données belges de coûts de construction.', 'Pas une calculatrice générique avec un drapeau belge ajouté dessus.'],
       bullets: ['Indice ABEX des coûts de construction, actualisé chaque semestre','Prix régionaux de base au m² par code postal — construire dans une rue étroite du centre de Bruxelles ≠ construire dans le Hainaut rural','Niveaux de finition calibrés selon les conventions belges','Libellés de plans lus en NL, FR et EN','Isolation multi-tenant — les données de chaque assureur restent séparées','Conforme RGPD, hébergé dans l\'UE, données conservées en Belgique'],
       table_title: 'Coefficients de finition', table_head: ['Niveau','Description','Coeff.'],
       table_rows: [['Basique','Matériaux simples, équipement minimal','0,70 – 0,85'],['Standard','Construction neuve belge moyenne','0,85 – 1,00'],['Confort','Finitions qualité, cuisine complète','1,00 – 1,15'],['Luxe','Matériaux haut de gamme, deux SDB','1,15 – 1,35'],['Premium','Tout sur mesure','1,35 – 1,50']],
@@ -242,7 +242,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     belgium: {
       label: 'Gemaakt voor België', title: ['ABEX-geïndexeerd.', 'Postcodebewust.', 'Gevalideerd door experts.'],
-      sub: 'Gebouwd op Belgische bouwkostgegevens. Geen generieke calculator met een Belgische vlag erop.',
+      sub: ['Gebouwd op Belgische bouwkostgegevens.', 'Geen generieke calculator met een Belgische vlag erop.'],
       bullets: ['ABEX-bouwkostenindex, elk semester vernieuwd','Regionale basisprijzen per m² per postcode — bouwen in een smalle straat in Brussel-Centrum ≠ landelijk Henegouwen','Afwerkingsniveaus afgestemd op Belgische conventies','Planlabels gelezen in NL, FR en EN','Multi-tenant isolatie — de data van elke verzekeraar blijft gescheiden','GDPR-conform, gehost in de EU, data blijft in België'],
       table_title: 'Afwerkingscoëfficiënten', table_head: ['Niveau','Beschrijving','Coëff.'],
       table_rows: [['Basis','Eenvoudige materialen, minimale uitrusting','0,70 – 0,85'],['Standaard','Gemiddelde Belgische nieuwbouw','0,85 – 1,00'],['Comfort','Kwaliteitsafwerking, volledige keuken','1,00 – 1,15'],['Luxe','High-end materialen, twee badkamers','1,15 – 1,35'],['Premium','Alles op maat','1,35 – 1,50']],
