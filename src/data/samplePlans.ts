@@ -74,10 +74,10 @@ export const ANIM_CARDS: AnimCard[] = [
     total: ['Rebuild cost', '€ 132 780'], footer: ['rebuilt.be', '7 rooms · 2 floors'] },
 ];
 
-export const REVEAL_TICK = 480;
-export const UPLOAD_BAR = 1400;
-export const HOLD_END = 5500;
-export const BETWEEN = 1000;
+export const REVEAL_TICK = 700;
+export const UPLOAD_BAR = 2000;
+export const HOLD_END = 7000;
+export const BETWEEN = 1800;
 
 export const fmtEUR = (n: number) =>
   '€ ' + Math.round(n).toLocaleString('de-DE');
