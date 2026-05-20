@@ -8,6 +8,7 @@ import {
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
+import { renderPdfPagesToImages, getPdfPageCount } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
@@ -218,54 +219,73 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // ── Step C: Build floor-plan page content for SQM extraction ──────────
+      // ── Step C: Render floor-plan pages to high-res PNG (identical to WS1) ──
       const floorPlanNums = new Set(
         effectiveClassifications
           .filter((c) => c.type === "floor_plan")
           .map((c) => c.pageNumber)
       );
 
-      const planPages =
+      // If classifier found floor plans, use those; otherwise use all pages
+      const planPageNumbers =
         floorPlanNums.size > 0
-          ? pages.filter((p) => floorPlanNums.has(p.pageNumber))
-          : pages;
+          ? Array.from(floorPlanNums).sort((a, b) => a - b)
+          : pages.map((p) => p.pageNumber);
 
-      if (planPages.length === 0) {
+      if (planPageNumbers.length === 0) {
         await setStatus(admin, dossierId, "error", {
           error_message: "No floor plan pages found in PDF to extract SQM from.",
         });
         return NextResponse.json({ error: "No floor plan pages" }, { status: 422 });
       }
 
+      // Render to high-res PNG using mupdf (300 DPI, max 5000px) — same as WS1 benchmark
+      const planImages = await renderPdfPagesToImages(
+        Buffer.from(arrayBuffer),
+        planPageNumbers,
+        { maxWidth: 5000, dpi: 300 }
+      );
+
+      // Build content blocks: user prompt first, then labeled images (WS1 order)
       sqmContent = [
-        ...planPages.map(
-          (p): Anthropic.DocumentBlockParam => ({
-            type: "document",
-            source: { type: "base64", media_type: "application/pdf", data: p.base64 },
-          })
+        { type: "text" as const, text: prompts.sqmUser },
+        ...planImages.flatMap(
+          (img): Anthropic.ContentBlockParam[] => [
+            { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
+            {
+              type: "image" as const,
+              source: {
+                type: "base64" as const,
+                media_type: "image/png" as const,
+                data: img.png.toString("base64"),
+              },
+            },
+          ]
         ),
-        { type: "text", text: prompts.sqmUser },
       ];
     } else {
       // Image file — no classification or metadata extraction
       const base64 = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(dossier.plan_file_name ?? "plan.jpg");
       sqmContent = [
+        { type: "text" as const, text: prompts.sqmUser },
+        { type: "text" as const, text: "\n--- Image: plan ---" },
         {
-          type: "image",
-          source: { type: "base64", media_type: mediaType, data: base64 },
+          type: "image" as const,
+          source: { type: "base64" as const, media_type: mediaType, data: base64 },
         },
-        { type: "text", text: prompts.sqmUser },
       ];
     }
 
-    // ── SQM Extraction ────────────────────────────────────────────────────────
+    // ── SQM Extraction (with extended thinking — identical to WS1) ───────────
     await setStatus(admin, dossierId, "extracting_sqm", { error_message: null });
 
+    const THINKING_BUDGET = 10000;
     const sqmCallStart = Date.now();
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
-      max_tokens: 16384,
+      max_tokens: THINKING_BUDGET + 16384,
+      thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
       system: prompts.sqmSystem,
       messages: [{ role: "user", content: sqmContent }],
     });
@@ -279,19 +299,21 @@ export async function POST(req: NextRequest) {
       status: "success",
     });
 
-    const sqmRaw =
-      sqmResponse.content[0].type === "text" ? sqmResponse.content[0].text : "";
+    // Extract text block (thinking responses have thinking + text blocks)
+    const sqmTextBlock = sqmResponse.content.find((b) => b.type === "text");
+    const sqmRaw = sqmTextBlock && "text" in sqmTextBlock ? sqmTextBlock.text : "";
 
     let sqmExtraction: Record<string, unknown>;
     try {
       sqmExtraction = parseClaudeJson(sqmRaw) as Record<string, unknown>;
     } catch {
-      // Retry once with a stricter prompt (show Claude its bad output and ask to fix)
+      // Retry once with a stricter prompt — no thinking, temperature=0
       try {
         const retryStart = Date.now();
         const retryRes = await anthropic.messages.create({
           model: extractionModel,
           max_tokens: 16384,
+          temperature: 0,
           system: prompts.sqmSystem,
           messages: [
             { role: "user", content: sqmContent },

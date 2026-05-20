@@ -7,6 +7,7 @@ import {
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
+import { renderPdfPagesToImages } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
 import { logApiCall } from "@/lib/ai/log-api-call";
@@ -22,7 +23,6 @@ import type Anthropic from "@anthropic-ai/sdk";
 export const maxDuration = 300;
 
 const TIMEOUT_MS    = 250_000; // bail out before Vercel's 300s hard limit
-const SQM_BATCH_SIZE = 3;      // pages per SQM Claude call
 const MAX_SQM_PAGES  = 12;     // hard cap on floor plan pages sent for SQM
 
 // ── Timeout guard ─────────────────────────────────────────────────────────────
@@ -38,44 +38,7 @@ function checkTimeout(startTime: number) {
   if (Date.now() - startTime > TIMEOUT_MS) throw new TimeoutError();
 }
 
-// ── SQM merge helpers ─────────────────────────────────────────────────────────
-
-type SqmFloor   = Record<string, unknown>;
-type SqmRoom    = { area_sqm?: number; category?: string };
-type SqmBuilding = { floors?: SqmFloor[] };
-
-function extractFloors(sqm: Record<string, unknown>): SqmFloor[] {
-  const buildings = sqm.buildings as SqmBuilding[] | undefined;
-  if (buildings?.length) return buildings.flatMap((b) => b.floors ?? []);
-  return (sqm.floors as SqmFloor[]) ?? [];
-}
-
-function mergeSqmResults(results: Record<string, unknown>[]): Record<string, unknown> {
-  if (results.length === 1) return results[0];
-  const allFloors  = results.flatMap(extractFloors);
-  const allRooms   = allFloors.flatMap((f) => ((f.rooms ?? []) as SqmRoom[]));
-  const livableSqm = allRooms
-    .filter((r) => r.category === "livable")
-    .reduce((s, r) => s + (r.area_sqm ?? 0), 0);
-  const grossSqm   = allRooms.reduce((s, r) => s + (r.area_sqm ?? 0), 0);
-  return {
-    building_type: results[0].building_type ?? {},
-    floors:        allFloors,
-    summary: {
-      ...(results[0].summary as Record<string, unknown> ?? {}),
-      total_livable_sqm: Math.round(livableSqm * 10) / 10,
-      total_gross_sqm:   Math.round(grossSqm   * 10) / 10,
-    },
-  };
-}
-
 // ── Misc helpers ──────────────────────────────────────────────────────────────
-
-function chunk<T>(arr: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
-}
 
 function getImageMediaType(name: string): "image/jpeg" | "image/png" | "image/webp" {
   const l = name.toLowerCase();
@@ -96,82 +59,86 @@ async function setStatus(
     .eq("id", id);
 }
 
-// ── SQM extraction (batched) ──────────────────────────────────────────────────
+// ── SQM extraction (with thinking — identical to WS1) ────────────────────────
 
-async function extractSqmFromPages(
-  pages: Array<{ pageNumber: number; base64: string }>,
+const THINKING_BUDGET = 10000;
+
+async function extractSqmFromImages(
+  planImages: Array<{ name: string; png: Buffer }>,
   model: string,
   systemPrompt: string,
   userPrompt: string,
   estimationId: string,
-  startTime: number
+  _startTime: number
 ): Promise<Record<string, unknown>> {
-  const capped  = pages.slice(0, MAX_SQM_PAGES);
-  const batches = chunk(capped, SQM_BATCH_SIZE);
-  const batchResults: Record<string, unknown>[] = [];
+  // Build content: user prompt first, then labeled images (WS1 order)
+  const content: Anthropic.MessageParam["content"] = [
+    { type: "text" as const, text: userPrompt },
+    ...planImages.flatMap(
+      (img): Anthropic.ContentBlockParam[] => [
+        { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
+        {
+          type: "image" as const,
+          source: {
+            type: "base64" as const,
+            media_type: "image/png" as const,
+            data: img.png.toString("base64"),
+          },
+        },
+      ]
+    ),
+  ];
 
-  for (const batch of batches) {
-    checkTimeout(startTime);
+  const callStart = Date.now();
+  const res = await anthropic.messages.create({
+    model,
+    max_tokens: THINKING_BUDGET + 16384,
+    thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
+    system: systemPrompt,
+    messages: [{ role: "user", content }],
+  });
+  logApiCall({
+    call_type:     "sqm_extraction",
+    estimation_id: estimationId,
+    model_used:    model,
+    tokens_input:  res.usage.input_tokens,
+    tokens_output: res.usage.output_tokens,
+    duration_ms:   Date.now() - callStart,
+    status:        "success",
+  });
 
-    const batchContent: Anthropic.MessageParam["content"] = [
-      ...batch.map((p): Anthropic.DocumentBlockParam => ({
-        type: "document",
-        source: { type: "base64", media_type: "application/pdf", data: p.base64 },
-      })),
-      { type: "text", text: userPrompt },
-    ];
+  const textBlock = res.content.find((b) => b.type === "text");
+  const raw = textBlock && "text" in textBlock ? textBlock.text : "";
 
-    const callStart = Date.now();
-    const res = await anthropic.messages.create({
+  try {
+    return parseClaudeJson(raw) as Record<string, unknown>;
+  } catch {
+    // Retry once — no thinking, temperature=0
+    const retryStart = Date.now();
+    const retryRes = await anthropic.messages.create({
       model,
       max_tokens: 16384,
+      temperature: 0,
       system: systemPrompt,
-      messages: [{ role: "user", content: batchContent }],
+      messages: [
+        { role: "user",      content },
+        { role: "assistant", content: raw },
+        { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
+      ],
     });
     logApiCall({
       call_type:     "sqm_extraction",
       estimation_id: estimationId,
       model_used:    model,
-      tokens_input:  res.usage.input_tokens,
-      tokens_output: res.usage.output_tokens,
-      duration_ms:   Date.now() - callStart,
+      tokens_input:  retryRes.usage.input_tokens,
+      tokens_output: retryRes.usage.output_tokens,
+      duration_ms:   Date.now() - retryStart,
       status:        "success",
     });
-
-    const raw = res.content[0].type === "text" ? res.content[0].text : "";
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = parseClaudeJson(raw) as Record<string, unknown>;
-    } catch {
-      checkTimeout(startTime);
-      const retryStart = Date.now();
-      const retryRes = await anthropic.messages.create({
-        model,
-        max_tokens: 16384,
-        system: systemPrompt,
-        messages: [
-          { role: "user",      content: batchContent },
-          { role: "assistant", content: raw },
-          { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
-        ],
-      });
-      logApiCall({
-        call_type:     "sqm_extraction",
-        estimation_id: estimationId,
-        model_used:    model,
-        tokens_input:  retryRes.usage.input_tokens,
-        tokens_output: retryRes.usage.output_tokens,
-        duration_ms:   Date.now() - retryStart,
-        status:        "success",
-      });
-      const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
-      parsed = parseClaudeJson(retryRaw) as Record<string, unknown>;
-    }
-
-    batchResults.push(parsed);
+    const retryTextBlock = retryRes.content.find((b) => b.type === "text");
+    const retryRaw = retryTextBlock && "text" in retryTextBlock ? retryTextBlock.text : "";
+    return parseClaudeJson(retryRaw) as Record<string, unknown>;
   }
-
-  return mergeSqmResults(batchResults);
 }
 
 // ── Route ─────────────────────────────────────────────────────────────────────
@@ -264,6 +231,7 @@ export async function POST(req: NextRequest) {
     if (isPdf) {
       checkTimeout(startTime);
 
+      // Classification still uses PDF pages (text/structure analysis)
       const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
       const classifyStart = Date.now();
       const classifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
@@ -278,13 +246,20 @@ export async function POST(req: NextRequest) {
       const floorPlanNums = new Set(
         classifications.filter((c) => c.type === "floor_plan").map((c) => c.pageNumber)
       );
-      const planPages =
+      const planPageNumbers =
         floorPlanNums.size > 0
-          ? pages.filter((p) => floorPlanNums.has(p.pageNumber))
-          : pages;
+          ? Array.from(floorPlanNums).sort((a, b) => a - b)
+          : pages.map((p) => p.pageNumber);
 
-      sqmExtraction = await extractSqmFromPages(
-        planPages,
+      // Render to high-res PNG using mupdf (identical to WS1 benchmark)
+      const planImages = await renderPdfPagesToImages(
+        Buffer.from(arrayBuffer),
+        planPageNumbers.slice(0, MAX_SQM_PAGES),
+        { maxWidth: 5000, dpi: 300 }
+      );
+
+      sqmExtraction = await extractSqmFromImages(
+        planImages,
         extractionModel,
         prompts.sqmSystem,
         prompts.sqmUser,
@@ -292,18 +267,24 @@ export async function POST(req: NextRequest) {
         startTime
       );
     } else {
-      // Image file — single call, no batching needed
+      // Image file — render as single image with thinking (WS1 flow)
       const base64    = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(est.plan_file_name ?? "plan.jpg");
+
       const imgContent: Anthropic.MessageParam["content"] = [
-        { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-        { type: "text", text: prompts.sqmUser },
+        { type: "text" as const, text: prompts.sqmUser },
+        { type: "text" as const, text: "\n--- Image: plan ---" },
+        {
+          type: "image" as const,
+          source: { type: "base64" as const, media_type: mediaType, data: base64 },
+        },
       ];
 
       const callStart = Date.now();
       const imgRes = await anthropic.messages.create({
         model:      extractionModel,
-        max_tokens: 16384,
+        max_tokens: THINKING_BUDGET + 16384,
+        thinking:   { type: "enabled", budget_tokens: THINKING_BUDGET },
         system:     prompts.sqmSystem,
         messages:   [{ role: "user", content: imgContent }],
       });
@@ -317,7 +298,8 @@ export async function POST(req: NextRequest) {
         status:        "success",
       });
 
-      const imgRaw = imgRes.content[0].type === "text" ? imgRes.content[0].text : "";
+      const textBlock = imgRes.content.find((b) => b.type === "text");
+      const imgRaw = textBlock && "text" in textBlock ? textBlock.text : "";
       try {
         sqmExtraction = parseClaudeJson(imgRaw) as Record<string, unknown>;
       } catch {
@@ -326,6 +308,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model:      extractionModel,
           max_tokens: 16384,
+          temperature: 0,
           system:     prompts.sqmSystem,
           messages: [
             { role: "user",      content: imgContent },
@@ -342,7 +325,8 @@ export async function POST(req: NextRequest) {
           duration_ms:   Date.now() - retryStart,
           status:        "success",
         });
-        const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
+        const retryTextBlock = retryRes.content.find((b) => b.type === "text");
+        const retryRaw = retryTextBlock && "text" in retryTextBlock ? retryTextBlock.text : "";
         sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
       }
     }
