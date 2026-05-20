@@ -71,7 +71,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       cards: [
         { tag: 'm²', h: 'Precise surface extraction', p: 'Detects scale, segments rooms, reads dimensions across all floors. L-shaped corridors included.', stat: 'Scale detection · room segmentation · multi-floor' },
         { tag: 'AI', h: 'Finishing level, discovered', p: 'Bathroom count, kitchen size, entrance hall proportions — every signal weighted from 1 000+ dossiers.', stat: 'Self-learning QQPs · 5 finishing levels' },
-        { tag: '€', h: 'ABEX-indexed rebuild cost', p: 'Surface × regional base × ABEX × finishing coefficient. Belgian postcodes, current index, no guesswork.', stat: 'Updated every semester · postcode-aware' },
+        { tag: '€', h: 'ABEX-indexed rebuild cost', p: 'Regional construction costs, current ABEX index and finishing level — combined into one precise estimate.', stat: 'Updated every semester · postcode-aware' },
         { tag: '↻', h: 'Trained on your dossiers', p: 'Upload reference dossiers with known prices. The model learns your portfolio and gets sharper every week.', stat: 'Per-tenant weights · refines monthly' },
         { tag: '⌂', h: 'Building type, auto-classified', p: 'Villa, apartment, duplex, terraced, studio — the model picks the right estimation profile.', stat: '7 building types · auto-detected' },
         { tag: '📄', h: 'Auditable PDF report', p: 'Room-by-room areas, detected QQPs, finishing justification, formula trail. Validation-ready.', stat: 'PDF export · audit trail' },
@@ -148,7 +148,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       cards: [
         { tag: 'm²', h: 'Extraction précise des surfaces', p: "Détecte l'échelle, segmente les pièces et lit les dimensions sur tous les étages. Couloirs en L inclus.", stat: 'Détection d\'échelle · segmentation des pièces · multi-étages' },
         { tag: 'AI', h: 'Niveau de finition détecté automatiquement', p: 'Nombre de salles de bains, taille de la cuisine, proportions du hall d\'entrée — chaque signal est pondéré sur base de plus de 1.000 dossiers.', stat: 'QQP auto-apprenants · 5 niveaux de finition' },
-        { tag: '€', h: 'Coût de reconstruction indexé ABEX', p: 'Surface × base régionale × ABEX × coefficient de finition. Codes postaux belges, index actuel, pas d\'estimation au doigt mouillé.', stat: 'Mis à jour chaque semestre · sensible au code postal' },
+        { tag: '€', h: 'Coût de reconstruction indexé ABEX', p: 'Coûts de construction régionaux, index ABEX actuel et niveau de finition — combinés en une estimation précise.', stat: 'Mis à jour chaque semestre · sensible au code postal' },
         { tag: '↻', h: 'Entraîné sur vos dossiers', p: 'Téléchargez des dossiers de référence avec des prix connus. Le modèle apprend votre portefeuille et devient plus précis chaque semaine.', stat: 'Pondérations par tenant · affinement mensuel' },
         { tag: '⌂', h: 'Type de bâtiment classé automatiquement', p: 'Villa, appartement, duplex, maison mitoyenne, studio — le modèle choisit automatiquement le bon profil d\'estimation.', stat: '7 types de bâtiments · détection automatique' },
         { tag: '📄', h: 'Rapport PDF contrôlable', p: 'Surfaces par pièce, QQP détectés, justification du niveau de finition, traçabilité complète de la formule. Prêt pour validation.', stat: 'Export PDF · piste d\'audit' },
@@ -225,7 +225,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       cards: [
         { tag: 'm²', h: 'Nauwkeurige oppervlakte-extractie', p: 'Detecteert de schaal, segmenteert ruimtes en leest afmetingen over alle verdiepingen. Ook L-vormige gangen inbegrepen.', stat: 'Schaaldetectie · ruimtesegmentatie · meerdere verdiepingen' },
         { tag: 'AI', h: 'Afwerkingsniveau automatisch herkend', p: 'Aantal badkamers, keukengrootte, verhouding inkomhal — elk signaal wordt gewogen op basis van 1.000+ dossiers.', stat: 'Zelflerende QQP\'s · 5 afwerkingsniveaus' },
-        { tag: '€', h: 'ABEX-geïndexeerde heropbouwwaarde', p: 'Oppervlakte × regionale basis × ABEX × afwerkingscoëfficiënt. Belgische postcodes, actuele index, geen giswerk.', stat: 'Elk semester geüpdatet · postcodebewust' },
+        { tag: '€', h: 'ABEX-geïndexeerde heropbouwwaarde', p: 'Regionale bouwkosten, actuele ABEX-index en afwerkingsniveau — gecombineerd in één nauwkeurige raming.', stat: 'Elk semester geüpdatet · postcodebewust' },
         { tag: '↻', h: 'Getraind op je eigen dossiers', p: 'Upload referentiedossiers met gekende prijzen. Het model leert je portefeuille kennen en wordt elke week scherper.', stat: 'Weging per tenant · maandelijkse verfijning' },
         { tag: '⌂', h: 'Gebouwtype automatisch geclassificeerd', p: 'Villa, appartement, duplex, rijwoning, studio — het model kiest automatisch het juiste ramingsprofiel.', stat: '7 gebouwtypes · automatisch gedetecteerd' },
         { tag: '📄', h: 'Controleerbaar PDF-rapport', p: 'Oppervlaktes per ruimte, gedetecteerde QQP\'s, motivering van het afwerkingsniveau en volledige formule-opbouw. Klaar voor validatie.', stat: 'PDF-export · audit trail' },
