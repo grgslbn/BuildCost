@@ -87,15 +87,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TRUST BAR */}
-      <div className="trust-bar">
-        <div className="container">
-          <div className="trust-title">{L.trust.title}</div>
-          <div className="trust-logos">
-            {L.trust.logos.map((logo, i) => <div key={i} className="trust-logo">{logo}</div>)}
-          </div>
-        </div>
-      </div>
 
       {/* DEMO */}
       <section id="demo" className="demo-section section-bg-deep">
