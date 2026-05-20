@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { I18N, Lang } from '@/i18n/landing';
 import AnimatedHeroCards from './AnimatedHeroCards';
-import UploadDemo from './UploadDemo';
+import RealUploadDemo from './real-upload-demo';
 import FAQ from './FAQ';
 import CTA from './CTA';
 import './landing.css';
@@ -96,7 +96,7 @@ export default function LandingPage() {
             <div className="section-label">{L.demo.label}</div>
             <h2 className="section-title">{L.demo.title}</h2>
             <p className="section-sub">{L.demo.sub}</p>
-            <UploadDemo t={L.demo}/>
+            <RealUploadDemo/>
           </div>
         </div>
       </section>
