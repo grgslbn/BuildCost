@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { extractSqm, resolveModel } from '../src/lib/sqm-extractor.mjs';
+import { compareExtraction, formatComparison } from '../src/lib/benchmark-compare.mjs';
 
 const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\BuildCost\\.env.local', 'utf-8')
   .match(/BUILDCOST_ANTHROPIC_KEY=(.+)/)?.[1]?.trim();
@@ -12,6 +13,25 @@ const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\Bui
 //
 // Plans are OLD scanned hand-drawings from when building was a shop (WINKEL).
 // Renovated to restaurant in 2025. Footprint should be the same.
+//
+// Expert Berekening (p6):
+//   [0] restaurant, bar, open keuken, toiletgroep: 254 m²
+//   [0] aangebouwde orangerie: 45 m²
+//   [1] verdieping, casco (voormalige winkelinrichting): 213 m²
+//   [2] zolder casco: 213 m²
+// Total enclosed: 254 + 45 + 213 + 213 = 725 m²
+const EXPERT = {
+  buildings: [{
+    name: 'LUKOR Restaurant',
+    total_enclosed_sqm: 725,
+    total_terraces_sqm: 0,
+    floors: [
+      { level: 0, total_sqm: 299, terraces_sqm: 0 },
+      { level: 1, total_sqm: 213, terraces_sqm: 0 },
+      { level: 2, total_sqm: 213, terraces_sqm: 0 },
+    ]
+  }]
+};
 
 const modelName = process.argv[2] || 'sonnet';
 const modelId = resolveModel(modelName);
@@ -80,6 +100,10 @@ try {
         console.log(`    TOTAL: ${bt.enclosed_sqm} enclosed, ${bt.balkons_sqm ?? bt.terraces_sqm ?? 0} balkons`);
       }
     }
+
+    const comparison = compareExtraction(result.extraction, EXPERT);
+    console.log(`\n--- Comparison vs Expert ---`);
+    console.log(formatComparison(comparison));
 
     if (result.extraction.extraction_warnings?.length) {
       console.log('\nWarnings:');
