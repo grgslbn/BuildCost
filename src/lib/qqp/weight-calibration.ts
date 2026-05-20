@@ -66,15 +66,22 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
     .single();
   const nationalBasePrice = (basePriceRow?.value as number) ?? 1450;
 
-  // Load analyzed dossiers with a known price
-  const { data: dossiers } = await admin
+  // Load analyzed dossiers with a known price and valid SQM data
+  const { data: rawDossiers } = await admin
     .from("reference_dossiers")
-    .select("id, known_price_per_sqm, known_finishing_coefficient")
+    .select("id, known_price_per_sqm, known_finishing_coefficient, sqm_extraction")
     .eq("status", "analyzed")
+    .not("sqm_extraction", "is", null)
     .or("known_price_per_sqm.not.is.null,known_finishing_coefficient.not.is.null");
 
-  if (!dossiers || dossiers.length === 0) {
-    throw new Error("No analyzed dossiers with known prices — cannot calibrate.");
+  // Only include dossiers where SQM extraction produced meaningful surface data
+  const dossiers = (rawDossiers ?? []).filter((d) => {
+    const summary = (d.sqm_extraction as { summary?: { total_gross_sqm?: number } } | null)?.summary;
+    return summary?.total_gross_sqm != null && summary.total_gross_sqm > 0;
+  });
+
+  if (dossiers.length === 0) {
+    throw new Error("No analyzed dossiers with known prices and valid SQM data — cannot calibrate.");
   }
 
   // Compute effective coefficient for each dossier
@@ -214,12 +221,6 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
   );
   const r_squared = ssTot > 0 ? 1 - ssRes / ssTot : 0;
 
-  // Deactivate previous versions
-  await admin
-    .from("qqp_model_versions")
-    .update({ is_active: false })
-    .eq("is_active", true);
-
   const { data: maxVersionRow } = await admin
     .from("qqp_model_versions")
     .select("version")
@@ -228,6 +229,7 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
     .maybeSingle();
   const nextVersion = (maxVersionRow?.version ?? 0) + 1;
 
+  // Insert new version first, then atomically flip active flag
   const { data: newModel } = await admin
     .from("qqp_model_versions")
     .insert({
@@ -236,10 +238,16 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
       training_dossier_count: effectiveCoeffs.size,
       accuracy_metrics: { mae, rmse, r_squared, n_predictions: n },
       notes: `Auto-calibrated from ${effectiveCoeffs.size} dossiers. ${calibratedCount} QQPs calibrated.`,
-      is_active: true,
+      is_active: false,
     })
     .select("id")
     .single();
+
+  if (!newModel?.id) throw new Error("Failed to insert new model version.");
+
+  // Deactivate all previous, then activate the new one
+  await admin.from("qqp_model_versions").update({ is_active: false }).neq("id", newModel.id);
+  await admin.from("qqp_model_versions").update({ is_active: true }).eq("id", newModel.id);
 
   // ── Re-evaluate all analyzed dossiers ────────────────────────────────────
 
