@@ -1,21 +1,21 @@
-/* ===== TOKENS — Forest brand (scoped to .landing-root) ===== */
+/* ===== TOKENS — Terracotta brand (scoped to .landing-root) ===== */
 .landing-root {
   --bg: #FBFAF5;
-  --bg-deep: #F0EEE5;
+  --bg-deep: #F2EDE8;
   --bg-card: #FFFFFF;
-  --ink: #161A14;
-  --ink-soft: #4A5045;
-  --ink-muted: #8C9088;
-  --accent: #2F5D3A;
-  --accent-light: #E1ECDD;
-  --accent-deep: #1F4128;
-  --accent-ink: #FBFAF5;
-  --border: #E5E3D9;
-  --shadow-sm: 0 1px 3px rgba(22,26,20,.06);
-  --shadow: 0 1px 3px rgba(22,26,20,.06), 0 8px 24px rgba(22,26,20,.04);
-  --shadow-lg: 0 1px 3px rgba(22,26,20,.08), 0 16px 48px rgba(22,26,20,.08);
-  --green: #2F5D3A;
-  --green-bg: #E1ECDD;
+  --ink: #1A1714;
+  --ink-soft: #524840;
+  --ink-muted: #9C9088;
+  --accent: #C85A2A;
+  --accent-light: #FAE8DC;
+  --accent-deep: #8B3C1A;
+  --accent-ink: #FAFAF8;
+  --border: #E8E0D8;
+  --shadow-sm: 0 1px 3px rgba(26,23,20,.06);
+  --shadow: 0 1px 3px rgba(26,23,20,.06), 0 8px 24px rgba(26,23,20,.04);
+  --shadow-lg: 0 1px 3px rgba(26,23,20,.08), 0 16px 48px rgba(26,23,20,.08);
+  --green: #C85A2A;
+  --green-bg: #FAE8DC;
   --blue: #2C4F6E;
   --blue-bg: #DDE7F0;
   --yellow: #8B6A14;
