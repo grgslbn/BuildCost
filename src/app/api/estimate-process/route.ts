@@ -157,6 +157,9 @@ export async function POST(req: NextRequest) {
 
     let sqmExtraction: Record<string, unknown>;
 
+    // Plan image blocks — reused for both SQM and QQP calls
+    let planImageBlocks: Anthropic.ContentBlockParam[] = [];
+
     if (isPdf) {
       checkTimeout(startTime);
 
@@ -183,22 +186,25 @@ export async function POST(req: NextRequest) {
         // Build floor label context (WS1 approach — helps Claude identify floors)
         const floorContext = buildFloorContext(planImages);
 
+        // Save image blocks for reuse in QQP call
+        planImageBlocks = planImages.flatMap(
+          (img): Anthropic.ContentBlockParam[] => [
+            { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
+            {
+              type: "image" as const,
+              source: {
+                type: "base64" as const,
+                media_type: "image/png" as const,
+                data: img.png.toString("base64"),
+              },
+            },
+          ]
+        );
+
         // WS1 order: context + user prompt first, then labeled images
         sqmContent = [
           { type: "text" as const, text: floorContext ? floorContext + "\n\n" + prompts.sqmUser : prompts.sqmUser },
-          ...planImages.flatMap(
-            (img): Anthropic.ContentBlockParam[] => [
-              { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
-              {
-                type: "image" as const,
-                source: {
-                  type: "base64" as const,
-                  media_type: "image/png" as const,
-                  data: img.png.toString("base64"),
-                },
-              },
-            ]
-          ),
+          ...planImageBlocks,
         ];
       } catch (renderErr) {
         // mupdf not available on this runtime — fall back to PDF document blocks
@@ -208,21 +214,22 @@ export async function POST(req: NextRequest) {
           floorPlanPages.includes(p.pageNumber)
         );
         const pagesToSend = (selectedPages.length > 0 ? selectedPages : pages).slice(0, MAX_SQM_PAGES);
+        planImageBlocks = pagesToSend.flatMap(
+          (page): Anthropic.ContentBlockParam[] => [
+            { type: "text" as const, text: `\n--- Page ${page.pageNumber} ---` },
+            {
+              type: "document" as const,
+              source: {
+                type: "base64" as const,
+                media_type: "application/pdf" as const,
+                data: page.base64,
+              },
+            } as Anthropic.DocumentBlockParam,
+          ]
+        );
         sqmContent = [
           { type: "text" as const, text: prompts.sqmUser },
-          ...pagesToSend.flatMap(
-            (page): Anthropic.ContentBlockParam[] => [
-              { type: "text" as const, text: `\n--- Page ${page.pageNumber} ---` },
-              {
-                type: "document" as const,
-                source: {
-                  type: "base64" as const,
-                  media_type: "application/pdf" as const,
-                  data: page.base64,
-                },
-              } as Anthropic.DocumentBlockParam,
-            ]
-          ),
+          ...planImageBlocks,
         ];
       }
 
@@ -282,13 +289,17 @@ export async function POST(req: NextRequest) {
       const base64    = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(est.plan_file_name ?? "plan.jpg");
 
-      const imgContent: Anthropic.MessageParam["content"] = [
-        { type: "text" as const, text: prompts.sqmUser },
+      planImageBlocks = [
         { type: "text" as const, text: "\n--- Image: plan ---" },
         {
           type: "image" as const,
           source: { type: "base64" as const, media_type: mediaType, data: base64 },
         },
+      ];
+
+      const imgContent: Anthropic.MessageParam["content"] = [
+        { type: "text" as const, text: prompts.sqmUser },
+        ...planImageBlocks,
       ];
 
       const callStart = Date.now();
@@ -376,12 +387,19 @@ export async function POST(req: NextRequest) {
       prompts.qqpUserTemplate
     );
 
+    // Build QQP content: text prompt + plan images so Claude can assess
+    // finishing quality from visible materials, fixtures, and spatial layout
+    const qqpContent: Anthropic.MessageParam["content"] = [
+      { type: "text" as const, text: qqpUserPrompt },
+      ...planImageBlocks,
+    ];
+
     const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.stream({
       model:      qqpModel,
       max_tokens: 8192,
       system:     prompts.qqpSystem,
-      messages:   [{ role: "user", content: qqpUserPrompt }],
+      messages:   [{ role: "user", content: qqpContent }],
     }).finalMessage();
     logApiCall({
       call_type:     "qqp_extraction",
@@ -415,7 +433,7 @@ export async function POST(req: NextRequest) {
         max_tokens: 8192,
         system:     prompts.qqpSystem,
         messages: [
-          { role: "user",      content: qqpUserPrompt },
+          { role: "user",      content: qqpContent },
           { role: "assistant", content: qqpRaw },
           { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
         ],
@@ -436,7 +454,13 @@ export async function POST(req: NextRequest) {
     // ── Finishing coefficient ─────────────────────────────────────────────────
     await setStatus(admin, estimationId, "calculating");
 
-    let finishingCoefficient = qqpExtraction.finishing_assessment.coefficient;
+    // Default to 1.0 ("Standard") until enough reference dossiers are
+    // processed to train a reliable model. The QQP call now receives plan
+    // images for better qqp_values extraction, but the raw AI coefficient
+    // is not used — only a trained model can override the default.
+    const DEFAULT_FINISHING_COEFFICIENT = 1.0;
+
+    let finishingCoefficient = DEFAULT_FINISHING_COEFFICIENT;
     let modelVersionId: string | null = null;
 
     const { data: activeModel } = await admin
