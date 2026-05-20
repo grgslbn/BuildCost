@@ -55,7 +55,7 @@ export const ANIM_CARDS: AnimCard[] = [
       { label: 'Basis · 1050 Elsene', value: '€ 1.680/m²' },
       { label: 'ABEX 2026/I', value: '× 1,0000' },
     ],
-    total: ['Heropbouwwaarde', '€ 350.720'], footer: ['rebuilt.be', '12 ruimtes · 2 verdiepingen'] },
+    total: ['Heropbouwwaarde', '€ 350.720'], footer: ['planbased.be', '12 ruimtes · 2 verdiepingen'] },
   { title: 'Appartement', id: 'RB-2026-0831', date: '18·05·2026', file: 'plan-apt-gent.pdf',
     rows: [
       { label: 'Bewoonbare oppervlakte', value: '124,8 m²' },
@@ -63,7 +63,7 @@ export const ANIM_CARDS: AnimCard[] = [
       { label: 'Coëfficiënt', value: '× 1,28' },
       { label: 'Basis · 9000 Gent', value: '€ 1.520/m²' },
     ],
-    total: ['Heropbouwwaarde', '€ 242.810'], footer: ['rebuilt.be', '8 ruimtes · 1 verdieping'] },
+    total: ['Heropbouwwaarde', '€ 242.810'], footer: ['planbased.be', '8 ruimtes · 1 verdieping'] },
   { title: 'Rijwoning', id: 'RB-2026-0819', date: '17·05·2026', file: 'plan-rijwoning-liege.pdf',
     rows: [
       { label: 'Bewoonbare oppervlakte', value: '98,2 m²' },
@@ -71,7 +71,7 @@ export const ANIM_CARDS: AnimCard[] = [
       { label: 'Coëfficiënt', value: '× 0,94' },
       { label: 'Basis · 4000 Luik', value: '€ 1.440/m²' },
     ],
-    total: ['Heropbouwwaarde', '€ 132.780'], footer: ['rebuilt.be', '7 ruimtes · 2 verdiepingen'] },
+    total: ['Heropbouwwaarde', '€ 132.780'], footer: ['planbased.be', '7 ruimtes · 2 verdiepingen'] },
 ];
 
 export const REVEAL_TICK = 700;
