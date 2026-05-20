@@ -8,6 +8,7 @@ import {
 } from "@/lib/ai/prompts";
 import { renderPdfPagesToImages } from "@/lib/pdf/render-plans";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
+import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
 import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas, getTotalGrossSqm, getBuildingType } from "@/lib/cost/area-categories";
@@ -58,87 +59,7 @@ async function setStatus(
     .eq("id", id);
 }
 
-// ── SQM extraction (with thinking — identical to WS1) ────────────────────────
-
 const THINKING_BUDGET = 10000;
-
-async function extractSqmFromImages(
-  planImages: Array<{ name: string; png: Buffer }>,
-  model: string,
-  systemPrompt: string,
-  userPrompt: string,
-  estimationId: string,
-  _startTime: number
-): Promise<Record<string, unknown>> {
-  // Build content: user prompt first, then labeled images (WS1 order)
-  const content: Anthropic.MessageParam["content"] = [
-    { type: "text" as const, text: userPrompt },
-    ...planImages.flatMap(
-      (img): Anthropic.ContentBlockParam[] => [
-        { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
-        {
-          type: "image" as const,
-          source: {
-            type: "base64" as const,
-            media_type: "image/png" as const,
-            data: img.png.toString("base64"),
-          },
-        },
-      ]
-    ),
-  ];
-
-  const callStart = Date.now();
-  const res = await anthropic.messages.create({
-    model,
-    max_tokens: THINKING_BUDGET + 16384,
-    thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
-    system: systemPrompt,
-    messages: [{ role: "user", content }],
-  });
-  logApiCall({
-    call_type:     "sqm_extraction",
-    estimation_id: estimationId,
-    model_used:    model,
-    tokens_input:  res.usage.input_tokens,
-    tokens_output: res.usage.output_tokens,
-    duration_ms:   Date.now() - callStart,
-    status:        "success",
-  });
-
-  const textBlock = res.content.find((b) => b.type === "text");
-  const raw = textBlock && "text" in textBlock ? textBlock.text : "";
-
-  try {
-    return parseClaudeJson(raw) as Record<string, unknown>;
-  } catch {
-    // Retry once — no thinking, temperature=0
-    const retryStart = Date.now();
-    const retryRes = await anthropic.messages.create({
-      model,
-      max_tokens: 16384,
-      temperature: 0,
-      system: systemPrompt,
-      messages: [
-        { role: "user",      content },
-        { role: "assistant", content: raw },
-        { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
-      ],
-    });
-    logApiCall({
-      call_type:     "sqm_extraction",
-      estimation_id: estimationId,
-      model_used:    model,
-      tokens_input:  retryRes.usage.input_tokens,
-      tokens_output: retryRes.usage.output_tokens,
-      duration_ms:   Date.now() - retryStart,
-      status:        "success",
-    });
-    const retryTextBlock = retryRes.content.find((b) => b.type === "text");
-    const retryRaw = retryTextBlock && "text" in retryTextBlock ? retryTextBlock.text : "";
-    return parseClaudeJson(retryRaw) as Record<string, unknown>;
-  }
-}
 
 // ── Route ─────────────────────────────────────────────────────────────────────
 
@@ -236,21 +157,108 @@ export async function POST(req: NextRequest) {
         40
       );
 
-      // Render floor plan pages to high-res PNG using mupdf (identical to WS1)
-      const planImages = await renderPdfPagesToImages(
-        Buffer.from(arrayBuffer),
-        floorPlanPages.slice(0, MAX_SQM_PAGES),
-        { maxWidth: 5000, dpi: 300 }
-      );
+      // Try mupdf PNG rendering first (WS1 quality), fall back to PDF document blocks
+      let sqmContent: Anthropic.MessageParam["content"];
+      try {
+        const planImages = await renderPdfPagesToImages(
+          Buffer.from(arrayBuffer),
+          floorPlanPages.slice(0, MAX_SQM_PAGES),
+          { maxWidth: 5000, dpi: 300 }
+        );
+        // WS1 order: user prompt first, then labeled images
+        sqmContent = [
+          { type: "text" as const, text: prompts.sqmUser },
+          ...planImages.flatMap(
+            (img): Anthropic.ContentBlockParam[] => [
+              { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
+              {
+                type: "image" as const,
+                source: {
+                  type: "base64" as const,
+                  media_type: "image/png" as const,
+                  data: img.png.toString("base64"),
+                },
+              },
+            ]
+          ),
+        ];
+      } catch (renderErr) {
+        // mupdf not available on this runtime — fall back to PDF document blocks
+        console.warn("[estimate-process] mupdf render failed, using PDF documents:", (renderErr as Error).message?.slice(0, 100));
+        const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
+        const selectedPages = pages.filter((p) =>
+          floorPlanPages.includes(p.pageNumber)
+        );
+        const pagesToSend = (selectedPages.length > 0 ? selectedPages : pages).slice(0, MAX_SQM_PAGES);
+        sqmContent = [
+          { type: "text" as const, text: prompts.sqmUser },
+          ...pagesToSend.flatMap(
+            (page): Anthropic.ContentBlockParam[] => [
+              { type: "text" as const, text: `\n--- Page ${page.pageNumber} ---` },
+              {
+                type: "document" as const,
+                source: {
+                  type: "base64" as const,
+                  media_type: "application/pdf" as const,
+                  data: page.base64,
+                },
+              } as Anthropic.DocumentBlockParam,
+            ]
+          ),
+        ];
+      }
 
-      sqmExtraction = await extractSqmFromImages(
-        planImages,
-        extractionModel,
-        prompts.sqmSystem,
-        prompts.sqmUser,
-        estimationId,
-        startTime
-      );
+      // SQM extraction with extended thinking (identical to WS1)
+      const sqmCallStart = Date.now();
+      const sqmRes = await anthropic.messages.create({
+        model: extractionModel,
+        max_tokens: THINKING_BUDGET + 16384,
+        thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
+        system: prompts.sqmSystem,
+        messages: [{ role: "user", content: sqmContent }],
+      });
+      logApiCall({
+        call_type:     "sqm_extraction",
+        estimation_id: estimationId,
+        model_used:    extractionModel,
+        tokens_input:  sqmRes.usage.input_tokens,
+        tokens_output: sqmRes.usage.output_tokens,
+        duration_ms:   Date.now() - sqmCallStart,
+        status:        "success",
+      });
+
+      const sqmTextBlock = sqmRes.content.find((b) => b.type === "text");
+      const sqmRaw = sqmTextBlock && "text" in sqmTextBlock ? sqmTextBlock.text : "";
+
+      try {
+        sqmExtraction = parseClaudeJson(sqmRaw) as Record<string, unknown>;
+      } catch {
+        // Retry once — no thinking, temperature=0
+        const retryStart = Date.now();
+        const retryRes = await anthropic.messages.create({
+          model: extractionModel,
+          max_tokens: 16384,
+          temperature: 0,
+          system: prompts.sqmSystem,
+          messages: [
+            { role: "user",      content: sqmContent },
+            { role: "assistant", content: sqmRaw },
+            { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
+          ],
+        });
+        logApiCall({
+          call_type:     "sqm_extraction",
+          estimation_id: estimationId,
+          model_used:    extractionModel,
+          tokens_input:  retryRes.usage.input_tokens,
+          tokens_output: retryRes.usage.output_tokens,
+          duration_ms:   Date.now() - retryStart,
+          status:        "success",
+        });
+        const retryTextBlock = retryRes.content.find((b) => b.type === "text");
+        const retryRaw = retryTextBlock && "text" in retryTextBlock ? retryTextBlock.text : "";
+        sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
+      }
     } else {
       // Image file — render as single image with thinking (WS1 flow)
       const base64    = Buffer.from(arrayBuffer).toString("base64");

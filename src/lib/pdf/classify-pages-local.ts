@@ -8,9 +8,19 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mupdfMod: any = null;
+let mupdfFailed = false;
 
-async function ensureMupdf() {
-  if (!mupdfMod) mupdfMod = await import("mupdf");
+async function ensureMupdf(): Promise<boolean> {
+  if (mupdfFailed) return false;
+  if (mupdfMod) return true;
+  try {
+    mupdfMod = await import("mupdf");
+    return true;
+  } catch (err) {
+    console.warn("[classify-pages-local] mupdf not available, falling back:", (err as Error).message?.slice(0, 100));
+    mupdfFailed = true;
+    return false;
+  }
 }
 
 // ── Keyword patterns (from WS1 pdf-classifier.mjs) ─────────────────────────
@@ -80,7 +90,11 @@ export async function classifyPagesLocal(
   pdfBuffer: Buffer,
   maxPages = 40
 ): Promise<{ pages: LocalPageClassification[]; totalPages: number }> {
-  await ensureMupdf();
+  const hasMupdf = await ensureMupdf();
+  if (!hasMupdf) {
+    // mupdf not available — return empty so caller sends all pages
+    return { pages: [], totalPages: 0 };
+  }
   const mupdf = mupdfMod!;
 
   const doc = mupdf.Document.openDocument(pdfBuffer, "application/pdf");

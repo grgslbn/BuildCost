@@ -235,30 +235,52 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "No floor plan pages" }, { status: 422 });
       }
 
-      // Render to high-res PNG using mupdf (300 DPI, max 5000px) — same as WS1 benchmark
-      const planImages = await renderPdfPagesToImages(
-        Buffer.from(arrayBuffer),
-        planPageNumbers,
-        { maxWidth: 5000, dpi: 300 }
-      );
-
-      // Build content blocks: user prompt first, then labeled images (WS1 order)
-      sqmContent = [
-        { type: "text" as const, text: prompts.sqmUser },
-        ...planImages.flatMap(
-          (img): Anthropic.ContentBlockParam[] => [
-            { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
-            {
-              type: "image" as const,
-              source: {
-                type: "base64" as const,
-                media_type: "image/png" as const,
-                data: img.png.toString("base64"),
+      // Try mupdf PNG rendering (WS1 quality), fall back to PDF document blocks
+      try {
+        const planImages = await renderPdfPagesToImages(
+          Buffer.from(arrayBuffer),
+          planPageNumbers,
+          { maxWidth: 5000, dpi: 300 }
+        );
+        sqmContent = [
+          { type: "text" as const, text: prompts.sqmUser },
+          ...planImages.flatMap(
+            (img): Anthropic.ContentBlockParam[] => [
+              { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
+              {
+                type: "image" as const,
+                source: {
+                  type: "base64" as const,
+                  media_type: "image/png" as const,
+                  data: img.png.toString("base64"),
+                },
               },
-            },
-          ]
-        ),
-      ];
+            ]
+          ),
+        ];
+      } catch (renderErr) {
+        console.warn("[process-dossier] mupdf render failed, using PDF documents:", (renderErr as Error).message?.slice(0, 100));
+        const selectedPages = pages.filter((p) =>
+          planPageNumbers.includes(p.pageNumber)
+        );
+        const pagesToSend = selectedPages.length > 0 ? selectedPages : pages;
+        sqmContent = [
+          { type: "text" as const, text: prompts.sqmUser },
+          ...pagesToSend.flatMap(
+            (page): Anthropic.ContentBlockParam[] => [
+              { type: "text" as const, text: `\n--- Page ${page.pageNumber} ---` },
+              {
+                type: "document" as const,
+                source: {
+                  type: "base64" as const,
+                  media_type: "application/pdf" as const,
+                  data: page.base64,
+                },
+              } as Anthropic.DocumentBlockParam,
+            ]
+          ),
+        ];
+      }
     } else {
       // Image file — no classification or metadata extraction
       const base64 = Buffer.from(arrayBuffer).toString("base64");
