@@ -2,12 +2,17 @@ import { readFileSync } from 'fs';
 
 const MODELS = {
   haiku: 'claude-haiku-4-5-20251001',
-  sonnet: 'claude-sonnet-4-20250514',
-  opus: 'claude-opus-4-20250514',
+  sonnet: 'claude-sonnet-4-6',
+  opus: 'claude-opus-4-7',
+  // legacy aliases
+  'sonnet-4': 'claude-sonnet-4-20250514',
+  'opus-4': 'claude-opus-4-20250514',
 };
 
 const COST_PER_MTOK = {
   'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+  'claude-sonnet-4-6': { input: 3.00, output: 15.00 },
+  'claude-opus-4-7': { input: 15.00, output: 75.00 },
   'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
   'claude-opus-4-20250514': { input: 15.00, output: 75.00 },
 };
@@ -68,7 +73,7 @@ export async function extractSqm(images, modelId, opts = {}) {
 
   const requestBody = {
     model: modelId,
-    max_tokens: useThinking ? thinkingBudget + 8192 : 8192,
+    max_tokens: useThinking ? thinkingBudget + 16384 : 16384,
     system,
     messages: [{ role: 'user', content }]
   };
