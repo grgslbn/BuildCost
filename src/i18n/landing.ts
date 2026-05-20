@@ -44,7 +44,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     hero: {
       badge: 'Private beta · Belgium · 2026',
       h1_a: 'Reconstruction cost.', h1_b: 'From a plan.', h1_c: 'In 30 seconds.',
-      sub: 'Upload a floor plan. ReBuilt extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost — before your expert opens the dossier.',
+      sub: 'Upload a floor plan. ReBuilt extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost.',
       try_btn: 'Try with your plan', try_hint: 'No signup · ~30s · free', demo_btn: 'See it on a sample',
       proof: 'Built with Belgian insurance experts · ABEX-indexed · GDPR · EU-hosted',
     },
@@ -121,7 +121,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     hero: {
       badge: 'Bêta privée · Belgique · 2026',
       h1_a: 'Coût de reconstruction.', h1_b: "À partir d'un plan.", h1_c: 'En 30 secondes.',
-      sub: "Importez un plan. ReBuilt extrait chaque pièce, détecte le niveau de finition et renvoie un coût de reconstruction indexé ABEX — avant que votre expert n'ouvre le dossier.",
+      sub: "Importez un plan. ReBuilt extrait chaque pièce, détecte le niveau de finition et renvoie un coût de reconstruction indexé ABEX.",
       try_btn: 'Essayer avec votre plan', try_hint: 'Sans inscription · ~30s · gratuit', demo_btn: 'Voir un exemple',
       proof: 'Construit avec des experts en assurance belges · indexé ABEX · RGPD · hébergé UE',
     },
@@ -198,7 +198,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     hero: {
       badge: 'Private beta · België · 2026',
       h1_a: 'Heropbouwkost.', h1_b: 'Vanuit een plan.', h1_c: 'In 30 seconden.',
-      sub: 'Upload een grondplan. ReBuilt leest elke kamer, detecteert het afwerkingsniveau en geeft een ABEX-geïndexeerde heropbouwkost — voordat uw expert het dossier opent.',
+      sub: 'Upload een grondplan. ReBuilt leest elke kamer, detecteert het afwerkingsniveau en geeft een ABEX-geïndexeerde heropbouwkost.',
       try_btn: 'Probeer met uw plan', try_hint: 'Geen account · ~30s · gratis', demo_btn: 'Bekijk een voorbeeld',
       proof: 'Gebouwd met Belgische verzekeringsexperts · ABEX-geïndexeerd · GDPR · EU-hosted',
     },
