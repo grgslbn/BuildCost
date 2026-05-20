@@ -74,7 +74,7 @@ export const I18N: Record<Lang, LandingI18N> = {
         { tag: '€', h: 'ABEX-indexed rebuild cost', p: 'Regional construction costs, current ABEX index and finishing level — combined into one precise estimate.', stat: 'Updated every semester · postcode-aware' },
         { tag: '↻', h: 'Trained on your dossiers', p: 'Upload reference dossiers with known prices. The model learns your portfolio and gets sharper every week.', stat: 'Per-tenant weights · refines monthly' },
         { tag: '⌂', h: 'Building type, auto-classified', p: 'Villa, apartment, duplex, terraced, studio — the model picks the right estimation profile.', stat: '7 building types · auto-detected' },
-        { tag: '📄', h: 'Auditable PDF report', p: 'Room-by-room areas, detected QQPs, finishing justification, formula trail. Validation-ready.', stat: 'PDF export · audit trail' },
+        { tag: '📄', h: 'Clear PDF report', p: 'Rebuild cost, finishing level and key parameters — summarised in a clean report you can share straight away.', stat: 'PDF export · ready to share' },
       ],
     },
     how: {
@@ -151,7 +151,7 @@ export const I18N: Record<Lang, LandingI18N> = {
         { tag: '€', h: 'Coût de reconstruction indexé ABEX', p: 'Coûts de construction régionaux, index ABEX actuel et niveau de finition — combinés en une estimation précise.', stat: 'Mis à jour chaque semestre · sensible au code postal' },
         { tag: '↻', h: 'Entraîné sur vos dossiers', p: 'Téléchargez des dossiers de référence avec des prix connus. Le modèle apprend votre portefeuille et devient plus précis chaque semaine.', stat: 'Pondérations par tenant · affinement mensuel' },
         { tag: '⌂', h: 'Type de bâtiment classé automatiquement', p: 'Villa, appartement, duplex, maison mitoyenne, studio — le modèle choisit automatiquement le bon profil d\'estimation.', stat: '7 types de bâtiments · détection automatique' },
-        { tag: '📄', h: 'Rapport PDF contrôlable', p: 'Surfaces par pièce, QQP détectés, justification du niveau de finition, traçabilité complète de la formule. Prêt pour validation.', stat: 'Export PDF · piste d\'audit' },
+        { tag: '📄', h: 'Rapport PDF clair', p: 'Coût de reconstruction, niveau de finition et paramètres clés — résumés dans un rapport clair, prêt à partager.', stat: 'Export PDF · prêt à partager' },
       ],
     },
     how: {
@@ -228,7 +228,7 @@ export const I18N: Record<Lang, LandingI18N> = {
         { tag: '€', h: 'ABEX-geïndexeerde heropbouwwaarde', p: 'Regionale bouwkosten, actuele ABEX-index en afwerkingsniveau — gecombineerd in één nauwkeurige raming.', stat: 'Elk semester geüpdatet · postcodebewust' },
         { tag: '↻', h: 'Getraind op je eigen dossiers', p: 'Upload referentiedossiers met gekende prijzen. Het model leert je portefeuille kennen en wordt elke week scherper.', stat: 'Weging per tenant · maandelijkse verfijning' },
         { tag: '⌂', h: 'Gebouwtype automatisch geclassificeerd', p: 'Villa, appartement, duplex, rijwoning, studio — het model kiest automatisch het juiste ramingsprofiel.', stat: '7 gebouwtypes · automatisch gedetecteerd' },
-        { tag: '📄', h: 'Controleerbaar PDF-rapport', p: 'Oppervlaktes per ruimte, gedetecteerde QQP\'s, motivering van het afwerkingsniveau en volledige formule-opbouw. Klaar voor validatie.', stat: 'PDF-export · audit trail' },
+        { tag: '📄', h: 'Overzichtelijk PDF-rapport', p: 'Heropbouwwaarde, afwerkingsniveau en de belangrijkste parameters — samengevat in een helder rapport dat je direct kunt doorsturen.', stat: 'PDF-export · klaar om te delen' },
       ],
     },
     how: {
