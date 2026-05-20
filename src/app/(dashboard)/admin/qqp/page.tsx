@@ -19,6 +19,7 @@ import { CalibrateButton } from "@/components/qqp/calibrate-button";
 import { ReExtractButton } from "@/components/qqp/re-extract-button";
 import { ProposedQQPActions } from "@/components/qqp/proposed-qqp-actions";
 import { ToggleActiveButton } from "@/components/qqp/toggle-active-button";
+import { ActivateModelVersionButton } from "@/components/qqp/activate-model-version-button";
 
 export const dynamic = "force-dynamic";
 
@@ -438,11 +439,16 @@ export default async function AdminQQPPage() {
                       </div>
                     )}
                   </summary>
-                  {v.notes && (
-                    <div className="border-t px-4 py-3">
+                  <div className="flex items-start justify-between border-t px-4 py-3 gap-4">
+                    {v.notes ? (
                       <p className="text-xs text-muted-foreground">{v.notes}</p>
-                    </div>
-                  )}
+                    ) : (
+                      <span />
+                    )}
+                    {!v.is_active && (
+                      <ActivateModelVersionButton modelVersionId={v.id} />
+                    )}
+                  </div>
                 </details>
               );
             })}

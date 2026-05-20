@@ -214,12 +214,6 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
   );
   const r_squared = ssTot > 0 ? 1 - ssRes / ssTot : 0;
 
-  // Deactivate previous versions
-  await admin
-    .from("qqp_model_versions")
-    .update({ is_active: false })
-    .eq("is_active", true);
-
   const { data: maxVersionRow } = await admin
     .from("qqp_model_versions")
     .select("version")
@@ -228,6 +222,7 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
     .maybeSingle();
   const nextVersion = (maxVersionRow?.version ?? 0) + 1;
 
+  // Insert new version first, then atomically flip active flag
   const { data: newModel } = await admin
     .from("qqp_model_versions")
     .insert({
@@ -236,10 +231,16 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
       training_dossier_count: effectiveCoeffs.size,
       accuracy_metrics: { mae, rmse, r_squared, n_predictions: n },
       notes: `Auto-calibrated from ${effectiveCoeffs.size} dossiers. ${calibratedCount} QQPs calibrated.`,
-      is_active: true,
+      is_active: false,
     })
     .select("id")
     .single();
+
+  if (!newModel?.id) throw new Error("Failed to insert new model version.");
+
+  // Deactivate all previous, then activate the new one
+  await admin.from("qqp_model_versions").update({ is_active: false }).neq("id", newModel.id);
+  await admin.from("qqp_model_versions").update({ is_active: true }).eq("id", newModel.id);
 
   // ── Re-evaluate all analyzed dossiers ────────────────────────────────────
 
