@@ -27,6 +27,12 @@ type Props = {
     qqpUserTemplate: string;
     pageClassification: string;
     metadataUser: string;
+    usingDefaults: {
+      sqm: boolean;
+      qqp: boolean;
+      pageClassification: boolean;
+      metadataUser: boolean;
+    };
   };
   defaults: {
     sqmSystem: string;
@@ -78,11 +84,13 @@ function PromptBlock({
   systemText,
   userText,
   defaults,
+  isUsingDefault,
 }: {
   config: PromptConfig;
   systemText: string;
   userText: string;
   defaults: { system: string; user: string };
+  isUsingDefault: boolean;
 }) {
   const [system, setSystem] = useState(systemText);
   const [user, setUser] = useState(userText);
@@ -142,6 +150,12 @@ function PromptBlock({
           {charCount.toLocaleString()} chars
         </span>
       </div>
+
+      {isUsingDefault && !isDirty && (
+        <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+          Using built-in default — edit and save to customize.
+        </div>
+      )}
 
       {(config.mode === "system_and_user" || config.mode === "system_only") && (
         <div className="space-y-1.5">
@@ -227,22 +241,28 @@ export function PromptSettings({ prompts, defaults }: Props) {
         let defaultSystem = "";
         let defaultUser = "";
 
+        let isUsingDefault = false;
+
         if (config.key === "prompt_sqm_extraction") {
           systemText = prompts.sqmSystem;
           userText = prompts.sqmUser;
           defaultSystem = defaults.sqmSystem;
           defaultUser = defaults.sqmUser;
+          isUsingDefault = prompts.usingDefaults.sqm;
         } else if (config.key === "prompt_qqp_extraction") {
           systemText = prompts.qqpSystem;
           userText = prompts.qqpUserTemplate;
           defaultSystem = defaults.qqpSystem;
           defaultUser = defaults.qqpUserTemplate;
+          isUsingDefault = prompts.usingDefaults.qqp;
         } else if (config.key === "prompt_page_classification") {
           systemText = prompts.pageClassification;
           defaultSystem = defaults.pageClassification;
+          isUsingDefault = prompts.usingDefaults.pageClassification;
         } else if (config.key === "prompt_metadata_extraction") {
           userText = prompts.metadataUser;
           defaultUser = defaults.metadataUser;
+          isUsingDefault = prompts.usingDefaults.metadataUser;
         }
 
         return (
@@ -252,6 +272,7 @@ export function PromptSettings({ prompts, defaults }: Props) {
             systemText={systemText}
             userText={userText}
             defaults={{ system: defaultSystem, user: defaultUser }}
+            isUsingDefault={isUsingDefault}
           />
         );
       })}

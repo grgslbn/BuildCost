@@ -19,17 +19,39 @@ export type LoadedPrompts = {
   qqpUserTemplate: string;
   pageClassification: string;
   metadataUser: string;
+  usingDefaults: {
+    sqm: boolean;
+    qqp: boolean;
+    pageClassification: boolean;
+    metadataUser: boolean;
+  };
 };
+
+// Strings that indicate a DB row holds a placeholder rather than a real prompt.
+const PLACEHOLDER_PATTERNS = [
+  "YOUR_PROMPT_TEXT_HERE",
+  "[The current",
+  "goes here]",
+  "PLACEHOLDER",
+];
+
+// Real prompts for these tasks are several hundred characters minimum.
+const MIN_REAL_PROMPT_LENGTH = 80;
+
+function isPlaceholder(value: string): boolean {
+  if (!value || value.length < MIN_REAL_PROMPT_LENGTH) return true;
+  return PLACEHOLDER_PATTERNS.some((p) => value.includes(p));
+}
 
 function splitPrompt(
   raw: string | undefined,
   defaultSystem: string,
   defaultUser: string
-): [string, string] {
-  if (!raw) return [defaultSystem, defaultUser];
+): [string, string, boolean] {
+  if (!raw || isPlaceholder(raw)) return [defaultSystem, defaultUser, true];
   const idx = raw.indexOf(PROMPT_SEPARATOR);
-  if (idx === -1) return [raw, defaultUser];
-  return [raw.slice(0, idx), raw.slice(idx + PROMPT_SEPARATOR.length)];
+  if (idx === -1) return [raw, defaultUser, false];
+  return [raw.slice(0, idx), raw.slice(idx + PROMPT_SEPARATOR.length), false];
 }
 
 // Unwraps a value that may have been stored via JSON.stringify() (new format)
@@ -56,20 +78,34 @@ export async function getPromptSettings(): Promise<LoadedPrompts> {
     (data ?? []).map((s) => [s.key, unwrapValue(s.value)])
   );
 
-  const [sqmSystem, sqmUser] = splitPrompt(
+  const [sqmSystem, sqmUser, sqmIsDefault] = splitPrompt(
     byKey["prompt_sqm_extraction"],
     SQM_SYSTEM_PROMPT,
     SQM_USER_PROMPT
   );
-  const [qqpSystem, qqpUserTemplate] = splitPrompt(
+  const [qqpSystem, qqpUserTemplate, qqpIsDefault] = splitPrompt(
     byKey["prompt_qqp_extraction"],
     QQP_SYSTEM_PROMPT,
     QQP_USER_PROMPT_TEMPLATE
   );
-  const pageClassification =
-    byKey["prompt_page_classification"] || CLASSIFY_SYSTEM;
-  const metadataUser =
-    byKey["prompt_metadata_extraction"] || METADATA_USER_TEMPLATE;
 
-  return { sqmSystem, sqmUser, qqpSystem, qqpUserTemplate, pageClassification, metadataUser };
+  const rawPageClass = byKey["prompt_page_classification"];
+  const pageClassIsDefault = !rawPageClass || isPlaceholder(rawPageClass);
+  const pageClassification = pageClassIsDefault ? CLASSIFY_SYSTEM : rawPageClass;
+
+  const rawMetadata = byKey["prompt_metadata_extraction"];
+  const metadataIsDefault = !rawMetadata || isPlaceholder(rawMetadata);
+  const metadataUser = metadataIsDefault ? METADATA_USER_TEMPLATE : rawMetadata;
+
+  return {
+    sqmSystem, sqmUser,
+    qqpSystem, qqpUserTemplate,
+    pageClassification, metadataUser,
+    usingDefaults: {
+      sqm:              sqmIsDefault,
+      qqp:              qqpIsDefault,
+      pageClassification: pageClassIsDefault,
+      metadataUser:     metadataIsDefault,
+    },
+  };
 }
