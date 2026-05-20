@@ -187,18 +187,29 @@ export const STRICT_JSON_RETRY_MESSAGE =
 
 function cleanJsonText(text: string): string {
   let s = text.trim();
-  s = s.replace(/^(?:```json)?\s*\n?/i, "").replace(/\n?\s*```\s*$/i, "").trim();
-  const first = s.indexOf("{");
-  const last = s.lastIndexOf("}");
-  if (first !== -1 && last !== -1 && last > first) {
-    s = s.slice(first, last + 1);
+  // Strip opening code fence (``` or ```json) — backticks are required, not optional
+  s = s.replace(/^```(?:json)?\s*\n?/i, "");
+  // Strip closing code fence
+  s = s.replace(/\n?\s*```\s*$/i, "");
+  s = s.trim();
+  // Extract JSON from any surrounding prose — handle both objects {…} and arrays […]
+  const firstBrace = s.indexOf("{");
+  const firstBracket = s.indexOf("[");
+  const isArray =
+    firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace);
+  if (isArray) {
+    const lastBracket = s.lastIndexOf("]");
+    if (lastBracket > firstBracket) s = s.slice(firstBracket, lastBracket + 1);
+  } else if (firstBrace !== -1) {
+    const lastBrace = s.lastIndexOf("}");
+    if (lastBrace > firstBrace) s = s.slice(firstBrace, lastBrace + 1);
   }
   return s;
 }
 
 export function parseClaudeJson(text: string): unknown {
   const cleaned = cleanJsonText(text);
-  if (!cleaned.endsWith("}")) {
+  if (!cleaned.endsWith("}") && !cleaned.endsWith("]")) {
     throw new Error(
       "JSON response truncated — building may be too complex. Try increasing max_tokens."
     );

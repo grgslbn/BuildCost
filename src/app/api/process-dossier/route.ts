@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
     const sqmCallStart = Date.now();
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
-      max_tokens: 8192,
+      max_tokens: 16384,
       system: SQM_SYSTEM_PROMPT,
       messages: [{ role: "user", content: sqmContent }],
     });
@@ -274,7 +274,7 @@ export async function POST(req: NextRequest) {
         const retryStart = Date.now();
         const retryRes = await anthropic.messages.create({
           model: extractionModel,
-          max_tokens: 8192,
+          max_tokens: 16384,
           system: SQM_SYSTEM_PROMPT,
           messages: [
             { role: "user", content: sqmContent },
