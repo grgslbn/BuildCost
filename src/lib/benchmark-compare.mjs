@@ -82,10 +82,12 @@ export function compareExtraction(extraction, expertBreakdown) {
     }
 
     totalExpertEnclosed += expertBldg.total_enclosed_sqm || 0;
-    const bt = aiBldg.building_totals || {};
-    totalAiEnclosed += bt.enclosed_sqm || 0;
     totalExpertTerraces += expertBldg.total_terraces_sqm || 0;
-    totalAiTerraces += bt.balkons_sqm ?? bt.terraces_sqm ?? 0;
+    // Sum AI totals from per-floor values (not building_totals which can have AI arithmetic errors)
+    for (const af of aiFloors.values()) {
+      totalAiEnclosed += af.floor_total_sqm || 0;
+      totalAiTerraces += af.balkons_sqm ?? af.terraces_sqm ?? 0;
+    }
   }
 
   const totalDevPct = totalExpertEnclosed > 0
