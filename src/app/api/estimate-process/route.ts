@@ -21,9 +21,65 @@ import type Anthropic from "@anthropic-ai/sdk";
 // and the existence of plan_storage_path before kicking this off.
 export const maxDuration = 300;
 
+const TIMEOUT_MS    = 250_000; // bail out before Vercel's 300s hard limit
+const SQM_BATCH_SIZE = 3;      // pages per SQM Claude call
+const MAX_SQM_PAGES  = 12;     // hard cap on floor plan pages sent for SQM
+
+// ── Timeout guard ─────────────────────────────────────────────────────────────
+
+class TimeoutError extends Error {
+  constructor() {
+    super("Processing timed out — try a smaller PDF or fewer pages");
+    this.name = "TimeoutError";
+  }
+}
+
+function checkTimeout(startTime: number) {
+  if (Date.now() - startTime > TIMEOUT_MS) throw new TimeoutError();
+}
+
+// ── SQM merge helpers ─────────────────────────────────────────────────────────
+
+type SqmFloor   = Record<string, unknown>;
+type SqmRoom    = { area_sqm?: number; category?: string };
+type SqmBuilding = { floors?: SqmFloor[] };
+
+function extractFloors(sqm: Record<string, unknown>): SqmFloor[] {
+  const buildings = sqm.buildings as SqmBuilding[] | undefined;
+  if (buildings?.length) return buildings.flatMap((b) => b.floors ?? []);
+  return (sqm.floors as SqmFloor[]) ?? [];
+}
+
+function mergeSqmResults(results: Record<string, unknown>[]): Record<string, unknown> {
+  if (results.length === 1) return results[0];
+  const allFloors  = results.flatMap(extractFloors);
+  const allRooms   = allFloors.flatMap((f) => ((f.rooms ?? []) as SqmRoom[]));
+  const livableSqm = allRooms
+    .filter((r) => r.category === "livable")
+    .reduce((s, r) => s + (r.area_sqm ?? 0), 0);
+  const grossSqm   = allRooms.reduce((s, r) => s + (r.area_sqm ?? 0), 0);
+  return {
+    building_type: results[0].building_type ?? {},
+    floors:        allFloors,
+    summary: {
+      ...(results[0].summary as Record<string, unknown> ?? {}),
+      total_livable_sqm: Math.round(livableSqm * 10) / 10,
+      total_gross_sqm:   Math.round(grossSqm   * 10) / 10,
+    },
+  };
+}
+
+// ── Misc helpers ──────────────────────────────────────────────────────────────
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
 function getImageMediaType(name: string): "image/jpeg" | "image/png" | "image/webp" {
   const l = name.toLowerCase();
-  if (l.endsWith(".png")) return "image/png";
+  if (l.endsWith(".png"))  return "image/png";
   if (l.endsWith(".webp")) return "image/webp";
   return "image/jpeg";
 }
@@ -39,6 +95,86 @@ async function setStatus(
     .update({ status, updated_at: new Date().toISOString(), ...extra })
     .eq("id", id);
 }
+
+// ── SQM extraction (batched) ──────────────────────────────────────────────────
+
+async function extractSqmFromPages(
+  pages: Array<{ pageNumber: number; base64: string }>,
+  model: string,
+  systemPrompt: string,
+  userPrompt: string,
+  estimationId: string,
+  startTime: number
+): Promise<Record<string, unknown>> {
+  const capped  = pages.slice(0, MAX_SQM_PAGES);
+  const batches = chunk(capped, SQM_BATCH_SIZE);
+  const batchResults: Record<string, unknown>[] = [];
+
+  for (const batch of batches) {
+    checkTimeout(startTime);
+
+    const batchContent: Anthropic.MessageParam["content"] = [
+      ...batch.map((p): Anthropic.DocumentBlockParam => ({
+        type: "document",
+        source: { type: "base64", media_type: "application/pdf", data: p.base64 },
+      })),
+      { type: "text", text: userPrompt },
+    ];
+
+    const callStart = Date.now();
+    const res = await anthropic.messages.create({
+      model,
+      max_tokens: 16384,
+      system: systemPrompt,
+      messages: [{ role: "user", content: batchContent }],
+    });
+    logApiCall({
+      call_type:     "sqm_extraction",
+      estimation_id: estimationId,
+      model_used:    model,
+      tokens_input:  res.usage.input_tokens,
+      tokens_output: res.usage.output_tokens,
+      duration_ms:   Date.now() - callStart,
+      status:        "success",
+    });
+
+    const raw = res.content[0].type === "text" ? res.content[0].text : "";
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = parseClaudeJson(raw) as Record<string, unknown>;
+    } catch {
+      checkTimeout(startTime);
+      const retryStart = Date.now();
+      const retryRes = await anthropic.messages.create({
+        model,
+        max_tokens: 16384,
+        system: systemPrompt,
+        messages: [
+          { role: "user",      content: batchContent },
+          { role: "assistant", content: raw },
+          { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
+        ],
+      });
+      logApiCall({
+        call_type:     "sqm_extraction",
+        estimation_id: estimationId,
+        model_used:    model,
+        tokens_input:  retryRes.usage.input_tokens,
+        tokens_output: retryRes.usage.output_tokens,
+        duration_ms:   Date.now() - retryStart,
+        status:        "success",
+      });
+      const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
+      parsed = parseClaudeJson(retryRaw) as Record<string, unknown>;
+    }
+
+    batchResults.push(parsed);
+  }
+
+  return mergeSqmResults(batchResults);
+}
+
+// ── Route ─────────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   let estimationId: string | undefined;
@@ -87,8 +223,8 @@ export async function POST(req: NextRequest) {
     );
 
     const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-6";
-    const qqpModel        = (settings.qqp_model as string)        ?? "claude-sonnet-4-6";
-    const abexYear        = (settings.abex_reference_year as number)     ?? 2026;
+    const qqpModel        = (settings.qqp_model        as string) ?? "claude-sonnet-4-6";
+    const abexYear        = (settings.abex_reference_year     as number) ?? 2026;
     const abexSemester    = (settings.abex_reference_semester as number) ?? 1;
 
     const pricing: PricingConfig = {
@@ -101,6 +237,8 @@ export async function POST(req: NextRequest) {
     };
 
     // ── Download file from Storage ────────────────────────────────────────────
+    checkTimeout(startTime);
+
     const { data: fileBlob, error: storageError } = await admin.storage
       .from("plans")
       .download(est.plan_storage_path);
@@ -114,25 +252,29 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await fileBlob.arrayBuffer();
 
-    // ── Build SQM content ─────────────────────────────────────────────────────
+    // ── Page classification (PDF only) ────────────────────────────────────────
     await setStatus(admin, estimationId, "extracting_sqm");
 
-    let sqmContent: Anthropic.MessageParam["content"];
     const isPdf =
       est.plan_storage_path.toLowerCase().endsWith(".pdf") ||
       (est.plan_file_name ?? "").toLowerCase().endsWith(".pdf");
 
+    let sqmExtraction: Record<string, unknown>;
+
     if (isPdf) {
+      checkTimeout(startTime);
+
       const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
       const classifyStart = Date.now();
       const classifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
       logApiCall({
-        call_type: "page_classification",
+        call_type:     "page_classification",
         estimation_id: estimationId,
-        model_used: extractionModel,
-        duration_ms: Date.now() - classifyStart,
-        status: "success",
+        model_used:    extractionModel,
+        duration_ms:   Date.now() - classifyStart,
+        status:        "success",
       });
+
       const floorPlanNums = new Set(
         classifications.filter((c) => c.type === "floor_plan").map((c) => c.pageNumber)
       );
@@ -141,70 +283,71 @@ export async function POST(req: NextRequest) {
           ? pages.filter((p) => floorPlanNums.has(p.pageNumber))
           : pages;
 
-      sqmContent = [
-        ...planPages.map((p): Anthropic.DocumentBlockParam => ({
-          type: "document",
-          source: { type: "base64", media_type: "application/pdf", data: p.base64 },
-        })),
-        { type: "text", text: prompts.sqmUser },
-      ];
+      sqmExtraction = await extractSqmFromPages(
+        planPages,
+        extractionModel,
+        prompts.sqmSystem,
+        prompts.sqmUser,
+        estimationId,
+        startTime
+      );
     } else {
+      // Image file — single call, no batching needed
       const base64    = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(est.plan_file_name ?? "plan.jpg");
-      sqmContent = [
+      const imgContent: Anthropic.MessageParam["content"] = [
         { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
         { type: "text", text: prompts.sqmUser },
       ];
-    }
 
-    // ── SQM extraction ────────────────────────────────────────────────────────
-    const sqmCallStart = Date.now();
-    const sqmResponse = await anthropic.messages.create({
-      model: extractionModel,
-      max_tokens: 16384,
-      system: prompts.sqmSystem,
-      messages: [{ role: "user", content: sqmContent }],
-    });
-    logApiCall({
-      call_type: "sqm_extraction",
-      estimation_id: estimationId,
-      model_used: extractionModel,
-      tokens_input: sqmResponse.usage.input_tokens,
-      tokens_output: sqmResponse.usage.output_tokens,
-      duration_ms: Date.now() - sqmCallStart,
-      status: "success",
-    });
-
-    const sqmRaw = sqmResponse.content[0].type === "text" ? sqmResponse.content[0].text : "";
-    let sqmExtraction: Record<string, unknown>;
-    try {
-      sqmExtraction = parseClaudeJson(sqmRaw) as Record<string, unknown>;
-    } catch {
-      const retryStart = Date.now();
-      const retryRes = await anthropic.messages.create({
-        model: extractionModel,
+      const callStart = Date.now();
+      const imgRes = await anthropic.messages.create({
+        model:      extractionModel,
         max_tokens: 16384,
-        system: prompts.sqmSystem,
-        messages: [
-          { role: "user", content: sqmContent },
-          { role: "assistant", content: sqmRaw },
-          { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
-        ],
+        system:     prompts.sqmSystem,
+        messages:   [{ role: "user", content: imgContent }],
       });
       logApiCall({
-        call_type: "sqm_extraction",
+        call_type:     "sqm_extraction",
         estimation_id: estimationId,
-        model_used: extractionModel,
-        tokens_input: retryRes.usage.input_tokens,
-        tokens_output: retryRes.usage.output_tokens,
-        duration_ms: Date.now() - retryStart,
-        status: "success",
+        model_used:    extractionModel,
+        tokens_input:  imgRes.usage.input_tokens,
+        tokens_output: imgRes.usage.output_tokens,
+        duration_ms:   Date.now() - callStart,
+        status:        "success",
       });
-      const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
-      sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
+
+      const imgRaw = imgRes.content[0].type === "text" ? imgRes.content[0].text : "";
+      try {
+        sqmExtraction = parseClaudeJson(imgRaw) as Record<string, unknown>;
+      } catch {
+        checkTimeout(startTime);
+        const retryStart = Date.now();
+        const retryRes = await anthropic.messages.create({
+          model:      extractionModel,
+          max_tokens: 16384,
+          system:     prompts.sqmSystem,
+          messages: [
+            { role: "user",      content: imgContent },
+            { role: "assistant", content: imgRaw },
+            { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
+          ],
+        });
+        logApiCall({
+          call_type:     "sqm_extraction",
+          estimation_id: estimationId,
+          model_used:    extractionModel,
+          tokens_input:  retryRes.usage.input_tokens,
+          tokens_output: retryRes.usage.output_tokens,
+          duration_ms:   Date.now() - retryStart,
+          status:        "success",
+        });
+        const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
+        sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
+      }
     }
 
-    const sqmSummary     = (sqmExtraction.summary ?? {}) as Record<string, unknown>;
+    const sqmSummary      = (sqmExtraction.summary ?? {}) as Record<string, unknown>;
     const totalLivableSqm = (sqmSummary.total_livable_sqm as number) ?? null;
     const totalGrossSqm   = (sqmSummary.total_gross_sqm   as number) ?? null;
     const sqmBuildingType = ((sqmExtraction.building_type ?? {}) as Record<string, unknown>).primary as string | null;
@@ -217,6 +360,7 @@ export async function POST(req: NextRequest) {
         : 0.7;
 
     // ── QQP extraction ────────────────────────────────────────────────────────
+    checkTimeout(startTime);
     await setStatus(admin, estimationId, "analyzing_qqp");
 
     const { data: qqpDefs } = await admin
@@ -231,31 +375,32 @@ export async function POST(req: NextRequest) {
       undefined,
       prompts.qqpUserTemplate
     );
+
     const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
-      model: qqpModel,
+      model:      qqpModel,
       max_tokens: 8192,
-      system: prompts.qqpSystem,
-      messages: [{ role: "user", content: qqpUserPrompt }],
+      system:     prompts.qqpSystem,
+      messages:   [{ role: "user", content: qqpUserPrompt }],
     });
     logApiCall({
-      call_type: "qqp_extraction",
+      call_type:     "qqp_extraction",
       estimation_id: estimationId,
-      model_used: qqpModel,
-      tokens_input: qqpResponse.usage.input_tokens,
+      model_used:    qqpModel,
+      tokens_input:  qqpResponse.usage.input_tokens,
       tokens_output: qqpResponse.usage.output_tokens,
-      duration_ms: Date.now() - qqpCallStart,
-      status: "success",
+      duration_ms:   Date.now() - qqpCallStart,
+      status:        "success",
     });
 
     const qqpRaw = qqpResponse.content[0].type === "text" ? qqpResponse.content[0].text : "";
     type QQPResult = {
       qqp_values: Record<string, { value: unknown; confidence: number; notes?: string }>;
       finishing_assessment: {
-        level: string;
+        level:      string;
         coefficient: number;
         confidence: number;
-        reasoning: string;
+        reasoning:  string;
       };
     };
 
@@ -263,25 +408,26 @@ export async function POST(req: NextRequest) {
     try {
       qqpExtraction = parseClaudeJson(qqpRaw) as QQPResult;
     } catch {
+      checkTimeout(startTime);
       const retryStart = Date.now();
       const retryRes = await anthropic.messages.create({
-        model: qqpModel,
+        model:      qqpModel,
         max_tokens: 8192,
-        system: prompts.qqpSystem,
+        system:     prompts.qqpSystem,
         messages: [
-          { role: "user", content: qqpUserPrompt },
+          { role: "user",      content: qqpUserPrompt },
           { role: "assistant", content: qqpRaw },
-          { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
+          { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
         ],
       });
       logApiCall({
-        call_type: "qqp_extraction",
+        call_type:     "qqp_extraction",
         estimation_id: estimationId,
-        model_used: qqpModel,
-        tokens_input: retryRes.usage.input_tokens,
+        model_used:    qqpModel,
+        tokens_input:  retryRes.usage.input_tokens,
         tokens_output: retryRes.usage.output_tokens,
-        duration_ms: Date.now() - retryStart,
-        status: "success",
+        duration_ms:   Date.now() - retryStart,
+        status:        "success",
       });
       const retryRaw = retryRes.content[0].type === "text" ? retryRes.content[0].text : "";
       qqpExtraction = parseClaudeJson(retryRaw) as QQPResult;
@@ -302,7 +448,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (activeModel?.weights) {
-      const flatValues     = flattenQQPValues(qqpExtraction.qqp_values);
+      const flatValues      = flattenQQPValues(qqpExtraction.qqp_values);
       const modelPrediction = applyModelWeights(
         flatValues,
         (qqpDefs ?? []).map((d) => ({ name: d.name, data_type: d.data_type })),
@@ -321,7 +467,7 @@ export async function POST(req: NextRequest) {
       .eq("postcode", est.postcode ?? "")
       .maybeSingle();
 
-    const cat1AtF1    = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
+    const cat1AtF1       = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
     const regionalFactor = postcodeRow
       ? Number(postcodeRow.base_price_per_sqm) / cat1AtF1
       : 1.0;
@@ -336,7 +482,7 @@ export async function POST(req: NextRequest) {
     const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
 
     // ── Area categorisation & cost calculation ────────────────────────────────
-    const areas        = categorizeAreas(sqmExtraction);
+    const areas         = categorizeAreas(sqmExtraction);
     const costBreakdown = calculateCost(areas, finishingCoefficient, pricing, regionalFactor, abexFactor);
 
     const qqpConfidence     = qqpExtraction.finishing_assessment.confidence ?? 0.7;
@@ -345,28 +491,28 @@ export async function POST(req: NextRequest) {
     await admin
       .from("estimations")
       .update({
-        building_type:              sqmBuildingType,
-        sqm_extraction:             sqmExtraction,
-        total_livable_sqm:          totalLivableSqm,
-        total_gross_sqm:            totalGrossSqm,
-        sub_areas:                  costBreakdown,
-        extracted_qqps:             qqpExtraction.qqp_values,
-        finishing_level:            costBreakdown.finishing_label,
-        finishing_coefficient:      finishingCoefficient,
-        base_price_per_sqm:         postcodeRow ? Number(postcodeRow.base_price_per_sqm) : cat1AtF1,
-        abex_factor:                abexFactor,
-        estimated_price_per_sqm:    costBreakdown.effective_price_per_livable_sqm,
-        estimated_total_cost:       costBreakdown.total_cost,
-        sqm_confidence:             sqmConfidence,
-        qqp_confidence:             qqpConfidence,
-        overall_confidence:         overallConfidence,
-        model_version_id:           modelVersionId,
-        processing_time_ms:         Date.now() - startTime,
-        price_out_of_range:         false,
-        status:                     "complete",
-        error_message:              null,
-        updated_at:                 new Date().toISOString(),
-        postcode:                   est.postcode,
+        building_type:           sqmBuildingType,
+        sqm_extraction:          sqmExtraction,
+        total_livable_sqm:       totalLivableSqm,
+        total_gross_sqm:         totalGrossSqm,
+        sub_areas:               costBreakdown,
+        extracted_qqps:          qqpExtraction.qqp_values,
+        finishing_level:         costBreakdown.finishing_label,
+        finishing_coefficient:   finishingCoefficient,
+        base_price_per_sqm:      postcodeRow ? Number(postcodeRow.base_price_per_sqm) : cat1AtF1,
+        abex_factor:             abexFactor,
+        estimated_price_per_sqm: costBreakdown.effective_price_per_livable_sqm,
+        estimated_total_cost:    costBreakdown.total_cost,
+        sqm_confidence:          sqmConfidence,
+        qqp_confidence:          qqpConfidence,
+        overall_confidence:      overallConfidence,
+        model_version_id:        modelVersionId,
+        processing_time_ms:      Date.now() - startTime,
+        price_out_of_range:      false,
+        status:                  "complete",
+        error_message:           null,
+        updated_at:              new Date().toISOString(),
+        postcode:                est.postcode,
       })
       .eq("id", estimationId);
 
