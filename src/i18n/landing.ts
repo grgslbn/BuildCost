@@ -89,7 +89,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     belgium: {
       label: 'Made for Belgium', title: 'ABEX-indexed. Postcode-aware. Expert-validated.',
       sub: 'Built on Belgian construction cost data. Not a generic calculator with a flag on top.',
-      bullets: ['ABEX construction cost index, refreshed every semester','Regional base prices per m² by postcode — Brussels ≠ Charleroi','Finishing levels calibrated on Belgian conventions','Plan labels read in NL, FR, EN','Multi-tenant isolation — each insurer\'s data stays separate','GDPR-compliant, EU-hosted, data stays in Belgium'],
+      bullets: ['ABEX construction cost index, refreshed every semester','Regional base prices per m² by postcode — building cost narrow street in Brussels Centre ≠ Charleroi','Finishing levels calibrated on Belgian conventions','Plan labels read in NL, FR, EN','Multi-tenant isolation — each insurer\'s data stays separate','GDPR-compliant, EU-hosted, data stays in Belgium'],
       table_title: 'Finishing coefficients', table_head: ['Level','Description','Coeff.'],
       table_rows: [['Basic','Simple materials, minimal equipment','0.70 – 0.85'],['Standard','Average Belgian new build','0.85 – 1.00'],['Comfort','Quality finishes, full kitchen','1.00 – 1.15'],['Luxury','High-end materials, two bathrooms','1.15 – 1.35'],['Premium','Custom everything','1.35 – 1.50']],
     },
@@ -166,7 +166,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     belgium: {
       label: 'Conçu pour la Belgique', title: 'Indexé ABEX. Code postal. Expert-validé.',
       sub: 'Construit sur les données de coûts belges. Pas un calculateur générique avec un drapeau.',
-      bullets: ['Indice ABEX, rafraîchi chaque semestre','Prix de base régionaux par code postal — Bruxelles ≠ Charleroi','Niveaux de finition calibrés sur les conventions belges','Étiquettes lues en NL, FR, EN','Isolation multi-tenant — les données de chaque assureur restent séparées','RGPD, hébergé UE, données en Belgique'],
+      bullets: ['Indice ABEX, rafraîchi chaque semestre','Prix de base régionaux par code postal — coût de construction rue étroite à Bruxelles Centre ≠ Charleroi','Niveaux de finition calibrés sur les conventions belges','Étiquettes lues en NL, FR, EN','Isolation multi-tenant — les données de chaque assureur restent séparées','RGPD, hébergé UE, données en Belgique'],
       table_title: 'Coefficients de finition', table_head: ['Niveau','Description','Coeff.'],
       table_rows: [['Basique','Matériaux simples, équipement minimal','0,70 – 0,85'],['Standard','Construction neuve belge moyenne','0,85 – 1,00'],['Confort','Finitions qualité, cuisine complète','1,00 – 1,15'],['Luxe','Matériaux haut de gamme, deux SDB','1,15 – 1,35'],['Premium','Tout sur mesure','1,35 – 1,50']],
     },
@@ -243,7 +243,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     belgium: {
       label: 'Gemaakt voor België', title: 'ABEX-geïndexeerd. Postcode-gericht. Expert-gevalideerd.',
       sub: 'Gebouwd op Belgische bouwkostdata. Geen generieke calculator met een vlag.',
-      bullets: ['ABEX bouwkostindex, elk semester ververst','Regionale basisprijzen per postcode — Brussel ≠ Charleroi','Afwerkingsniveaus gekalibreerd op Belgische conventies','Etiketten in NL, FR, EN gelezen','Multi-tenant isolatie — data van elke verzekeraar apart','GDPR, EU-hosted, data blijft in België'],
+      bullets: ['ABEX bouwkostindex, elk semester ververst','Regionale basisprijzen per postcode — bouwkost smalle straat in Brussel Centrum ≠ Charleroi','Afwerkingsniveaus gekalibreerd op Belgische conventies','Etiketten in NL, FR, EN gelezen','Multi-tenant isolatie — data van elke verzekeraar apart','GDPR, EU-hosted, data blijft in België'],
       table_title: 'Afwerkingscoëfficiënten', table_head: ['Niveau','Beschrijving','Coëff.'],
       table_rows: [['Basis','Eenvoudige materialen, minimale uitrusting','0,70 – 0,85'],['Standaard','Gemiddelde Belgische nieuwbouw','0,85 – 1,00'],['Comfort','Kwaliteitsafwerking, volledige keuken','1,00 – 1,15'],['Luxe','High-end materialen, twee badkamers','1,15 – 1,35'],['Premium','Alles op maat','1,35 – 1,50']],
     },
