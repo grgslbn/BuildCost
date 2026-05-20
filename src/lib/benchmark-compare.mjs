@@ -31,8 +31,8 @@ export function compareExtraction(extraction, expertBreakdown) {
       }
       if (aiBldg) {
         const bt = aiBldg.building_totals || {};
-        totalAiEnclosed += bt.enclosed_sqm || 0;
-        totalAiTerraces += bt.balkons_sqm ?? bt.terraces_sqm ?? 0;
+        totalAiEnclosed += bt.enclosed_sqm ?? ((bt.cat1_sqm || 0) + (bt.cat2_sqm || 0));
+        totalAiTerraces += bt.balkons_sqm ?? bt.terraces_sqm ?? bt.cat3_sqm ?? 0;
       }
       continue;
     }
@@ -40,13 +40,16 @@ export function compareExtraction(extraction, expertBreakdown) {
     const expertFloors = new Map((expertBldg.floors || []).map(f => [f.level, f]));
     const aiFloors = new Map();
     for (const f of aiBldg.floors || []) {
+      // Normalize: support both old (floor_total_sqm/balkons_sqm) and new (cat1/cat2/cat3) formats
+      const enclosed = f.floor_total_sqm ?? ((f.cat1_sqm || 0) + (f.cat2_sqm || 0));
+      const outdoor = f.balkons_sqm ?? f.terraces_sqm ?? (f.cat3_sqm || 0);
+      const normalized = { ...f, floor_total_sqm: enclosed, balkons_sqm: outdoor };
       if (aiFloors.has(f.level)) {
         const agg = aiFloors.get(f.level);
-        agg.floor_total_sqm = (agg.floor_total_sqm || 0) + (f.floor_total_sqm || 0);
-        agg.balkons_sqm = (agg.balkons_sqm || 0) + (f.balkons_sqm || 0);
-        if (f.terraces_sqm) agg.terraces_sqm = (agg.terraces_sqm || 0) + (f.terraces_sqm || 0);
+        agg.floor_total_sqm = (agg.floor_total_sqm || 0) + enclosed;
+        agg.balkons_sqm = (agg.balkons_sqm || 0) + outdoor;
       } else {
-        aiFloors.set(f.level, { ...f });
+        aiFloors.set(f.level, normalized);
       }
     }
     const allLevels = new Set([...expertFloors.keys(), ...aiFloors.keys()]);
