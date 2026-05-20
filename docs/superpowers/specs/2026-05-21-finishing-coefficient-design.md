@@ -149,7 +149,7 @@ Note: `finishing_assessment.coefficient` is Claude's own estimate — used for c
 
 Replaces the current `system_settings` mechanism for prompts. Existing SQM v11b prompt becomes version 1. Existing QQP prompt becomes version 1 (legacy).
 
-### Modified: `qqp_values`
+### Modified: `dossier_qqp_values`
 
 Add columns:
 
@@ -158,9 +158,9 @@ Add columns:
 | prompt_version_id | uuid FK → prompt_versions.id | Which prompt version produced this extraction |
 | extraction_method | text | `'ai_extracted'` or `'programmatic_conversion'` |
 
-The `value` jsonb column now contains `{"score": float, "confidence": float, "reasoning": string}` instead of `{"value": bool/number, "confidence": float, "notes": string}`.
+The `value` jsonb column now contains `{"score": float, "confidence": float, "reasoning": string}` instead of the old format with separate `value_boolean`/`value_numeric` columns. The migration must convert existing rows to the new jsonb shape.
 
-### Modified: `model_versions`
+### Modified: `qqp_model_versions`
 
 Add columns:
 
@@ -253,13 +253,16 @@ Each retrain produces a new model version. Old versions are kept for comparison.
 
 | File | Change |
 |------|--------|
-| `src/lib/ai/prompts.ts` | New QQP prompt with -1/+1 scoring and reference values |
-| `src/lib/ai/prompt-settings.ts` | Load from `prompt_versions` table instead of `system_settings` |
-| `src/lib/qqp/weight-calibration.ts` | Replace Pearson with Ridge regression |
-| `src/lib/qqp/model-prediction.ts` | Replace broken scaling with `intercept + Σ(w×x)` |
-| `src/app/api/estimate-process/route.ts` | Use active model instead of hardcoded F=1.0 |
-| `src/app/api/process-dossier/route.ts` | Store prompt_version_id with extractions |
-| `supabase/migrations/` | New migration for `prompt_versions` table + column additions |
-| New: `src/lib/qqp/data-migration.ts` | Programmatic conversion of old QQP values |
+| `src/lib/ai/prompts.ts` | New QQP prompt with -1/+1 scoring and reference values. Update `QQPResult` type from `{value, confidence, notes}` to `{score, confidence, reasoning}` |
+| `src/lib/ai/prompt-settings.ts` | Load from `prompt_versions` table (two separate columns) instead of `system_settings` single-value-with-separator. Remove `PROMPT_SEPARATOR` logic |
+| `src/lib/qqp/weight-calibration.ts` | Replace Pearson with Ridge regression. Read from `dossier_qqp_values` new format |
+| `src/lib/qqp/model-prediction.ts` | Replace broken scaling with `intercept + Σ(w×x)`. Update `flattenQQPValues()` to read `.score` instead of `.value` |
+| `src/app/api/estimate-process/route.ts` | Use active model instead of hardcoded F=1.0. Update QQP result parsing from `{value, confidence, notes}` to `{score, confidence, reasoning}` |
+| `src/app/api/process-dossier/route.ts` | Store prompt_version_id with extractions. Write new jsonb format to `dossier_qqp_values` |
+| `src/lib/qqp/retroactive-extraction.ts` | Update to write new `{score, confidence, reasoning}` format instead of `value_numeric`/`value_boolean` columns |
+| `src/app/(dashboard)/admin/qqp/page.tsx` | Update QQP display to read `.score` instead of `value_numeric`/`value_boolean` |
+| `src/components/dossiers/qqp-results.tsx` | Update QQP rendering for new format |
+| `supabase/migrations/` | New migration for `prompt_versions` table + column additions to `dossier_qqp_values` and `qqp_model_versions` |
+| New: `src/lib/qqp/data-migration.ts` | Programmatic conversion of old QQP values (`value_boolean`/`value_numeric` → `{score}` jsonb) |
 | New: `src/lib/qqp/ridge-regression.ts` | Ridge math (train, predict, cross-validate) |
 | New: `src/lib/qqp/f-backcalculate.ts` | Solve for F_true from known costs |
