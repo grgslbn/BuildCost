@@ -1,7 +1,7 @@
-# SQM Extraction Prompt — v7
+# SQM Extraction Prompt — v8
 
 > **Use this prompt with Claude Vision (Sonnet 4.6) to extract m² data from building plans.**
-> **v7: Mezzanine/duplex grouped with parent floor (not separate floor plates). Loggia = enclosed. Mixed-scale calibration per plan. Strict output format: JSON only, no reasoning in measurement field.**
+> **v8: Kelder may extend beyond GV footprint (under terrassen/stadstuinen). Common area scaling by apartment count (10-50m²). All v7 methodology retained (BO primary when labels visible).**
 
 ## System Prompt
 
@@ -91,8 +91,17 @@ CRITICAL RULES:
 
 2. COMPLETE UNDERGROUND CAPTURE: Basements are expensive to rebuild.
    The basement floor plate area is measured the same way: outer wall perimeter of the underground level.
-   The basement often spans the FULL building footprint (or larger — it may extend under a garden or courtyard).
-   Measure the entire underground slab within its outer retaining walls, including: parking garage, bergingen, technical rooms, corridors, fietsenstalling, afvalberging.
+   
+   CRITICAL — KELDER CAN BE LARGER THAN THE BUILDING ABOVE:
+   The kelder slab often extends BEYOND the ground floor footprint:
+   - Under outdoor terrassen, stadstuinen, opritten (driveways)
+   - Under courtyard areas between building wings
+   - As a single continuous slab connecting multiple above-ground sections
+   If the context says "volledig onderkelderd" (fully underground), the kelder covers AT LEAST the full GV footprint, often more.
+   
+   Measure the ENTIRE underground slab within its outer retaining walls, including:
+   parking garage, bergingen, technical rooms, corridors, fietsenstalling, afvalberging, inrit (access ramp).
+   
    VALIDATION: If your kelder total is < 70% of the ground floor area, you are probably missing something.
 
 3. APARTMENTS — IDENTIFICATION (not for area measurement):
@@ -144,7 +153,11 @@ CRITICAL RULES:
    PLANS WITH PER-UNIT BO LABELS (e.g., "App 07A BO 104,3 m²"):
    PRIMARY: BO sum + common areas
    - Sum all BO labels visible on this floor
-   - Add common areas (10-15 m² typical floor, 25-40 m² for GV)
+   - Add common areas using SCALING BY APARTMENT COUNT:
+     * 1-2 units: 10-15 m² (small stairwell + lift landing)
+     * 3-4 units: 20-30 m² (corridor + stairwell + lift + entrance zone)
+     * 5+ units: 30-50 m² (long corridor + stairwell + lift + dual access)
+     * Ground floor with entrance hall: add 15-25 m² extra for inkomhal, brievenbussen
    - This is your floor_total_sqm
    - CROSS-CHECK: outer wall measurement should be within ±15% of BO+common
    
@@ -310,7 +323,9 @@ HOW TO MEASURE floor_total_sqm — PER PLAN TYPE:
 
 CASE A — Per-unit BO/BVO labels are visible on the plan (e.g., "App 07A BO 104,3 m²"):
 1. Sum all visible BO labels on this floor
-2. Add common areas: ~10-15 m² per floor for stairwell + lift + landing on typical floor; ~25-40 m² on GV with entrance hall + corridors
+2. Add common areas SCALED BY APARTMENT COUNT on this floor:
+   - 1-2 units: 10-15 m²  |  3-4 units: 20-30 m²  |  5+ units: 30-50 m²
+   - Ground floor with entrance: add 15-25 m² extra for inkomhal, brievenbussen
 3. floor_total_sqm = BO_sum + common
 4. CROSS-CHECK: measure outer walls. If outer walls are >15% LARGER than BO+common: extra unaccounted area, use outer walls. If outer walls are >15% SMALLER: your outer-wall measurement missed a zone — re-examine the irregular shape.
 5. WHY BO IS PRIMARY HERE: BO labels are officially measured bruto values — typically more accurate than visual outer-wall measurement on irregular buildings. Each unit's BO already includes wall thickness allocation.
@@ -489,4 +504,6 @@ For each test plan, verify:
 | v5b | 2026-05-19 | **Irregular building shapes** — decompose into sub-rectangles/triangles/trapezoids for non-rectangular footprints. Area reasonableness check vs apartment count. Outdoor space detection improved: ground-floor terrassen, stadstuinen, dakterrassen all tracked as balkons_sqm. | Anna Monica (irregular): -7.7% total (V1/V2 at +0.3%, kelder -28%, balkons -3%). REQUIRES: hires images (3500px JPG), temperature=0. Reproducible across runs. |
 | v5b notes | 2026-05-19 | **Anti-pattern documented**: Adding "kelder may be larger than GV" guidance causes AI to over-correct on above-ground floors (subtracts outdoor terraces too aggressively). Each prompt iteration swings the balance. Current state: AI applies same outline to floors -1 to 2; correctly shrinks for stepped V3. Kelder under-measurement is an accepted limitation. | — |
 | v6 | 2026-05-19 | **Tuned for Sonnet 4.6**: BO-primary when per-unit BO labels are visible (BO sum + common = floor area). Outer walls primary when no BO labels. Explicit duplex/split-level handling. Strict output format (max 80 char measurement, no narrative in JSON). | Anna Monica: -4.5% (kelder -1%!). MURANO: -6.3%. Prestige I: -20.7% (loggia/balkons classification regression). Avg abs error 10.5% vs v5b/Sonnet4 12.0%. |
-| v7 | 2026-05-20 | **Three fixes from 24-dossier benchmark**: (1) Mezzanine/duplex grouping — count bouwlagen not physical sub-levels, group mezzanines with parent floor (fixes +80% on Knokke duplex). (2) Loggia classification — inpandige terrassen with ceiling = enclosed, not balkons (fixes -20.7% on Prestige I). (3) Mixed-scale calibration — calibrate each plan independently when scales differ (helps -32% on DOBBELSTEEN). | Testing... |
+| v7 | 2026-05-20 | **Three fixes from 24-dossier benchmark**: (1) Mezzanine/duplex grouping — count bouwlagen not physical sub-levels, group mezzanines with parent floor (fixes +80% on Knokke duplex). (2) Loggia classification — inpandige terrassen with ceiling = enclosed, not balkons (fixes -20.7% on Prestige I). (3) Mixed-scale calibration — calibrate each plan independently when scales differ (helps -32% on DOBBELSTEEN). | 24 dossiers tested: **17 at <5% error**, 20 at <10%. Perfect (0%): 12 dossiers. Remaining: Anna Monica -25% (angular shape), DOBBELSTEEN -10%, Prestige I ±8-16% (non-deterministic), LUKOR -44% (scan quality). MURANO +2.4%. |
+| v8-bad | 2026-05-20 | **REVERTED**: Tried making outer walls primary over BO labels. Improved Anna Monica (-25→-18%) but REGRESSED DOBBELSTEEN (-10→-29%), MURANO (+2→+9%), Wiekevorst (0→-4%). BO-primary methodology is empirically superior despite BO being netto. | Net negative — reverted. |
+| v8 | 2026-05-20 | **Two additive fixes (no methodology change)**: (1) Kelder extension rule: kelder can be LARGER than GV footprint (extends under terrassen/stadstuinen/opritten). (2) Common area scaling by apartment count (was flat 10-15m², now 10-50m² scaled by unit count per floor). v7 BO methodology retained. | Testing... |
