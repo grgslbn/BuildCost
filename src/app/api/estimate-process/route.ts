@@ -6,9 +6,8 @@ import {
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
-import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { renderPdfPagesToImages } from "@/lib/pdf/render-plans";
-import { classifyPages } from "@/lib/pdf/classify-pages";
+import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
 import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas, getTotalGrossSqm, getBuildingType } from "@/lib/cost/area-categories";
@@ -231,30 +230,16 @@ export async function POST(req: NextRequest) {
     if (isPdf) {
       checkTimeout(startTime);
 
-      // Classification still uses PDF pages (text/structure analysis)
-      const { pages } = await splitPdfPages(Buffer.from(arrayBuffer), 40);
-      const classifyStart = Date.now();
-      const classifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
-      logApiCall({
-        call_type:     "page_classification",
-        estimation_id: estimationId,
-        model_used:    extractionModel,
-        duration_ms:   Date.now() - classifyStart,
-        status:        "success",
-      });
-
-      const floorPlanNums = new Set(
-        classifications.filter((c) => c.type === "floor_plan").map((c) => c.pageNumber)
+      // Local heuristic classification (WS1 approach — keyword matching, no API cost)
+      const { floorPlanPages } = await getFloorPlanPages(
+        Buffer.from(arrayBuffer),
+        40
       );
-      const planPageNumbers =
-        floorPlanNums.size > 0
-          ? Array.from(floorPlanNums).sort((a, b) => a - b)
-          : pages.map((p) => p.pageNumber);
 
-      // Render to high-res PNG using mupdf (identical to WS1 benchmark)
+      // Render floor plan pages to high-res PNG using mupdf (identical to WS1)
       const planImages = await renderPdfPagesToImages(
         Buffer.from(arrayBuffer),
-        planPageNumbers.slice(0, MAX_SQM_PAGES),
+        floorPlanPages.slice(0, MAX_SQM_PAGES),
         { maxWidth: 5000, dpi: 300 }
       );
 

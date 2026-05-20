@@ -10,6 +10,7 @@ import {
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { renderPdfPagesToImages, getPdfPageCount } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
+import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
 import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibration";
@@ -220,17 +221,12 @@ export async function POST(req: NextRequest) {
       }
 
       // ── Step C: Render floor-plan pages to high-res PNG (identical to WS1) ──
-      const floorPlanNums = new Set(
-        effectiveClassifications
-          .filter((c) => c.type === "floor_plan")
-          .map((c) => c.pageNumber)
+      // Use LOCAL heuristic classifier for floor plan detection (WS1 approach).
+      // More reliable than AI classifier for Belgian building plans.
+      const { floorPlanPages: planPageNumbers } = await getFloorPlanPages(
+        Buffer.from(arrayBuffer),
+        40
       );
-
-      // If classifier found floor plans, use those; otherwise use all pages
-      const planPageNumbers =
-        floorPlanNums.size > 0
-          ? Array.from(floorPlanNums).sort((a, b) => a - b)
-          : pages.map((p) => p.pageNumber);
 
       if (planPageNumbers.length === 0) {
         await setStatus(admin, dossierId, "error", {
