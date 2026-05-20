@@ -32,6 +32,19 @@ function splitPrompt(
   return [raw.slice(0, idx), raw.slice(idx + PROMPT_SEPARATOR.length)];
 }
 
+// Unwraps a value that may have been stored via JSON.stringify() (new format)
+// or as a plain JSONB string (old format). Returns the raw string either way.
+function unwrapValue(raw: unknown): string {
+  if (typeof raw !== "string") return "";
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "string") return parsed;
+  } catch {
+    // old row: plain string stored directly in JSONB, no double-encoding
+  }
+  return raw;
+}
+
 export async function getPromptSettings(): Promise<LoadedPrompts> {
   const admin = createSupabaseAdminClient();
   const { data } = await admin
@@ -40,7 +53,7 @@ export async function getPromptSettings(): Promise<LoadedPrompts> {
     .in("key", [...PROMPT_KEYS]);
 
   const byKey = Object.fromEntries(
-    (data ?? []).map((s) => [s.key, s.value as string])
+    (data ?? []).map((s) => [s.key, unwrapValue(s.value)])
   );
 
   const [sqmSystem, sqmUser] = splitPrompt(
