@@ -78,11 +78,14 @@ export async function getPromptSettings(): Promise<LoadedPrompts> {
     (data ?? []).map((s) => [s.key, unwrapValue(s.value)])
   );
 
-  const [sqmSystem, sqmUser, sqmIsDefault] = splitPrompt(
-    byKey["prompt_sqm_extraction"],
-    SQM_SYSTEM_PROMPT,
-    SQM_USER_PROMPT
-  );
+  // v11b: ALWAYS use the hardcoded SQM prompt.
+  // The DB may contain an outdated pre-v11b prompt that produces a completely
+  // different output format (rooms[] instead of buildings[]/project_totals).
+  // The v11b prompt is tightly coupled with the rest of the pipeline — override
+  // any stale DB value unconditionally.
+  const sqmSystem = SQM_SYSTEM_PROMPT;
+  const sqmUser = SQM_USER_PROMPT;
+  const sqmIsDefault = true;
   const [qqpSystem, qqpUserTemplate, qqpIsDefault] = splitPrompt(
     byKey["prompt_qqp_extraction"],
     QQP_SYSTEM_PROMPT,
