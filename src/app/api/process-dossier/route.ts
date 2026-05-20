@@ -3,9 +3,6 @@ import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/sup
 import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
-  SQM_SYSTEM_PROMPT,
-  SQM_USER_PROMPT,
-  QQP_SYSTEM_PROMPT,
   buildQQPUserPrompt,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
@@ -18,6 +15,7 @@ import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibrat
 import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -93,19 +91,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
     }
 
-    // Load settings
-    const { data: settingsRows } = await admin
-      .from("system_settings")
-      .select("key, value")
-      .in("key", [
-        "extraction_model",
-        "qqp_model",
-        "qqp_residual_trigger",
-        "cat1_price_min", "cat1_price_max",
-        "cat2_price_min", "cat2_price_max",
-        "cat3_price_min", "cat3_price_max",
-        "abex_reference_year", "abex_reference_semester",
-      ]);
+    // Load settings and prompts in parallel
+    const [settingsResult, prompts] = await Promise.all([
+      admin
+        .from("system_settings")
+        .select("key, value")
+        .in("key", [
+          "extraction_model",
+          "qqp_model",
+          "qqp_residual_trigger",
+          "cat1_price_min", "cat1_price_max",
+          "cat2_price_min", "cat2_price_max",
+          "cat3_price_min", "cat3_price_max",
+          "abex_reference_year", "abex_reference_semester",
+        ]),
+      getPromptSettings(),
+    ]);
+    const settingsRows = settingsResult.data;
 
     const settings = Object.fromEntries(
       (settingsRows ?? []).map((s) => [s.key, s.value])
@@ -151,7 +153,7 @@ export async function POST(req: NextRequest) {
       // ── Step A: Classify pages if not already stored ──────────────────────
       if (!effectiveClassifications) {
         const classifyStart = Date.now();
-        effectiveClassifications = await classifyPages(pages, extractionModel);
+        effectiveClassifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
         logApiCall({
           call_type: "page_classification",
           dossier_id: dossierId,
@@ -169,7 +171,7 @@ export async function POST(req: NextRequest) {
       let extractedMeta = null;
       const metaStart = Date.now();
       try {
-        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel);
+        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel, prompts.metadataUser);
         logApiCall({
           call_type: "metadata_extraction",
           dossier_id: dossierId,
@@ -242,7 +244,7 @@ export async function POST(req: NextRequest) {
             source: { type: "base64", media_type: "application/pdf", data: p.base64 },
           })
         ),
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     } else {
       // Image file — no classification or metadata extraction
@@ -253,7 +255,7 @@ export async function POST(req: NextRequest) {
           type: "image",
           source: { type: "base64", media_type: mediaType, data: base64 },
         },
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     }
 
@@ -264,7 +266,7 @@ export async function POST(req: NextRequest) {
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
       max_tokens: 16384,
-      system: SQM_SYSTEM_PROMPT,
+      system: prompts.sqmSystem,
       messages: [{ role: "user", content: sqmContent }],
     });
     logApiCall({
@@ -290,7 +292,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: extractionModel,
           max_tokens: 16384,
-          system: SQM_SYSTEM_PROMPT,
+          system: prompts.sqmSystem,
           messages: [
             { role: "user", content: sqmContent },
             { role: "assistant", content: sqmRaw },
@@ -388,14 +390,15 @@ export async function POST(req: NextRequest) {
             knownCoefficient: dossier.known_finishing_coefficient,
             expertNotes: dossier.expert_notes,
           }
-        : undefined
+        : undefined,
+      prompts.qqpUserTemplate
     );
 
     const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
       model: qqpModel,
       max_tokens: 8192,
-      system: QQP_SYSTEM_PROMPT,
+      system: prompts.qqpSystem,
       messages: [{ role: "user", content: qqpUserPrompt }],
     });
     logApiCall({
@@ -438,7 +441,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: qqpModel,
           max_tokens: 8192,
-          system: QQP_SYSTEM_PROMPT,
+          system: prompts.qqpSystem,
           messages: [
             { role: "user", content: qqpUserPrompt },
             { role: "assistant", content: qqpRaw },

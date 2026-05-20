@@ -18,7 +18,7 @@ export type PageClassification = {
   description: string;
 };
 
-const CLASSIFY_SYSTEM = `You are analyzing pages from a Belgian building insurance dossier (VerzamelPDF). Classify each page into one of:
+export const CLASSIFY_SYSTEM = `You are analyzing pages from a Belgian building insurance dossier (VerzamelPDF). Classify each page into one of:
 - floor_plan: Architectural floor plan showing room layout, walls, dimensions
 - expert_report: Text-heavy page with expert building assessment or observations
 - photo: Photograph of the building exterior, rooms, or damage
@@ -36,7 +36,8 @@ function chunk<T>(arr: T[], size: number): T[][] {
 
 export async function classifyPages(
   pages: SplitPage[],
-  model: string
+  model: string,
+  systemPrompt?: string
 ): Promise<PageClassification[]> {
   const batches = chunk(pages, 4);
   const results: PageClassification[] = [];
@@ -70,7 +71,7 @@ No markdown, no explanation.`,
     const response = await anthropic.messages.create({
       model,
       max_tokens: 512,
-      system: CLASSIFY_SYSTEM,
+      system: systemPrompt ?? CLASSIFY_SYSTEM,
       messages: [{ role: "user", content }],
     });
 

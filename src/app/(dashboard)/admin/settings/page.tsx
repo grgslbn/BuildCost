@@ -6,6 +6,16 @@ import {
   RegionalCoefficientsTable,
   type PostcodePrice,
 } from "@/components/settings/regional-table";
+import { PromptSettings } from "@/components/settings/prompt-settings";
+import { getPromptSettings } from "@/lib/ai/prompt-settings";
+import {
+  SQM_SYSTEM_PROMPT,
+  SQM_USER_PROMPT,
+  QQP_SYSTEM_PROMPT,
+  QQP_USER_PROMPT_TEMPLATE,
+} from "@/lib/ai/prompts";
+import { CLASSIFY_SYSTEM } from "@/lib/pdf/classify-pages";
+import { METADATA_USER_TEMPLATE } from "@/lib/pdf/extract-metadata";
 import type { SettingRowData } from "@/components/settings/setting-row";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +49,7 @@ const FEATURED_KEYS = new Set([
 export default async function AdminSettingsPage() {
   const admin = createSupabaseAdminClient();
 
-  const [settingsRes, postcodeRes] = await Promise.all([
+  const [settingsRes, postcodeRes, loadedPrompts] = await Promise.all([
     admin
       .from("system_settings")
       .select("key, value, display_name, description, category, updated_at")
@@ -50,6 +60,7 @@ export default async function AdminSettingsPage() {
       .select("postcode, municipality, province, region, base_price_per_sqm, year")
       .order("region")
       .order("postcode"),
+    getPromptSettings(),
   ]);
 
   const allSettings: SettingRowData[] = (settingsRes.data ?? []).map((s) => ({
@@ -122,6 +133,29 @@ export default async function AdminSettingsPage() {
 
       {/* Regional coefficients (read-only) */}
       <RegionalCoefficientsTable rows={postcodePrices} />
+
+      <Separator />
+
+      {/* AI Prompts */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">AI Prompts</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Customize the prompts used for each AI processing step. Changes take effect immediately — no redeployment needed. Click Save to persist; click Reset to restore the built-in defaults.
+          </p>
+        </div>
+        <PromptSettings
+          prompts={loadedPrompts}
+          defaults={{
+            sqmSystem: SQM_SYSTEM_PROMPT,
+            sqmUser: SQM_USER_PROMPT,
+            qqpSystem: QQP_SYSTEM_PROMPT,
+            qqpUserTemplate: QQP_USER_PROMPT_TEMPLATE,
+            pageClassification: CLASSIFY_SYSTEM,
+            metadataUser: METADATA_USER_TEMPLATE,
+          }}
+        />
+      </section>
     </div>
   );
 }

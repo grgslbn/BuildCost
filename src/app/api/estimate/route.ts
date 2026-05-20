@@ -3,9 +3,6 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/sup
 import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
-  SQM_SYSTEM_PROMPT,
-  SQM_USER_PROMPT,
-  QQP_SYSTEM_PROMPT,
   buildQQPUserPrompt,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
@@ -16,6 +13,7 @@ import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction"
 import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type Anthropic from "@anthropic-ai/sdk";
 
 export const maxDuration = 300;
@@ -75,18 +73,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
     }
 
-    // Load settings
-    const { data: settingsRows } = await admin
-      .from("system_settings")
-      .select("key, value")
-      .in("key", [
-        "extraction_model", "qqp_model",
-        "cat1_price_min", "cat1_price_max",
-        "cat2_price_min", "cat2_price_max",
-        "cat3_price_min", "cat3_price_max",
-        "abex_reference_year", "abex_reference_semester",
-      ]);
+    // Load settings and prompts in parallel
+    const [settingsResult, prompts] = await Promise.all([
+      admin
+        .from("system_settings")
+        .select("key, value")
+        .in("key", [
+          "extraction_model", "qqp_model",
+          "cat1_price_min", "cat1_price_max",
+          "cat2_price_min", "cat2_price_max",
+          "cat3_price_min", "cat3_price_max",
+          "abex_reference_year", "abex_reference_semester",
+        ]),
+      getPromptSettings(),
+    ]);
+    const settingsRows = settingsResult.data;
     const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
+
 
     const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-6";
     const qqpModel = (settings.qqp_model as string) ?? "claude-sonnet-4-6";
@@ -146,14 +149,14 @@ export async function POST(req: NextRequest) {
           type: "document",
           source: { type: "base64", media_type: "application/pdf", data: p.base64 },
         })),
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     } else {
       const base64 = Buffer.from(arrayBuffer).toString("base64");
       const mediaType = getImageMediaType(est.plan_file_name ?? "plan.jpg");
       sqmContent = [
         { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     }
 
@@ -162,7 +165,7 @@ export async function POST(req: NextRequest) {
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
       max_tokens: 16384,
-      system: SQM_SYSTEM_PROMPT,
+      system: prompts.sqmSystem,
       messages: [{ role: "user", content: sqmContent }],
     });
     logApiCall({
@@ -185,7 +188,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: extractionModel,
           max_tokens: 16384,
-          system: SQM_SYSTEM_PROMPT,
+          system: prompts.sqmSystem,
           messages: [
             { role: "user", content: sqmContent },
             { role: "assistant", content: sqmRaw },
@@ -231,12 +234,12 @@ export async function POST(req: NextRequest) {
       .eq("is_active", true)
       .order("sort_order");
 
-    const qqpUserPrompt = buildQQPUserPrompt(sqmExtraction, qqpDefs ?? []);
+    const qqpUserPrompt = buildQQPUserPrompt(sqmExtraction, qqpDefs ?? [], undefined, prompts.qqpUserTemplate);
     const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
       model: qqpModel,
       max_tokens: 8192,
-      system: QQP_SYSTEM_PROMPT,
+      system: prompts.qqpSystem,
       messages: [{ role: "user", content: qqpUserPrompt }],
     });
     logApiCall({
@@ -271,7 +274,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: qqpModel,
           max_tokens: 8192,
-          system: QQP_SYSTEM_PROMPT,
+          system: prompts.qqpSystem,
           messages: [
             { role: "user", content: qqpUserPrompt },
             { role: "assistant", content: qqpRaw },
