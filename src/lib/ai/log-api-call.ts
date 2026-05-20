@@ -4,7 +4,8 @@ export type ApiCallType =
   | "sqm_extraction"
   | "qqp_extraction"
   | "page_classification"
-  | "metadata_extraction";
+  | "metadata_extraction"
+  | "prompt_update";
 
 export type LogApiCallParams = {
   call_type: ApiCallType;

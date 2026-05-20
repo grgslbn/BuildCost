@@ -94,7 +94,7 @@ Your goal is to determine how expensive this building would be to RECONSTRUCT (n
 
 You evaluate based on: room sizes, room count, equipment visible, spatial generosity, and quality indicators.`;
 
-const QQP_USER_PROMPT_TEMPLATE = `Given this extracted plan data, evaluate all QQP parameters and estimate a finishing coefficient.
+export const QQP_USER_PROMPT_TEMPLATE = `Given this extracted plan data, evaluate all QQP parameters and estimate a finishing coefficient.
 
 PLAN DATA:
 {sqm_extraction_json}
@@ -154,7 +154,8 @@ type KnownData = {
 export function buildQQPUserPrompt(
   sqmExtraction: Record<string, unknown>,
   qqpDefs: QQPDef[],
-  knownData?: KnownData
+  knownData?: KnownData,
+  userTemplate?: string
 ): string {
   const qqpList = qqpDefs
     .map(
@@ -163,7 +164,7 @@ export function buildQQPUserPrompt(
     )
     .join("\n");
 
-  let prompt = QQP_USER_PROMPT_TEMPLATE
+  let prompt = (userTemplate ?? QQP_USER_PROMPT_TEMPLATE)
     .replace("{sqm_extraction_json}", JSON.stringify(sqmExtraction, null, 2))
     .replace("{list_of_active_qqp_definitions}", qqpList);
 

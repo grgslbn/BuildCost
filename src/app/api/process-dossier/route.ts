@@ -3,9 +3,6 @@ import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/sup
 import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
-  SQM_SYSTEM_PROMPT,
-  SQM_USER_PROMPT,
-  QQP_SYSTEM_PROMPT,
   buildQQPUserPrompt,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
@@ -16,6 +13,9 @@ import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
 import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibration";
 import { logApiCall } from "@/lib/ai/log-api-call";
+import { categorizeAreas } from "@/lib/cost/area-categories";
+import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -91,16 +91,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
     }
 
-    // Load settings
-    const { data: settingsRows } = await admin
-      .from("system_settings")
-      .select("key, value")
-      .in("key", [
-        "extraction_model",
-        "qqp_model",
-        "qqp_residual_trigger",
-        "national_base_price_sqm",
-      ]);
+    // Load settings and prompts in parallel
+    const [settingsResult, prompts] = await Promise.all([
+      admin
+        .from("system_settings")
+        .select("key, value")
+        .in("key", [
+          "extraction_model",
+          "qqp_model",
+          "qqp_residual_trigger",
+          "cat1_price_min", "cat1_price_max",
+          "cat2_price_min", "cat2_price_max",
+          "cat3_price_min", "cat3_price_max",
+          "abex_reference_year", "abex_reference_semester",
+        ]),
+      getPromptSettings(),
+    ]);
+    const settingsRows = settingsResult.data;
 
     const settings = Object.fromEntries(
       (settingsRows ?? []).map((s) => [s.key, s.value])
@@ -110,7 +117,17 @@ export async function POST(req: NextRequest) {
     const qqpModel =
       (settings.qqp_model as string) ?? "claude-sonnet-4-6";
     const residualTrigger = 0.15;
-    const nationalBasePriceSqm = (settings.national_base_price_sqm as number) ?? 1450;
+    const abexYear = (settings.abex_reference_year as number) ?? 2026;
+    const abexSemester = (settings.abex_reference_semester as number) ?? 1;
+
+    const pricing: PricingConfig = {
+      cat1_min: (settings.cat1_price_min as number) ?? 1100,
+      cat1_max: (settings.cat1_price_max as number) ?? 1900,
+      cat2_min: (settings.cat2_price_min as number) ?? 550,
+      cat2_max: (settings.cat2_price_max as number) ?? 950,
+      cat3_min: (settings.cat3_price_min as number) ?? 330,
+      cat3_max: (settings.cat3_price_max as number) ?? 570,
+    };
 
     // Download plan from Storage
     const { data: fileBlob, error: storageError } = await admin.storage
@@ -136,7 +153,7 @@ export async function POST(req: NextRequest) {
       // ── Step A: Classify pages if not already stored ──────────────────────
       if (!effectiveClassifications) {
         const classifyStart = Date.now();
-        effectiveClassifications = await classifyPages(pages, extractionModel);
+        effectiveClassifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
         logApiCall({
           call_type: "page_classification",
           dossier_id: dossierId,
@@ -154,7 +171,7 @@ export async function POST(req: NextRequest) {
       let extractedMeta = null;
       const metaStart = Date.now();
       try {
-        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel);
+        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel, prompts.metadataUser);
         logApiCall({
           call_type: "metadata_extraction",
           dossier_id: dossierId,
@@ -227,7 +244,7 @@ export async function POST(req: NextRequest) {
             source: { type: "base64", media_type: "application/pdf", data: p.base64 },
           })
         ),
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     } else {
       // Image file — no classification or metadata extraction
@@ -238,7 +255,7 @@ export async function POST(req: NextRequest) {
           type: "image",
           source: { type: "base64", media_type: mediaType, data: base64 },
         },
-        { type: "text", text: SQM_USER_PROMPT },
+        { type: "text", text: prompts.sqmUser },
       ];
     }
 
@@ -249,7 +266,7 @@ export async function POST(req: NextRequest) {
     const sqmResponse = await anthropic.messages.create({
       model: extractionModel,
       max_tokens: 16384,
-      system: SQM_SYSTEM_PROMPT,
+      system: prompts.sqmSystem,
       messages: [{ role: "user", content: sqmContent }],
     });
     logApiCall({
@@ -275,7 +292,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: extractionModel,
           max_tokens: 16384,
-          system: SQM_SYSTEM_PROMPT,
+          system: prompts.sqmSystem,
           messages: [
             { role: "user", content: sqmContent },
             { role: "assistant", content: sqmRaw },
@@ -373,14 +390,15 @@ export async function POST(req: NextRequest) {
             knownCoefficient: dossier.known_finishing_coefficient,
             expertNotes: dossier.expert_notes,
           }
-        : undefined
+        : undefined,
+      prompts.qqpUserTemplate
     );
 
     const qqpCallStart = Date.now();
     const qqpResponse = await anthropic.messages.create({
       model: qqpModel,
       max_tokens: 8192,
-      system: QQP_SYSTEM_PROMPT,
+      system: prompts.qqpSystem,
       messages: [{ role: "user", content: qqpUserPrompt }],
     });
     logApiCall({
@@ -423,7 +441,7 @@ export async function POST(req: NextRequest) {
         const retryRes = await anthropic.messages.create({
           model: qqpModel,
           max_tokens: 8192,
-          system: QQP_SYSTEM_PROMPT,
+          system: prompts.qqpSystem,
           messages: [
             { role: "user", content: qqpUserPrompt },
             { role: "assistant", content: qqpRaw },
@@ -478,14 +496,42 @@ export async function POST(req: NextRequest) {
 
     const predictedCoeff = qqpExtraction.finishing_assessment.coefficient;
 
-    // ── prediction_error: prefer explicit known coefficient, fall back to
-    //    deriving an effective coefficient from known_price_per_sqm ──────────
+    // ── Compute predicted total cost via Formula V2 ───────────────────────────
+    const { data: postcodeRow } = await admin
+      .from("postcode_prices")
+      .select("base_price_per_sqm")
+      .eq("postcode", dossier.postcode ?? "")
+      .maybeSingle();
+
+    const { data: abexRow } = await admin
+      .from("abex_index")
+      .select("index_value")
+      .eq("year", abexYear)
+      .eq("semester", abexSemester)
+      .maybeSingle();
+
+    const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
+    const cat1AtF1 = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
+    const regionalFactor = postcodeRow
+      ? Number(postcodeRow.base_price_per_sqm) / cat1AtF1
+      : 1.0;
+
+    const areas = categorizeAreas(sqmExtraction);
+    const costBreakdown = calculateCost(areas, predictedCoeff, pricing, regionalFactor, abexFactor);
+    const predictedTotalCost = costBreakdown.total_cost;
+    const predictedFinishingLabel = costBreakdown.finishing_label;
+
+    // ── prediction_error: percentage error on total cost ─────────────────────
     let predictionError: number | null = null;
-    if (dossier.known_finishing_coefficient != null) {
-      predictionError = predictedCoeff - dossier.known_finishing_coefficient;
-    } else if (dossier.known_price_per_sqm != null && nationalBasePriceSqm > 0) {
-      const effectiveCoeff = dossier.known_price_per_sqm / nationalBasePriceSqm;
-      predictionError = predictedCoeff - effectiveCoeff;
+    const knownTotalCost =
+      dossier.known_total_price != null
+        ? dossier.known_total_price
+        : dossier.known_price_per_sqm != null && areas.cat1_sqm > 0
+          ? dossier.known_price_per_sqm * areas.cat1_sqm
+          : null;
+
+    if (knownTotalCost != null && knownTotalCost > 0) {
+      predictionError = (predictedTotalCost - knownTotalCost) / knownTotalCost;
     }
 
     await admin
@@ -493,6 +539,7 @@ export async function POST(req: NextRequest) {
       .update({
         qqp_extraction: qqpExtraction,
         predicted_finishing_coefficient: predictedCoeff,
+        predicted_finishing_level: predictedFinishingLabel,
         prediction_error: predictionError,
         processing_time_ms: Date.now() - startTime,
         status: "analyzed",
