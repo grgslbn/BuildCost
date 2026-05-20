@@ -31,6 +31,7 @@ export async function GET(
       "estimated_price_per_sqm", "estimated_total_cost",
       "sqm_confidence", "qqp_confidence", "overall_confidence",
       "sqm_extraction", "extracted_qqps",
+      "sub_areas",
       "postcode", "plan_file_name",
       "processing_time_ms", "updated_at",
     ].join(", "))
@@ -42,5 +43,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }

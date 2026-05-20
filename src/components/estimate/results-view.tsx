@@ -243,11 +243,15 @@ function CostBreakdownTable({
           Regional factor
           {location && <span className="ml-1 text-xs">({location})</span>}
         </dt>
-        <dd className="font-medium tabular-nums">× {breakdown.regional_factor.toFixed(3)}</dd>
+        <dd className="font-medium tabular-nums">
+          × {breakdown.regional_factor != null ? Number(breakdown.regional_factor).toFixed(3) : "—"}
+        </dd>
       </div>
       <div className="flex items-baseline justify-between gap-2">
         <dt className="text-muted-foreground">ABEX factor</dt>
-        <dd className="font-medium tabular-nums">× {breakdown.abex_factor.toFixed(3)}</dd>
+        <dd className="font-medium tabular-nums">
+          × {breakdown.abex_factor != null ? Number(breakdown.abex_factor).toFixed(3) : "—"}
+        </dd>
       </div>
 
       <Separator />

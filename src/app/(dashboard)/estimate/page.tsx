@@ -113,9 +113,15 @@ export default function EstimatePage() {
 
     const poll = setInterval(async () => {
       try {
-        const res = await fetch(`/api/estimate-status/${estimationId}`);
-        if (!res.ok) return;
+        const res = await fetch(`/api/estimate-status/${estimationId}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          console.warn("[estimate] poll non-200:", res.status);
+          return;
+        }
         const data = (await res.json()) as EstimationResult & { error_message?: string };
+        console.log("[estimate] poll →", data.status, "| sub_areas:", !!data.sub_areas);
 
         // Only advance the status — never regress (e.g. DB "uploading" must not
         // override a client-set "extracting_sqm" before the server catches up).
@@ -126,6 +132,7 @@ export default function EstimatePage() {
         });
 
         if (data.status === "complete") {
+          console.log("[estimate] transitioning to results, breakdown:", data.sub_areas);
           clearInterval(poll);
           setResult(data);
           setPhase("results");
@@ -134,8 +141,8 @@ export default function EstimatePage() {
           setProcessingError(data.error_message ?? "Processing failed. Please try again.");
           setPhase("error");
         }
-      } catch {
-        // ignore transient fetch errors
+      } catch (pollErr) {
+        console.error("[estimate] poll error:", pollErr);
       }
     }, 2000);
 
