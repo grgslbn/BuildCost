@@ -9,6 +9,7 @@ import {
 import type { SettingRowData } from "@/components/settings/setting-row";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const CATEGORY_META: Record<string, { title: string; description: string }> = {
   pricing: {

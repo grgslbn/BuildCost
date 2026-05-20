@@ -25,6 +25,7 @@ import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
 import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   const admin = createSupabaseAdminClient();

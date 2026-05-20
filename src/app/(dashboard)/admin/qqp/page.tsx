@@ -22,6 +22,7 @@ import { ToggleActiveButton } from "@/components/qqp/toggle-active-button";
 import { ActivateModelVersionButton } from "@/components/qqp/activate-model-version-button";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
 

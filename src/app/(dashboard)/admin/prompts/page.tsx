@@ -10,6 +10,7 @@ import { METADATA_USER_TEMPLATE } from "@/lib/pdf/extract-metadata";
 import { PromptSettings } from "@/components/settings/prompt-settings";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminPromptsPage() {
   const loadedPrompts = await getPromptSettings();
