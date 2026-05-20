@@ -84,6 +84,8 @@ export default async function AdminSettingsPage() {
           basePrice={byKey["national_base_price_sqm"]}
           abexYear={byKey["abex_reference_year"]}
           abexSemester={byKey["abex_reference_semester"]}
+          basePriceMin={byKey["national_base_price_min"] ?? null}
+          basePriceMax={byKey["national_base_price_max"] ?? null}
         />
       </section>
 

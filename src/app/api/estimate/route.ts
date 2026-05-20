@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
         "extraction_model", "qqp_model",
         "national_base_price_sqm",
         "abex_reference_year", "abex_reference_semester",
+        "national_base_price_min", "national_base_price_max",
       ]);
     const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
     const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-6";
@@ -88,6 +89,8 @@ export async function POST(req: NextRequest) {
     const nationalBasePrice = (settings.national_base_price_sqm as number) ?? 1450;
     const abexYear = (settings.abex_reference_year as number) ?? 2026;
     const abexSemester = (settings.abex_reference_semester as number) ?? 1;
+    const basePriceMin = settings.national_base_price_min != null ? (settings.national_base_price_min as number) : null;
+    const basePriceMax = settings.national_base_price_max != null ? (settings.national_base_price_max as number) : null;
 
     // Download file
     const { data: fileBlob, error: storageError } = await admin.storage
@@ -338,6 +341,10 @@ export async function POST(req: NextRequest) {
     const estimatedTotalCost =
       totalLivableSqm != null ? totalLivableSqm * estimatedPricePerSqm : null;
 
+    const priceOutOfRange =
+      (basePriceMin != null && estimatedPricePerSqm < basePriceMin) ||
+      (basePriceMax != null && estimatedPricePerSqm > basePriceMax);
+
     const qqpConfidence = qqpExtraction.finishing_assessment.confidence ?? 0.7;
     const overallConfidence = (sqmConfidence + qqpConfidence) / 2;
 
@@ -371,6 +378,7 @@ export async function POST(req: NextRequest) {
         overall_confidence: overallConfidence,
         model_version_id: modelVersionId,
         processing_time_ms: Date.now() - startTime,
+        price_out_of_range: priceOutOfRange,
         status: "complete",
         error_message: null,
         updated_at: new Date().toISOString(),
@@ -379,7 +387,7 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", estimationId);
 
-    return NextResponse.json({ success: true, estimationId });
+    return NextResponse.json({ success: true, estimationId, price_out_of_range: priceOutOfRange });
   } catch (err) {
     console.error("[estimate]", err);
     const msg = err instanceof Error ? err.message : "Unexpected error";
