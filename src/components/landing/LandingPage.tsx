@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { I18N, Lang } from '@/i18n/landing';
 import AnimatedHeroCards from './AnimatedHeroCards';
 import UploadDemo from './UploadDemo';
@@ -50,7 +51,7 @@ export default function LandingPage() {
                 <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)}>{l}</button>
               ))}
             </div>
-            <button className="nav-cta" onClick={scrollToDemo}>{L.nav.cta}</button>
+            <Link href="/dashboard" className="nav-cta">Login</Link>
           </div>
         </div>
       </nav>
