@@ -11,16 +11,31 @@ BuildCost is a web tool for Belgian building insurance companies to estimate rec
 
 **This is NOT real estate valuation.** It's construction rebuild cost. A luxury apartment costs the same to rebuild whether it's in an expensive or cheap neighborhood. Regional variation is handled separately via a postcode coefficient.
 
-## Core Formula
+## Core Formula (V2)
+
+Three area categories, each with a price that interpolates linearly between Min and Max as F varies:
 
 ```
-Rebuild Cost = Surface Area (m²) × Base Price/m² (postcode) × ABEX Index × Finishing Coefficient
+CAT_price(F) = CAT_min + (F − 0.70) / (1.50 − 0.70) × (CAT_max − CAT_min)
+
+Subtotal   = CAT1_sqm × CAT1_price(F)
+           + CAT2_sqm × CAT2_price(F)
+           + CAT3_sqm × CAT3_price(F)
+
+Total Cost = Subtotal × Regional Factor × ABEX Factor
 ```
 
-- **Surface Area**: extracted from plan via AI vision (WS1)
-- **Base Price/m²**: lookup by postcode (provided data)
-- **ABEX Index**: construction price indexation (provided file)
-- **Finishing Coefficient**: 0.70–1.50, derived from QQPs discovered by the system (WS2)
+| Category | Rooms | Default Min | Default Max |
+|----------|-------|-------------|-------------|
+| **CAT1** — Livable | living, bedroom, kitchen, bathroom, office… | €1 100/m² | €1 900/m² |
+| **CAT2** — Enclosed non-livable | garage, storage, utility | €550/m² | €950/m² |
+| **CAT3** — Outdoor built | terrace, balcony | €330/m² | €570/m² |
+| EXCLUDED | garden | — | — |
+
+- **F (Finishing Coefficient)**: 0.70–1.50, derived from QQPs. Labels: Basic / Standard / Comfort / Comfort+ / Luxury
+- **Regional Factor**: `postcode_base_price / cat1_price_at_F1.0`
+- **ABEX Factor**: construction price index ÷ 1000 (provided file)
+- **Cat prices** are configurable in Settings and auto-calibrated from reference dossiers via OLS
 
 ## Team & Workstreams
 

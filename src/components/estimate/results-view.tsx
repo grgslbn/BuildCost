@@ -26,8 +26,28 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
+import { FINISHING_THRESHOLDS, F_MIN, F_MAX } from "@/lib/cost/calculate-cost";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+type CostBreakdown = {
+  cat1_sqm: number;
+  cat1_price_per_sqm: number;
+  cat1_cost: number;
+  cat2_sqm: number;
+  cat2_price_per_sqm: number;
+  cat2_cost: number;
+  cat3_sqm: number;
+  cat3_price_per_sqm: number;
+  cat3_cost: number;
+  subtotal: number;
+  regional_factor: number;
+  abex_factor: number;
+  total_cost: number;
+  finishing_coefficient: number;
+  finishing_label: string;
+  effective_price_per_livable_sqm: number;
+};
 
 export type EstimationResult = {
   id: string;
@@ -46,6 +66,7 @@ export type EstimationResult = {
   overall_confidence: number | null;
   sqm_extraction: Record<string, unknown> | null;
   extracted_qqps: Record<string, { value: unknown; confidence?: number; notes?: string }> | null;
+  sub_areas: CostBreakdown | null;
   postcode: string | null;
   plan_file_name: string | null;
   processing_time_ms: number | null;
@@ -74,15 +95,12 @@ function confidenceLabel(c: number | null) {
   return { text: "Low", color: "text-red-500" };
 }
 
-const LEVEL_META: Record<
-  string,
-  { label: string; color: string; bg: string; range: string }
-> = {
-  basic:    { label: "Basic",    color: "text-slate-600",   bg: "bg-slate-100",   range: "0.70–0.85" },
-  standard: { label: "Standard", color: "text-blue-600",    bg: "bg-blue-50",     range: "0.85–1.00" },
-  comfort:  { label: "Comfort",  color: "text-emerald-600", bg: "bg-emerald-50",  range: "1.00–1.15" },
-  luxury:   { label: "Luxury",   color: "text-purple-600",  bg: "bg-purple-50",   range: "1.15–1.35" },
-  premium:  { label: "Premium",  color: "text-amber-600",   bg: "bg-amber-50",    range: "1.35–1.50" },
+const LEVEL_META: Record<string, { label: string; color: string; bg: string }> = {
+  basic:    { label: "Basic",    color: "text-slate-600",   bg: "bg-slate-100"   },
+  standard: { label: "Standard", color: "text-blue-600",    bg: "bg-blue-50"     },
+  comfort:  { label: "Comfort",  color: "text-emerald-600", bg: "bg-emerald-50"  },
+  "comfort+": { label: "Comfort+", color: "text-orange-600", bg: "bg-orange-50"  },
+  luxury:   { label: "Luxury",   color: "text-purple-600",  bg: "bg-purple-50"   },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -95,16 +113,27 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 function FinishingMeter({ coeff }: { coeff: number }) {
-  const MIN = 0.7, MAX = 1.5;
-  const pct = ((coeff - MIN) / (MAX - MIN)) * 100;
+  const range = F_MAX - F_MIN;
+  const pct = ((coeff - F_MIN) / range) * 100;
 
-  const segments = [
-    { from: 0,  to: 19,  color: "bg-slate-300",   label: "Basic" },
-    { from: 19, to: 38,  color: "bg-blue-400",    label: "Standard" },
-    { from: 38, to: 57,  color: "bg-emerald-400", label: "Comfort" },
-    { from: 57, to: 81,  color: "bg-purple-400",  label: "Luxury" },
-    { from: 81, to: 100, color: "bg-amber-400",   label: "Premium" },
+  const segColors = [
+    "bg-slate-300",
+    "bg-blue-400",
+    "bg-emerald-400",
+    "bg-orange-400",
+    "bg-purple-400",
   ];
+
+  const segments = FINISHING_THRESHOLDS.map((t, i) => {
+    const prev = i === 0 ? F_MIN : FINISHING_THRESHOLDS[i - 1].max;
+    const curr = Math.min(t.max, F_MAX);
+    return {
+      label: t.label,
+      from: ((prev - F_MIN) / range) * 100,
+      to: ((curr - F_MIN) / range) * 100,
+      color: segColors[i],
+    };
+  });
 
   return (
     <div className="space-y-1.5">
@@ -122,8 +151,8 @@ function FinishingMeter({ coeff }: { coeff: number }) {
         />
       </div>
       <div className="flex justify-between text-[10px] text-muted-foreground">
-        {["Basic", "Standard", "Comfort", "Luxury", "Premium"].map((l) => (
-          <span key={l}>{l}</span>
+        {FINISHING_THRESHOLDS.map((t) => (
+          <span key={t.label}>{t.label}</span>
         ))}
       </div>
     </div>
@@ -157,6 +186,90 @@ function ExpandSection({
   );
 }
 
+// ── Cost breakdown table ───────────────────────────────────────────────────────
+
+function CostBreakdownTable({
+  breakdown,
+  postcodeMeta,
+}: {
+  breakdown: CostBreakdown;
+  postcodeMeta?: { municipality?: string | null; region?: string | null };
+}) {
+  const rows = [
+    {
+      label: "CAT1 — Livable",
+      sqm: breakdown.cat1_sqm,
+      price: breakdown.cat1_price_per_sqm,
+      cost: breakdown.cat1_cost,
+    },
+    {
+      label: "CAT2 — Enclosed",
+      sqm: breakdown.cat2_sqm,
+      price: breakdown.cat2_price_per_sqm,
+      cost: breakdown.cat2_cost,
+    },
+    {
+      label: "CAT3 — Outdoor",
+      sqm: breakdown.cat3_sqm,
+      price: breakdown.cat3_price_per_sqm,
+      cost: breakdown.cat3_cost,
+    },
+  ].filter((r) => r.sqm > 0);
+
+  const location = [postcodeMeta?.municipality, postcodeMeta?.region]
+    .filter(Boolean)
+    .join(", ");
+
+  return (
+    <dl className="space-y-2 text-sm">
+      {rows.map((r) => (
+        <div key={r.label} className="grid grid-cols-3 items-baseline gap-1">
+          <dt className="text-muted-foreground">{r.label}</dt>
+          <dd className="text-center tabular-nums text-muted-foreground text-xs">
+            {formatNum(r.sqm)} m² × {formatEur(r.price)}
+          </dd>
+          <dd className="text-right font-medium tabular-nums">{formatEur(r.cost)}</dd>
+        </div>
+      ))}
+
+      <Separator />
+
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="text-muted-foreground">Subtotal</dt>
+        <dd className="font-medium tabular-nums">{formatEur(breakdown.subtotal)}</dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="text-muted-foreground">
+          Regional factor
+          {location && <span className="ml-1 text-xs">({location})</span>}
+        </dt>
+        <dd className="font-medium tabular-nums">× {breakdown.regional_factor.toFixed(3)}</dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="text-muted-foreground">ABEX factor</dt>
+        <dd className="font-medium tabular-nums">× {breakdown.abex_factor.toFixed(3)}</dd>
+      </div>
+
+      <Separator />
+
+      <div className="flex items-baseline justify-between gap-2 pt-0.5">
+        <dt className="font-semibold">Total rebuild cost</dt>
+        <dd className="text-lg font-bold tabular-nums text-primary">
+          {formatEur(breakdown.total_cost)}
+        </dd>
+      </div>
+      {breakdown.cat1_sqm > 0 && (
+        <div className="flex items-baseline justify-between gap-2">
+          <dt className="text-muted-foreground">Effective price / livable m²</dt>
+          <dd className="font-medium tabular-nums text-primary">
+            {formatEur(breakdown.effective_price_per_livable_sqm)} / m²
+          </dd>
+        </div>
+      )}
+    </dl>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function ResultsView({
@@ -168,21 +281,15 @@ export function ResultsView({
   postcodeMeta?: { municipality?: string | null; region?: string | null; nationalBase?: number };
   onReset: () => void;
 }) {
-  const nationalBase = postcodeMeta?.nationalBase ?? 1450;
-  const regionalCoeff =
-    result.base_price_per_sqm && nationalBase > 0
-      ? result.base_price_per_sqm / nationalBase
-      : 1;
+  const breakdown = result.sub_areas;
 
   const levelKey = (result.finishing_level ?? "standard").toLowerCase();
   const level = LEVEL_META[levelKey] ?? LEVEL_META.standard;
   const confInfo = confidenceLabel(result.overall_confidence);
 
-  // Parse QQP finishing indicators
   const qqpData = result.extracted_qqps ?? {};
   type QQPEntry = { value: unknown; confidence?: number; notes?: string };
 
-  // Rooms from sqm_extraction
   type Room = {
     id: string;
     label_en?: string;
@@ -204,9 +311,15 @@ export function ResultsView({
         <p className="mt-2 text-6xl font-bold tracking-tight">
           {formatEur(result.estimated_total_cost)}
         </p>
-        <p className="mt-2 text-xl text-muted-foreground">
-          {formatEur(result.estimated_price_per_sqm, 0)} / m²
-        </p>
+        {breakdown ? (
+          <p className="mt-2 text-xl text-muted-foreground">
+            {formatEur(breakdown.effective_price_per_livable_sqm)} / m² livable
+          </p>
+        ) : (
+          <p className="mt-2 text-xl text-muted-foreground">
+            {formatEur(result.estimated_price_per_sqm, 0)} / m²
+          </p>
+        )}
         {result.total_livable_sqm && (
           <p className="mt-1 text-sm text-muted-foreground">
             Based on {formatNum(result.total_livable_sqm)} m² livable area
@@ -227,66 +340,11 @@ export function ResultsView({
             <CardTitle className="text-base">Cost breakdown</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="space-y-2.5 text-sm">
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">Surface area</dt>
-                <dd className="font-medium tabular-nums">
-                  {formatNum(result.total_livable_sqm)} m²
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">
-                  National base price
-                </dt>
-                <dd className="font-medium tabular-nums">{formatEur(nationalBase)} / m²</dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">
-                  Regional factor
-                  {postcodeMeta?.municipality && (
-                    <span className="ml-1 text-xs">
-                      ({postcodeMeta.municipality}
-                      {postcodeMeta.region ? `, ${postcodeMeta.region}` : ""})
-                    </span>
-                  )}
-                </dt>
-                <dd className="font-medium tabular-nums">
-                  × {regionalCoeff.toFixed(3)}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">ABEX factor</dt>
-                <dd className="font-medium tabular-nums">
-                  × {(result.abex_factor ?? 1).toFixed(3)}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="text-muted-foreground">
-                  Finishing level
-                  <span
-                    className={`ml-1.5 rounded px-1.5 py-0.5 text-xs font-semibold ${level.bg} ${level.color}`}
-                  >
-                    {level.label}
-                  </span>
-                </dt>
-                <dd className="font-medium tabular-nums">
-                  × {(result.finishing_coefficient ?? 1).toFixed(3)}
-                </dd>
-              </div>
-              <Separator />
-              <div className="flex items-baseline justify-between gap-2 pt-1">
-                <dt className="font-semibold">Price per m²</dt>
-                <dd className="font-bold tabular-nums text-primary">
-                  {formatEur(result.estimated_price_per_sqm)} / m²
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <dt className="font-semibold">Total rebuild cost</dt>
-                <dd className="text-lg font-bold tabular-nums text-primary">
-                  {formatEur(result.estimated_total_cost)}
-                </dd>
-              </div>
-            </dl>
+            {breakdown ? (
+              <CostBreakdownTable breakdown={breakdown} postcodeMeta={postcodeMeta} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No breakdown available.</p>
+            )}
           </CardContent>
         </Card>
 
@@ -307,7 +365,6 @@ export function ResultsView({
                   {(result.finishing_coefficient ?? 1).toFixed(3)}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground">{level.range}</span>
             </div>
 
             <FinishingMeter coeff={result.finishing_coefficient ?? 1} />
@@ -340,9 +397,7 @@ export function ResultsView({
                                 {v.value !== null && (
                                   <span className="ml-1 text-muted-foreground">
                                     {typeof v.value === "boolean"
-                                      ? v.value
-                                        ? "present"
-                                        : "absent"
+                                      ? v.value ? "present" : "absent"
                                       : String(v.value)}
                                   </span>
                                 )}
@@ -368,9 +423,7 @@ export function ResultsView({
                                 {v.value !== null && (
                                   <span className="ml-1 text-muted-foreground">
                                     {typeof v.value === "boolean"
-                                      ? v.value
-                                        ? "present"
-                                        : "absent"
+                                      ? v.value ? "present" : "absent"
                                       : String(v.value)}
                                   </span>
                                 )}

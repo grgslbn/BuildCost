@@ -1,22 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { F_MIN, F_MAX } from "@/lib/cost/calculate-cost";
 
 export const dynamic = "force-dynamic";
 
-function percentile(sorted: number[], p: number): number {
-  if (sorted.length === 0) return 0;
-  const idx = Math.floor(sorted.length * p);
-  return sorted[Math.min(idx, sorted.length - 1)];
+// Fixed ratios: cat2 and cat3 as fractions of cat1
+const CAT2_RATIO = 0.5;  // 550/1100
+const CAT3_RATIO = 0.3;  // 330/1100
+
+function mean(arr: number[]) {
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
 }
 
-// GET: compute suggested base price from analyzed reference dossiers
+function stddev(arr: number[], m = mean(arr)) {
+  const variance = arr.map((v) => (v - m) ** 2).reduce((a, b) => a + b, 0) / arr.length;
+  return Math.sqrt(variance);
+}
+
+// OLS for z = intercept + slope * t
+function olsLinear(ts: number[], zs: number[]): { intercept: number; slope: number } {
+  const n = ts.length;
+  const sumT = ts.reduce((a, b) => a + b, 0);
+  const sumZ = zs.reduce((a, b) => a + b, 0);
+  const sumTZ = ts.reduce((s, t, i) => s + t * zs[i], 0);
+  const sumT2 = ts.reduce((s, t) => s + t * t, 0);
+  const det = n * sumT2 - sumT * sumT;
+  if (Math.abs(det) < 1e-10) {
+    // Degenerate: all t values the same — fall back to mean
+    return { intercept: mean(zs), slope: 0 };
+  }
+  const intercept = (sumZ * sumT2 - sumTZ * sumT) / det;
+  const slope = (n * sumTZ - sumT * sumZ) / det;
+  return { intercept, slope };
+}
+
+// GET: compute suggested category prices from analyzed reference dossiers
 export async function GET() {
   const admin = createSupabaseAdminClient();
 
   const { data: settingsRows } = await admin
     .from("system_settings")
     .select("key, value")
-    .in("key", ["national_base_price_sqm", "abex_reference_year", "abex_reference_semester"]);
+    .in("key", ["abex_reference_year", "abex_reference_semester"]);
 
   const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
   const abexYear = Number(settings.abex_reference_year ?? 2026);
@@ -33,7 +58,7 @@ export async function GET() {
 
   const { data: dossiers, error } = await admin
     .from("reference_dossiers")
-    .select("id, known_price_per_sqm, predicted_finishing_coefficient, postcode")
+    .select("id, known_price_per_sqm, predicted_finishing_coefficient")
     .not("known_price_per_sqm", "is", null)
     .not("predicted_finishing_coefficient", "is", null)
     .in("status", ["analyzed", "validated"]);
@@ -43,56 +68,89 @@ export async function GET() {
     return NextResponse.json({ error: "No analyzed dossiers with known price data" }, { status: 422 });
   }
 
-  const rawValues: number[] = [];
+  const range = F_MAX - F_MIN;
+  const points: { t: number; z: number }[] = [];
+
   for (const d of dossiers) {
     const kp = Number(d.known_price_per_sqm);
     const fc = Number(d.predicted_finishing_coefficient);
     if (fc <= 0 || abexFactor <= 0 || kp <= 0) continue;
-    // implied base regional price = known / (finishing_coeff × abex)
-    const implied = kp / (fc * abexFactor);
-    if (implied > 100 && implied < 10000) rawValues.push(implied);
+    if (fc < F_MIN || fc > F_MAX) continue;
+    // z = implied cat1 price at this finishing level (national, pre-ABEX)
+    const z = kp / abexFactor;
+    const t = (fc - F_MIN) / range;
+    if (z > 100 && z < 10000) points.push({ t, z });
   }
 
-  if (rawValues.length === 0) {
+  if (points.length === 0) {
     return NextResponse.json({ error: "No valid data points after filtering" }, { status: 422 });
   }
 
-  // Remove outliers beyond 3σ
-  const mean = rawValues.reduce((a, b) => a + b, 0) / rawValues.length;
-  const variance = rawValues.map((v) => (v - mean) ** 2).reduce((a, b) => a + b, 0) / rawValues.length;
-  const stddev = Math.sqrt(variance);
-  const filtered = rawValues.filter((v) => Math.abs(v - mean) <= 3 * stddev);
-  const outliers_removed = rawValues.length - filtered.length;
+  // Remove outliers beyond 3σ on z
+  const zs = points.map((p) => p.z);
+  const zm = mean(zs);
+  const zsd = stddev(zs, zm);
+  const filtered = points.filter((p) => Math.abs(p.z - zm) <= 3 * zsd);
+  const outliers_removed = points.length - filtered.length;
 
-  filtered.sort((a, b) => a - b);
+  if (filtered.length < 2) {
+    return NextResponse.json({ error: "Too few data points after outlier removal" }, { status: 422 });
+  }
+
+  const { intercept, slope } = olsLinear(
+    filtered.map((p) => p.t),
+    filtered.map((p) => p.z)
+  );
+
+  // cat1_min = price at F_MIN (t=0), cat1_max = price at F_MAX (t=1)
+  let cat1_min = Math.round(intercept);
+  let cat1_max = Math.round(intercept + slope);
+
+  // Sanity clamps
+  cat1_min = Math.max(300, Math.min(cat1_min, 3000));
+  cat1_max = Math.max(cat1_min + 100, Math.min(cat1_max, 5000));
 
   return NextResponse.json({
-    suggested_base: Math.round(percentile(filtered, 0.5)),
-    suggested_min: Math.round(percentile(filtered, 0.1)),
-    suggested_max: Math.round(percentile(filtered, 0.9)),
+    cat1_min,
+    cat1_max,
+    cat2_min: Math.round(cat1_min * CAT2_RATIO),
+    cat2_max: Math.round(cat1_max * CAT2_RATIO),
+    cat3_min: Math.round(cat1_min * CAT3_RATIO),
+    cat3_max: Math.round(cat1_max * CAT3_RATIO),
     dossier_count: filtered.length,
     outliers_removed,
   });
 }
 
-// POST: apply suggested values (upsert all three keys)
+// POST: apply suggested values
 export async function POST(req: NextRequest) {
   const admin = createSupabaseAdminClient();
-  const body = await req.json() as { base?: number; min?: number; max?: number };
+  const body = await req.json() as {
+    cat1_min?: number; cat1_max?: number;
+    cat2_min?: number; cat2_max?: number;
+    cat3_min?: number; cat3_max?: number;
+  };
 
-  const { base, min, max } = body;
-  if (base == null || min == null || max == null) {
-    return NextResponse.json({ error: "Missing base, min or max" }, { status: 400 });
+  const { cat1_min, cat1_max, cat2_min, cat2_max, cat3_min, cat3_max } = body;
+  if (
+    cat1_min == null || cat1_max == null ||
+    cat2_min == null || cat2_max == null ||
+    cat3_min == null || cat3_max == null
+  ) {
+    return NextResponse.json({ error: "Missing one or more price fields" }, { status: 400 });
   }
 
   const now = new Date().toISOString();
-  const upserts = [
-    { key: "national_base_price_sqm", value: base },
-    { key: "national_base_price_min", value: min },
-    { key: "national_base_price_max", value: max },
+  const updates = [
+    { key: "cat1_price_min", value: cat1_min },
+    { key: "cat1_price_max", value: cat1_max },
+    { key: "cat2_price_min", value: cat2_min },
+    { key: "cat2_price_max", value: cat2_max },
+    { key: "cat3_price_min", value: cat3_min },
+    { key: "cat3_price_max", value: cat3_max },
   ];
 
-  for (const row of upserts) {
+  for (const row of updates) {
     await admin
       .from("system_settings")
       .update({ value: row.value, updated_at: now })

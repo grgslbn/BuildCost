@@ -14,6 +14,8 @@ import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
 import { logApiCall } from "@/lib/ai/log-api-call";
+import { categorizeAreas } from "@/lib/cost/area-categories";
+import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import type Anthropic from "@anthropic-ai/sdk";
 
 export const maxDuration = 300;
@@ -79,18 +81,26 @@ export async function POST(req: NextRequest) {
       .select("key, value")
       .in("key", [
         "extraction_model", "qqp_model",
-        "national_base_price_sqm",
+        "cat1_price_min", "cat1_price_max",
+        "cat2_price_min", "cat2_price_max",
+        "cat3_price_min", "cat3_price_max",
         "abex_reference_year", "abex_reference_semester",
-        "national_base_price_min", "national_base_price_max",
       ]);
     const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
+
     const extractionModel = (settings.extraction_model as string) ?? "claude-sonnet-4-6";
     const qqpModel = (settings.qqp_model as string) ?? "claude-sonnet-4-6";
-    const nationalBasePrice = (settings.national_base_price_sqm as number) ?? 1450;
     const abexYear = (settings.abex_reference_year as number) ?? 2026;
     const abexSemester = (settings.abex_reference_semester as number) ?? 1;
-    const basePriceMin = settings.national_base_price_min != null ? (settings.national_base_price_min as number) : null;
-    const basePriceMax = settings.national_base_price_max != null ? (settings.national_base_price_max as number) : null;
+
+    const pricing: PricingConfig = {
+      cat1_min: (settings.cat1_price_min as number) ?? 1100,
+      cat1_max: (settings.cat1_price_max as number) ?? 1900,
+      cat2_min: (settings.cat2_price_min as number) ?? 550,
+      cat2_max: (settings.cat2_price_max as number) ?? 950,
+      cat3_min: (settings.cat3_price_min as number) ?? 330,
+      cat3_max: (settings.cat3_price_max as number) ?? 570,
+    };
 
     // Download file
     const { data: fileBlob, error: storageError } = await admin.storage
@@ -206,7 +216,6 @@ export async function POST(req: NextRequest) {
     const totalGrossSqm = (sqmSummary.total_gross_sqm as number) ?? null;
     const sqmBuildingType = ((sqmExtraction.building_type ?? {}) as Record<string, unknown>).primary as string | null;
 
-    // Compute sqm confidence as average over all rooms
     const floors = (sqmExtraction.floors as Array<{ rooms: Array<{ confidence: number }> }>) ?? [];
     const allRoomConfs = floors.flatMap((f) => (f.rooms ?? []).map((r) => r.confidence ?? 0.7));
     const sqmConfidence = allRoomConfs.length > 0
@@ -315,19 +324,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Cost calculation ─────────────────────────────────────────────────────
-    // Look up regional base price for postcode
+    // ── Regional factor & ABEX ────────────────────────────────────────────────
     const { data: postcodeRow } = await admin
       .from("postcode_prices")
       .select("base_price_per_sqm, municipality, region")
       .eq("postcode", est.postcode ?? "")
       .maybeSingle();
 
-    const regionalBasePrice = postcodeRow
-      ? Number(postcodeRow.base_price_per_sqm)
-      : nationalBasePrice;
+    // Regional factor: postcode price relative to national CAT1 at F=1.0
+    const cat1AtF1 = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
+    const regionalFactor = postcodeRow
+      ? Number(postcodeRow.base_price_per_sqm) / cat1AtF1
+      : 1.0;
 
-    // Look up ABEX index
     const { data: abexRow } = await admin
       .from("abex_index")
       .select("index_value")
@@ -337,26 +346,12 @@ export async function POST(req: NextRequest) {
 
     const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
 
-    const estimatedPricePerSqm = regionalBasePrice * abexFactor * finishingCoefficient;
-    const estimatedTotalCost =
-      totalLivableSqm != null ? totalLivableSqm * estimatedPricePerSqm : null;
-
-    const priceOutOfRange =
-      (basePriceMin != null && estimatedPricePerSqm < basePriceMin) ||
-      (basePriceMax != null && estimatedPricePerSqm > basePriceMax);
+    // ── Area categorization & cost calculation ────────────────────────────────
+    const areas = categorizeAreas(sqmExtraction);
+    const costBreakdown = calculateCost(areas, finishingCoefficient, pricing, regionalFactor, abexFactor);
 
     const qqpConfidence = qqpExtraction.finishing_assessment.confidence ?? 0.7;
     const overallConfidence = (sqmConfidence + qqpConfidence) / 2;
-
-    // Build sub_areas summary
-    const categoryTotals: Record<string, number> = {};
-    for (const floor of floors) {
-      for (const room of floor.rooms ?? []) {
-        const r = room as { category?: string; area_sqm?: number };
-        const cat = r.category ?? "other";
-        categoryTotals[cat] = (categoryTotals[cat] ?? 0) + (r.area_sqm ?? 0);
-      }
-    }
 
     await admin
       .from("estimations")
@@ -365,29 +360,28 @@ export async function POST(req: NextRequest) {
         sqm_extraction: sqmExtraction,
         total_livable_sqm: totalLivableSqm,
         total_gross_sqm: totalGrossSqm,
-        sub_areas: categoryTotals,
+        sub_areas: costBreakdown,
         extracted_qqps: qqpExtraction.qqp_values,
-        finishing_level: qqpExtraction.finishing_assessment.level,
+        finishing_level: costBreakdown.finishing_label,
         finishing_coefficient: finishingCoefficient,
-        base_price_per_sqm: regionalBasePrice,
+        base_price_per_sqm: postcodeRow ? Number(postcodeRow.base_price_per_sqm) : cat1AtF1,
         abex_factor: abexFactor,
-        estimated_price_per_sqm: estimatedPricePerSqm,
-        estimated_total_cost: estimatedTotalCost,
+        estimated_price_per_sqm: costBreakdown.effective_price_per_livable_sqm,
+        estimated_total_cost: costBreakdown.total_cost,
         sqm_confidence: sqmConfidence,
         qqp_confidence: qqpConfidence,
         overall_confidence: overallConfidence,
         model_version_id: modelVersionId,
         processing_time_ms: Date.now() - startTime,
-        price_out_of_range: priceOutOfRange,
+        price_out_of_range: false,
         status: "complete",
         error_message: null,
         updated_at: new Date().toISOString(),
-        // Store extra context needed by results view
         postcode: est.postcode,
       })
       .eq("id", estimationId);
 
-    return NextResponse.json({ success: true, estimationId, price_out_of_range: priceOutOfRange });
+    return NextResponse.json({ success: true, estimationId });
   } catch (err) {
     console.error("[estimate]", err);
     const msg = err instanceof Error ? err.message : "Unexpected error";
