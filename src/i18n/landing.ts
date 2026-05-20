@@ -252,7 +252,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       items: [
         { q: 'Is dit een vastgoedwaarderingstool?', a: 'Nee. ReBuilt berekent de heropbouwwaarde — wat het zou kosten om het gebouw volledig opnieuw op te bouwen na een schadegeval. De postcodecoëfficiënt weerspiegelt bouwkosten, geen vastgoedprijzen.' },
         { q: 'Welke planformaten aanvaarden jullie?', a: 'PDF, PNG, JPG, TIFF. DWG/DXF op de roadmap. Zelfs handgetekende plannen werken als de labels en afmetingen leesbaar zijn.' },
-        { q: 'Hoe nauwkeurig is de m²-extractie?', a: 'Op plannen met duidelijke schaal of afmetingen halen we 90%+. Zonder schaal kalibreren we met de standaard 80 cm deurbreedte.' },
+        { q: 'Hoe nauwkeurig is de m²-extractie?', a: 'Op plannen met duidelijke schaal of afmetingen halen we 95%+. Zonder schaal kalibreren we op standaard maten als diepte van de keuken en breedte van een deur.' },
         { q: 'Kunnen we ReBuilt trainen op onze dossiers?', a: 'Ja — dat is waar ReBuilt uniek wordt. Upload referentiedossiers en het model leert je portefeuille.' },
         { q: 'Is de data van elke verzekeraar geïsoleerd?', a: 'Ja. Geïsoleerde werkruimte per verzekeraar. Row-level security, EU-hosted.' },
         { q: 'Wat kost het?', a: 'Gratis tijdens beta. Daarna: tarief per schatting met volumekortingen. Beta-testers blokkeren een voorkeurstarief.' },
