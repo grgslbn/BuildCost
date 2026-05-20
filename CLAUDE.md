@@ -99,12 +99,25 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 - [x] Supabase project created (`sqmpgzzjxsmywmpsplmu`, eu-west-1)
 - [ ] Vercel project connected
 - [x] Database schema migrated
-- [ ] WS1: First plan extraction working
+- [x] WS1: Plan extraction working (v11b prompt, 24 benchmark dossiers)
 - [x] WS2: QQP definitions seeded (32 definitions across 4 categories)
 - [ ] WS2: First reference dossier processed
-- [ ] Integration: end-to-end flow working
+- [x] Integration: end-to-end estimation flow working (`/estimate`)
 - [ ] Landing page live
 - [ ] Demo ready
+
+**Additional progress (WS1 — branch `ws1/sqm-extraction-pipeline`):**
+- Full PDF-to-extraction pipeline built:
+  - `src/lib/pdf-classifier.mjs` — classifies PDF pages (floor_plan, section, admin, photo…)
+  - `src/lib/plan-renderer.mjs` — renders PDF pages to hires PNG (mupdf + sharp), crops multi-plan sheets
+  - `src/lib/sqm-extractor.mjs` — sends images to Claude API, parses JSON response
+  - `src/lib/expert-extractor.mjs` — extracts expert Berekening tables from PDF text layer
+  - `src/lib/benchmark-compare.mjs` — compares AI extraction vs expert ground truth
+  - `scripts/benchmark-pipeline.mjs` — end-to-end: PDF → classify → render → extract → compare
+- v11b prompt (`prompts/sqm_extraction.md`): decision-tree measurement, BVO=bruto detection, 3 categories (CAT1 livable, CAT2 enclosed non-livable, CAT3 outdoor)
+- 24 individual benchmark test scripts (`scripts/test-*.mjs`) with expert ground truth
+- Benchmark results: 18/24 perfect (<1% deviation), remaining errors are vision model limits
+- Model: Claude Sonnet 4.6, temperature=0, no thinking
 
 **Additional progress (WS2):**
 - ABEX index seeded (10 entries) and regional postcode coefficients imported
