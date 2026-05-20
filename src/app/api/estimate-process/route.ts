@@ -208,15 +208,15 @@ export async function POST(req: NextRequest) {
         ];
       }
 
-      // SQM extraction with extended thinking (identical to WS1)
+      // SQM extraction with extended thinking (streaming to handle >10min ops)
       const sqmCallStart = Date.now();
-      const sqmRes = await anthropic.messages.create({
+      const sqmRes = await anthropic.messages.stream({
         model: extractionModel,
         max_tokens: THINKING_BUDGET + 16384,
         thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
         system: prompts.sqmSystem,
         messages: [{ role: "user", content: sqmContent }],
-      });
+      }).finalMessage();
       logApiCall({
         call_type:     "sqm_extraction",
         estimation_id: estimationId,
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
       } catch {
         // Retry once — no thinking, temperature=0
         const retryStart = Date.now();
-        const retryRes = await anthropic.messages.create({
+        const retryRes = await anthropic.messages.stream({
           model: extractionModel,
           max_tokens: 16384,
           temperature: 0,
@@ -245,7 +245,7 @@ export async function POST(req: NextRequest) {
             { role: "assistant", content: sqmRaw },
             { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
           ],
-        });
+        }).finalMessage();
         logApiCall({
           call_type:     "sqm_extraction",
           estimation_id: estimationId,
@@ -274,13 +274,13 @@ export async function POST(req: NextRequest) {
       ];
 
       const callStart = Date.now();
-      const imgRes = await anthropic.messages.create({
+      const imgRes = await anthropic.messages.stream({
         model:      extractionModel,
         max_tokens: THINKING_BUDGET + 16384,
         thinking:   { type: "enabled", budget_tokens: THINKING_BUDGET },
         system:     prompts.sqmSystem,
         messages:   [{ role: "user", content: imgContent }],
-      });
+      }).finalMessage();
       logApiCall({
         call_type:     "sqm_extraction",
         estimation_id: estimationId,
@@ -298,7 +298,7 @@ export async function POST(req: NextRequest) {
       } catch {
         checkTimeout(startTime);
         const retryStart = Date.now();
-        const retryRes = await anthropic.messages.create({
+        const retryRes = await anthropic.messages.stream({
           model:      extractionModel,
           max_tokens: 16384,
           temperature: 0,
@@ -308,7 +308,7 @@ export async function POST(req: NextRequest) {
             { role: "assistant", content: imgRaw },
             { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
           ],
-        });
+        }).finalMessage();
         logApiCall({
           call_type:     "sqm_extraction",
           estimation_id: estimationId,
@@ -359,12 +359,12 @@ export async function POST(req: NextRequest) {
     );
 
     const qqpCallStart = Date.now();
-    const qqpResponse = await anthropic.messages.create({
+    const qqpResponse = await anthropic.messages.stream({
       model:      qqpModel,
       max_tokens: 8192,
       system:     prompts.qqpSystem,
       messages:   [{ role: "user", content: qqpUserPrompt }],
-    });
+    }).finalMessage();
     logApiCall({
       call_type:     "qqp_extraction",
       estimation_id: estimationId,
@@ -392,7 +392,7 @@ export async function POST(req: NextRequest) {
     } catch {
       checkTimeout(startTime);
       const retryStart = Date.now();
-      const retryRes = await anthropic.messages.create({
+      const retryRes = await anthropic.messages.stream({
         model:      qqpModel,
         max_tokens: 8192,
         system:     prompts.qqpSystem,
@@ -401,7 +401,7 @@ export async function POST(req: NextRequest) {
           { role: "assistant", content: qqpRaw },
           { role: "user",      content: STRICT_JSON_RETRY_MESSAGE },
         ],
-      });
+      }).finalMessage();
       logApiCall({
         call_type:     "qqp_extraction",
         estimation_id: estimationId,

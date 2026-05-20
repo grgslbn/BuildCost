@@ -300,13 +300,13 @@ export async function POST(req: NextRequest) {
 
     const THINKING_BUDGET = 10000;
     const sqmCallStart = Date.now();
-    const sqmResponse = await anthropic.messages.create({
+    const sqmResponse = await anthropic.messages.stream({
       model: extractionModel,
       max_tokens: THINKING_BUDGET + 16384,
       thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
       system: prompts.sqmSystem,
       messages: [{ role: "user", content: sqmContent }],
-    });
+    }).finalMessage();
     logApiCall({
       call_type: "sqm_extraction",
       dossier_id: dossierId,
@@ -328,7 +328,7 @@ export async function POST(req: NextRequest) {
       // Retry once with a stricter prompt — no thinking, temperature=0
       try {
         const retryStart = Date.now();
-        const retryRes = await anthropic.messages.create({
+        const retryRes = await anthropic.messages.stream({
           model: extractionModel,
           max_tokens: 16384,
           temperature: 0,
@@ -338,7 +338,7 @@ export async function POST(req: NextRequest) {
             { role: "assistant", content: sqmRaw },
             { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
           ],
-        });
+        }).finalMessage();
         logApiCall({
           call_type: "sqm_extraction",
           dossier_id: dossierId,
@@ -429,12 +429,12 @@ export async function POST(req: NextRequest) {
     );
 
     const qqpCallStart = Date.now();
-    const qqpResponse = await anthropic.messages.create({
+    const qqpResponse = await anthropic.messages.stream({
       model: qqpModel,
       max_tokens: 8192,
       system: prompts.qqpSystem,
       messages: [{ role: "user", content: qqpUserPrompt }],
-    });
+    }).finalMessage();
     logApiCall({
       call_type: "qqp_extraction",
       dossier_id: dossierId,
@@ -472,7 +472,7 @@ export async function POST(req: NextRequest) {
     } catch {
       try {
         const retryStart = Date.now();
-        const retryRes = await anthropic.messages.create({
+        const retryRes = await anthropic.messages.stream({
           model: qqpModel,
           max_tokens: 8192,
           system: prompts.qqpSystem,
@@ -481,7 +481,7 @@ export async function POST(req: NextRequest) {
             { role: "assistant", content: qqpRaw },
             { role: "user", content: STRICT_JSON_RETRY_MESSAGE },
           ],
-        });
+        }).finalMessage();
         logApiCall({
           call_type: "qqp_extraction",
           dossier_id: dossierId,
