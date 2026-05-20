@@ -143,7 +143,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="section-label">{L.belgium.label}</div>
           <h2 className="section-title">{L.belgium.title.map((line, i) => <span key={i}>{line}{i < L.belgium.title.length - 1 && <br/>}</span>)}</h2>
-          <p className="section-sub">{L.belgium.sub}</p>
+          <p className="section-sub">{L.belgium.sub.map((line, i) => <span key={i}>{line}{i < L.belgium.sub.length - 1 && <br/>}</span>)}</p>
           <div className="belgium-grid">
             <ul className="belgium-list">
               {L.belgium.bullets.map((b, i) => <li key={i}>{b}</li>)}
