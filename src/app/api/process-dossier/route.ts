@@ -8,7 +8,7 @@ import {
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
-import { renderPdfPagesToImages, getPdfPageCount } from "@/lib/pdf/render-plans";
+import { renderPdfPagesToImages, getPdfPageCount, type RenderedImage } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { extractMetadata } from "@/lib/pdf/extract-metadata";
@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
       // ── Step C: Render floor-plan pages to high-res PNG (identical to WS1) ──
       // Use LOCAL heuristic classifier for floor plan detection (WS1 approach).
       // More reliable than AI classifier for Belgian building plans.
-      const { floorPlanPages: planPageNumbers } = await getFloorPlanPages(
+      const { floorPlanPages: planPageNumbers, allClassifications } = await getFloorPlanPages(
         Buffer.from(arrayBuffer),
         40
       );
@@ -235,15 +235,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "No floor plan pages" }, { status: 422 });
       }
 
+      const planClassifications = allClassifications
+        .filter((p) => planPageNumbers.includes(p.pageNumber));
+
       // Try mupdf PNG rendering (WS1 quality), fall back to PDF document blocks
       try {
         const planImages = await renderPdfPagesToImages(
           Buffer.from(arrayBuffer),
-          planPageNumbers,
+          planClassifications,
           { maxWidth: 5000, dpi: 300 }
         );
+
+        const floorContext = planImages
+          .filter((img) => img.floorLabels.length > 0)
+          .map((img) => `Image "${img.name}": ${img.floorLabels.join(", ")}`)
+          .join("\n");
+
         sqmContent = [
-          { type: "text" as const, text: prompts.sqmUser },
+          { type: "text" as const, text: floorContext ? floorContext + "\n\n" + prompts.sqmUser : prompts.sqmUser },
           ...planImages.flatMap(
             (img): Anthropic.ContentBlockParam[] => [
               { type: "text" as const, text: `\n--- Image: ${img.name} ---` },

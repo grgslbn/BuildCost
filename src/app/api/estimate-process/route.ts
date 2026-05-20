@@ -6,7 +6,7 @@ import {
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
-import { renderPdfPagesToImages } from "@/lib/pdf/render-plans";
+import { renderPdfPagesToImages, type RenderedImage } from "@/lib/pdf/render-plans";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
@@ -60,6 +60,15 @@ async function setStatus(
 }
 
 const THINKING_BUDGET = 10000;
+
+// ── Floor label context (ported from WS1 benchmark-pipeline.mjs) ─────────────
+
+function buildFloorContext(images: RenderedImage[]): string {
+  const lines = images
+    .filter((img) => img.floorLabels.length > 0)
+    .map((img) => `Image "${img.name}": ${img.floorLabels.join(", ")}`);
+  return lines.length > 0 ? lines.join("\n") : "";
+}
 
 // ── Route ─────────────────────────────────────────────────────────────────────
 
@@ -152,22 +161,31 @@ export async function POST(req: NextRequest) {
       checkTimeout(startTime);
 
       // Local heuristic classification (WS1 approach — keyword matching, no API cost)
-      const { floorPlanPages } = await getFloorPlanPages(
+      const { floorPlanPages, allClassifications } = await getFloorPlanPages(
         Buffer.from(arrayBuffer),
         40
       );
+
+      // Filter to floor plan classifications, cap at MAX_SQM_PAGES
+      const planClassifications = allClassifications
+        .filter((p) => floorPlanPages.includes(p.pageNumber))
+        .slice(0, MAX_SQM_PAGES);
 
       // Try mupdf PNG rendering first (WS1 quality), fall back to PDF document blocks
       let sqmContent: Anthropic.MessageParam["content"];
       try {
         const planImages = await renderPdfPagesToImages(
           Buffer.from(arrayBuffer),
-          floorPlanPages.slice(0, MAX_SQM_PAGES),
+          planClassifications,
           { maxWidth: 5000, dpi: 300 }
         );
-        // WS1 order: user prompt first, then labeled images
+
+        // Build floor label context (WS1 approach — helps Claude identify floors)
+        const floorContext = buildFloorContext(planImages);
+
+        // WS1 order: context + user prompt first, then labeled images
         sqmContent = [
-          { type: "text" as const, text: prompts.sqmUser },
+          { type: "text" as const, text: floorContext ? floorContext + "\n\n" + prompts.sqmUser : prompts.sqmUser },
           ...planImages.flatMap(
             (img): Anthropic.ContentBlockParam[] => [
               { type: "text" as const, text: `\n--- Image: ${img.name} ---` },

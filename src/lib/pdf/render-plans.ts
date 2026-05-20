@@ -1,9 +1,10 @@
 /**
  * Renders PDF pages to high-resolution PNG images using mupdf + sharp.
- * Identical to WS1 plan-renderer.mjs but works with Buffers (no filesystem).
+ * Ported from WS1 plan-renderer.mjs — includes landscape multi-plan cropping.
  */
 
-// Dynamic imports — mupdf and sharp are native modules
+import type { LocalPageClassification } from "./classify-pages-local";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mupdfMod: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,26 +21,62 @@ export type RenderedImage = {
   png: Buffer;
   width: number;
   height: number;
+  floorLabels: string[];
 };
 
+type CropRegion = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  label: string;
+  floorLabels: string[];
+};
+
+function detectCropRegions(
+  labels: string[],
+  _pageInfo: LocalPageClassification
+): CropRegion[] {
+  const numLabels = labels.length;
+
+  if (numLabels >= 3) {
+    return [
+      { left: 0, top: 0, width: 0.52, height: 0.50, label: "top-left", floorLabels: [labels[0]] },
+      { left: 0, top: 0.48, width: 0.52, height: 0.52, label: "bottom-left", floorLabels: [labels[1]] },
+      { left: 0.48, top: 0, width: 0.52, height: 0.55, label: "right", floorLabels: labels.slice(2) },
+    ];
+  } else if (numLabels === 2) {
+    return [
+      { left: 0, top: 0, width: 0.52, height: 1.0, label: "left", floorLabels: [labels[0]] },
+      { left: 0.48, top: 0, width: 0.52, height: 1.0, label: "right", floorLabels: [labels[1]] },
+    ];
+  } else {
+    return [
+      { left: 0, top: 0, width: 1.0, height: 1.0, label: "full", floorLabels: labels },
+    ];
+  }
+}
+
 /**
- * Render specific PDF pages to high-res PNG images.
- * Matches WS1 pipeline: 300 DPI, max 5000px width.
+ * Render PDF pages to high-res PNG images with landscape multi-plan cropping.
+ * When page classifications are provided, landscape pages with multiple plans
+ * are cropped into separate images (matching WS1 pipeline).
  */
 export async function renderPdfPagesToImages(
   pdfBuffer: Buffer,
-  pageNumbers: number[],
+  pageClassifications: LocalPageClassification[],
   opts: { maxWidth?: number; dpi?: number } = {}
 ): Promise<RenderedImage[]> {
   await ensureDeps();
   const mupdf = mupdfMod!;
+  const sharp = sharpMod!;
   const { maxWidth = 5000, dpi = 300 } = opts;
 
   const doc = mupdf.Document.openDocument(pdfBuffer, "application/pdf");
   const images: RenderedImage[] = [];
 
-  for (const pageNum of pageNumbers) {
-    const page = doc.loadPage(pageNum - 1); // 0-indexed
+  for (const pageInfo of pageClassifications) {
+    const page = doc.loadPage(pageInfo.pageNumber - 1);
     const bounds = page.getBounds();
     const pageW = bounds[2] - bounds[0];
 
@@ -51,17 +88,43 @@ export async function renderPdfPagesToImages(
       true
     );
 
-    const png = Buffer.from(pixmap.asPNG());
-    const width = pixmap.getWidth();
-    const height = pixmap.getHeight();
+    const fullPng = Buffer.from(pixmap.asPNG());
+    const fullW = pixmap.getWidth();
+    const fullH = pixmap.getHeight();
 
-    images.push({
-      name: `p${pageNum}`,
-      pageNumber: pageNum,
-      png,
-      width,
-      height,
-    });
+    if (pageInfo.isLandscape && pageInfo.multiPlan) {
+      const crops = detectCropRegions(pageInfo.floorLabels, pageInfo);
+
+      for (const crop of crops) {
+        const l = Math.round(crop.left * fullW);
+        const t = Math.round(crop.top * fullH);
+        const w = Math.min(Math.round(crop.width * fullW), fullW - l);
+        const h = Math.min(Math.round(crop.height * fullH), fullH - t);
+
+        const cropped: Buffer = await sharp(fullPng)
+          .extract({ left: l, top: t, width: w, height: h })
+          .png()
+          .toBuffer();
+
+        images.push({
+          name: `p${pageInfo.pageNumber}-${crop.label}`,
+          pageNumber: pageInfo.pageNumber,
+          png: cropped,
+          width: w,
+          height: h,
+          floorLabels: crop.floorLabels,
+        });
+      }
+    } else {
+      images.push({
+        name: `p${pageInfo.pageNumber}`,
+        pageNumber: pageInfo.pageNumber,
+        png: fullPng,
+        width: fullW,
+        height: fullH,
+        floorLabels: pageInfo.floorLabels,
+      });
+    }
   }
 
   return images;
