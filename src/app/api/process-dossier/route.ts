@@ -457,7 +457,7 @@ export async function POST(req: NextRequest) {
     type QQPExtractionResult = {
       qqp_values: Record<
         string,
-        { value: unknown; confidence: number; notes?: string }
+        { score: number; confidence: number; reasoning?: string }
       >;
       finishing_assessment: {
         level: string;
@@ -515,15 +515,16 @@ export async function POST(req: NextRequest) {
       .map(([name, data]) => {
         const def = qqpDefMap[name];
         if (!def) return null;
-        const val = data.value;
         return {
           dossier_id: dossierId as string,
           qqp_id: def.id,
-          value_numeric: typeof val === "number" ? val : null,
-          value_boolean: typeof val === "boolean" ? val : null,
-          value_text: typeof val === "string" ? val : null,
+          value_numeric: typeof data.score === "number" ? data.score : null,
+          value_boolean: null,
+          value_text: null,
           confidence: data.confidence ?? 0.5,
-          extraction_notes: data.notes ?? null,
+          extraction_notes: data.reasoning ?? null,
+          extraction_method: "ai_extracted" as const,
+          prompt_version_id: prompts.qqpPromptVersionId ?? null,
         };
       })
       .filter((r): r is NonNullable<typeof r> => r !== null);
