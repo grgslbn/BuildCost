@@ -31,7 +31,7 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   const { data, error } = await admin
     .from("reference_dossiers")
     .select(
-      "id, address, postcode, building_type, apartment_count, known_price_per_sqm, expert_finishing_level, status, error_message, created_at"
+      "id, address, postcode, building_type, apartment_count, known_price_per_sqm, expert_finishing_level, predicted_finishing_level, status, error_message, created_at"
     )
     .eq("tenant_id", tenantId)
     .order("created_at", { ascending: false });
@@ -69,9 +69,9 @@ export default async function AdminDossiersPage() {
   const pendingDossiers: BatchDossier[] = dossiers
     .filter((d) => d.status === "pending")
     .map((d) => ({ id: d.id, address: d.address, postcode: d.postcode }));
-  const failedIds = dossiers
+  const failedDossiers: BatchDossier[] = dossiers
     .filter((d) => d.status === "error")
-    .map((d) => d.id);
+    .map((d) => ({ id: d.id, address: d.address, postcode: d.postcode }));
   const allIds = dossiers.map((d) => d.id); // for DeleteAllButton
 
   return (
@@ -126,7 +126,7 @@ export default async function AdminDossiersPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <RetryFailedButton failedCount={failedIds.length} />
+            <RetryFailedButton dossiers={failedDossiers} />
             <BatchProcessButton dossiers={pendingDossiers} />
             <DeleteAllButton dossierIds={allIds} />
           </div>

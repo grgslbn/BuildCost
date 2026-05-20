@@ -5,30 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const TIMEOUT_MS = 270_000;
+import { processOneDossier } from "@/lib/dossiers/process-one";
 
 export type BatchDossier = { id: string; address: string | null; postcode: string | null };
 
 type Progress = { completed: number; total: number; succeeded: number; failed: number };
-
-async function processOne(id: string): Promise<"success" | "failed"> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch("/api/process-dossier", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dossierId: id }),
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-    return res.ok ? "success" : "failed";
-  } catch {
-    clearTimeout(timer);
-    return "failed";
-  }
-}
 
 function dossierLabel(d: BatchDossier) {
   return d.address ?? d.postcode ?? d.id.slice(0, 8);
@@ -49,14 +30,13 @@ export function BatchProcessButton({ dossiers }: { dossiers: BatchDossier[] }) {
 
     await Promise.allSettled(
       dossiers.map(async (d) => {
-        let outcome: "success" | "failed";
+        let ok = false;
         try {
-          outcome = await processOne(d.id);
+          ok = (await processOneDossier(d.id)) === "success";
         } catch {
-          outcome = "failed";
+          ok = false;
         }
 
-        const ok = outcome === "success";
         setProgress((prev) =>
           prev
             ? {
@@ -68,9 +48,7 @@ export function BatchProcessButton({ dossiers }: { dossiers: BatchDossier[] }) {
             : null
         );
         toast({
-          title: ok
-            ? `✓ ${dossierLabel(d)} analyzed`
-            : `✗ ${dossierLabel(d)} failed`,
+          title: ok ? `✓ ${dossierLabel(d)} analyzed` : `✗ ${dossierLabel(d)} failed`,
           variant: ok ? "default" : "destructive",
           duration: 5000,
         });
@@ -93,9 +71,7 @@ export function BatchProcessButton({ dossiers }: { dossiers: BatchDossier[] }) {
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
             <div
               className="h-1.5 rounded-full bg-primary transition-all duration-300"
-              style={{
-                width: `${Math.round((progress.completed / progress.total) * 100)}%`,
-              }}
+              style={{ width: `${Math.round((progress.completed / progress.total) * 100)}%` }}
             />
           </div>
           <p className="text-right text-xs text-muted-foreground">
