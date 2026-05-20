@@ -1,130 +1,124 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { extractSqm, resolveModel } from '../src/lib/sqm-extractor.mjs';
-import { compareExtraction, formatComparison } from '../src/lib/benchmark-compare.mjs';
+import { execSync } from 'child_process';
 
-const API_KEY = readFileSync('C:\\Users\\tieme\\Documents\\Claude\\Projects\\BuildCost\\.env.local', 'utf-8')
-  .match(/BUILDCOST_ANTHROPIC_KEY=(.+)/)?.[1]?.trim();
-
-const modelId = resolveModel('sonnet');
-
-const DOSSIERS = [
-  {
-    name: 'Commercial',
-    dir: 'output/benchmark/commercial',
-    images: ['p14', 'p15'],
-    context: `Commercial building (winkel + burelen + opslag). 3 floors, no basement.
-Ground floor: retail space (winkel). Floor 1: retail + offices (burelen). Floor 2: storage (opslag).
-Simple rectangular building, no apartments.`,
-  },
-  {
-    name: 'Die Prince',
-    dir: 'output/benchmark/die-prince',
-    images: ['p36', 'p6', 'p37-left', 'p37-right', 'p38-top-left', 'p38-bottom-left', 'p38-right', 'p39-top-left', 'p39-bottom-left', 'p39-right'],
-    context: `Appartementsgebouw "DIE PRINCE", Oostende. 9 bouwlagen + kelder.
-Plans have BO annotations per unit (e.g., "app 07A BO 104,3 m²") — READ these directly.
-Kelder has NO parking garage — bergingen, technical rooms, fietsberging, afvalberging.
-Garages are on the ground floor (not underground).
-Floors 1-8: 2 apartments per floor + common areas (kern). Floor 9: 1 duplex penthouse.
-p36 = kelder. p6 = situatieplan. p37 = gelijkvloers. p38-p41 = apartment floors.
-Each landscape sheet may show LEFT = plan, RIGHT = detail or another floor.`,
-  },
-  {
-    name: 'Dossier 5 (Anna Monica)',
-    dir: 'output/benchmark/dossier-5',
-    images: ['p17', 'p18', 'p36', 'p37', 'p38', 'p39', 'p40', 'p41'],
-    context: `Residentie "Anna Monica". Apartment building with kelder (parkeergarage), 5 above-ground floors.
-Has autolift (car elevator) and regular lifts.
-Kelder: parkeergarage + bergingen + garages (525 m²).
-GV: small — mostly common areas + autoliftschacht.
-Floors 1-4: apartments + common areas.
-Some floors have dakterrassen (roof terraces) and balcons.`,
-  },
+const TESTS = [
+  { script: 'test-54024.mjs', label: 'VICTORINE' },
+  { script: 'test-54207.mjs', label: 'DIE PRINCE' },
+  { script: 'test-54222.mjs', label: 'LA TACHE' },
+  { script: 'test-54628.mjs', label: 'BARON DE L' },
+  { script: 'test-54679-33.mjs', label: 'DORENBOSBEEK' },
+  { script: 'test-54679-31.mjs', label: 'SANGLIER' },
+  { script: 'test-54683.mjs', label: 'Rusthuis Stockel' },
+  { script: 'test-54756-061.mjs', label: 'HOOST' },
+  { script: 'test-54756-037.mjs', label: 'Knokke duplex' },
+  { script: 'test-55271.mjs', label: 'HAPPY TIMES' },
+  { script: 'test-54723.mjs', label: 'Maurice' },
+  { script: 'test-55302-020.mjs', label: 'OCMW Lint' },
+  { script: 'test-55308.mjs', label: 'Dorp 59' },
+  { script: 'test-54204.mjs', label: 'VICTOR VICTORIA' },
+  { script: 'test-55192.mjs', label: 'VIERHOEKHOEVE' },
+  { script: 'test-51660.mjs', label: 'NOLA' },
+  { script: 'test-53709.mjs', label: 'FRASCATI' },
+  { script: 'test-dossier4.mjs', label: 'Anna Monica' },
+  { script: 'test-54728.mjs', label: 'Aalter' },
+  { script: 'test-54756-022.mjs', label: 'MURANO' },
+  { script: 'test-dossier3.mjs', label: 'Prestige I' },
+  { script: 'test-54011.mjs', label: 'DOBBELSTEEN' },
+  { script: 'test-54018.mjs', label: 'Wiekevorst' },
+  { script: 'test-55355.mjs', label: 'LUKOR' },
 ];
 
-console.log(`\n${'='.repeat(70)}`);
-console.log(`  BENCHMARK: v4e prompt on Sonnet (${modelId})`);
-console.log(`${'='.repeat(70)}\n`);
+const startFrom = parseInt(process.argv.find(a => a.startsWith('--start='))?.split('=')[1] || '0');
+const only = process.argv.find(a => a.startsWith('--only='))?.split('=')[1];
 
 const results = [];
-let totalCost = 0;
+const testsToRun = only
+  ? TESTS.filter(t => t.label.toLowerCase().includes(only.toLowerCase()))
+  : TESTS.slice(startFrom);
 
-for (const dossier of DOSSIERS) {
-  const expertPath = `${dossier.dir}/expert-breakdown.json`;
-  if (!existsSync(expertPath)) {
-    console.log(`⚠ ${dossier.name}: no expert-breakdown.json, skipping\n`);
-    continue;
-  }
+console.log(`\n${'='.repeat(70)}`);
+console.log(`V9 FULL BENCHMARK — ${testsToRun.length} dossiers`);
+console.log(`${'='.repeat(70)}\n`);
 
-  const expert = JSON.parse(readFileSync(expertPath, 'utf-8'));
-  const images = dossier.images.map(name => ({
-    name,
-    png: `${dossier.dir}/pages/${name}.png`
-  })).filter(img => existsSync(img.png));
-
-  if (images.length === 0) {
-    console.log(`⚠ ${dossier.name}: no images found, skipping\n`);
-    continue;
-  }
-
-  console.log(`--- ${dossier.name} (${images.length} images) ---`);
+for (let i = 0; i < testsToRun.length; i++) {
+  const t = testsToRun[i];
+  const num = startFrom + i + 1;
+  console.log(`\n[${num}/${TESTS.length}] ${t.label} (${t.script})`);
+  console.log('─'.repeat(50));
 
   try {
-    const result = await extractSqm(images, modelId, {
-      apiKey: API_KEY,
-      context: dossier.context,
-      timeoutMs: 300_000,
+    const output = execSync(`node scripts/${t.script}`, {
+      timeout: 400_000,
+      encoding: 'utf-8',
+      cwd: process.cwd(),
     });
 
-    totalCost += result.costUsd;
-    const aiTotal = result.extraction?.project_totals?.total_enclosed_sqm || 0;
-    const aiTerraces = result.extraction?.project_totals?.total_terraces_sqm || 0;
-    const expTotal = expert.total_enclosed_sqm;
-    const expTerraces = expert.total_terraces_sqm;
-    const dev = expTotal > 0 ? ((aiTotal - expTotal) / expTotal * 100).toFixed(1) : 'N/A';
+    const totalMatch = output.match(/Total: (\d+(?:\.\d+)?) m² vs expert (\d+(?:\.\d+)?) m² \(([+-]?\d+(?:\.\d+)?)%\)/);
+    const costMatch = output.match(/Cost: \$(\d+\.\d+)/);
+    const timeMatch = output.match(/Done in (\d+\.\d+)s/);
 
-    console.log(`  AI: ${aiTotal} m² enclosed, ${aiTerraces} m² terraces`);
-    console.log(`  Expert: ${expTotal} m² enclosed, ${expTerraces} m² terraces`);
-    console.log(`  Deviation: ${dev}%  |  Cost: $${result.costUsd}  |  ${(result.processingTimeMs/1000).toFixed(0)}s`);
-
-    // Per-building comparison
-    const comparison = compareExtraction(result.extraction, expert);
-    console.log(formatComparison(comparison));
-
-    results.push({
-      name: dossier.name,
-      aiTotal,
-      aiTerraces,
-      expTotal,
-      expTerraces,
-      deviation: parseFloat(dev),
-      cost: result.costUsd,
-      time: result.processingTimeMs,
-    });
-
-    writeFileSync(
-      `${dossier.dir}/result-v4e.json`,
-      JSON.stringify(result, null, 2)
-    );
+    if (totalMatch) {
+      const [, aiTotal, expertTotal, devPct] = totalMatch;
+      results.push({
+        label: t.label,
+        aiTotal: parseFloat(aiTotal),
+        expertTotal: parseFloat(expertTotal),
+        devPct: parseFloat(devPct),
+        cost: parseFloat(costMatch?.[1] || '0'),
+        time: parseFloat(timeMatch?.[1] || '0'),
+        status: 'OK',
+      });
+      const icon = Math.abs(parseFloat(devPct)) < 1 ? '✓' : Math.abs(parseFloat(devPct)) < 5 ? '≈' : '✗';
+      console.log(`  ${icon} ${devPct}% (${aiTotal} vs ${expertTotal} m²) — ${timeMatch?.[1] || '?'}s, $${costMatch?.[1] || '?'}`);
+    } else if (output.includes('no expert') || output.includes('NO expert') || !output.includes('vs expert')) {
+      results.push({ label: t.label, status: 'NO_EXPERT' });
+      console.log(`  — No expert comparison data`);
+    } else {
+      results.push({ label: t.label, status: 'PARSE_ISSUE', output: output.slice(-200) });
+      console.log(`  ⚠ Could not parse results`);
+    }
   } catch (err) {
-    console.log(`  ERROR: ${err.message}`);
-    results.push({ name: dossier.name, error: err.message });
+    const timedOut = err.message?.includes('ETIMEDOUT') || err.status === null;
+    results.push({
+      label: t.label,
+      status: timedOut ? 'TIMEOUT' : 'ERROR',
+      error: err.message?.slice(0, 100)
+    });
+    console.log(`  ✗ ${timedOut ? 'TIMEOUT' : 'ERROR'}: ${err.message?.slice(0, 100)}`);
   }
-
-  console.log('');
 }
 
-// Summary table
 console.log(`\n${'='.repeat(70)}`);
-console.log('  SUMMARY');
-console.log(`${'='.repeat(70)}`);
-console.log(`  ${'Dossier'.padEnd(25)} ${'AI'.padStart(8)} ${'Expert'.padStart(8)} ${'Dev'.padStart(8)} ${'Cost'.padStart(8)}`);
-console.log(`  ${'-'.repeat(57)}`);
+console.log(`V9 BENCHMARK SUMMARY`);
+console.log(`${'='.repeat(70)}\n`);
+
+const okResults = results.filter(r => r.status === 'OK');
+const perfect = okResults.filter(r => Math.abs(r.devPct) < 1);
+const good = okResults.filter(r => Math.abs(r.devPct) >= 1 && Math.abs(r.devPct) < 5);
+const bad = okResults.filter(r => Math.abs(r.devPct) >= 5);
+const failed = results.filter(r => r.status === 'ERROR' || r.status === 'TIMEOUT');
+
+console.log(`  Perfect (< 1%): ${perfect.length}`);
+console.log(`  Good (1-5%):    ${good.length}`);
+console.log(`  Off (> 5%):     ${bad.length}`);
+console.log(`  Failed:         ${failed.length}`);
+console.log(`  No expert:      ${results.filter(r => r.status === 'NO_EXPERT').length}`);
+console.log('');
+
+console.log(`  ${'Dossier'.padEnd(22)} ${'Dev%'.padStart(8)} ${'AI'.padStart(7)} ${'Expert'.padStart(7)} ${'Time'.padStart(6)} ${'Cost'.padStart(7)}`);
+console.log(`  ${'─'.repeat(57)}`);
+
 for (const r of results) {
-  if (r.error) {
-    console.log(`  ${r.name.padEnd(25)} ERROR: ${r.error}`);
+  if (r.status === 'OK') {
+    const icon = Math.abs(r.devPct) < 1 ? '✓' : Math.abs(r.devPct) < 5 ? '≈' : '✗';
+    const dev = (r.devPct > 0 ? '+' : '') + r.devPct + '%';
+    console.log(`  ${icon} ${r.label.padEnd(20)} ${dev.padStart(8)} ${String(r.aiTotal).padStart(7)} ${String(r.expertTotal).padStart(7)} ${(r.time.toFixed(0) + 's').padStart(6)} $${r.cost.toFixed(4)}`);
+  } else if (r.status === 'NO_EXPERT') {
+    console.log(`  — ${r.label.padEnd(20)} (no expert data)`);
   } else {
-    const icon = Math.abs(r.deviation) < 10 ? '✓' : Math.abs(r.deviation) < 20 ? '≈' : '✗';
-    console.log(`${icon} ${r.name.padEnd(25)} ${String(r.aiTotal).padStart(8)} ${String(r.expTotal).padStart(8)} ${(r.deviation >= 0 ? '+' : '') + r.deviation + '%'.padStart(7)} $${r.cost.toFixed(3).padStart(7)}`);
+    console.log(`  ✗ ${r.label.padEnd(20)} ${r.status}`);
   }
 }
-console.log(`\n  Total API cost: $${totalCost.toFixed(4)}`);
+
+const totalCost = okResults.reduce((s, r) => s + r.cost, 0);
+const totalTime = okResults.reduce((s, r) => s + r.time, 0);
+console.log(`\n  Total: $${totalCost.toFixed(4)} / ${(totalTime / 60).toFixed(1)} min`);
