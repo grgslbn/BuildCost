@@ -1,7 +1,7 @@
-# SQM Extraction Prompt — v5
+# SQM Extraction Prompt — v7
 
-> **Use this prompt with Claude Vision (Sonnet 4) to extract m² data from building plans.**
-> **v5: Floor-plate measurement (outer wall perimeter per floor), not room-by-room. Bruto m² = buitenmuren inbegrepen, incl. inpandige terrassen, excl. balkons.**
+> **Use this prompt with Claude Vision (Sonnet 4.6) to extract m² data from building plans.**
+> **v7: Mezzanine/duplex grouped with parent floor (not separate floor plates). Loggia = enclosed. Mixed-scale calibration per plan. Strict output format: JSON only, no reasoning in measurement field.**
 
 ## System Prompt
 
@@ -58,13 +58,22 @@ WHAT IS INCLUDED in bruto m²:
 - All rooms (private and common)
 - All interior and exterior wall thickness
 - Circulation: corridors, stairwells, elevator shafts
-- Inpandige terrassen (covered terraces/loggias that are WITHIN the building envelope — they have walls on 3 sides and a ceiling above)
+- Inpandige terrassen / loggias: covered terraces WITHIN the building envelope
+  → They have walls on 3 sides and a ceiling (= the floor of the level above)
+  → CRITICAL: if a plan annotation shows "terras 3.00m + enclosed 11.00m + terras 4.00m = 18.00m total", 
+    and the thick outer wall boundary of the building runs at 18.00m (not 11.00m), then those 
+    terraces are WITHIN the outer wall → they are inpandige terrassen → INCLUDE in floor_total_sqm
+  → HOW TO TELL: if the floor ABOVE has the same full width (including terrace zones), the terrace 
+    has a ceiling → it is inpandig (loggia) → enclosed. If the terrace has NO ceiling (it's on the 
+    top floor or the floor above is setback), it is a dakterras → balkons_sqm.
+  → RULE: measure the OUTER WALL perimeter (thickest boundary), not the "enclosed" sub-annotation
 
 WHAT IS EXCLUDED from bruto m² (tracked separately as balkons_sqm):
-- Balkons: open balconies that PROJECT BEYOND the outer wall line
-- Dakterrassen: open roof terraces on top of a lower floor (they are outside the upper floor's walls)
+- Balkons: open balconies that PROJECT BEYOND the outer wall line (cantilevered or supported, with NO ceiling or only a shallow overhang)
+- Dakterrassen: open roof terraces on top of a lower floor (they are outside the upper floor's walls, no ceiling)
 - Terrassen at grade: ground-floor outdoor terraces/patios OUTSIDE the building walls
 - Stadstuinen / tuinen: gardens and landscaped outdoor areas
+- SMALL projecting balkons (0.50m-1.50m deep): these project beyond the facade → balkons_sqm
 
 HOW TO IDENTIFY OUTDOOR SPACES ON PLANS:
 - They are OUTSIDE the thick building walls (exterior side)
@@ -130,11 +139,25 @@ CRITICAL RULES:
 
 7. UNITS: All areas in m² (whole numbers for floor totals). All lengths in meters (2 decimals).
 
-8. HOW TO DETERMINE FLOOR AREA — PRIORITY:
-   1. BO annotations on the plan (e.g., "BO 280 m²" for a floor) → use directly
-   2. Written BUILDING wall dimensions (dimension lines pointing to the thick outer walls) → multiply for floor area
-   3. Sum of BO-labeled units + common areas on that floor → use if individual BO labels exist
-   4. Calibrated pixel measurement of the outer wall perimeter → measure building length × width
+8. HOW TO DETERMINE FLOOR AREA — DEPENDS ON PLAN TYPE:
+   
+   PLANS WITH PER-UNIT BO LABELS (e.g., "App 07A BO 104,3 m²"):
+   PRIMARY: BO sum + common areas
+   - Sum all BO labels visible on this floor
+   - Add common areas (10-15 m² typical floor, 25-40 m² for GV)
+   - This is your floor_total_sqm
+   - CROSS-CHECK: outer wall measurement should be within ±15% of BO+common
+   
+   PLANS WITHOUT BO LABELS (only dimensions or unannotated):
+   PRIMARY: Written outer wall dimensions from plan
+   FALLBACK: Calibrated pixel measurement of outer wall perimeter
+   
+   WHY: BO labels are officially measured bruto values, typically more accurate than visual outer-wall measurement on irregular buildings. They already include wall thickness. When per-unit BO labels are visible, USE THEM — they are the ground truth.
+   
+   DUPLEX/SPLIT-LEVEL FLAGGING:
+   - BO < ~50 m² for "2-slpk" or BO > ~150 m² on typical floor → likely duplex/split-level
+   - The full duplex BO may be shown on one floor with the unit spanning two
+   - For each floor, count the visible portion of the unit (often half the BO)
    
    WARNING — DIMENSION TYPES ON BELGIAN PLANS:
    Plans often show MULTIPLE dimension chains at different distances from the building:
@@ -143,23 +166,68 @@ CRITICAL RULES:
    - FURTHEST: property/lot dimensions (kavelmaten, perceelmaten) — these are LARGER and must NOT be used
    
    The building dimension chain runs along the outer face of the thick walls. Property dimensions run along the property boundary (thinner/dashed lines further from the building).
+
+9. SPLIT-LEVEL / MEZZANINE / DUPLEX APARTMENTS — CRITICAL FOR CORRECT FLOOR COUNT:
+   Some apartments span TWO floors (duplex) or have internal mezzanines (half-floors).
    
-   For each floor, add a "measurement" field showing HOW you determined the area.
+   HOW TO RECOGNIZE:
+   - Multiple "Niveau" numbers on one plan sheet (e.g., Niveau 540 and Niveau 560)
+   - Internal stairs within an apartment connecting sub-levels
+   - Plan labels containing "mezzanine", "tussenverdieping", "split-level"
+   - BO annotation unusually large (e.g., 178 m² on a typical floor) — full duplex area on one plan
    
-   If the plan has BO annotations per apartment (e.g., "app 07A BO 104,3 m²"), you can sum those + common areas for the floor total. But CROSS-CHECK against the outer wall measurement.
+   CRITICAL RULE — BOUWLAGEN, NOT PHYSICAL SUB-LEVELS:
+   The Berekening counts BOUWLAGEN (full stories), not physical sub-levels.
+   A duplex apartment occupies ONE bouwlaag (the building footprint counted once),
+   even though it has an internal mezzanine or split-level within the double-height space.
+   
+   HOW TO HANDLE:
+   - Count each BOUWLAAG only once at the full building footprint
+   - DO NOT create separate floor entries for mezzanine sub-levels within a duplex
+   - If plans show 3 main floors + 4 mezzanines = 7 physical levels, report only 3 floors
+   - Group the mezzanine area with its parent floor — the floor_total_sqm is the full footprint, counted once
+   - Note in contents: "duplex with mezzanine" but do NOT add the mezzanine as a separate floor
+   
+   EXAMPLE: Building with floors -1, GVL, V1, V2, V3. V1-V3 each have duplex apartments
+   with mezzanines at intermediate Niveaux. Report ONLY 5 floors (-1, 0, 1, 2, 3),
+   each at the full building footprint. Do NOT report 8 floors with mezzanines as separate entries.
+   
+   VALIDATION: If the context specifies a number of bouwlagen or floors (e.g., "3 floors × 200 m²"),
+   your floor count MUST match. If you have MORE floor entries than the context specifies,
+   you are probably counting sub-levels as separate bouwlagen — merge them.
+   Also: if a plan sheet shows an apartment at a high Niveau number (e.g., Niv.1600) but
+   the context groups it with lower floors, it is a duplex upper level, not a new bouwlaag.
 
-9. SPLIT-LEVEL / MEZZANINE APARTMENTS:
-   Some apartments span TWO half-floors connected by an internal staircase.
-   How to recognize: multiple "niveaux" numbers on one sheet, internal stair within apartment.
-   How to handle: these sub-levels share ONE floor plate. Measure the outer wall once — it covers both sub-levels. Map to a single floor entry.
+10. WHEN ANNOTATIONS ARE NOT READABLE — DISCIPLINE:
+   If a dimension annotation is not clearly readable on the image:
+   - DO NOT estimate the dimension by visual proportion
+   - DO use calibrated pixel measurement (interior door = 80cm, parking spot = 2.50×5.00m) as fallback
+   - SET scale_confidence < 0.7 for that floor
+   - FLAG in extraction_warnings: "Floor X dimension not annotated, measured by pixel calibration"
+   
+   Never invent dimensions. "Estimated from plan proportions" is not acceptable — use a calibrated reference instead.
 
-10. LANDSCAPE SHEETS & MULTI-PAGE: Process ALL pages. A single landscape sheet may show 2-3 floor plans side by side — these are DIFFERENT LEVELS, not separate buildings. Measure each plan's outer wall boundary separately.
+11. LANDSCAPE SHEETS & MULTI-PAGE: Process ALL pages. A single landscape sheet may show 2-3 floor plans side by side — these are DIFFERENT LEVELS, not separate buildings. Measure each plan's outer wall boundary separately.
 
-11. INFRASTRUCTURE: Count ALL elevators (liften). Note fietsenstalling area. Note number of apartments per floor.
+11b. MIXED SCALES ON SAME SHEET — CRITICAL:
+   Some plan sets have DIFFERENT SCALES on the same sheet or across pages (e.g., kelder at 1:100, apartments at 1:50).
+   - Calibrate each plan INDEPENDENTLY — do NOT assume the same px/m ratio applies to all plans on a sheet
+   - A door that measures 40px on a 1:50 plan = 80cm, but 40px on a 1:100 plan = 160cm (wrong!)
+   - INDICATOR: if one plan appears to be drawn at double size compared to another on the same sheet, they likely have different scales
+   - Flag mixed scales in extraction_warnings: "p8 at 1:50, p11 at 1:100 — calibrated separately"
 
-12. PRECISION: Measure from the plans as precisely as possible. Do not round up or add safety margins. Report what you measure, flag what you're uncertain about.
+12. INFRASTRUCTURE: Count ALL elevators (liften). Note fietsenstalling area. Note number of apartments per floor.
 
-13. List any uncertainties in extraction_warnings.
+13. PRECISION: Measure from the plans as precisely as possible. Do not round up or add safety margins. Report what you measure, flag what you're uncertain about.
+
+14. OUTPUT FORMAT — STRICT:
+   - Return ONLY valid JSON. No prose before or after.
+   - The "measurement" field MUST be SHORT (max 80 characters). Format: "outer walls: L × W = area" or "irregular: zone A (L×W=area) + zone B (L×W=area) = total". 
+   - NO narrative reasoning in measurement field. NO sentences. NO explanations of why you chose dimensions.
+   - All reasoning belongs in extraction_warnings (one short line per warning, max 100 chars each).
+   - The "contents" field MUST be SHORT (max 120 characters). Brief comma-separated list.
+
+15. List any uncertainties in extraction_warnings.
 ```
 
 ## User Prompt
@@ -235,14 +303,38 @@ FLOOR MEASUREMENT — THE CORE TASK:
 For each floor, measure the OUTER WALL PERIMETER and calculate the enclosed area.
 - floor_total_sqm = area within outer walls (bruto m², buitenmuren inbegrepen)
 - balkons_sqm = balconies projecting BEYOND the outer wall line (tracked separately)
-- measurement = show your work: "outer walls: L × W = area" or "BO annotations sum: X + Y = total"
-- contents = brief description of what's on the floor (for context, not for area calculation)
+- measurement = SHORT formula only. Max 80 chars. Examples: "outer walls: 11.5m × 24.3m = 280 m²" or "irregular: 12×11 + 5×8÷2 = 152 m²". NO reasoning, NO explanations, NO sentences.
+- contents = brief comma list of what's on the floor. Max 120 chars.
 
-HOW TO MEASURE floor_total_sqm:
-1. If BO annotation exists for the entire floor → use it
-2. If BO annotations exist per unit (e.g., "app 07A BO 104,3 m²") → sum all units + common areas on that floor
-3. If outer wall dimensions are written on the plan → multiply length × width
-4. Otherwise → calibrate scale from reference objects, then measure the outer wall dimensions in pixels
+HOW TO MEASURE floor_total_sqm — PER PLAN TYPE:
+
+CASE A — Per-unit BO/BVO labels are visible on the plan (e.g., "App 07A BO 104,3 m²"):
+1. Sum all visible BO labels on this floor
+2. Add common areas: ~10-15 m² per floor for stairwell + lift + landing on typical floor; ~25-40 m² on GV with entrance hall + corridors
+3. floor_total_sqm = BO_sum + common
+4. CROSS-CHECK: measure outer walls. If outer walls are >15% LARGER than BO+common: extra unaccounted area, use outer walls. If outer walls are >15% SMALLER: your outer-wall measurement missed a zone — re-examine the irregular shape.
+5. WHY BO IS PRIMARY HERE: BO labels are officially measured bruto values — typically more accurate than visual outer-wall measurement on irregular buildings. Each unit's BO already includes wall thickness allocation.
+
+CASE B — No per-unit BO labels (just floor plans with dimensions or unannotated outlines):
+1. Read outer wall dimensions from plan annotations → L × W = area
+2. If no annotations, calibrate scale (door=80cm, parking=2.50×5.00m) and measure pixels
+3. For irregular shapes: decompose into sub-rectangles/trapezoids
+
+DUPLEX/SPLIT-LEVEL/MEZZANINE HANDLING — CRITICAL:
+The Berekening counts BOUWLAGEN (full stories), NOT physical sub-levels.
+A duplex apartment with an internal mezzanine occupies ONE bouwlaag, counted ONCE at the full building footprint.
+
+RULES:
+- DO NOT create separate floor entries for mezzanine sub-levels within duplex apartments
+- If plans show 3 main levels + 4 mezzanines = 7 physical levels → report ONLY 3 floors
+- Each floor = full building footprint, counted once
+- Mezzanines are noted in contents ("duplex with mezzanine") but NOT as separate floors
+- If context says "3 floors × 200 m² each" and plans show 7 physical sub-levels, report 3 floors at 200 m²
+
+BO LABEL FOR DUPLEX:
+- A BO that seems unusually large (e.g., 178 m²) likely covers BOTH sub-levels of the duplex
+- A BO that seems small (e.g., 45 m²) likely covers only one sub-level
+- Use the full building footprint per bouwlaag, not the per-sub-level BO
 
 For IRREGULAR floor plans (L-shape, U-shape, trapezoidal, angular):
 - FIRST check: is the building rectangular? If ANY wall is diagonal or the shape has >4 corners → decompose
@@ -266,10 +358,16 @@ CRITICAL INSTRUCTIONS:
 3. STEPPED BUILDINGS: Upper floors may be SMALLER than the ground floor. Measure each floor's outer walls independently. Do NOT copy the GV area to upper floors.
 
 4. BALKONS & OUTDOOR SPACES — MEASURE ALL OF THEM:
-   - Inpandige terrassen (loggias, covered terraces WITHIN the building envelope) → INCLUDED in floor_total_sqm
-   - Balkons (open balconies PROJECTING beyond the facade) → balkons_sqm (separate)
-   - Dakterrassen (open roof terraces on top of lower floor) → balkons_sqm of the floor they belong to
+   - Inpandige terrassen / loggias (covered terraces WITHIN the outer wall boundary, ceiling above) → INCLUDED in floor_total_sqm
+   - Balkons (open balconies PROJECTING beyond the outer wall, cantilevered, no ceiling) → balkons_sqm (separate)
+   - Dakterrassen (open roof terraces on top of lower floor, no ceiling) → balkons_sqm of the floor they belong to
    - Ground-floor terrassen, tuinen, stadstuinen (outdoor areas at grade) → balkons_sqm of floor 0
+   
+   LOGGIA vs BALKON — HOW TO TELL:
+   - If the terrace zone is WITHIN the thick outer wall boundary AND has a ceiling (floor above at same width) → LOGGIA → enclosed
+   - If the terrace PROJECTS beyond the thick outer wall boundary OR has no ceiling → BALKON → balkons_sqm
+   - Plan annotations like "terras 3m + enclosed 11m + terras 4m" do NOT mean the terraces are balkons — check if they are within the outer wall
+   - Small projecting balkons (0.50-1.50m deep, cantilevered from facade) → always balkons_sqm
    
    IMPORTANT: Experts track ALL outdoor spaces. Missing balkons/terraces is as bad as missing enclosed area.
    Look for outdoor spaces on EVERY floor, especially:
@@ -277,14 +375,22 @@ CRITICAL INSTRUCTIONS:
    - Upper floors: projecting balkons, recessed loggias vs true balkons
    - Stepped-back floors: large dakterrassen on the roof of the wider floor below
 
-5. SPLIT-LEVEL APARTMENTS: Sub-levels connected by internal stairs share ONE floor plate. Measure the outer wall once. Map to a single floor entry.
+5. SPLIT-LEVEL / MEZZANINE APARTMENTS: Sub-levels connected by internal stairs share ONE bouwlaag. Measure the outer wall once. Map to a SINGLE floor entry (not two). A building with 3 main floors and internal mezzanines = 3 floor entries, not 6+.
 
-6. READ ANNOTATIONS: If dimensions or BO labels are on the plan, USE THEM. Don't estimate when exact numbers exist.
-   Priority: BO floor annotation > sum of BO unit labels > written wall dimensions > pixel measurement
+6. READ ANNOTATIONS: If outer-wall dimensions or floor-BO labels are on the plan, USE THEM.
+   Priority: Written outer wall dimensions > floor-level BO annotation > pixel measurement
+   Per-unit BO labels are CROSS-CHECK ONLY (see priority section above for why).
 
-7. PRECISION: Do not round up or add safety margins. Report what you measure.
+7. NEVER ESTIMATE DIMENSIONS BY VISUAL PROPORTION:
+   If you cannot read an annotation, use calibrated pixel measurement (door=80cm, parking=2.50×5.00m).
+   Phrases like "estimated from plan proportions" are NOT acceptable.
+   If dimension is unreadable AND no calibration reference is visible, set scale_confidence < 0.6 and FLAG.
 
-8. List uncertainties in extraction_warnings.
+8. PRECISION: Do not round up or add safety margins. Report what you measure.
+
+9. OUTPUT FORMAT: JSON only. Short measurement strings (max 80 chars). No narrative in JSON fields.
+
+10. List uncertainties in extraction_warnings (one short line each, max 100 chars).
 
 Return ONLY the JSON. No markdown, no explanation.
 ```
@@ -382,3 +488,5 @@ For each test plan, verify:
 | v5 | 2026-05-19 | **FLOOR-PLATE measurement** — measure outer wall perimeter per floor, not room-by-room. Bruto m² = buitenmuren inbegrepen, incl. inpandige terrassen, excl. balkons. Property boundary vs building wall warning. | Prestige I: **+2.6% total**, 11/12 floors at 0% deviation. Kelder 0%, GV 0%, floors 1-9 all 0%. Only penthouse +50% (dakterras not deducted). 2× faster, 40% cheaper. |
 | v5b | 2026-05-19 | **Irregular building shapes** — decompose into sub-rectangles/triangles/trapezoids for non-rectangular footprints. Area reasonableness check vs apartment count. Outdoor space detection improved: ground-floor terrassen, stadstuinen, dakterrassen all tracked as balkons_sqm. | Anna Monica (irregular): -7.7% total (V1/V2 at +0.3%, kelder -28%, balkons -3%). REQUIRES: hires images (3500px JPG), temperature=0. Reproducible across runs. |
 | v5b notes | 2026-05-19 | **Anti-pattern documented**: Adding "kelder may be larger than GV" guidance causes AI to over-correct on above-ground floors (subtracts outdoor terraces too aggressively). Each prompt iteration swings the balance. Current state: AI applies same outline to floors -1 to 2; correctly shrinks for stepped V3. Kelder under-measurement is an accepted limitation. | — |
+| v6 | 2026-05-19 | **Tuned for Sonnet 4.6**: BO-primary when per-unit BO labels are visible (BO sum + common = floor area). Outer walls primary when no BO labels. Explicit duplex/split-level handling. Strict output format (max 80 char measurement, no narrative in JSON). | Anna Monica: -4.5% (kelder -1%!). MURANO: -6.3%. Prestige I: -20.7% (loggia/balkons classification regression). Avg abs error 10.5% vs v5b/Sonnet4 12.0%. |
+| v7 | 2026-05-20 | **Three fixes from 24-dossier benchmark**: (1) Mezzanine/duplex grouping — count bouwlagen not physical sub-levels, group mezzanines with parent floor (fixes +80% on Knokke duplex). (2) Loggia classification — inpandige terrassen with ceiling = enclosed, not balkons (fixes -20.7% on Prestige I). (3) Mixed-scale calibration — calibrate each plan independently when scales differ (helps -32% on DOBBELSTEEN). | Testing... |
