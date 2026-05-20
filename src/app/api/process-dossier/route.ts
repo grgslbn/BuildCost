@@ -13,7 +13,7 @@ import { extractMetadata } from "@/lib/pdf/extract-metadata";
 import { evaluateDiscoveries } from "@/lib/qqp/discovery-engine";
 import { shouldAutoCalibrate, calibrateWeights } from "@/lib/qqp/weight-calibration";
 import { logApiCall } from "@/lib/ai/log-api-call";
-import { categorizeAreas } from "@/lib/cost/area-categories";
+import { categorizeAreas, getTotalGrossSqm, getUnitCount, getBuildingType } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type { PageClassification } from "@/lib/pdf/classify-pages";
@@ -318,31 +318,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Apartment building detection ──────────────────────────────────────────
-    const sqmSummary = (sqmExtraction.summary ?? {}) as Record<string, unknown>;
-    const sqmBuildingPrimary = ((sqmExtraction.building_type ?? {}) as Record<string, unknown>).primary as string | undefined;
-    const sqmApartmentCount = sqmSummary.apartment_count as number | null | undefined;
+    // ── Apartment building detection (supports v11b + legacy) ───────────────
+    const sqmBuildingType = getBuildingType(sqmExtraction);
+    const sqmUnitCount = getUnitCount(sqmExtraction);
     const isApartmentBuilding =
-      sqmBuildingPrimary === "apartment_building" ||
-      (sqmApartmentCount != null && sqmApartmentCount > 1) ||
+      sqmBuildingType === "apartment_building" ||
+      (sqmUnitCount != null && sqmUnitCount > 1) ||
       dossier.building_type === "apartment_building";
 
     // ── Backfill flat columns from sqm_extraction if metadata extraction missed them ──
     {
       const backfill: Record<string, unknown> = {};
-      const sqmLivable = sqmSummary.total_livable_sqm as number | null;
-      const sqmReplacement =
-        (sqmSummary.total_replacement_value_incl_vat_eur as number | null) ??
-        (sqmSummary.total_replacement_value_eur as number | null);
+      const sqmGross = getTotalGrossSqm(sqmExtraction);
 
-      if (!dossier.building_type && sqmBuildingPrimary)
-        backfill.building_type = sqmBuildingPrimary;
-      if (!dossier.known_total_sqm && sqmLivable && sqmLivable > 0)
-        backfill.known_total_sqm = sqmLivable;
-      if (!dossier.known_total_price && sqmReplacement && sqmReplacement > 0)
-        backfill.known_total_price = sqmReplacement;
+      if (!dossier.building_type && sqmBuildingType)
+        backfill.building_type = sqmBuildingType;
+      if (!dossier.known_total_sqm && sqmGross && sqmGross > 0)
+        backfill.known_total_sqm = sqmGross;
 
-      const effectivePrice = (backfill.known_total_price as number | undefined) ?? dossier.known_total_price;
+      const effectivePrice = dossier.known_total_price;
       const effectiveSqm = (backfill.known_total_sqm as number | undefined) ?? dossier.known_total_sqm;
       if (!dossier.known_price_per_sqm && effectivePrice && effectiveSqm && effectiveSqm > 0)
         backfill.known_price_per_sqm = effectivePrice / effectiveSqm;
@@ -354,7 +348,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isApartmentBuilding) {
-      const aptCount = sqmApartmentCount ?? dossier.apartment_count ?? null;
+      const aptCount = sqmUnitCount ?? dossier.apartment_count ?? null;
       await admin
         .from("reference_dossiers")
         .update({

@@ -67,8 +67,15 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Only include dossiers where SQM extraction produced meaningful surface data
+  // Supports both v11b (project_totals) and legacy (summary) format
   const dossiers = (rawDossiers ?? []).filter((d) => {
-    const summary = (d.sqm_extraction as { summary?: { total_gross_sqm?: number } } | null)?.summary;
+    const sqm = d.sqm_extraction as Record<string, unknown> | null;
+    if (!sqm) return false;
+    // v11b: check project_totals
+    const pt = sqm.project_totals as { total_cat1_sqm?: number; total_cat2_sqm?: number } | undefined;
+    if (pt) return ((pt.total_cat1_sqm ?? 0) + (pt.total_cat2_sqm ?? 0)) > 0;
+    // Legacy: check summary
+    const summary = sqm.summary as { total_gross_sqm?: number } | undefined;
     return summary?.total_gross_sqm != null && summary.total_gross_sqm > 0;
   });
 

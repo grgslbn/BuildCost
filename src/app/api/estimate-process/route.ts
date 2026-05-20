@@ -10,7 +10,7 @@ import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { classifyPages } from "@/lib/pdf/classify-pages";
 import { applyModelWeights, flattenQQPValues } from "@/lib/qqp/model-prediction";
 import { logApiCall } from "@/lib/ai/log-api-call";
-import { categorizeAreas } from "@/lib/cost/area-categories";
+import { categorizeAreas, getTotalGrossSqm, getBuildingType } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import type Anthropic from "@anthropic-ai/sdk";
@@ -347,17 +347,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const sqmSummary      = (sqmExtraction.summary ?? {}) as Record<string, unknown>;
-    const totalLivableSqm = (sqmSummary.total_livable_sqm as number) ?? null;
-    const totalGrossSqm   = (sqmSummary.total_gross_sqm   as number) ?? null;
-    const sqmBuildingType = ((sqmExtraction.building_type ?? {}) as Record<string, unknown>).primary as string | null;
+    // v11b+legacy compatible data extraction
+    const sqmBuildingType = getBuildingType(sqmExtraction);
+    const totalGrossSqm = getTotalGrossSqm(sqmExtraction);
+    // v11b doesn't separate livable from gross; cat1 = livable enclosed
+    const areasForDisplay = categorizeAreas(sqmExtraction);
+    const totalLivableSqm = areasForDisplay.cat1_sqm > 0 ? areasForDisplay.cat1_sqm : totalGrossSqm;
 
-    const floors = (sqmExtraction.floors as Array<{ rooms: Array<{ confidence: number }> }>) ?? [];
-    const allRoomConfs = floors.flatMap((f) => (f.rooms ?? []).map((r) => r.confidence ?? 0.7));
-    const sqmConfidence =
-      allRoomConfs.length > 0
+    // Confidence: v11b uses project-level scale_confidence; legacy uses per-room confidence
+    const v11bScaleConf = (sqmExtraction.project as Record<string, unknown> | undefined)?.scale_confidence as number | undefined;
+    const sqmConfidence = v11bScaleConf ?? (() => {
+      const floors = (sqmExtraction.floors as Array<{ rooms: Array<{ confidence: number }> }>) ?? [];
+      const allRoomConfs = floors.flatMap((f) => (f.rooms ?? []).map((r) => r.confidence ?? 0.7));
+      return allRoomConfs.length > 0
         ? allRoomConfs.reduce((a, b) => a + b, 0) / allRoomConfs.length
         : 0.7;
+    })();
 
     // ── QQP extraction ────────────────────────────────────────────────────────
     checkTimeout(startTime);

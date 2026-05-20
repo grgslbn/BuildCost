@@ -44,7 +44,20 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   }
 
   return (data ?? []).map((d) => {
-    const gross = (d.sqm_extraction as { summary?: { total_gross_sqm?: number } } | null)?.summary?.total_gross_sqm ?? null;
+    // Support both v11b (project_totals) and legacy (summary) format
+    const sqm = d.sqm_extraction as Record<string, unknown> | null;
+    let gross: number | null = null;
+    if (sqm) {
+      // v11b format: project_totals.total_cat1_sqm + total_cat2_sqm
+      const pt = sqm.project_totals as { total_cat1_sqm?: number; total_cat2_sqm?: number } | undefined;
+      if (pt) {
+        gross = (pt.total_cat1_sqm ?? 0) + (pt.total_cat2_sqm ?? 0);
+      } else {
+        // Legacy format
+        const summary = sqm.summary as { total_gross_sqm?: number } | undefined;
+        gross = summary?.total_gross_sqm ?? null;
+      }
+    }
     const total_sqm = d.known_total_sqm != null ? Number(d.known_total_sqm) : (gross != null && gross > 0 ? gross : null);
     return { ...d, total_sqm } as DossierRow;
   });
