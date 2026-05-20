@@ -20,8 +20,13 @@ Follow these phases IN ORDER:
 
 ═══ PHASE 1: EXTRACT ALL READABLE DATA ═══
 Before calculating ANY areas, scan ALL plan images and extract:
-  a) AREA ANNOTATIONS per floor: m² labels (BO labels like "BO 104,3 m²", room areas like "95.5m²")
-     → These are NETTO values (inside walls, excluding shared walls/circulation)
+  a) AREA ANNOTATIONS per floor — TWO types:
+     → BVO/BO labels (e.g., "BVO: 96.53m²", "BO 104,3 m²") = BRUTO per unit.
+       These include wall thickness to center of shared walls. Sum of all unit BVO + circulation BVO ≈ floor bruto.
+     → Room-level labels (e.g., "95.5m²" without BVO/BO prefix) = NETTO (inside room walls only).
+       These need a ratio correction to reach bruto.
+     → CRITICAL: also look for separately labeled CIRCULATION (e.g., "circulatie BVO: 17.35m²").
+       When circulation is labeled, add it to the sum. When it's NOT labeled, estimate it.
   b) DIMENSION ANNOTATIONS: outer wall measurement chains (e.g., "3066" = 30.66m, "1150" = 11.50m)  
      → These give BRUTO dimensions (outside face of outer walls)
   c) CALIBRATION REFERENCES: interior doors (~80cm), parking spots (2.50×5.00m), stairs (~90cm)
@@ -30,11 +35,14 @@ Before calculating ANY areas, scan ALL plan images and extract:
 IMPORTANT: Do NOT confuse building wall dimensions with PROPERTY BOUNDARY dimensions (kavelmaten/perceelgrens). Property boundary = thinner/dashed lines OUTSIDE building, dimensions are LARGER.
 
 ═══ PHASE 2: FIND ANCHOR FLOOR ═══
-Look for a floor where you have BOTH netto annotations AND bruto dimensions.
-  → bruto_netto_ratio = bruto_area / netto_sum
+Look for a floor where you have BOTH area annotations AND bruto dimensions.
+  → bruto_netto_ratio = bruto_area / annotation_sum
   → This ratio captures wall thickness + common area overhead for THIS specific building
   → Use this ratio for ALL floors where only one method is available
-  → If NO anchor floor exists (neither floor has both), use default ratio 1.15 (nieuwbouw) to 1.25 (oud gebouw)
+  → DEFAULTS when no anchor floor exists:
+    * Plans with BVO/BO labels + circulation labeled: ratio 1.00–1.05 (BVO is already bruto per unit)
+    * Plans with room-level labels only (no BVO prefix): ratio 1.10–1.20
+    * No annotations at all: use pixel measurement (Phase 3, Priority 3)
 
 ═══ PHASE 3: CALCULATE BRUTO PER FLOOR ═══
 For each floor, use the HIGHEST available method:
@@ -42,12 +50,17 @@ For each floor, use the HIGHEST available method:
   PRIORITY 1 — Dimension annotations exist:
     → Read outer wall L × W (or decompose irregular shape into zones)
     → This IS the bruto area. Confidence: HIGH.
-    → If area annotations also exist: cross-check. bruto / netto should ≈ ratio from Phase 2.
+    → If area annotations also exist: cross-check. They should be close.
 
-  PRIORITY 2 — Only area annotations exist (no readable outer wall dimensions):
-    → Sum all room/BO annotations = netto
-    → bruto = netto × bruto_netto_ratio (from anchor floor)
-    → Confidence: MEDIUM-HIGH (deterministic, based on readable text)
+  PRIORITY 2a — BVO/BO labels for all units + circulation labeled:
+    → Sum all BVO/BO labels + circulation BVO = floor bruto DIRECTLY
+    → No ratio needed — BVO already includes wall thickness
+    → Confidence: HIGH (deterministic, text-based, verified across expert dossiers)
+
+  PRIORITY 2b — Room-level labels only (no BVO/BO prefix, or circulation not labeled):
+    → Sum all room labels = netto
+    → bruto = netto × bruto_netto_ratio (from anchor floor, or default 1.10–1.20)
+    → Confidence: MEDIUM-HIGH (deterministic, but ratio is estimated)
 
   PRIORITY 3 — Neither annotations nor dimensions readable:
     → Calibrate scale from references (door=80cm, parking=2.50×5.00m)
@@ -59,7 +72,8 @@ For each floor, use the HIGHEST available method:
 
 MANDATORY: Every floor MUST have a measurement field showing the method used:
   - Dimensions: "dims: 11.5m × 24.3m = 280 m²"
-  - Annotations: "annot: BO 207+common 35 = 242 netto × 1.18 = 286 bruto"
+  - BVO sum: "BVO: 96.53+95.28+92.07+94.24+108.50+circ 31.27 = 518 m²"
+  - Annotations+ratio: "annot: rooms 242 netto × 1.08 = 261 bruto"
   - Pixels: "px: 11.5m × 24.0m = 276 m² (calibrated from doors)"
   - Irregular: "dims: zone A 12.0×11.5=138 + zone B 15.0×8.0=120 = 258 m²"
 
@@ -192,14 +206,17 @@ CRITICAL RULES:
 
 7. UNITS: All areas in m² (whole numbers for floor totals). All lengths in meters (2 decimals).
 
-8. BO LABELS AND ANNOTATIONS — PRACTICAL NOTES:
+8. BVO/BO LABELS AND ANNOTATIONS — PRACTICAL NOTES:
    
-   BO labels (e.g., "App 07A BO 104,3 m²") are per-unit bruto values. From a BUILDING perspective,
-   they are NETTO: they exclude shared walls between units, circulation, and common areas.
-   Use them in Phase 1 as area annotations → netto values for anchor ratio calculation.
+   BVO/BO labels (e.g., "BVO: 96.53m²", "App 07A BO 104,3 m²") are per-unit BRUTO values.
+   They include wall thickness up to the center line of shared walls.
+   When ALL units + circulation are separately labeled with BVO/BO:
+     → Sum them directly = floor bruto (ratio ~1.00). This is PRIORITY 2a — highest annotation-based method.
+   When only room-level labels exist (no BVO/BO prefix):
+     → These are netto → apply ratio. This is PRIORITY 2b.
    
-   COMMON AREA ESTIMATION (for cross-checking netto sums):
-   When calculating netto_sum from per-unit BO labels, add estimated common areas:
+   COMMON AREA ESTIMATION (only when circulation is NOT separately labeled):
+   If unit BVO labels exist but circulation has NO BVO label, estimate common areas:
      * 1-2 units: 10-15 m² (small stairwell + lift landing)
      * 3-4 units: 20-30 m² (corridor + stairwell + lift + entrance zone)
      * 5+ units: 30-50 m² (long corridor + stairwell + lift + dual access)
@@ -372,7 +389,8 @@ Find a floor with BOTH annotations AND dimensions.
 
 STEP 3 — BRUTO PER FLOOR (use highest available method):
   Priority 1: Dimension annotations → L × B = bruto
-  Priority 2: Area annotations only → netto_sum × ratio = bruto
+  Priority 2a: BVO/BO labels + circulation labeled → sum directly = bruto (no ratio needed)
+  Priority 2b: Room-level labels only → netto_sum × ratio = bruto
   Priority 3: Pixel measurement → calibrate + measure outer walls (LOW confidence)
   
   Identical floors → reuse EXACT same values. Do NOT re-measure.
@@ -438,16 +456,25 @@ CRITICAL INSTRUCTIONS:
    - DEFAULT RULE: Terrassen on INTERMEDIATE floors (not the topmost floor) where the floor ABOVE has the same or wider footprint → PRESUMED inpandige/loggia → cat1. Only classify as cat3 if CLEARLY cantilevered beyond the outer wall on the facade drawing or plan.
    
    IMPORTANT: Missing cat3 is as bad as missing enclosed area.
+   Terrassen can be LARGE (50-120m² per floor is common). Do NOT undercount.
    Look for outdoor spaces on EVERY floor, especially:
    - Ground floor: front/rear terraces, patios → cat3
    - Upper floors: projecting balkons → cat3, recessed loggias → cat1
    - Stepped-back floors: accessible dakterrassen on the roof of the wider floor below → cat3
+   
+   HOW TO FIND TERRASSEN ON PLANS:
+   - Look for "terras" or "balkon" text labels AND their BVO/m² annotations
+   - Look for areas OUTSIDE the thick walls but INSIDE the plan boundary (thin lines, hatching)
+   - Each apartment may have its OWN terrace — count ALL of them, not just the obvious ones
+   - Sum ALL individual terrace annotations per floor for cat3_sqm
+   - If terraces are drawn but NOT annotated: measure them by pixels (use calibrated scale)
 
 5. SPLIT-LEVEL / MEZZANINE APARTMENTS: Sub-levels connected by internal stairs share ONE bouwlaag. Measure the outer wall once. Map to a SINGLE floor entry (not two). A building with 3 main floors and internal mezzanines = 3 floor entries, not 6+.
 
 6. READ ALL ANNOTATIONS in Step 1 before calculating anything.
    Use the decision tree (Steps 1-4 above) to determine measurement method per floor.
-   BO labels are netto from building perspective — apply anchor ratio for bruto.
+   BVO/BO labels are BRUTO per unit — sum + circulation = floor bruto directly (Priority 2a).
+   Room-level labels without BVO/BO prefix are netto — apply ratio (Priority 2b).
 
 7. NEVER ESTIMATE DIMENSIONS BY VISUAL PROPORTION:
    If you cannot read an annotation, use calibrated pixel measurement (door=80cm, parking=2.50×5.00m).
@@ -563,4 +590,5 @@ For each test plan, verify:
 | v9 | 2026-05-20 | **Pixel calibration stabilization**: (1) Dual-reference calibration. (2) Snap to 0.50m. (3) Cross-check. (4) Reuse typical floor dims. | No regressions on stable dossiers. Non-deterministic cases NOT fixed: MURANO -8.8% (range -0.6/+12.3%), Prestige I +5.3% (range +0.7/+24.2%), DOBBELSTEEN -16.2% (range -5.8/-19.9%), Wiekevorst -3.7% (range 0/-3.7%). **Non-determinism is a vision model limitation, not addressable via prompt.** Solution: multi-run averaging infrastructure. |
 | v9+ | 2026-05-20 | **Analysis & fixes (no prompt change)**: (1) FRASCATI +4.3% was test data bug — expert data restructured (garageboxen as separate building, liftkokers as level 8). Now 0% on all floors. (2) Multi-run averaging infrastructure built (multiRunExtract + benchmark-multirun.mjs). (3) Wiekevorst confirmed stable (3 identical runs). (4) NOLA -3.1% root-caused to measurement methodology: context "bebouwde oppervlakte 766m²" excludes hellingsbaan 59m², kelder plan annotation 1358m² differs from expert 1427m². (5) Comparison function fix: floor sums instead of AI building_totals (avoids AI arithmetic errors). (6) LUKOR expert data added (+725m²). | **Full 24-dossier benchmark: 18 perfect (<1%), 3 good (1-5%), 3 off (>5%). Prompt is at ceiling.** |
 | scan | 2026-05-20 | **40-dossier scan complete**: Of 40 PDFs in selection folder, 24 already had test scripts. Of 16 untested: 6 VAD (desk), 1 VBE (Ethias), 1 VDN (diefstal), 1 VAH (duplicate) → skipped. 2 VNB + 1 VBU without Berekening → unusable. 1 VNB without plans (shared via WeTransfer). 1 VBN with Berekening but no plans. 1 VAP (evacuation plans only). 1 VBU (54231) with Berekening but NO architect floor plans in PDF. **No new testable dossiers found.** | Remaining improvements are infrastructure: ultra-hires rendering for 1/200 scale plans, multi-run averaging for non-deterministic cases, DOBBELSTEEN expert data still needed in test script. |
-| v11 | 2026-05-20 | **Decision-tree measurement**: Replace "measure outer walls" with phased approach: (1) Extract all readable text first (area annotations = netto, dimension annotations = bruto). (2) Find anchor floor with BOTH → derive bruto/netto ratio. (3) Per floor: dimensions → bruto direct (HIGH), annotations × ratio → bruto (MEDIUM-HIGH), pixel measurement → bruto (LOW). (4) Cross-check. Inpandige terrassen → cat1. Commercieel → cat1. Fixes run-to-run variance by preferring deterministic text over non-deterministic pixel measurement. | Testing... |
+| v11 | 2026-05-20 | **Decision-tree measurement**: Phased approach: (1) Extract readable text. (2) Anchor floor ratio. (3) Priority: dims > BVO sum > room labels × ratio > pixels. Inpandige terrassen → cat1. Commercieel → cat1. | Spot-checks: VICTORINE 0%, DIE PRINCE +0.13%, FRASCATI 0%. Full benchmark running. |
+| v11b | 2026-05-20 | **BVO = bruto fix**: BVO/BO labels are BRUTO per unit (not netto). Sum of all BVO + circulation BVO = floor bruto directly (ratio ~1.00). Only room-level labels without BVO prefix need ratio correction (1.10-1.20). Default ratio changed from 1.15 to 1.00-1.05 for BVO plans. Added Priority 2a (BVO sum = HIGH) vs 2b (room labels + ratio = MEDIUM-HIGH). Terras detection strengthened: each apartment may have own terrace, can be 50-120m² per floor. | Validated on SUIKERPARK: BVO sum matches expert within 0.4%. Terras still needs testing. |
