@@ -125,7 +125,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="section-label">{L.how.label}</div>
           <h2 className="section-title">{L.how.title}</h2>
-          <p className="section-sub">{L.how.sub}</p>
+          <p className="section-sub">{L.how.sub.map((line, i) => <span key={i}>{line}{i < L.how.sub.length - 1 && <br/>}</span>)}</p>
           <div className="steps-grid">
             {L.how.steps.map((s, i) => (
               <div key={i} className={`step-card reveal reveal-d${i}`}>
