@@ -20,7 +20,7 @@ export interface LandingI18N {
     cards: { tag: string; h: string; p: string; stat: string }[];
   };
   how: {
-    label: string; title: string; sub: string;
+    label: string; title: string; sub: string[];
     steps: { tag: string; h: string; p: string; detail: string }[];
   };
   belgium: {
@@ -79,7 +79,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     how: {
       label: 'How it works', title: 'Three steps. Thirty seconds.',
-      sub: 'No site visit. No spreadsheet. Just the plan your insured already has.',
+      sub: ['No site visit.', 'No spreadsheet.', 'Just the plan your insured already has.'],
       steps: [
         { tag: 'Upload', h: 'Drop in the floor plan', p: 'PDF, scan, photo — ReBuilt handles messy inputs. Scale detected automatically.', detail: 'plan.pdf · scale 1:100\n12 rooms · 2 floors · 186.4 m²' },
         { tag: 'Analyse', h: 'AI detects the finishing level', p: 'Bathroom config, kitchen size, hall proportions, material mentions. Coefficient between 0.70 and 1.50.', detail: 'entrance · 8.2 m² → above avg\n2 bath · bath + shower → Comfort\ncoefficient · × 1.12' },
@@ -156,7 +156,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     how: {
       label: 'Comment ça fonctionne', title: 'Trois étapes. Trente secondes.',
-      sub: 'Pas de visite sur place. Pas de tableur. Juste le plan que votre assuré possède déjà.',
+      sub: ['Pas de visite sur place.', 'Pas de tableur.', 'Juste le plan que votre assuré possède déjà.'],
       steps: [
         { tag: 'Télécharger', h: 'Déposez le plan', p: 'PDF, scan, photo — ReBuilt gère aussi les fichiers imparfaits. L\'échelle est détectée automatiquement.', detail: 'plan.pdf · échelle 1:100\n12 pièces · 2 étages · 186,4 m²' },
         { tag: 'Analyser', h: 'L\'AI détecte le niveau de finition', p: 'Configuration des salles de bains, taille de la cuisine, proportions du hall, mentions de matériaux. Coefficient entre 0,70 et 1,50.', detail: 'entrée · 8,2 m² → au-dessus de la moyenne\n2 salles de bains · bain + douche → Confort\ncoefficient · × 1,12' },
@@ -233,7 +233,7 @@ export const I18N: Record<Lang, LandingI18N> = {
     },
     how: {
       label: 'Hoe het werkt', title: 'Drie stappen. Dertig seconden.',
-      sub: 'Geen plaatsbezoek. Geen spreadsheet. Alleen het plan dat je verzekerde al heeft.',
+      sub: ['Geen plaatsbezoek.', 'Geen spreadsheet.', 'Alleen het plan dat je verzekerde al heeft.'],
       steps: [
         { tag: 'Upload', h: 'Laad het grondplan op', p: 'PDF, scan, foto — ReBuilt verwerkt ook rommelige input. De schaal wordt automatisch gedetecteerd.', detail: 'plan.pdf · schaal 1:100\n12 ruimtes · 2 verdiepingen · 186,4 m²' },
         { tag: 'Analyse', h: 'AI detecteert het afwerkingsniveau', p: 'Badkamerconfiguratie, keukengrootte, verhoudingen van de inkomhal, materiaalvermeldingen. Coëfficiënt tussen 0,70 en 1,50.', detail: 'inkom · 8,2 m² → boven gemiddeld\n2 badkamers · bad + douche → Comfort\ncoëfficiënt · × 1,12' },
