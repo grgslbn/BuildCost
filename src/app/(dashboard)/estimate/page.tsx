@@ -120,8 +120,13 @@ export default function EstimatePage() {
           console.warn("[estimate] poll non-200:", res.status);
           return;
         }
-        const data = (await res.json()) as EstimationResult & { error_message?: string };
-        console.log("[estimate] poll →", data.status, "| sub_areas:", !!data.sub_areas);
+        const data = (await res.json()) as EstimationResult & { error_message?: string; updated_at?: string };
+        console.log("[estimate] poll →", {
+          id:         data.id,
+          status:     data.status,
+          sub_areas:  !!data.sub_areas,
+          updated_at: data.updated_at,
+        });
 
         // Only advance the status — never regress (e.g. DB "uploading" must not
         // override a client-set "extracting_sqm" before the server catches up).
