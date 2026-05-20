@@ -262,6 +262,8 @@ Each retrain produces a new model version. Old versions are kept for comparison.
 | `src/lib/qqp/retroactive-extraction.ts` | Update to write new `{score, confidence, reasoning}` format instead of `value_numeric`/`value_boolean` columns |
 | `src/app/(dashboard)/admin/qqp/page.tsx` | Update QQP display to read `.score` instead of `value_numeric`/`value_boolean` |
 | `src/components/dossiers/qqp-results.tsx` | Update QQP rendering for new format |
+| `src/components/estimate/results-view.tsx` | Update QQP display from `{value, confidence, notes}` to `{score, confidence, reasoning}`. Remove `typeof v.value === "boolean"` checks |
+| `src/components/estimate/estimation-audit-view.tsx` | Update QQPEntry type and rendering for new format |
 | `supabase/migrations/` | New migration for `prompt_versions` table + column additions to `dossier_qqp_values` and `qqp_model_versions` |
 | New: `src/lib/qqp/data-migration.ts` | Programmatic conversion of old QQP values (`value_boolean`/`value_numeric` → `{score}` jsonb) |
 | New: `src/lib/qqp/ridge-regression.ts` | Ridge math (train, predict, cross-validate) |
