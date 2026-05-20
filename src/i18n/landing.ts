@@ -46,7 +46,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       h1_a: 'Reconstruction cost.', h1_b: 'From a plan.', h1_c: 'In 30 seconds.',
       sub: 'Upload a floor plan. ReBuilt extracts every room, detects the finishing level, and returns an ABEX-indexed rebuild cost.',
       try_btn: 'Try with your plan', try_hint: 'No signup · ~30s · free', demo_btn: 'See it on a sample',
-      proof: 'Built with Belgian insurance experts · ABEX-indexed · GDPR · EU-hosted',
+      proof: 'Built with Belgian architects and insurance experts · ABEX-indexed · GDPR · EU-hosted',
     },
     trust: { title: 'Trusted by claims teams at', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
     demo: {
@@ -123,7 +123,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       h1_a: 'Coût de reconstruction.', h1_b: "À partir d'un plan.", h1_c: 'En 30 secondes.',
       sub: "Téléchargez un plan. ReBuilt extrait chaque pièce, détecte le niveau de finition et calcule un coût de reconstruction indexé ABEX.",
       try_btn: 'Essayez avec votre plan', try_hint: 'Sans inscription · ~30 sec · gratuit', demo_btn: 'Voir un exemple',
-      proof: 'Développé avec des experts belges en assurance · Indexé ABEX · RGPD · Hébergé dans l\'UE',
+      proof: 'Développé avec des architectes et experts belges en assurance · Indexé ABEX · RGPD · Hébergé dans l\'UE',
     },
     trust: { title: 'Utilisé par les équipes sinistres de', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
     demo: {
@@ -200,7 +200,7 @@ export const I18N: Record<Lang, LandingI18N> = {
       h1_a: 'Heropbouwwaarde.', h1_b: 'Op basis van een plan.', h1_c: 'In 30 seconden.',
       sub: 'Upload een grondplan. ReBuilt haalt elke ruimte eruit, detecteert het afwerkingsniveau en berekent een ABEX-geïndexeerde heropbouwwaarde.',
       try_btn: 'Test met je plan', try_hint: 'Geen registratie · ~30 sec · gratis', demo_btn: 'Bekijk een voorbeeld',
-      proof: 'Gebouwd met Belgische verzekeringsexperts · ABEX-geïndexeerd · GDPR · Gehost in de EU',
+      proof: 'Gebouwd met Belgische architecten en verzekeringsexperts · ABEX-geïndexeerd · GDPR · Gehost in de EU',
     },
     trust: { title: 'Vertrouwd door schadeteams bij', logos: ['AssurBel','Cosmos Mutual','Nordlys Re','Verzeker.be','Atrium Risk','Helios Group'] },
     demo: {
