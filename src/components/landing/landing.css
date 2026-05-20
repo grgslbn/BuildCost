@@ -195,7 +195,7 @@
   background: var(--bg-card); border: var(--hairline);
   border-radius: var(--radius); padding: 12px 14px;
   box-shadow: var(--shadow-sm); width: calc(100% - 16px);
-  max-width: 380px; margin-left: auto; position: relative; z-index: 5;
+  max-width: 420px; margin-left: auto; position: relative; z-index: 5;
 }
 .landing-root .anim-upload-icon {
   grid-row: 1 / span 2; width: 32px; height: 32px; border-radius: 8px;
@@ -213,11 +213,11 @@
   background: var(--border); border-radius: 999px; overflow: hidden;
 }
 .landing-root .anim-upload-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .25s linear; }
-.landing-root .anim-cards-stack { position: relative; height: 420px; }
+.landing-root .anim-cards-stack { position: relative; height: 480px; }
 .landing-root .anim-est-card {
   position: absolute; background: var(--bg-card); border: var(--hairline);
-  border-radius: var(--radius-lg); padding: 24px; width: 340px;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg); padding: 28px; width: 400px;
+  box-shadow: var(--shadow); overflow: visible;
   transition: transform .65s cubic-bezier(.22,1,.36,1), opacity .55s, box-shadow .35s;
 }
 .landing-root .anim-est-card[data-card-index="0"] { top: 0; right: 0; z-index: 3; transform: rotate(-1.6deg); }
@@ -240,11 +240,11 @@
   background: linear-gradient(90deg, color-mix(in oklab, var(--ink) 4%, transparent) 0 60%, transparent 100%);
   border-radius: 4px; opacity: .5;
 }
-.landing-root .anim-est-card .card-row { position: relative; min-height: 18px; }
+.landing-root .anim-est-card .card-row { position: relative; min-height: 18px; white-space: nowrap; overflow: visible; }
 @media (max-width: 900px) {
   .landing-root .anim-cards-wrap { padding-left: 0; }
   .landing-root .anim-upload-bar { max-width: 100%; }
-  .landing-root .anim-cards-stack { height: 380px; }
+  .landing-root .anim-cards-stack { height: 440px; }
   .landing-root .anim-est-card { width: 92%; }
 }
 
