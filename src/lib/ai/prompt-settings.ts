@@ -7,17 +7,10 @@ import {
 } from "./prompts";
 import { CLASSIFY_SYSTEM } from "@/lib/pdf/classify-pages";
 import { METADATA_USER_TEMPLATE } from "@/lib/pdf/extract-metadata";
+import { PROMPT_KEYS, PROMPT_SEPARATOR } from "./prompt-keys";
 
-export const PROMPT_SEPARATOR = "\n\n===USER===\n\n";
-
-export const PROMPT_KEYS = [
-  "prompt_sqm_extraction",
-  "prompt_qqp_extraction",
-  "prompt_page_classification",
-  "prompt_metadata_extraction",
-] as const;
-
-export type PromptKey = (typeof PROMPT_KEYS)[number];
+export { PROMPT_SEPARATOR, PROMPT_KEYS };
+export type { PromptKey } from "./prompt-keys";
 
 export type LoadedPrompts = {
   sqmSystem: string;

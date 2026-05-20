@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { savePrompt, resetPrompt } from "@/app/actions/save-prompt";
-import { PROMPT_SEPARATOR, type PromptKey } from "@/lib/ai/prompt-settings";
+import { PROMPT_SEPARATOR, type PromptKey } from "@/lib/ai/prompt-keys";
 
 type PromptMode = "system_only" | "user_only" | "system_and_user";
 
