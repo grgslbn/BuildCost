@@ -56,16 +56,24 @@ export async function GET() {
 
   const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
 
-  const { data: dossiers, error } = await admin
+  const { data: rawDossiers, error } = await admin
     .from("reference_dossiers")
-    .select("id, known_price_per_sqm, predicted_finishing_coefficient")
+    .select("id, known_price_per_sqm, predicted_finishing_coefficient, sqm_extraction")
     .not("known_price_per_sqm", "is", null)
     .not("predicted_finishing_coefficient", "is", null)
+    .not("sqm_extraction", "is", null)
     .in("status", ["analyzed", "validated"]);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!dossiers || dossiers.length === 0) {
-    return NextResponse.json({ error: "No analyzed dossiers with known price data" }, { status: 422 });
+
+  // Only include dossiers where SQM extraction produced meaningful surface data
+  const dossiers = (rawDossiers ?? []).filter((d) => {
+    const summary = (d.sqm_extraction as { summary?: { total_gross_sqm?: number } } | null)?.summary;
+    return summary?.total_gross_sqm != null && summary.total_gross_sqm > 0;
+  });
+
+  if (dossiers.length === 0) {
+    return NextResponse.json({ error: "No analyzed dossiers with known price data and valid SQM" }, { status: 422 });
   }
 
   const range = F_MAX - F_MIN;

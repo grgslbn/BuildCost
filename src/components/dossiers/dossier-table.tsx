@@ -24,6 +24,7 @@ export type DossierRow = {
   postcode: string | null;
   building_type: string | null;
   apartment_count: number | null;
+  total_sqm: number | null;
   known_price_per_sqm: number | null;
   expert_finishing_level: string | null;
   predicted_finishing_level: string | null;
@@ -143,6 +144,7 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
             <TableHead>Address</TableHead>
             <TableHead>Postcode</TableHead>
             <TableHead>Type</TableHead>
+            <TableHead>Total m²</TableHead>
             <TableHead>Price / m²</TableHead>
             <TableHead>Finishing</TableHead>
             <TableHead>Status</TableHead>
@@ -189,6 +191,9 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
                   <TableCell>{d.postcode ?? "—"}</TableCell>
                   <TableCell>
                     <BuildingTypeBadge type={d.building_type} apartmentCount={d.apartment_count} />
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {d.total_sqm != null ? `${Math.round(d.total_sqm)} m²` : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell>{formatCurrency(d.known_price_per_sqm)}</TableCell>
                   <TableCell className="capitalize">
@@ -280,7 +285,7 @@ export function DossierTable({ dossiers }: { dossiers: DossierRow[] }) {
 
                 {d.status === "error" && d.error_message && expandedErrors.has(d.id) && (
                   <TableRow key={`${d.id}-error`} className="bg-destructive/5 hover:bg-destructive/5">
-                    <TableCell colSpan={8} className="py-2 pl-4">
+                    <TableCell colSpan={9} className="py-2 pl-4">
                       <div className="flex items-start gap-2">
                         <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                         <div className="space-y-0.5">

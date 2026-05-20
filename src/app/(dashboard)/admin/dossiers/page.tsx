@@ -31,7 +31,7 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   const { data, error } = await admin
     .from("reference_dossiers")
     .select(
-      "id, address, postcode, building_type, apartment_count, known_price_per_sqm, expert_finishing_level, predicted_finishing_level, status, error_message, created_at"
+      "id, address, postcode, building_type, apartment_count, known_total_sqm, sqm_extraction, known_price_per_sqm, expert_finishing_level, predicted_finishing_level, status, error_message, created_at"
     )
     .eq("tenant_id", tenantId)
     .order("created_at", { ascending: false });
@@ -40,7 +40,12 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
     console.error("Failed to fetch dossiers", error);
     return [];
   }
-  return (data ?? []) as DossierRow[];
+
+  return (data ?? []).map((d) => {
+    const gross = (d.sqm_extraction as { summary?: { total_gross_sqm?: number } } | null)?.summary?.total_gross_sqm ?? null;
+    const total_sqm = d.known_total_sqm != null ? Number(d.known_total_sqm) : (gross != null && gross > 0 ? gross : null);
+    return { ...d, total_sqm } as DossierRow;
+  });
 }
 
 export default async function AdminDossiersPage() {
