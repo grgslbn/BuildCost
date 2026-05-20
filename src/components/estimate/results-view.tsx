@@ -283,7 +283,7 @@ export function ResultsView({
 }: {
   result: EstimationResult;
   postcodeMeta?: { municipality?: string | null; region?: string | null; nationalBase?: number };
-  onReset: () => void;
+  onReset?: () => void;
 }) {
   const breakdown = result.sub_areas;
 
@@ -555,10 +555,12 @@ export function ResultsView({
           Download report
           <span className="ml-1.5 text-xs text-muted-foreground">(coming soon)</span>
         </Button>
-        <Button variant="ghost" onClick={onReset}>
-          <RotateCcw className="mr-1.5 h-4 w-4" />
-          New estimation
-        </Button>
+        {onReset && (
+          <Button variant="ghost" onClick={onReset}>
+            <RotateCcw className="mr-1.5 h-4 w-4" />
+            New estimation
+          </Button>
+        )}
         {result.processing_time_ms && (
           <span className="ml-auto text-xs text-muted-foreground">
             Processed in {(result.processing_time_ms / 1000).toFixed(1)}s
