@@ -20,7 +20,7 @@ import {
 import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
-import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
+import { BatchProcessButton, type BatchDossier } from "@/components/dossiers/batch-process-button";
 import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
 import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
 
@@ -66,13 +66,13 @@ export default async function AdminDossiersPage() {
   }
 
   const dossiers = tenantId ? await getDossiers(tenantId) : [];
-  const pendingIds = dossiers
+  const pendingDossiers: BatchDossier[] = dossiers
     .filter((d) => d.status === "pending")
-    .map((d) => d.id);
+    .map((d) => ({ id: d.id, address: d.address, postcode: d.postcode }));
   const failedIds = dossiers
     .filter((d) => d.status === "error")
     .map((d) => d.id);
-  const allIds = dossiers.map((d) => d.id);
+  const allIds = dossiers.map((d) => d.id); // for DeleteAllButton
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
@@ -118,16 +118,16 @@ export default async function AdminDossiersPage() {
             <h2 className="text-lg font-medium">All dossiers</h2>
             <p className="text-sm text-muted-foreground">
               {dossiers.length} dossier{dossiers.length !== 1 ? "s" : ""} in your workspace.
-              {pendingIds.length > 0 && (
+              {pendingDossiers.length > 0 && (
                 <span className="ml-1 text-amber-600">
-                  {pendingIds.length} pending processing.
+                  {pendingDossiers.length} pending processing.
                 </span>
               )}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <RetryFailedButton failedCount={failedIds.length} />
-            <BatchProcessButton dossierIds={pendingIds} />
+            <BatchProcessButton dossiers={pendingDossiers} />
             <DeleteAllButton dossierIds={allIds} />
           </div>
         </div>
