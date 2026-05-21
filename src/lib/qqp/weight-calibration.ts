@@ -73,7 +73,7 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
   const { data: rawDossiers } = await admin
     .from("reference_dossiers")
     .select(
-      "id, known_price_per_sqm, known_finishing_coefficient, sqm_extraction, regional_factor, abex_factor"
+      "id, known_price_per_sqm, known_finishing_coefficient, sqm_extraction, postcode"
     )
     .eq("status", "analyzed")
     .not("sqm_extraction", "is", null)
@@ -124,18 +124,27 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
       total_cat3_sqm?: number;
     } | undefined;
 
+    // Also support legacy summary format (pre-category breakdown)
+    const summary = sqm.summary as {
+      total_livable_sqm?: number;
+      total_utility_sqm?: number;
+      total_garage_sqm?: number;
+      total_outdoor_sqm?: number;
+    } | undefined;
+
     const areas = {
-      cat1_sqm: pt?.total_cat1_sqm ?? 0,
-      cat2_sqm: pt?.total_cat2_sqm ?? 0,
-      cat3_sqm: pt?.total_cat3_sqm ?? 0,
+      cat1_sqm: pt?.total_cat1_sqm ?? summary?.total_livable_sqm ?? 0,
+      cat2_sqm: pt?.total_cat2_sqm ?? ((summary?.total_utility_sqm ?? 0) + (summary?.total_garage_sqm ?? 0)),
+      cat3_sqm: pt?.total_cat3_sqm ?? summary?.total_outdoor_sqm ?? 0,
     };
 
     // Total cost = price/m² × cat1_sqm (livable area)
     const totalCost = d.known_price_per_sqm * areas.cat1_sqm;
     if (totalCost <= 0) continue;
 
-    const regional = d.regional_factor ?? 1.0;
-    const abex = d.abex_factor ?? 1.0;
+    // TODO: look up regional factor from postcode table and ABEX from price year
+    const regional = 1.0;
+    const abex = 1.0;
 
     const result = backcalculateF(totalCost, areas, pricing, regional, abex);
     if (!result.isOutlier) {

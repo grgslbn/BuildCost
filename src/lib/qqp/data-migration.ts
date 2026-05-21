@@ -42,11 +42,15 @@ export async function migrateQQPValues(
     .select("id, name, data_type");
   const defMap = new Map((defs ?? []).map((d) => [d.id, d]));
 
-  // Load rows that still use old format (no extraction_method set)
+  // Load rows that haven't been converted yet.
+  // After the ALTER TABLE migration, existing rows got DEFAULT 'ai_extracted'.
+  // We identify unconverted rows by checking: extraction_method != 'programmatic_conversion'
+  // AND value_numeric is outside -1/+1 range OR value_boolean is not null.
   const { data: rows } = await admin
     .from("dossier_qqp_values")
     .select("id, qqp_id, value_numeric, value_boolean, confidence")
-    .is("extraction_method", null)
+    .neq("extraction_method", "programmatic_conversion")
+    .or("value_boolean.not.is.null,value_numeric.gt.1.0,value_numeric.lt.-1.0")
     .limit(batchSize);
 
   for (const row of rows ?? []) {
