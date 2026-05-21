@@ -262,14 +262,6 @@ function CostBreakdownTable({
           {formatEur(breakdown.total_cost)}
         </dd>
       </div>
-      {breakdown.cat1_sqm > 0 && (
-        <div className="flex items-baseline justify-between gap-2">
-          <dt className="text-muted-foreground">Effective price / livable m²</dt>
-          <dd className="font-medium tabular-nums text-primary">
-            {formatEur(breakdown.effective_price_per_livable_sqm)} / m²
-          </dd>
-        </div>
-      )}
     </dl>
   );
 }

@@ -386,14 +386,6 @@ function CostBreakdownSection({
           </TableBody>
         </Table>
 
-        {breakdown.cat1_sqm > 0 && (
-          <div className="flex items-center justify-end gap-2 px-6 py-3 text-sm text-muted-foreground border-t">
-            <span>Effective price / livable m²:</span>
-            <span className="font-semibold text-foreground">
-              {eur(breakdown.effective_price_per_livable_sqm)} / m²
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
