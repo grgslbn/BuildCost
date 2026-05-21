@@ -181,14 +181,14 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
   const X: number[][] = [];
   const y: number[] = [];
 
-  for (const [dossierId, fTrue] of dossierFValues) {
+  dossierFValues.forEach((fTrue, dossierId) => {
     const scores = dossierScores.get(dossierId);
-    if (!scores) continue;
+    if (!scores) return;
 
     const row = QQP_NAMES.map((name) => scores[name] ?? 0);
     X.push(row);
     y.push(fTrue);
-  }
+  });
 
   if (X.length < 5) {
     throw new Error(
@@ -292,7 +292,9 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
 
   // ── Re-evaluate all analyzed dossiers ────────────────────────────────────
 
-  for (const [dossierId, fTrue] of dossierFValues) {
+  const evalEntries = Array.from(dossierFValues.entries());
+  for (let ei = 0; ei < evalEntries.length; ei++) {
+    const [dossierId, fTrue] = evalEntries[ei];
     const scores = dossierScores.get(dossierId);
     if (!scores) continue;
 

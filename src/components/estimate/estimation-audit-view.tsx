@@ -27,7 +27,7 @@ type CostBreakdown = {
   effective_price_per_livable_sqm: number;
 };
 
-type QQPEntry = { value: unknown; confidence?: number; notes?: string };
+type QQPEntry = { score: number; confidence?: number; reasoning?: string };
 
 type Room = {
   id?: string; label?: string; label_en?: string;
@@ -508,18 +508,17 @@ function FinishingEvidenceSection({
   }
 
   type QQPRow = {
-    name: string; displayName: string; dataType: string;
-    value: unknown; confidence?: number; notes?: string; weight?: number;
+    name: string; displayName: string;
+    score: number; confidence?: number; reasoning?: string; weight?: number;
   };
 
   const allRows: QQPRow[] = Object.entries(qqpData)
     .map(([name, e]) => ({
       name,
       displayName: defMap[name]?.display_name ?? name.replace(/_/g, " "),
-      dataType: defMap[name]?.data_type ?? "text",
-      value: e.value,
+      score: e.score,
       confidence: e.confidence,
-      notes: e.notes,
+      reasoning: e.reasoning,
       weight: weights[name],
     }))
     .sort((a, b) => Math.abs(b.weight ?? 0) - Math.abs(a.weight ?? 0));
@@ -527,16 +526,15 @@ function FinishingEvidenceSection({
   const maxAbsW = Math.max(...allRows.map((r) => Math.abs(r.weight ?? 0)), 0.001);
   const displayRows = showAll ? allRows : allRows.slice(0, 12);
 
-  function ValDisplay({ value, dataType }: { value: unknown; dataType: string }) {
-    if (value === null || value === undefined)
-      return <span className="text-muted-foreground">—</span>;
-    if (typeof value === "boolean")
-      return value
-        ? <span className="font-medium text-emerald-600">Yes</span>
-        : <span className="text-slate-400">No</span>;
-    if (dataType === "score" && typeof value === "number")
-      return <span className="font-mono font-semibold">{value} / 10</span>;
-    return <span className="font-medium capitalize">{String(value).replace(/_/g, " ")}</span>;
+  function ScoreDisplay({ score }: { score: number }) {
+    const color = score >= 0.5
+      ? "text-amber-600" : score <= -0.5
+      ? "text-blue-600" : "text-foreground";
+    return (
+      <span className={`font-mono font-semibold ${color}`}>
+        {score > 0 ? "+" : ""}{score.toFixed(2)}
+      </span>
+    );
   }
 
   return (
@@ -562,7 +560,7 @@ function FinishingEvidenceSection({
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-6">Parameter</TableHead>
-                  <TableHead>Value</TableHead>
+                  <TableHead>Score</TableHead>
                   <TableHead className="text-right">Confidence</TableHead>
                   <TableHead className="text-right">Weight</TableHead>
                   <TableHead className="pr-6 w-36">Impact</TableHead>
@@ -579,7 +577,7 @@ function FinishingEvidenceSection({
                     <TableRow key={row.name}>
                       <TableCell className="pl-6 font-medium capitalize">{row.displayName}</TableCell>
                       <TableCell>
-                        <ValDisplay value={row.value} dataType={row.dataType} />
+                        <ScoreDisplay score={row.score} />
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-muted-foreground text-sm">
                         {row.confidence != null ? pctStr(row.confidence) : "—"}
