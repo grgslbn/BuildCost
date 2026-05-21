@@ -4,9 +4,11 @@ import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
   buildQQPUserPrompt,
+  buildScoringGuides,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
+import { QQP_REFERENCE_RANGES } from "@/lib/qqp/reference-ranges";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { renderPdfPagesToImages, getPdfPageCount, type RenderedImage } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
@@ -431,7 +433,8 @@ export async function POST(req: NextRequest) {
       prompts.qqpUserTemplate,
       isApartmentBuilding
         ? { unitCount: sqmUnitCount ?? dossier.apartment_count ?? null }
-        : undefined
+        : undefined,
+      buildScoringGuides(QQP_REFERENCE_RANGES)
     );
 
     const qqpCallStart = Date.now();

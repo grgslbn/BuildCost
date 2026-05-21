@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { anthropic } from "@/lib/ai/client";
 import {
   buildQQPUserPrompt,
+  buildScoringGuides,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
@@ -15,7 +16,7 @@ import { categorizeAreas, getTotalGrossSqm, getBuildingType, getUnitCount } from
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import { flattenQQPScores, predictF, type StoredModel } from "@/lib/qqp/model-prediction";
-import { QQP_NAMES } from "@/lib/qqp/reference-ranges";
+import { QQP_NAMES, QQP_REFERENCE_RANGES } from "@/lib/qqp/reference-ranges";
 import type Anthropic from "@anthropic-ai/sdk";
 
 // Internal route — called fire-and-forget from /api/estimate.
@@ -394,7 +395,8 @@ export async function POST(req: NextRequest) {
       prompts.qqpUserTemplate,
       isApartmentBuilding
         ? { unitCount: sqmUnitCount ?? null }
-        : undefined
+        : undefined,
+      buildScoringGuides(QQP_REFERENCE_RANGES)
     );
 
     // Build QQP content: text prompt + plan images so Claude can assess

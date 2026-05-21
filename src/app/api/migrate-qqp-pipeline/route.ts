@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
+import { SKIP_AUTH } from "@/lib/dev-auth";
 import { SQM_SYSTEM_PROMPT, QQP_SYSTEM_PROMPT, QQP_USER_PROMPT_TEMPLATE } from "@/lib/ai/prompts";
 import { migrateQQPValues } from "@/lib/qqp/data-migration";
 import { calibrateWeights } from "@/lib/qqp/weight-calibration";
@@ -18,8 +19,18 @@ export const maxDuration = 300;
  * must be applied to Supabase BEFORE calling this endpoint.
  *
  * This is idempotent — safe to call multiple times.
+ * Requires authenticated admin user.
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+  // ── Auth guard ─────────────────────────────────────────────────────────────
+  if (!SKIP_AUTH) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   const admin = createSupabaseAdminClient();
   const log: string[] = [];
 

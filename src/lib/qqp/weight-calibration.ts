@@ -289,15 +289,15 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
 
   if (!newModel?.id) throw new Error("Failed to insert new model version.");
 
-  // Atomically flip active flag
-  await admin
-    .from("qqp_model_versions")
-    .update({ is_active: false })
-    .neq("id", newModel.id);
+  // Flip active flag: activate new first to avoid window with no active model
   await admin
     .from("qqp_model_versions")
     .update({ is_active: true })
     .eq("id", newModel.id);
+  await admin
+    .from("qqp_model_versions")
+    .update({ is_active: false })
+    .neq("id", newModel.id);
 
   // ── Re-evaluate all analyzed dossiers ────────────────────────────────────
 
