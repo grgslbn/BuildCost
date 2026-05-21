@@ -11,7 +11,7 @@ export async function createEstimation(input: {
   storagePath: string;
   fileName: string;
   fileType: string;
-  postcode: string;
+  postcode?: string;
 }): Promise<CreateEstimationResult> {
   let tenantId: string;
   let createdBy: string | null = null;
@@ -41,8 +41,8 @@ export async function createEstimation(input: {
       created_by: createdBy,
       plan_storage_path: input.storagePath,
       plan_file_name: input.fileName,
-      postcode: input.postcode,
-      postcode_provided_by: "user",
+      postcode: input.postcode?.trim() || null,
+      postcode_provided_by: input.postcode?.trim() ? "user" : null,
       status: "uploading",
     })
     .select("id")

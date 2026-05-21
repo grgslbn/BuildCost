@@ -486,12 +486,28 @@ export async function POST(req: NextRequest) {
       modelVersionId = activeModel.id;
     }
 
+    // ── Resolve postcode: user-provided → plan-extracted → skip ──────────────
+    let resolvedPostcode: string | null = est.postcode?.trim() || null;
+    let postcodeSource = est.postcode_provided_by ?? null;
+
+    // If no user-provided postcode, try extracting from plan metadata
+    if (!resolvedPostcode) {
+      const planProject = sqmExtraction.project as Record<string, unknown> | undefined;
+      const planPostcode = (planProject?.postcode as string | undefined)?.trim();
+      if (planPostcode && /^\d{4}$/.test(planPostcode)) {
+        resolvedPostcode = planPostcode;
+        postcodeSource = "plan";
+      }
+    }
+
     // ── Regional factor & ABEX ────────────────────────────────────────────────
-    const { data: postcodeRow } = await admin
-      .from("postcode_prices")
-      .select("base_price_per_sqm, municipality, region")
-      .eq("postcode", est.postcode ?? "")
-      .maybeSingle();
+    const { data: postcodeRow } = resolvedPostcode
+      ? await admin
+          .from("postcode_prices")
+          .select("base_price_per_sqm, municipality, region")
+          .eq("postcode", resolvedPostcode)
+          .maybeSingle()
+      : { data: null };
 
     const cat1AtF1       = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
     const regionalFactor = postcodeRow
@@ -538,7 +554,8 @@ export async function POST(req: NextRequest) {
         status:                  "complete",
         error_message:           null,
         updated_at:              new Date().toISOString(),
-        postcode:                est.postcode,
+        postcode:                resolvedPostcode,
+        postcode_provided_by:    postcodeSource,
       })
       .eq("id", estimationId);
 

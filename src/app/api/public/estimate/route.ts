@@ -29,12 +29,14 @@ export async function POST(req: NextRequest) {
     postcode?: string;
   };
 
-  if (!body.storagePath || !body.fileName || !body.postcode) {
+  if (!body.storagePath || !body.fileName) {
     return NextResponse.json(
-      { error: "Missing storagePath, fileName, or postcode" },
+      { error: "Missing storagePath or fileName" },
       { status: 400 }
     );
   }
+
+  const postcode = body.postcode?.trim() || null;
 
   const { data, error } = await admin
     .from("estimations")
@@ -43,8 +45,8 @@ export async function POST(req: NextRequest) {
       created_by: null,
       plan_storage_path: body.storagePath,
       plan_file_name: body.fileName,
-      postcode: body.postcode.trim(),
-      postcode_provided_by: "user",
+      postcode,
+      postcode_provided_by: postcode ? "user" : null,
       status: "uploading",
       source: "public",
     })

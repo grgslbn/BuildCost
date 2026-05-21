@@ -346,14 +346,14 @@ export default function EstimatePage() {
 
   // ── Render: upload ─────────────────────────────────────────────────────────────
 
-  const canSubmit = !!file && postcode.trim().length >= 4;
+  const canSubmit = !!file;
 
   return (
     <div className="mx-auto max-w-xl px-4 py-8 space-y-8">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">New estimation</h1>
         <p className="text-sm text-muted-foreground">
-          Upload a building plan and enter the postcode to get an instant rebuild cost estimate.
+          Upload a building plan to get an instant rebuild cost estimate.
         </p>
       </div>
 
@@ -405,10 +405,10 @@ export default function EstimatePage() {
         {fileError && <p className="text-xs text-destructive">{fileError}</p>}
       </div>
 
-      {/* Postcode */}
+      {/* Postcode (optional — extracted from plan if not provided) */}
       <div className="space-y-2">
         <Label htmlFor="postcode">
-          Postcode <span className="text-destructive">*</span>
+          Postcode <span className="text-xs text-muted-foreground font-normal">(optional)</span>
         </Label>
         <div className="relative">
           <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
