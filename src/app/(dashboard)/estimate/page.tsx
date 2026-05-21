@@ -3,10 +3,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { createEstimation } from "@/app/actions/create-estimation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { lookupPostcode, type PostcodeLookupResult } from "@/app/actions/lookup-postcode";
+// postcode is extracted from the plan automatically
 import { ResultsView, type EstimationResult } from "@/components/estimate/results-view";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +14,6 @@ import {
   CheckCircle2,
   Circle,
   Upload,
-  MapPin,
   AlertCircle,
 } from "lucide-react";
 
@@ -71,9 +69,6 @@ export default function EstimatePage() {
   // Upload phase
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [postcode, setPostcode] = useState("");
-  const [postcodeMeta, setPostcodeMeta] = useState<PostcodeLookupResult | null>(null);
-  const [postcodeLoading, setPostcodeLoading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
 
   // Processing
@@ -86,25 +81,6 @@ export default function EstimatePage() {
   const [result, setResult] = useState<EstimationResult | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ── Postcode debounce ────────────────────────────────────────────────────────
-
-  useEffect(() => {
-    if (postcode.trim().length < 4) {
-      setPostcodeMeta(null);
-      return;
-    }
-    setPostcodeLoading(true);
-    const t = setTimeout(async () => {
-      const res = await lookupPostcode(postcode.trim());
-      setPostcodeMeta(res);
-      setPostcodeLoading(false);
-    }, 500);
-    return () => {
-      clearTimeout(t);
-      setPostcodeLoading(false);
-    };
-  }, [postcode]);
 
   // ── Status polling ───────────────────────────────────────────────────────────
 
@@ -179,7 +155,7 @@ export default function EstimatePage() {
   // ── Submit ───────────────────────────────────────────────────────────────────
 
   async function handleSubmit() {
-    if (!file || !postcode.trim()) return;
+    if (!file) return;
     setPhase("processing");
     setProcessingStatus("uploading");
     setProcessingError(null);
@@ -219,7 +195,7 @@ export default function EstimatePage() {
         storagePath: urlData.path,
         fileName: file.name,
         fileType: ext === "pdf" ? "pdf" : "image",
-        postcode: postcode.trim(),
+        postcode: undefined,
       });
       console.log("[estimate] step 3 result:", createResult);
       if (createResult.status === "error") {
@@ -269,9 +245,6 @@ export default function EstimatePage() {
 
   function handleReset() {
     setFile(null);
-    setPostcode("");
-    setPostcodeMeta(null);
-    setPostcodeLoading(false);
     setFileError(null);
     setPhase("upload");
     setEstimationId(null);
@@ -283,20 +256,9 @@ export default function EstimatePage() {
   // ── Render: results ───────────────────────────────────────────────────────────
 
   if (phase === "results" && result) {
-    const rMeta =
-      postcodeMeta?.found
-        ? {
-            municipality: postcodeMeta.municipality,
-            region: postcodeMeta.region,
-            nationalBase: postcodeMeta.nationalBase,
-          }
-        : postcodeMeta
-        ? { nationalBase: postcodeMeta.nationalBase }
-        : undefined;
-
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <ResultsView result={result} postcodeMeta={rMeta} onReset={handleReset} />
+        <ResultsView result={result} onReset={handleReset} />
       </div>
     );
   }
@@ -403,48 +365,6 @@ export default function EstimatePage() {
           onChange={(e) => pickFile(e.target.files)}
         />
         {fileError && <p className="text-xs text-destructive">{fileError}</p>}
-      </div>
-
-      {/* Postcode (optional — extracted from plan if not provided) */}
-      <div className="space-y-2">
-        <Label htmlFor="postcode">
-          Postcode <span className="text-xs text-muted-foreground font-normal">(optional)</span>
-        </Label>
-        <div className="relative">
-          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="postcode"
-            placeholder="e.g. 2000"
-            maxLength={8}
-            value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
-            className="pl-9"
-          />
-          {postcodeLoading && (
-            <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-          )}
-        </div>
-
-        {postcodeMeta?.found && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-500" />
-            <span>
-              {postcodeMeta.municipality}
-              {postcodeMeta.region ? ` · ${postcodeMeta.region}` : ""}
-              {" · "}
-              <span className="font-medium text-foreground">
-                €{postcodeMeta.basePrice.toLocaleString("fr-BE")}/m²
-              </span>
-              {" "}base
-            </span>
-          </div>
-        )}
-
-        {postcodeMeta && !postcodeMeta.found && postcode.trim().length >= 4 && !postcodeLoading && (
-          <p className="text-xs text-muted-foreground">
-            Postcode not found — national average will be used.
-          </p>
-        )}
       </div>
 
       <Button
