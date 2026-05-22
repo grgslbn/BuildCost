@@ -147,16 +147,76 @@ function buildEmail(est: EstimationRow): { subject: string; text: string; html: 
   return { subject, text, html };
 }
 
-// ── Send ─────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────
 
 export type SendReportResult =
   | { status: "sent"; messageId?: string }
   | { status: "skipped"; reason: string }
   | { status: "error"; message: string };
 
+export type SharedByContext = { name: string; company: string };
+
+// ── sendReportDirect — for customer sharing (no lead row needed) ─────────────
+
+export async function sendReportDirect(
+  estimationId: string,
+  recipientEmail: string,
+  sharedBy?: SharedByContext
+): Promise<SendReportResult> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { status: "error", message: "RESEND_API_KEY not configured" };
+
+  const admin = createSupabaseAdminClient();
+  const { data: est, error } = await admin
+    .from("estimations")
+    .select("id, status, building_type, total_livable_sqm, total_gross_sqm, finishing_level, estimated_total_cost, sub_areas, postcode")
+    .eq("id", estimationId)
+    .single();
+
+  if (error || !est) return { status: "error", message: "Estimation not found" };
+  if (est.status !== "complete") return { status: "skipped", reason: `estimation status: ${est.status}` };
+
+  const { subject: baseSubject, text: baseText, html: baseHtml } = buildEmail(est as EstimationRow);
+
+  // Override subject and inject sharedBy context when sharing
+  const subject = sharedBy
+    ? `Building reconstruction estimate — shared by ${sharedBy.name}`
+    : baseSubject;
+
+  const sharedByBanner = sharedBy
+    ? `<div style="background:#F2EDE8;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#524840;">
+        <strong style="color:#1A1714;">${sharedBy.name}</strong> from <strong style="color:#1A1714;">${sharedBy.company}</strong> has shared this reconstruction estimate with you.
+      </div>`
+    : "";
+
+  const html = sharedBy
+    ? baseHtml.replace(
+        '<p style="margin:0 0 16px;color:#524840;">Hi,</p>',
+        `<p style="margin:0 0 16px;color:#524840;">Hi,</p>${sharedByBanner}`
+      )
+    : baseHtml;
+
+  const text = sharedBy
+    ? `${sharedBy.name} (${sharedBy.company}) has shared this reconstruction estimate with you.\n\n${baseText}`
+    : baseText;
+
+  try {
+    const resend = new Resend(apiKey);
+    const result = await resend.emails.send({ from: FROM, to: recipientEmail, subject, text, html });
+    if (result.error) return { status: "error", message: result.error.message ?? JSON.stringify(result.error) };
+    return { status: "sent", messageId: result.data?.id };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return { status: "error", message: msg };
+  }
+}
+
+// ── sendReportForLead (legacy — public funnel) ────────────────────────────────
+
 const SR_LOG = "[send-report]";
 
 export async function sendReportForLead(leadId: string): Promise<SendReportResult> {
+  const SR_LOG = "[send-report]";
   const apiKey = process.env.RESEND_API_KEY;
   console.log(SR_LOG, "called", {
     leadId,

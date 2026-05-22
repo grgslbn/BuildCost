@@ -4,7 +4,14 @@ import { useState } from "react";
 
 const ACCENT = "#C85A2A";
 
-export function ShareButtons({ estimationId }: { estimationId: string }) {
+export function ShareButtons({
+  estimationId,
+  sharedByName,
+}: {
+  estimationId: string;
+  sharedByName?: string;
+}) {
+  void sharedByName; // passed for future personalisation; currently used by API
   const [copied, setCopied] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [emailSent, setEmailSent] = useState(false);
@@ -47,6 +54,31 @@ export function ShareButtons({ estimationId }: { estimationId: string }) {
 
   return (
     <div className="space-y-4">
+      {/* Download PDF */}
+      <div>
+        <a
+          href={`/api/report/${estimationId}/pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            padding: "0.5rem 1rem",
+            borderRadius: "0.5rem",
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            cursor: "pointer",
+            border: `1px solid ${ACCENT}`,
+            background: ACCENT,
+            color: "#FFF",
+            textDecoration: "none",
+          }}
+        >
+          ↓ Download PDF
+        </a>
+      </div>
+
       {/* Copy link */}
       <div className="flex items-center gap-2">
         <input
