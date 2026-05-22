@@ -1,186 +1,164 @@
-# CLAUDE.md — BuildCost MVP
+# CLAUDE.md — BuildCost (PlanBased)
 
-> **This file is the shared context for all Claude Code sessions on this project.**
-> **Update the "Current Status" section every time you finish a milestone.**
+> **Shared context for all Claude Code sessions. Update after every milestone.**
+> **Last updated: 2026-05-22**
 
 ---
 
 ## What This Is
 
-BuildCost is a web tool for Belgian building insurance companies to estimate reconstruction costs after sinister (fire, flood, etc.) based ONLY on an uploaded building plan. The system extracts surface areas, discovers "finishing level" parameters (QQPs), and calculates a precise rebuild cost per m².
+BuildCost (deployed as **planbased.xyz**) is a web tool for Belgian building insurance companies to estimate reconstruction costs after sinister (fire, flood, etc.) based ONLY on an uploaded building plan. The system extracts surface areas via Claude Vision, discovers finishing-level parameters (QQPs), and calculates a precise rebuild cost per m².
 
-**This is NOT real estate valuation.** It's construction rebuild cost. A luxury apartment costs the same to rebuild whether it's in an expensive or cheap neighborhood. Regional variation is handled separately via a postcode coefficient.
+**This is NOT real estate valuation.** It's construction rebuild cost. Regional variation is handled via a postcode coefficient.
 
 ## Core Formula (V2)
 
-Three area categories, each with a price that interpolates linearly between Min and Max as F varies:
-
 ```
-CAT_price(F) = CAT_min + (F − 0.70) / (1.50 − 0.70) × (CAT_max − CAT_min)
+CAT_price(F) = CAT_min + (F − 0.70) / 0.80 × (CAT_max − CAT_min)
 
-Subtotal   = CAT1_sqm × CAT1_price(F)
-           + CAT2_sqm × CAT2_price(F)
-           + CAT3_sqm × CAT3_price(F)
-
-Total Cost = Subtotal × Regional Factor × ABEX Factor
+Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3_price)
+           × Regional Factor × ABEX Factor
 ```
 
 | Category | Rooms | Default Min | Default Max |
 |----------|-------|-------------|-------------|
-| **CAT1** — Livable | living, bedroom, kitchen, bathroom, office… | €1 100/m² | €1 900/m² |
+| **CAT1** — Livable | living, bedroom, kitchen, bathroom, office | €1 100/m² | €1 900/m² |
 | **CAT2** — Enclosed non-livable | garage, storage, utility | €550/m² | €950/m² |
 | **CAT3** — Outdoor built | terrace, balcony | €330/m² | €570/m² |
 | EXCLUDED | garden | — | — |
 
-- **F (Finishing Coefficient)**: 0.70–1.50, derived from QQPs. Labels: Basic / Standard / Comfort / Comfort+ / Luxury
+- **F (Finishing Coefficient)**: 0.70–1.50, derived from QQPs via ridge regression on reference dossiers
 - **Regional Factor**: `postcode_base_price / cat1_price_at_F1.0`
-- **ABEX Factor**: construction price index ÷ 1000 (provided file)
-- **Cat prices** are configurable in Settings and auto-calibrated from reference dossiers via OLS
-
-## Team & Workstreams
-
-| Person | Workstream | Scope |
-|--------|-----------|-------|
-| **Tiemen** | **WS1: SQM Engine** | Plan upload → precise room-by-room m² extraction. Scale detection, multi-floor, multi-format. Also: landing page, upload flow UI, SQM results display, mobile responsive. |
-| **Georges** | **WS2: AI Pipeline** | QQP discovery, finishing level calculation, cost estimation, self-learning from 1000+ reference dossiers. Also: auth, admin UI, results page, dashboard. |
+- **ABEX Factor**: construction price index ÷ 1000 (semi-annual update)
+- **Cat prices** are configurable in Settings
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router) + Tailwind + shadcn/ui → **Vercel**
-- **Backend**: Next.js API routes (same repo)
-- **Database**: **Supabase** (Postgres + Auth + Storage + RLS)
-- **AI**: Claude API (Sonnet 4 for vision extraction)
-- **Source control**: **GitHub** (monorepo)
-- **Deployment**: **Vercel** (frontend + API) / **Railway** (if needed for heavy processing)
+- **Framework**: Next.js 14 (App Router) + Tailwind + shadcn/ui
+- **Database**: Supabase (Postgres + Auth + Storage + RLS)
+- **AI**: Anthropic Claude API (Sonnet with extended thinking for vision extraction)
+- **Deployment**: Vercel Pro (agent6-projects team, `build-cost` project)
+- **Domain**: planbased.xyz
+- **Source control**: GitHub monorepo (`grgslbn/BuildCost`)
 
-## Project Structure
+## Key Pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing page (public) |
+| `/estimate` | End-user estimation: upload → processing → results |
+| `/estimations` | User's estimation history |
+| `/admin/dossiers` | Upload & manage reference dossiers |
+| `/admin/benchmark` | Benchmark runs overview + ground truth |
+| `/admin/benchmark/[runId]` | Per-dossier benchmark results |
+| `/admin/qqp` | QQP management, model versions, weight bars |
+| `/admin/prompts` | Versioned SQM/QQP prompt management |
+| `/admin/settings` | Category prices, ABEX, regional factor config |
+| `/admin/leads` | Email capture + report sending |
+| `/analytics` | API call logs, model performance, system health |
+
+## Key API Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/api/estimate-process` | **Main pipeline**: PDF → classify → render → SQM → QQP → cost. `maxDuration=300` |
+| `/api/process-dossier` | Process reference dossiers (training data) |
+| `/api/benchmark/run` | Create benchmark run, returns dossier list |
+| `/api/benchmark/run/[runId]/init` | Create estimation row for benchmark dossier |
+| `/api/benchmark/run/[runId]/record` | Compare estimation with ground truth |
+| `/api/benchmark/run/[runId]/finalize` | Compute aggregate metrics |
+| `/api/benchmark/poll-estimation/[id]` | Poll estimation status + stuck detection |
+| `/api/benchmark/extract-gt` | AI-extract ground truth from expert calculations |
+| `/api/calibrate-weights` | Ridge regression on QQP weights |
+| `/api/retroactive-extract` | Re-extract QQPs from stored SQM data |
+
+## Pipeline Architecture
 
 ```
-/buildcost
-├── CLAUDE.md                  ← YOU ARE HERE
-├── docs/
-│   ├── PRD.md                 ← Full product requirements
-│   ├── EXECUTION_PLAN.md      ← 48h timeline with assignments
-│   ├── SQM_CONTRACT.md        ← JSON interface between WS1 & WS2
-│   ├── QQP_SEED_LIST.md       ← Initial QQP definitions
-│   ├── DATABASE_SCHEMA.sql    ← Supabase migration
-│   └── ARCHITECTURE.md        ← System design decisions
-├── prompts/
-│   ├── sqm_extraction.md      ← Prompt for plan → room extraction
-│   └── qqp_extraction.md      ← Prompt for plan data → QQP values
-├── src/                       ← Next.js application
-│   ├── app/                   ← App Router pages
-│   ├── components/            ← Shared UI components
-│   ├── lib/                   ← Utilities, DB client, AI client
-│   └── api/                   ← API routes
-├── supabase/
-│   └── migrations/            ← Database migrations
-└── public/                    ← Static assets
+Upload PDF → classify pages → render PNG → SQM extraction (Claude + 10K thinking)
+→ QQP extraction (Claude) → F calculation (ridge regression weights)
+→ cost calculation → store result
 ```
 
-## Key Architecture Decisions
+- **SQM Extraction**: Claude Sonnet with extended thinking (10K budget). Processes rendered plan pages to identify rooms and calculate areas. Currently at v9 prompt: 18/24 perfect on test set.
+- **QQP Extraction**: Claude extracts finishing parameters from plan annotations (windows, doors, kitchen, bathroom, heating type, etc.)
+- **F Calculation**: Ridge regression model trained on reference dossiers. Maps QQP values → finishing coefficient.
+- **Prompt Versioning**: `prompt_versions` table stores versioned SQM/QQP prompts. Active version used by pipeline. Managed via `/admin/prompts`.
 
-1. **Monorepo**: Single Next.js app handles frontend + API. Faster for hackathon.
-2. **Claude Vision (Sonnet 4)**: Primary AI for plan extraction. Fast and accurate enough.
-3. **Scale detection chain**: Scale bar → dimension text → door-width calibration (80cm) → user input fallback.
-4. **QQP self-learning**: Seed 25+ expert QQPs, extract from reference dossiers, correlate with known prices, adjust weights, discover new QQPs.
-5. **Finishing levels**: Continuous coefficient (0.70–1.50) mapped to categories: Basic / Standard / Comfort / Luxury / Premium.
-6. **Auth**: Supabase Auth with magic link (low friction for PLG).
-7. **Multi-tenant**: Each insurance company is a tenant. RLS on all tables.
+## Benchmark System
 
-## Integration Contract
+Evaluates pipeline accuracy against expert ground truth (43 reference dossiers with known expert calculations).
 
-**The SQM output JSON is the critical interface between WS1 and WS2.**
-See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
-- `floors[].rooms[].area_sqm` — room areas
-- `floors[].rooms[].category` — room type classification
-- `floors[].rooms[].features` — detected features (for QQP extraction)
-- `summary.total_livable_sqm` — primary area for cost calculation
+**Tables**: `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`
+**Spec**: `docs/superpowers/specs/2026-05-21-benchmark-system-design.md`
+**Plan**: `docs/superpowers/plans/2026-05-21-benchmark-system.md`
+
+**Flow**: Extract ground truth from expert PDFs → Create run → For each dossier: init estimation → fire pipeline → poll until done → record (compare with expert) → finalize (aggregate metrics)
+
+**Metrics tracked per dossier**: Cat1/Cat2/Cat3 SQM error %, cost error %, F delta, predicted vs expert cost
+**Aggregate metrics**: Cost MAE, cost median, worst case, within 10%/15%, F MAE
+
+**Current client-side runner** (`start-run-button.tsx`) processes dossiers sequentially. Stuck detection marks estimations >6 min as Vercel-killed.
+
+## Known Issues & Constraints
+
+1. **Vercel Pro 300s function limit** — #1 blocker. Most VerzamelPDF dossiers exceed this timeout. The SQM extraction with extended thinking (10K) + QQP extraction can take 4-8 min for large PDFs. Only ~5% of dossiers complete within the limit.
+2. **Browser tab sleep kills benchmark runner** — The client-side for-loop stops when Chrome throttles background tabs. The runner must stay in the foreground.
+3. **SQM v9 prompt plateau** — 18/24 perfect on test set, remaining errors are Claude vision model limitations (can't read small text, misidentifies room boundaries).
 
 ## Conventions
 
-- **Branch strategy**: `main` (protected), `ws1/feature-name` (Tiemen), `ws2/feature-name` (Georges)
-- **API routes**: `/api/extract-sqm`, `/api/analyze-qqp`, `/api/estimate-cost`, `/api/train-qqp`, `/api/upload-plan`
-- **Environment variables**: All in `.env.local`, prefixed: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`
-- **File uploads**: Supabase Storage bucket `plans` (public read for authenticated users)
-- **Language**: English for code and docs, UI supports NL/FR labels from plans
-- **Components**: Use shadcn/ui. Install as needed via `npx shadcn-ui@latest add [component]`
+- **Language**: English for code and docs. UI supports NL/FR labels from Belgian plans.
+- **Components**: shadcn/ui. Install via `npx shadcn-ui@latest add [component]`
+- **DB access**: `createSupabaseAdminClient()` (service_role, bypasses RLS) for API routes. `createSupabaseServerClient()` (anon key + cookies) for user-facing server components.
+- **Environment**: Vercel env vars pulled via `vercel env pull`. Supabase keys are NOT in `.env.local` — they're in Vercel.
+- **Migrations**: SQL files in `supabase/migrations/`. Applied manually via Supabase dashboard SQL editor (CLI not linked).
+- **SKIP_AUTH**: `middleware.ts` checks `SKIP_AUTH` env var to bypass auth in development.
 
-## Current Status
+## Multi-Tenant & Customer Portal
 
-> **Update this section after every significant milestone!**
-
-- [x] Repository created
-- [x] Supabase project created (`sqmpgzzjxsmywmpsplmu`, eu-west-1)
-- [ ] Vercel project connected
-- [x] Database schema migrated
-- [ ] WS1: First plan extraction working
-- [x] WS2: QQP definitions seeded (32 definitions across 4 categories)
-- [ ] WS2: First reference dossier processed
-- [x] Integration: end-to-end estimation flow working (`/estimate`)
-- [ ] Landing page live
-- [ ] Demo ready
-
-**User management & billing (2026-05-22):**
-- Token logging fixed: `page_classification` and `metadata_extraction` now report `tokens_input`/`tokens_output` correctly
-- Schema migration applied: `users` table extended (`invited_by`, `invited_at`, `last_active_at`); `tenant_usage_monthly` materialized view created; RLS on `estimations` updated for admin/customer/service-role policies
-- Auth: `getSessionWithRole()` helper in `src/lib/auth/get-session-with-role.ts`; auth callback now redirects by role (admin → `/dashboard`, customer → `/customer/overview`)
-- Admin dashboard layout now redirects customer-role users to `/customer/overview`
-- Admin sidebar: added Tenants + Billing nav items
-- `/admin/tenants` — tenant management UI: list tenants, create tenant, list/invite users per tenant
-- `/admin/billing` — cross-tenant usage overview with monthly stats and "Refresh view" button
-- API routes: `/api/admin/tenants`, `/api/admin/tenants/[id]/users`, `/api/admin/tenants/[id]/invite`, `/api/admin/usage`, `/api/admin/usage/refresh`, `/api/my/usage`, `/api/my/share-report`
-- Customer portal at `/customer/*` — branded (terracotta/Bricolage), own layout with top nav:
+- **Auth**: Supabase Auth with magic link. `getSessionWithRole()` helper routes admin vs customer users.
+- **Admin sidebar**: Tenants + Billing nav items
+- `/admin/tenants` — tenant management UI: list, create, invite users
+- `/admin/billing` — cross-tenant usage overview with monthly stats
+- **Customer portal** (`/customer/*`) — branded terracotta/Bricolage layout:
   - `/customer/overview` — stats + recent estimations + new-estimation CTA
-  - `/customer/estimations` — full list with cost/finishing/status columns
-  - `/customer/estimations/[id]` — detail: hero cost, confidence bars, share (copy link + email colleague)
-  - `/customer/usage` — monthly usage history table
-  - `/customer/account` — profile display + sign out
-- `POST /auth/signout` route for sign-out button
-- `refresh_tenant_usage_monthly()` PostgreSQL function deployed for on-demand view refresh
-
-**Additional progress (WS2):**
-- Analytics dashboard built (`/analytics`):
-  - 5-section server-rendered page: Overview · Training Progress · QQP Discovery · System Health · Recent Activity
-  - `api_call_log` table migrated; every Claude API call in process-dossier and estimate routes is now logged (call type, model, tokens, duration)
-  - Learning curve chart (recharts) shows MAE/R² over model versions
-  - Auto-refresh every 30s when jobs are in flight; manual Refresh button
-  - Activity feed merges dossiers, estimations, discovery log, model versions, API errors → sorted by time
-- ABEX index seeded (10 entries) and regional postcode coefficients imported
-- Auth (magic link) + tenant auto-provisioning built and deployed
-- Admin dossier upload page built (`/admin/dossiers`): drag-drop plan upload to Storage, full metadata form, reference dossier list with status tracking
-- Storage bucket `plans` created (private, 50 MB limit, PDF/PNG/JPG)
-- Full PDF processing pipeline: classify pages → extract metadata → SQM → QQP → prediction_error
-- Apartment building detection, duplicate prevention, per-row delete, Delete All
-- QQP self-learning loop built (`ws2/qqp-learning-loop`):
-  - `src/lib/qqp/discovery-engine.ts` — auto-activates proposed QQPs at threshold
-  - `src/lib/qqp/retroactive-extraction.ts` — extracts new QQP values from stored sqm_extraction
-  - `src/lib/qqp/weight-calibration.ts` — Pearson correlation weights, model version snapshots, re-evaluation
-  - `/admin/qqp` — QQP management page (active QQPs + weight bars, proposed review, model versions)
-  - Wired into process-dossier pipeline (auto-evaluate + auto-calibrate at interval)
-- End-user estimation flow built (`ws2/new-estimation`):
-  - `/estimate` — 3-phase page: Upload (drag-drop + postcode live-lookup) → Processing (animated steps polling) → Results
-  - `src/app/actions/upload-plan.ts` — uploads plan file to Storage (tenant-scoped, no dossier duplicate check)
-  - `src/app/actions/create-estimation.ts` — creates estimation row in DB
-  - `src/app/actions/lookup-postcode.ts` — postcode → region + base price lookup
-  - `src/lib/qqp/model-prediction.ts` — applies trained model weights for finishing coefficient
-  - `/api/estimate` — full pipeline (SQM extraction → QQP → model weights → cost calc)
-  - `/api/estimate-status/[id]` — status polling endpoint
-  - `src/components/estimate/results-view.tsx` — hero cost, cost breakdown, finishing meter, expandable room/QQP tables
+  - `/customer/estimations` — full list with cost/finishing/status
+  - `/customer/estimations/[id]` — detail with hero cost, confidence bars, share
+  - `/customer/usage` — monthly usage history
+  - `/customer/account` — profile + sign out
+- `tenant_usage_monthly` materialized view for billing data
+- API routes: `/api/admin/tenants/...`, `/api/admin/usage/...`, `/api/my/usage`, `/api/my/share-report`
 
 ## Supabase Details
 
-- **Project ID**: `sqmpgzzjxsmywmpsplmu`
+- **Project ref**: `sqmpgzzjxsmywmpsplmu`
+- **Region**: eu-west-1
 - **URL**: `https://sqmpgzzjxsmywmpsplmu.supabase.co`
-- **Anon Key**: in `.env.local`
-- **Service Role Key**: in `.env.local` (server-side only!)
-- **Storage bucket**: `plans`
+- **Storage bucket**: `plans` (private, 50 MB limit, PDF/PNG/JPG)
+- **Key tables**: `estimations`, `reference_dossiers`, `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `prompt_versions`, `qqp_model_versions`, `postcode_prices`, `abex_index`, `users`, `tenant_usage_monthly`
 
-## Important Context
+## Current Status (2026-05-22)
 
-- We have 1000+ unstructured reference dossiers (plan + address + expert notes + price/m²)
-- QQPs are NOT predefined — the system must discover and weight them from data
-- Belgian plan conventions: room labels in NL or FR, dimensions in meters, scale varies
-- ABEX index updates semi-annually
-- Postcode price table is a provided CSV/file
-- "Ingebouwde toestellen" = built-in appliances (dishwasher, oven, etc.) — a key QQP
+### Working
+- [x] Full end-to-end estimation pipeline (upload → SQM → QQP → cost)
+- [x] Public estimation page at planbased.xyz
+- [x] 43 reference dossiers uploaded with expert ground truth extracted
+- [x] Benchmark system with admin UI for run management + per-dossier results
+- [x] Prompt versioning system (SQM + QQP)
+- [x] QQP ridge regression model training from reference dossiers
+- [x] Admin pages: dossiers, benchmark, QQP model, prompts, settings, leads
+- [x] Email capture during processing + report sending
+- [x] Postcode extracted from plan (no user input needed)
+
+### First Benchmark Results (21 May overnight)
+- 35 dossiers attempted, 19 processed (16 skipped — browser went to sleep)
+- **1 success**: Cat1 SQM 0.0% error (perfect!), cost +38.6% (QQP/pricing issue)
+- **18 failures**: All Vercel 300s timeout on VerzamelPDF files
+- **Conclusion**: SQM extraction is solid, cost error comes from F/pricing. Vercel timeout is the #1 blocker for benchmarking.
+
+### Next Steps
+- [ ] Solve Vercel 300s timeout (options: local CLI benchmark, Inngest background jobs, pipeline optimization)
+- [ ] Investigate cost error source: regional factor, ABEX correction, or QQP weight calibration
+- [ ] Complete benchmark run on all 35 dossiers (need working timeout solution first)
+- [ ] Improve QQP extraction and F calculation based on benchmark insights
