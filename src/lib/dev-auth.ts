@@ -4,3 +4,6 @@
 export const SKIP_AUTH = process.env.SKIP_AUTH === "true";
 
 export const DEV_TENANT_ID = "00000000-0000-0000-0000-000000000001";
+
+// Tenant used for unauthenticated estimations created from the public landing page.
+export const PUBLIC_TENANT_ID = "00000000-0000-0000-0000-000000000002";

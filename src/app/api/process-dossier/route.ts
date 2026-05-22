@@ -4,9 +4,11 @@ import { SKIP_AUTH } from "@/lib/dev-auth";
 import { anthropic } from "@/lib/ai/client";
 import {
   buildQQPUserPrompt,
+  buildScoringGuides,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
+import { QQP_REFERENCE_RANGES } from "@/lib/qqp/reference-ranges";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { renderPdfPagesToImages, getPdfPageCount, type RenderedImage } from "@/lib/pdf/render-plans";
 import { classifyPages } from "@/lib/pdf/classify-pages";
@@ -155,11 +157,14 @@ export async function POST(req: NextRequest) {
       // ── Step A: Classify pages if not already stored ──────────────────────
       if (!effectiveClassifications) {
         const classifyStart = Date.now();
-        effectiveClassifications = await classifyPages(pages, extractionModel, prompts.pageClassification);
+        const classifyResult = await classifyPages(pages, extractionModel, prompts.pageClassification);
+        effectiveClassifications = classifyResult.classifications;
         logApiCall({
           call_type: "page_classification",
           dossier_id: dossierId,
           model_used: extractionModel,
+          tokens_input: classifyResult.tokensInput,
+          tokens_output: classifyResult.tokensOutput,
           duration_ms: Date.now() - classifyStart,
           status: "success",
         });
@@ -173,11 +178,14 @@ export async function POST(req: NextRequest) {
       let extractedMeta = null;
       const metaStart = Date.now();
       try {
-        extractedMeta = await extractMetadata(pages, effectiveClassifications, extractionModel, prompts.metadataUser);
+        const metaResult = await extractMetadata(pages, effectiveClassifications, extractionModel, prompts.metadataUser);
+        extractedMeta = metaResult.metadata;
         logApiCall({
           call_type: "metadata_extraction",
           dossier_id: dossierId,
           model_used: extractionModel,
+          tokens_input: metaResult.tokensInput,
+          tokens_output: metaResult.tokensOutput,
           duration_ms: Date.now() - metaStart,
           status: "success",
         });
@@ -431,7 +439,8 @@ export async function POST(req: NextRequest) {
       prompts.qqpUserTemplate,
       isApartmentBuilding
         ? { unitCount: sqmUnitCount ?? dossier.apartment_count ?? null }
-        : undefined
+        : undefined,
+      buildScoringGuides(QQP_REFERENCE_RANGES)
     );
 
     const qqpCallStart = Date.now();
@@ -457,7 +466,7 @@ export async function POST(req: NextRequest) {
     type QQPExtractionResult = {
       qqp_values: Record<
         string,
-        { value: unknown; confidence: number; notes?: string }
+        { score: number; confidence: number; reasoning?: string }
       >;
       finishing_assessment: {
         level: string;
@@ -515,15 +524,16 @@ export async function POST(req: NextRequest) {
       .map(([name, data]) => {
         const def = qqpDefMap[name];
         if (!def) return null;
-        const val = data.value;
         return {
           dossier_id: dossierId as string,
           qqp_id: def.id,
-          value_numeric: typeof val === "number" ? val : null,
-          value_boolean: typeof val === "boolean" ? val : null,
-          value_text: typeof val === "string" ? val : null,
+          value_numeric: typeof data.score === "number" ? data.score : null,
+          value_boolean: null,
+          value_text: null,
           confidence: data.confidence ?? 0.5,
-          extraction_notes: data.notes ?? null,
+          extraction_notes: data.reasoning ?? null,
+          extraction_method: "ai_extracted" as const,
+          prompt_version_id: prompts.qqpPromptVersionId ?? null,
         };
       })
       .filter((r): r is NonNullable<typeof r> => r !== null);

@@ -73,15 +73,18 @@ export default async function EstimationsPage() {
     finishing_level: string | null;
     estimated_total_cost: number | null;
     status: string;
+    source: string | null;
     created_at: string | null;
   };
 
   let estimations: EstimationRow[] = [];
   if (tenantId) {
+    // Include both the user's tenant and the public tenant so the internal
+    // team can see landing-page submissions alongside their own work.
     const { data } = await admin
       .from("estimations")
-      .select("id, plan_file_name, postcode, building_type, total_livable_sqm, finishing_level, estimated_total_cost, status, created_at")
-      .eq("tenant_id", tenantId)
+      .select("id, plan_file_name, postcode, building_type, total_livable_sqm, finishing_level, estimated_total_cost, status, source, created_at")
+      .in("tenant_id", [tenantId, "00000000-0000-0000-0000-000000000002"])
       .order("created_at", { ascending: false })
       .limit(200);
     estimations = (data ?? []) as unknown as EstimationRow[];
@@ -132,6 +135,7 @@ export default async function EstimationsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="pl-6">File</TableHead>
+                    <TableHead>Source</TableHead>
                     <TableHead>Postcode</TableHead>
                     <TableHead>Building type</TableHead>
                     <TableHead className="text-right">Livable m²</TableHead>
@@ -156,6 +160,17 @@ export default async function EstimationsPage() {
                           >
                             {est.plan_file_name ?? "—"}
                           </Link>
+                        </TableCell>
+                        <TableCell>
+                          {est.source === "public" ? (
+                            <span className="rounded px-2 py-0.5 text-xs font-semibold bg-orange-50 text-orange-700">
+                              Public
+                            </span>
+                          ) : (
+                            <span className="rounded px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">
+                              Internal
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {est.postcode ?? "—"}

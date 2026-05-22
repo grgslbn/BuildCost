@@ -405,52 +405,80 @@ CRITICAL INSTRUCTIONS:
 
 Return ONLY the JSON. No markdown, no explanation.`;
 
-export const QQP_SYSTEM_PROMPT = `You are a Belgian building cost estimation expert. Given structured data extracted from a building plan, you assess the "finishing level" of the building by evaluating Quantitative-Qualitative Parameters (QQPs).
+export const QQP_SYSTEM_PROMPT = `You are a Belgian building RECONSTRUCTION cost estimation expert. You assess the "finishing level" of a building by scoring Quantitative-Qualitative Parameters (QQPs).
 
-Your goal is to determine how expensive this building would be to RECONSTRUCT (not its real estate value). A luxury apartment costs the same to rebuild whether it's in Knokke or Charleroi.
+SCORING SCALE: Each QQP gets a score from -1.0 to +1.0:
+  -1.0 = Actively basic/cheap (below Belgian standards)
+  -0.5 = Below average
+   0.0 = Average Belgian new build (standard finish)
+  +0.5 = Above average / comfort
+  +1.0 = Luxury / premium
 
-You evaluate based on: room sizes, room count, equipment visible, spatial generosity, and quality indicators.`;
+CRITICAL: You must assess BOTH positive AND negative signals:
+- A large kitchen with an island and built-in appliances → positive score
+- A kitchenette without a proper kitchen → NEGATIVE score
+- Absence of features that are normal for the building type → negative signal
+  Example: a 4-bedroom villa without a dressing room → has_dressing should be negative, not zero
 
-export const QQP_USER_PROMPT_TEMPLATE = `Given this extracted plan data, evaluate all QQP parameters and estimate a finishing coefficient.
+You will receive:
+1. Structured plan data (SQM extraction JSON) with room areas and features
+2. Plan images for visual quality assessment — USE THEM to judge finishes visible in the plan
+3. Reference scoring guides for each QQP
 
-PLAN DATA:
+Your goal is RECONSTRUCTION cost estimation, not real estate value.`;
+
+/** New QQP output types */
+export type QQPScoreEntry = {
+  score: number;
+  confidence: number;
+  reasoning: string;
+};
+
+export const QQP_USER_PROMPT_TEMPLATE = `Score each QQP parameter on a -1.0 to +1.0 scale. Use both the plan data and the plan images.
+
+PLAN DATA (SQM extraction):
 {sqm_extraction_json}
 
-KNOWN QQP PARAMETERS TO EVALUATE:
+QQP PARAMETERS TO SCORE:
 {list_of_active_qqp_definitions}
 
-For each QQP, extract its value from the plan data. Then compute the finishing coefficient.
+SCORING REFERENCES PER QQP:
+{qqp_scoring_guides}
+
+INSTRUCTIONS:
+1. Score each QQP using the reference guide above. 0.0 = average Belgian new build.
+2. Look for NEGATIVE signals: missing features that you'd expect → score below 0.
+3. Use plan images to assess visual quality indicators (layout generosity, room proportions).
+4. Set confidence based on how certain you are (0.0-1.0). Low confidence when data is ambiguous.
+5. Write brief reasoning explaining your score (max 100 chars).
 
 Return ONLY valid JSON:
 
 {
   "qqp_values": {
-    "qqp_name": {"value": 0, "confidence": 0.0, "notes": ""}
+    "qqp_name": {"score": 0.0, "confidence": 0.0, "reasoning": "brief explanation"}
   },
   "finishing_assessment": {
-    "level": "basic|standard|comfort|luxury|premium",
+    "level": "basic|standard|comfort|comfort+|luxury",
     "coefficient": 1.00,
     "confidence": 0.0,
-    "reasoning": "explanation",
-    "strongest_indicators": [],
-    "weakest_indicators": []
+    "reasoning": "overall assessment"
   },
   "new_qqp_suggestions": [
     {
       "name": "snake_case_name",
       "description": "what it measures",
-      "reasoning": "why it might correlate with finishing level"
+      "reasoning": "why it correlates with finishing level"
     }
   ]
 }
 
 RULES:
-- For boolean QQPs, set value to true/false
-- For numeric QQPs, compute the exact value from the plan data
-- For ratio QQPs, compute from the available data
-- Set confidence based on how certain you are about the extraction
-- The finishing coefficient should be between 0.70 and 1.50
-- ALWAYS suggest new QQP ideas in new_qqp_suggestions if you notice anything that might correlate with finishing level but isn't in the current QQP list
+- Scores MUST be between -1.0 and +1.0
+- Use the full range: don't cluster everything near 0
+- Absence of expected features = NEGATIVE score (not zero)
+- The finishing_assessment.coefficient is your own estimate (0.70-1.50) for validation
+- ALWAYS suggest new QQP ideas if you notice quality indicators not in the current list
 
 Return ONLY the JSON. No markdown, no explanation.`;
 
@@ -472,12 +500,16 @@ type ApartmentContext = {
   unitCount: number | null;
 };
 
+/**
+ * Build the QQP user prompt with scoring references from reference-ranges.ts.
+ */
 export function buildQQPUserPrompt(
   sqmExtraction: Record<string, unknown>,
   qqpDefs: QQPDef[],
   knownData?: KnownData,
   userTemplate?: string,
-  apartmentContext?: ApartmentContext
+  apartmentContext?: ApartmentContext,
+  scoringGuides?: Record<string, string>
 ): string {
   const qqpList = qqpDefs
     .map(
@@ -486,9 +518,22 @@ export function buildQQPUserPrompt(
     )
     .join("\n");
 
+  // Build scoring reference guides from reference-ranges
+  const guidesText = scoringGuides
+    ? qqpDefs
+        .map((d) => {
+          const guide = scoringGuides[d.name];
+          return guide
+            ? `- ${d.name}: ${guide}`
+            : `- ${d.name}: Use your best judgment (0.0 = average Belgian new build)`;
+        })
+        .join("\n")
+    : "Use your best judgment. 0.0 = average Belgian new build.";
+
   let prompt = (userTemplate ?? QQP_USER_PROMPT_TEMPLATE)
     .replace("{sqm_extraction_json}", JSON.stringify(sqmExtraction, null, 2))
-    .replace("{list_of_active_qqp_definitions}", qqpList);
+    .replace("{list_of_active_qqp_definitions}", qqpList)
+    .replace("{qqp_scoring_guides}", guidesText);
 
   if (apartmentContext) {
     const units = apartmentContext.unitCount ?? "multiple";
@@ -512,6 +557,20 @@ The finishing coefficient should reflect the typical unit quality, not the best 
   }
 
   return prompt;
+}
+
+/**
+ * Get scoring guides from reference ranges for prompt injection.
+ * Import QQP_REFERENCE_RANGES at call site to avoid circular imports.
+ */
+export function buildScoringGuides(
+  ranges: Record<string, { promptGuide: string }>
+): Record<string, string> {
+  const guides: Record<string, string> = {};
+  for (const [name, range] of Object.entries(ranges)) {
+    guides[name] = range.promptGuide;
+  }
+  return guides;
 }
 
 export const STRICT_JSON_RETRY_MESSAGE =

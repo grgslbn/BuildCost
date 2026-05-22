@@ -54,10 +54,12 @@ export async function POST(req: NextRequest) {
     const { pages, totalPageCount } = await splitPdfPages(buffer, 40);
 
     // Step 2: Classify pages (batches of 4)
-    const classifications = await classifyPages(pages, model);
+    const classifyResult = await classifyPages(pages, model);
+    const classifications = classifyResult.classifications;
 
     // Step 3: Extract metadata from expert_report / pricing_table pages
-    const extractedMetadata = await extractMetadata(pages, classifications, model);
+    const metaResult = await extractMetadata(pages, classifications, model);
+    const extractedMetadata = metaResult.metadata;
 
     const floorPlanPages = classifications
       .filter((c) => c.type === "floor_plan")

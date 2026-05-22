@@ -65,7 +65,7 @@ export type EstimationResult = {
   qqp_confidence: number | null;
   overall_confidence: number | null;
   sqm_extraction: Record<string, unknown> | null;
-  extracted_qqps: Record<string, { value: unknown; confidence?: number; notes?: string }> | null;
+  extracted_qqps: Record<string, { score: number; confidence?: number; reasoning?: string }> | null;
   sub_areas: CostBreakdown | null;
   postcode: string | null;
   plan_file_name: string | null;
@@ -292,7 +292,7 @@ export function ResultsView({
   const confInfo = confidenceLabel(result.overall_confidence);
 
   const qqpData = result.extracted_qqps ?? {};
-  type QQPEntry = { value: unknown; confidence?: number; notes?: string };
+  type QQPEntry = { score: number; confidence?: number; reasoning?: string };
 
   type Room = {
     id: string;
@@ -377,11 +377,9 @@ export function ResultsView({
             <div className="space-y-3 pt-1">
               {(() => {
                 const entries = Object.entries(qqpData) as [string, QQPEntry][];
-                const withWeight = entries
-                  .filter(([, v]) => v.value !== null && v.value !== undefined)
-                  .sort((a, b) => (b[1].confidence ?? 0) - (a[1].confidence ?? 0));
-                const top = withWeight.slice(0, 3);
-                const bottom = withWeight.slice(-3).reverse();
+                const sorted = entries.sort((a, b) => b[1].score - a[1].score);
+                const top = sorted.filter(([, v]) => v.score > 0).slice(0, 3);
+                const bottom = sorted.filter(([, v]) => v.score < 0).slice(-3).reverse();
 
                 return (
                   <>
@@ -398,13 +396,9 @@ export function ResultsView({
                                 <span className="font-medium capitalize">
                                   {name.replace(/_/g, " ")}
                                 </span>
-                                {v.value !== null && (
-                                  <span className="ml-1 text-muted-foreground">
-                                    {typeof v.value === "boolean"
-                                      ? v.value ? "present" : "absent"
-                                      : String(v.value)}
-                                  </span>
-                                )}
+                                <span className="ml-1 text-muted-foreground">
+                                  +{v.score.toFixed(2)}
+                                </span>
                               </span>
                             </li>
                           ))}
@@ -424,13 +418,9 @@ export function ResultsView({
                                 <span className="font-medium capitalize">
                                   {name.replace(/_/g, " ")}
                                 </span>
-                                {v.value !== null && (
-                                  <span className="ml-1 text-muted-foreground">
-                                    {typeof v.value === "boolean"
-                                      ? v.value ? "present" : "absent"
-                                      : String(v.value)}
-                                  </span>
-                                )}
+                                <span className="ml-1 text-muted-foreground">
+                                  {v.score.toFixed(2)}
+                                </span>
                               </span>
                             </li>
                           ))}
@@ -515,30 +505,26 @@ export function ResultsView({
             <TableHeader>
               <TableRow>
                 <TableHead>Parameter</TableHead>
-                <TableHead>Value</TableHead>
+                <TableHead className="text-right">Score</TableHead>
                 <TableHead className="text-right">Confidence</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {Object.entries(qqpData).map(([name, data]) => {
-                const v = (data as QQPEntry).value;
-                const conf = (data as QQPEntry).confidence;
-                const displayVal =
-                  v === null || v === undefined
-                    ? <span className="text-muted-foreground">—</span>
-                    : typeof v === "boolean"
-                    ? v
-                      ? <span className="text-emerald-600">Yes</span>
-                      : <span className="text-muted-foreground">No</span>
-                    : String(v);
+                const entry = data as QQPEntry;
+                const scoreColor = entry.score >= 0.5
+                  ? "text-amber-600" : entry.score <= -0.5
+                  ? "text-blue-600" : "text-foreground";
                 return (
                   <TableRow key={name}>
                     <TableCell className="capitalize">
                       {name.replace(/_/g, " ")}
                     </TableCell>
-                    <TableCell className="font-medium tabular-nums">{displayVal}</TableCell>
+                    <TableCell className={`text-right font-medium font-mono tabular-nums ${scoreColor}`}>
+                      {entry.score > 0 ? "+" : ""}{entry.score.toFixed(2)}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {conf != null ? `${Math.round(conf * 100)}%` : "—"}
+                      {entry.confidence != null ? `${Math.round(entry.confidence * 100)}%` : "—"}
                     </TableCell>
                   </TableRow>
                 );

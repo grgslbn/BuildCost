@@ -1,20 +1,18 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { SKIP_AUTH } from "@/lib/dev-auth";
+import { getSessionWithRole } from "@/lib/auth/get-session-with-role";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  console.log("[dashboard/layout] SKIP_AUTH=" + process.env.SKIP_AUTH + " const=" + SKIP_AUTH);
   if (!SKIP_AUTH) {
-    const supabase = createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    const session = await getSessionWithRole();
+    if (!session) redirect("/login");
+    // Customers have their own portal — redirect them out of the admin shell
+    if (!session.isAdmin) redirect("/customer/overview");
   }
 
   return (

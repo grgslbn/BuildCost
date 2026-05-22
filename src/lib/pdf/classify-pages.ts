@@ -34,13 +34,21 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+export type ClassifyPagesResult = {
+  classifications: PageClassification[];
+  tokensInput: number;
+  tokensOutput: number;
+};
+
 export async function classifyPages(
   pages: SplitPage[],
   model: string,
   systemPrompt?: string
-): Promise<PageClassification[]> {
+): Promise<ClassifyPagesResult> {
   const batches = chunk(pages, 4);
   const results: PageClassification[] = [];
+  let tokensInput = 0;
+  let tokensOutput = 0;
 
   for (const batch of batches) {
     const content: Anthropic.MessageParam["content"] = [];
@@ -74,6 +82,9 @@ No markdown, no explanation.`,
       system: systemPrompt ?? CLASSIFY_SYSTEM,
       messages: [{ role: "user", content }],
     });
+
+    tokensInput += response.usage.input_tokens;
+    tokensOutput += response.usage.output_tokens;
 
     const raw =
       response.content[0].type === "text" ? response.content[0].text : "[]";
@@ -110,5 +121,5 @@ No markdown, no explanation.`,
     }
   }
 
-  return results;
+  return { classifications: results, tokensInput, tokensOutput };
 }

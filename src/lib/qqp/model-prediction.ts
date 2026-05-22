@@ -1,80 +1,134 @@
 /**
- * Applies calibrated model weights to a set of extracted QQP values to
- * produce a finishing coefficient prediction.
- * Used by the estimate API when a trained model version is available.
+ * Model prediction module — applies a trained Ridge model to QQP scores
+ * to predict the finishing coefficient (F).
+ *
+ * Replaces the old broken applyModelWeights / flattenQQPValues approach.
  */
 
-type NormStats = { mean: number; std: number };
+import { predictRidge, type RidgeModel } from "./ridge-regression";
+import { QQP_NAMES } from "./reference-ranges";
+import { F_MIN, F_MAX } from "@/lib/cost/calculate-cost";
 
-type ModelWeightsBlob = {
-  _norm_stats?: Record<string, NormStats>;
-  _mean_coeff?: number;
-  _std_coeff?: number;
-  [key: string]: unknown;
+/** In-memory QQP score representation (matches new Claude output format) */
+export type QQPScore = {
+  score: number;
+  confidence: number;
+  reasoning: string;
 };
 
-export function applyModelWeights(
-  /** Raw QQP values: name → numeric value (booleans already converted to 0/1) */
-  qqpValues: Record<string, number>,
-  /** Active QQP definitions (need name + data_type) */
-  defs: Array<{ name: string; data_type: string }>,
-  /** weights JSONB from qqp_model_versions, including _norm_stats, _mean_coeff, _std_coeff */
-  modelWeightsBlob: ModelWeightsBlob
-): number | null {
-  const {
-    _norm_stats: normStats = {},
-    _mean_coeff: meanCoeff = 1.0,
-    _std_coeff: stdCoeff = 0.15,
-    ...rawWeights
-  } = modelWeightsBlob;
+/** Stored model from qqp_model_versions table */
+export type StoredModel = {
+  intercept: number;
+  weights: Record<string, number>;
+  lambda?: number;
+  version?: number;
+};
 
-  let weightedSum = 0;
-  let totalAbsWeight = 0;
-  let n = 0;
+/**
+ * Predict F from QQP scores using a trained Ridge model.
+ *
+ * @param qqpScores - QQP name → score pairs (from extraction)
+ * @param model - Trained model (intercept + named weights)
+ * @returns Clamped F value in [0.70, 1.50]
+ */
+export function predictF(
+  qqpScores: Record<string, number>,
+  model: StoredModel
+): number {
+  // Build feature vector in QQP_NAMES order
+  const x = QQP_NAMES.map((name) => qqpScores[name] ?? 0);
+  const weights = QQP_NAMES.map((name) => model.weights[name] ?? 0);
 
-  for (const def of defs) {
-    const w = rawWeights[def.name];
-    if (typeof w !== "number" || w === 0) continue;
+  const ridgeModel: RidgeModel = {
+    intercept: model.intercept,
+    weights,
+  };
 
-    const val = qqpValues[def.name];
-    if (val === undefined || val === null) continue;
-
-    const stats = normStats[def.name];
-    let normalized: number;
-
-    if (def.data_type === "boolean") {
-      normalized = val; // already 0 or 1
-    } else if (stats && stats.std > 0) {
-      normalized = Math.max(-2, Math.min(2, (val - stats.mean) / stats.std)) / 2;
-    } else {
-      continue;
-    }
-
-    weightedSum += w * normalized;
-    totalAbsWeight += Math.abs(w);
-    n++;
-  }
-
-  if (n === 0) return null;
-
-  const scaleFactor = totalAbsWeight > 0 ? stdCoeff / totalAbsWeight : 0;
-  const predicted = meanCoeff + weightedSum * scaleFactor;
-  return Math.max(0.7, Math.min(1.5, predicted));
+  const rawF = predictRidge(x, ridgeModel);
+  return Math.max(F_MIN, Math.min(F_MAX, rawF));
 }
 
 /**
- * Flatten extracted QQP values (from QQP extraction JSON) to a flat name→number map.
- * Handles numeric, boolean, and score types.
+ * Flatten new-format QQP extraction output to a name→score map.
+ *
+ * Handles new format: { qqp_name: { score, confidence, reasoning } }
  */
-export function flattenQQPValues(
-  qqpValues: Record<string, { value: unknown; confidence?: number }> | undefined
+export function flattenQQPScores(
+  qqpValues:
+    | Record<string, { score: number; confidence?: number; reasoning?: string }>
+    | undefined
 ): Record<string, number> {
   if (!qqpValues) return {};
   const out: Record<string, number> = {};
   for (const [name, data] of Object.entries(qqpValues)) {
+    if (data && typeof data.score === "number") {
+      out[name] = data.score;
+    }
+  }
+  return out;
+}
+
+/**
+ * Convert a DB row (value_numeric, confidence, extraction_notes) to QQPScore.
+ * Used when reading from dossier_qqp_values after migration.
+ */
+export function dbRowToScore(row: {
+  value_numeric: number | null;
+  confidence: number | null;
+  extraction_notes: string | null;
+}): QQPScore {
+  return {
+    score: row.value_numeric ?? 0,
+    confidence: row.confidence ?? 0,
+    reasoning: row.extraction_notes ?? "",
+  };
+}
+
+// ─── Backward compatibility ──────────────────────────────────────────────
+
+/**
+ * @deprecated Use flattenQQPScores instead. Kept for old code paths during migration.
+ */
+export function flattenQQPValues(
+  qqpValues:
+    | Record<string, { value?: unknown; score?: number; confidence?: number }>
+    | undefined
+): Record<string, number> {
+  if (!qqpValues) return {};
+  const out: Record<string, number> = {};
+  for (const [name, data] of Object.entries(qqpValues)) {
+    // New format: { score }
+    if (typeof data.score === "number") {
+      out[name] = data.score;
+      continue;
+    }
+    // Old format: { value }
     const v = data.value;
     if (typeof v === "number") out[name] = v;
     else if (typeof v === "boolean") out[name] = v ? 1 : 0;
   }
   return out;
+}
+
+/**
+ * @deprecated Use predictF instead. Kept for old code paths during migration.
+ */
+export function applyModelWeights(
+  qqpValues: Record<string, number>,
+  _defs: Array<{ name: string; data_type: string }>,
+  modelWeightsBlob: Record<string, unknown>
+): number | null {
+  // If the model has intercept/weights (new format), use predictF
+  if (
+    typeof modelWeightsBlob.intercept === "number" &&
+    typeof modelWeightsBlob.weights === "object" &&
+    modelWeightsBlob.weights !== null
+  ) {
+    return predictF(qqpValues, {
+      intercept: modelWeightsBlob.intercept as number,
+      weights: modelWeightsBlob.weights as Record<string, number>,
+    });
+  }
+  // No valid model → null (caller should use F=1.0 fallback)
+  return null;
 }

@@ -121,6 +121,24 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 - [ ] Landing page live
 - [ ] Demo ready
 
+**User management & billing (2026-05-22):**
+- Token logging fixed: `page_classification` and `metadata_extraction` now report `tokens_input`/`tokens_output` correctly
+- Schema migration applied: `users` table extended (`invited_by`, `invited_at`, `last_active_at`); `tenant_usage_monthly` materialized view created; RLS on `estimations` updated for admin/customer/service-role policies
+- Auth: `getSessionWithRole()` helper in `src/lib/auth/get-session-with-role.ts`; auth callback now redirects by role (admin → `/dashboard`, customer → `/customer/overview`)
+- Admin dashboard layout now redirects customer-role users to `/customer/overview`
+- Admin sidebar: added Tenants + Billing nav items
+- `/admin/tenants` — tenant management UI: list tenants, create tenant, list/invite users per tenant
+- `/admin/billing` — cross-tenant usage overview with monthly stats and "Refresh view" button
+- API routes: `/api/admin/tenants`, `/api/admin/tenants/[id]/users`, `/api/admin/tenants/[id]/invite`, `/api/admin/usage`, `/api/admin/usage/refresh`, `/api/my/usage`, `/api/my/share-report`
+- Customer portal at `/customer/*` — branded (terracotta/Bricolage), own layout with top nav:
+  - `/customer/overview` — stats + recent estimations + new-estimation CTA
+  - `/customer/estimations` — full list with cost/finishing/status columns
+  - `/customer/estimations/[id]` — detail: hero cost, confidence bars, share (copy link + email colleague)
+  - `/customer/usage` — monthly usage history table
+  - `/customer/account` — profile display + sign out
+- `POST /auth/signout` route for sign-out button
+- `refresh_tenant_usage_monthly()` PostgreSQL function deployed for on-demand view refresh
+
 **Additional progress (WS2):**
 - Analytics dashboard built (`/analytics`):
   - 5-section server-rendered page: Overview · Training Progress · QQP Discovery · System Health · Recent Activity
@@ -152,8 +170,8 @@ See `docs/SQM_CONTRACT.md` for the full spec. Key fields:
 
 ## Supabase Details
 
-- **Project ID**: `[FILL IN AFTER CREATION]`
-- **URL**: `[FILL IN]`
+- **Project ID**: `sqmpgzzjxsmywmpsplmu`
+- **URL**: `https://sqmpgzzjxsmywmpsplmu.supabase.co`
 - **Anon Key**: in `.env.local`
 - **Service Role Key**: in `.env.local` (server-side only!)
 - **Storage bucket**: `plans`

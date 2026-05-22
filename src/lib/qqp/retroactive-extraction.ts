@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { anthropic } from "@/lib/ai/client";
 import { parseClaudeJson } from "@/lib/ai/prompts";
+import { QQP_REFERENCE_RANGES } from "./reference-ranges";
 
 type QQPDef = {
   id: string;
@@ -12,34 +13,42 @@ type QQPDef = {
 };
 
 type ExtractionValue = {
-  value: number | boolean | null;
+  score: number | null;
   confidence: number;
-  notes?: string;
+  reasoning?: string;
 };
 
-const RETROACTIVE_PROMPT = (def: QQPDef, planData: Record<string, unknown>) =>
-  `You are analyzing structured data extracted from a building plan.
+const RETROACTIVE_PROMPT = (def: QQPDef, planData: Record<string, unknown>) => {
+  const range = QQP_REFERENCE_RANGES[def.name];
+  const guide = range?.promptGuide ?? "Use your judgment. 0.0 = average Belgian new build.";
+  return `You are analyzing structured data extracted from a building plan.
 
-Given the plan data below, extract ONLY the value for this specific parameter.
+Given the plan data below, score this specific parameter on a -1.0 to +1.0 scale.
+
+SCORING SCALE:
+  -1.0 = Actively basic/cheap
+   0.0 = Average Belgian new build
+  +1.0 = Luxury / premium
 
 PLAN DATA:
 ${JSON.stringify(planData, null, 2)}
 
-PARAMETER TO EXTRACT:
+PARAMETER TO SCORE:
 - Name: ${def.name}
 - Description: ${def.description ?? def.display_name}
-- Data type: ${def.data_type}${def.unit ? `\n- Unit: ${def.unit}` : ""}
+- Scoring reference: ${guide}
 
 Rules:
-- For boolean parameters: value must be true or false
-- For numeric parameters: value must be a number in the correct unit, or null if not determinable
-- For score parameters: value must be a number 0-10
-- Be conservative: if you cannot determine the value with reasonable confidence, return null
+- Score MUST be between -1.0 and +1.0
+- Look for NEGATIVE signals (missing expected features → score below 0)
+- Be conservative: if you cannot determine the score, return null
+- Keep reasoning brief (max 100 chars)
 
 Return ONLY valid JSON:
-{"value": <number|boolean|null>, "confidence": <0.0 to 1.0>, "notes": "brief explanation"}
+{"score": <number -1.0 to 1.0 or null>, "confidence": <0.0 to 1.0>, "reasoning": "brief explanation"}
 
 No markdown, no other text.`;
+};
 
 /**
  * Extracts a single QQP value for a single dossier using its stored sqm_extraction.
@@ -65,16 +74,17 @@ async function extractOneQQP(
       response.content[0].type === "text" ? response.content[0].text : "{}";
     const parsed = parseClaudeJson(raw) as ExtractionValue;
 
-    if (parsed.value === null || parsed.value === undefined) return false;
+    if (parsed.score === null || parsed.score === undefined) return false;
 
     const row = {
       dossier_id: dossierId,
       qqp_id: def.id,
-      value_numeric: typeof parsed.value === "number" ? parsed.value : null,
-      value_boolean: typeof parsed.value === "boolean" ? parsed.value : null,
+      value_numeric: parsed.score,
+      value_boolean: null,
       value_text: null,
       confidence: parsed.confidence ?? 0.5,
-      extraction_notes: parsed.notes ?? null,
+      extraction_notes: parsed.reasoning ?? null,
+      extraction_method: "ai_extracted" as const,
     };
 
     await admin

@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { anthropic } from "@/lib/ai/client";
 import {
   buildQQPUserPrompt,
+  buildScoringGuides,
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
@@ -14,6 +15,8 @@ import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas, getTotalGrossSqm, getBuildingType, getUnitCount } from "@/lib/cost/area-categories";
 import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
+import { flattenQQPScores, predictF, type StoredModel } from "@/lib/qqp/model-prediction";
+import { QQP_NAMES, QQP_REFERENCE_RANGES } from "@/lib/qqp/reference-ranges";
 import type Anthropic from "@anthropic-ai/sdk";
 
 // Internal route — called fire-and-forget from /api/estimate.
@@ -392,7 +395,8 @@ export async function POST(req: NextRequest) {
       prompts.qqpUserTemplate,
       isApartmentBuilding
         ? { unitCount: sqmUnitCount ?? null }
-        : undefined
+        : undefined,
+      buildScoringGuides(QQP_REFERENCE_RANGES)
     );
 
     // Build QQP content: text prompt + plan images so Claude can assess
@@ -421,7 +425,7 @@ export async function POST(req: NextRequest) {
 
     const qqpRaw = qqpResponse.content[0].type === "text" ? qqpResponse.content[0].text : "";
     type QQPResult = {
-      qqp_values: Record<string, { value: unknown; confidence: number; notes?: string }>;
+      qqp_values: Record<string, { score: number; confidence: number; reasoning?: string }>;
       finishing_assessment: {
         level:      string;
         coefficient: number;
@@ -462,13 +466,25 @@ export async function POST(req: NextRequest) {
     // ── Finishing coefficient ─────────────────────────────────────────────────
     await setStatus(admin, estimationId, "calculating");
 
-    // Hard-coded to 1.0 ("Standard"). The current model (v21) has poorly
-    // calibrated weights (almost all positive → always predicts 1.5/luxury).
-    // QQP values are still extracted and stored for future model training,
-    // but the coefficient is fixed until the model is retrained on enough
-    // reference dossiers with known prices.
-    const finishingCoefficient = 1.0;
-    const modelVersionId: string | null = null;
+    // Use Ridge model if available, otherwise fallback to F=1.0 (Standard)
+    const qqpScores = flattenQQPScores(qqpExtraction.qqp_values);
+    let finishingCoefficient = 1.0; // fallback
+    let modelVersionId: string | null = null;
+
+    const { data: activeModel } = await admin
+      .from("qqp_model_versions")
+      .select("id, weights, intercept, training_config")
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (activeModel?.intercept != null && activeModel?.weights) {
+      const storedModel: StoredModel = {
+        intercept: activeModel.intercept,
+        weights: activeModel.weights as Record<string, number>,
+      };
+      finishingCoefficient = predictF(qqpScores, storedModel);
+      modelVersionId = activeModel.id;
+    }
 
     // ── Regional factor & ABEX ────────────────────────────────────────────────
     const { data: postcodeRow } = await admin

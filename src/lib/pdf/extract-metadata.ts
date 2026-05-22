@@ -54,12 +54,18 @@ const EMPTY: ExtractedDossierMetadata = {
   expert_notes: null,
 };
 
+export type ExtractMetadataResult = {
+  metadata: ExtractedDossierMetadata;
+  tokensInput: number;
+  tokensOutput: number;
+};
+
 export async function extractMetadata(
   pages: SplitPage[],
   classifications: PageClassification[],
   model: string,
   userTemplate?: string
-): Promise<ExtractedDossierMetadata> {
+): Promise<ExtractMetadataResult> {
   const relevantNums = new Set(
     classifications
       .filter((c) => c.type === "expert_report" || c.type === "pricing_table")
@@ -97,8 +103,16 @@ export async function extractMetadata(
     response.content[0].type === "text" ? response.content[0].text : "{}";
 
   try {
-    return parseClaudeJson(raw) as ExtractedDossierMetadata;
+    return {
+      metadata: parseClaudeJson(raw) as ExtractedDossierMetadata,
+      tokensInput: response.usage.input_tokens,
+      tokensOutput: response.usage.output_tokens,
+    };
   } catch {
-    return EMPTY;
+    return {
+      metadata: EMPTY,
+      tokensInput: response.usage.input_tokens,
+      tokensOutput: response.usage.output_tokens,
+    };
   }
 }

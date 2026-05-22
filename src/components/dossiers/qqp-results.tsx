@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/table";
 
 type QQPValue = {
-  value: unknown;
+  score: number;
   confidence: number;
+  reasoning?: string;
+  /** @deprecated old format compat */
+  value?: unknown;
   notes?: string;
 };
 
@@ -27,13 +30,15 @@ type QQPData = {
   finishing_assessment: FinishingAssessment;
 };
 
-function formatQQPValue(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  if (typeof value === "boolean") return value ? "Yes" : "No";
-  if (typeof value === "number") {
-    return Number.isInteger(value) ? String(value) : value.toFixed(2);
-  }
-  return String(value);
+function formatScore(score: number): string {
+  const sign = score > 0 ? "+" : "";
+  return `${sign}${score.toFixed(2)}`;
+}
+
+function scoreColor(score: number): string {
+  if (score >= 0.5) return "text-amber-600 dark:text-amber-400";
+  if (score <= -0.5) return "text-blue-600 dark:text-blue-400";
+  return "text-foreground";
 }
 
 function PredictionError({ error }: { error: number }) {
@@ -138,23 +143,23 @@ export function QqpResults({
           <TableHeader>
             <TableRow>
               <TableHead>Parameter</TableHead>
-              <TableHead className="text-right">Value</TableHead>
+              <TableHead className="text-right">Score</TableHead>
               <TableHead className="text-right">Confidence</TableHead>
-              <TableHead>Notes</TableHead>
+              <TableHead>Reasoning</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {Object.entries(qqp_values).map(([name, v]) => (
               <TableRow key={name}>
                 <TableCell className="font-mono text-xs">{name}</TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatQQPValue(v.value)}
+                <TableCell className={`text-right font-medium ${scoreColor(v.score)}`}>
+                  {formatScore(v.score)}
                 </TableCell>
                 <TableCell className="text-right text-xs text-muted-foreground">
                   {Math.round(v.confidence * 100)}%
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {v.notes || "—"}
+                  {v.reasoning || "—"}
                 </TableCell>
               </TableRow>
             ))}

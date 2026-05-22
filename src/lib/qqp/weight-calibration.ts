@@ -1,34 +1,25 @@
+/**
+ * Weight calibration — trains a Ridge regression model from reference dossiers.
+ *
+ * Pipeline:
+ * 1. Load analyzed dossiers with known costs + valid SQM data
+ * 2. Back-calculate F_true from known cost, areas, pricing, regional, ABEX
+ * 3. Load QQP scores (new -1/+1 format) for each dossier
+ * 4. Build feature matrix X (QQP scores) and target vector y (F_true)
+ * 5. Cross-validate to find best lambda
+ * 6. Train final Ridge model
+ * 7. Store model version with intercept, weights, lambda, metrics
+ */
+
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-
-// ── Math helpers ──────────────────────────────────────────────────────────────
-
-function mean(xs: number[]): number {
-  return xs.reduce((a, b) => a + b, 0) / xs.length;
-}
-
-function stddev(xs: number[], m: number): number {
-  const variance = xs.reduce((acc, x) => acc + (x - m) ** 2, 0) / xs.length;
-  return Math.sqrt(variance);
-}
-
-function pearson(xs: number[], ys: number[]): number {
-  const n = xs.length;
-  if (n < 3) return 0;
-  const mx = mean(xs);
-  const my = mean(ys);
-  let num = 0, dx2 = 0, dy2 = 0;
-  for (let i = 0; i < n; i++) {
-    const dx = xs[i] - mx;
-    const dy = ys[i] - my;
-    num += dx * dy;
-    dx2 += dx * dx;
-    dy2 += dy * dy;
-  }
-  const den = Math.sqrt(dx2 * dy2);
-  return den === 0 ? 0 : num / den;
-}
-
-// ── Types ─────────────────────────────────────────────────────────────────────
+import {
+  trainRidge,
+  predictRidge,
+  crossValidateRidge,
+} from "./ridge-regression";
+import { backcalculateF } from "./f-backcalculate";
+import { QQP_NAMES } from "./reference-ranges";
+import { type PricingConfig, F_MIN, F_MAX } from "@/lib/cost/calculate-cost";
 
 export type CalibrationResult = {
   modelVersionId: string;
@@ -42,191 +33,214 @@ export type CalibrationResult = {
   };
 };
 
-type NormStats = {
-  mean: number;
-  std: number;
-};
-
-// ── Main function ─────────────────────────────────────────────────────────────
+const LAMBDA_CANDIDATES = [0.001, 0.01, 0.1, 1, 10, 100];
+const CV_FOLDS = 5;
 
 /**
- * Computes Pearson correlations between each QQP and the known finishing
- * coefficient, stores weights in qqp_definitions, creates a model version
- * snapshot, and re-evaluates predicted_finishing_coefficient for all
- * analyzed dossiers.
+ * Train a Ridge regression model from reference dossiers.
  */
 export async function calibrateWeights(): Promise<CalibrationResult> {
   const admin = createSupabaseAdminClient();
 
-  // Read national base price from settings
-  const { data: basePriceRow } = await admin
-    .from("system_settings")
-    .select("value")
-    .eq("key", "national_base_price_sqm")
-    .single();
-  const nationalBasePrice = (basePriceRow?.value as number) ?? 1450;
+  // ── Load pricing config ──────────────────────────────────────────────────
 
-  // Load analyzed dossiers with a known price and valid SQM data
+  const { data: pricingRows } = await admin
+    .from("system_settings")
+    .select("key, value")
+    .in("key", [
+      "cat1_price_min",
+      "cat1_price_max",
+      "cat2_price_min",
+      "cat2_price_max",
+      "cat3_price_min",
+      "cat3_price_max",
+    ]);
+
+  const pricingMap = Object.fromEntries(
+    (pricingRows ?? []).map((r) => [r.key, Number(r.value)])
+  );
+  const pricing: PricingConfig = {
+    cat1_min: pricingMap["cat1_price_min"] ?? 1100,
+    cat1_max: pricingMap["cat1_price_max"] ?? 1900,
+    cat2_min: pricingMap["cat2_price_min"] ?? 550,
+    cat2_max: pricingMap["cat2_price_max"] ?? 950,
+    cat3_min: pricingMap["cat3_price_min"] ?? 330,
+    cat3_max: pricingMap["cat3_price_max"] ?? 570,
+  };
+
+  // ── Load dossiers with known costs ──────────────────────────────────────
+
   const { data: rawDossiers } = await admin
     .from("reference_dossiers")
-    .select("id, known_price_per_sqm, known_finishing_coefficient, sqm_extraction")
+    .select(
+      "id, known_price_per_sqm, known_finishing_coefficient, sqm_extraction, postcode"
+    )
     .eq("status", "analyzed")
     .not("sqm_extraction", "is", null)
-    .or("known_price_per_sqm.not.is.null,known_finishing_coefficient.not.is.null");
+    .or(
+      "known_price_per_sqm.not.is.null,known_finishing_coefficient.not.is.null"
+    );
 
-  // Only include dossiers where SQM extraction produced meaningful surface data
-  // Supports both v11b (project_totals) and legacy (summary) format
+  // Filter to dossiers with meaningful surface data
   const dossiers = (rawDossiers ?? []).filter((d) => {
     const sqm = d.sqm_extraction as Record<string, unknown> | null;
     if (!sqm) return false;
-    // v11b: check project_totals
-    const pt = sqm.project_totals as { total_cat1_sqm?: number; total_cat2_sqm?: number } | undefined;
-    if (pt) return ((pt.total_cat1_sqm ?? 0) + (pt.total_cat2_sqm ?? 0)) > 0;
-    // Legacy: check summary
+    const pt = sqm.project_totals as {
+      total_cat1_sqm?: number;
+      total_cat2_sqm?: number;
+    } | undefined;
+    if (pt) return (pt.total_cat1_sqm ?? 0) + (pt.total_cat2_sqm ?? 0) > 0;
     const summary = sqm.summary as { total_gross_sqm?: number } | undefined;
     return summary?.total_gross_sqm != null && summary.total_gross_sqm > 0;
   });
 
-  if (dossiers.length === 0) {
-    throw new Error("No analyzed dossiers with known prices and valid SQM data — cannot calibrate.");
+  if (dossiers.length < 5) {
+    throw new Error(
+      `Need at least 5 dossiers for training, found ${dossiers.length}.`
+    );
   }
 
-  // Compute effective coefficient for each dossier
-  const effectiveCoeffs = new Map<string, number>();
+  // ── Back-calculate F_true for each dossier ──────────────────────────────
+
+  const dossierFValues = new Map<string, number>();
+
   for (const d of dossiers) {
-    let coeff: number | null = null;
+    // If we have a directly known coefficient, use it
     if (d.known_finishing_coefficient != null) {
-      coeff = d.known_finishing_coefficient;
-    } else if (d.known_price_per_sqm != null && nationalBasePrice > 0) {
-      coeff = d.known_price_per_sqm / nationalBasePrice;
+      dossierFValues.set(
+        d.id,
+        Math.max(F_MIN, Math.min(F_MAX, d.known_finishing_coefficient))
+      );
+      continue;
     }
-    if (coeff != null && coeff > 0) effectiveCoeffs.set(d.id, coeff);
+
+    // Otherwise, back-calculate from known price
+    if (d.known_price_per_sqm == null) continue;
+
+    const sqm = d.sqm_extraction as Record<string, unknown>;
+    const pt = sqm.project_totals as {
+      total_cat1_sqm?: number;
+      total_cat2_sqm?: number;
+      total_cat3_sqm?: number;
+    } | undefined;
+
+    // Also support legacy summary format (pre-category breakdown)
+    const summary = sqm.summary as {
+      total_livable_sqm?: number;
+      total_utility_sqm?: number;
+      total_garage_sqm?: number;
+      total_outdoor_sqm?: number;
+    } | undefined;
+
+    const areas = {
+      cat1_sqm: pt?.total_cat1_sqm ?? summary?.total_livable_sqm ?? 0,
+      cat2_sqm: pt?.total_cat2_sqm ?? ((summary?.total_utility_sqm ?? 0) + (summary?.total_garage_sqm ?? 0)),
+      cat3_sqm: pt?.total_cat3_sqm ?? summary?.total_outdoor_sqm ?? 0,
+    };
+
+    // Total cost = price/m² × cat1_sqm (livable area)
+    const totalCost = d.known_price_per_sqm * areas.cat1_sqm;
+    if (totalCost <= 0) continue;
+
+    // TODO: look up regional factor from postcode table and ABEX from price year
+    const regional = 1.0;
+    const abex = 1.0;
+
+    const result = backcalculateF(totalCost, areas, pricing, regional, abex);
+    if (!result.isOutlier) {
+      dossierFValues.set(d.id, result.f);
+    }
   }
 
-  if (effectiveCoeffs.size === 0) {
-    throw new Error("Could not compute effective coefficients for any dossier.");
+  if (dossierFValues.size < 5) {
+    throw new Error(
+      `Only ${dossierFValues.size} dossiers with valid F_true — need at least 5.`
+    );
   }
 
-  const dossierIdsWithCoeff = Array.from(effectiveCoeffs.keys());
+  // ── Load QQP scores ─────────────────────────────────────────────────────
 
-  // Load QQP values for those dossiers
-  const { data: qqpValues } = await admin
-    .from("dossier_qqp_values")
-    .select("dossier_id, qqp_id, value_numeric, value_boolean")
-    .in("dossier_id", dossierIdsWithCoeff);
+  const dossierIds = Array.from(dossierFValues.keys());
 
-  // Load active QQP definitions
   const { data: qqpDefs } = await admin
     .from("qqp_definitions")
-    .select("id, name, data_type")
+    .select("id, name")
     .eq("is_active", true);
+  const defMap = new Map((qqpDefs ?? []).map((d) => [d.id, d.name]));
 
-  const defs = qqpDefs ?? [];
-  const values = qqpValues ?? [];
+  const { data: qqpRows } = await admin
+    .from("dossier_qqp_values")
+    .select("dossier_id, qqp_id, value_numeric")
+    .in("dossier_id", dossierIds);
 
-  // Group QQP values by qqp_id → map dossierId → numeric value
-  const valuesByQQP = new Map<string, Map<string, number>>();
-  for (const v of values) {
-    let num: number | null = null;
-    if (v.value_numeric != null) num = Number(v.value_numeric);
-    else if (v.value_boolean != null) num = v.value_boolean ? 1 : 0;
-    if (num === null) continue;
+  // Build per-dossier score maps
+  const dossierScores = new Map<string, Record<string, number>>();
+  for (const row of qqpRows ?? []) {
+    const name = defMap.get(row.qqp_id);
+    if (!name || row.value_numeric === null) continue;
 
-    if (!valuesByQQP.has(v.qqp_id)) valuesByQQP.set(v.qqp_id, new Map());
-    valuesByQQP.get(v.qqp_id)!.set(v.dossier_id, num);
+    if (!dossierScores.has(row.dossier_id)) {
+      dossierScores.set(row.dossier_id, {});
+    }
+    dossierScores.get(row.dossier_id)![name] = Number(row.value_numeric);
   }
 
-  // Calibrate each QQP
-  const weights: Record<string, number> = {};
-  const normStats: Record<string, NormStats> = {};
-  let calibratedCount = 0;
+  // ── Build feature matrix and target vector ──────────────────────────────
 
-  for (const def of defs) {
-    const qqpMap = valuesByQQP.get(def.id);
-    if (!qqpMap || qqpMap.size < 3) {
-      weights[def.name] = 0;
-      continue;
-    }
+  const X: number[][] = [];
+  const y: number[] = [];
 
-    const pairs: [number, number][] = [];
-    for (const [dossierId, val] of Array.from(qqpMap.entries())) {
-      const coeff = effectiveCoeffs.get(dossierId);
-      if (coeff != null) pairs.push([val, coeff]);
-    }
+  dossierFValues.forEach((fTrue, dossierId) => {
+    const scores = dossierScores.get(dossierId);
+    if (!scores) return;
 
-    if (pairs.length < 3) {
-      weights[def.name] = 0;
-      continue;
-    }
+    const row = QQP_NAMES.map((name) => scores[name] ?? 0);
+    X.push(row);
+    y.push(fTrue);
+  });
 
-    const xs = pairs.map((p) => p[0]);
-    const ys = pairs.map((p) => p[1]);
-
-    const r = pearson(xs, ys);
-    const confidence = Math.min(1, pairs.length / 30);
-
-    const mx = mean(xs);
-    const sx = stddev(xs, mx);
-    normStats[def.name] = { mean: mx, std: sx };
-
-    await admin
-      .from("qqp_definitions")
-      .update({
-        weight: r,
-        weight_confidence: confidence,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", def.id);
-
-    weights[def.name] = r;
-    calibratedCount++;
-  }
-
-  // ── Build model version snapshot ──────────────────────────────────────────
-
-  const coeffValues = Array.from(effectiveCoeffs.values());
-  const meanCoeff = mean(coeffValues);
-  const stdCoeff = stddev(coeffValues, meanCoeff);
-
-  // Compute predictions on training set using weighted z-score model
-  const predictions: number[] = [];
-  const actuals: number[] = [];
-
-  for (const dossierId of dossierIdsWithCoeff) {
-    const actual = effectiveCoeffs.get(dossierId)!;
-    const predicted = predictCoefficient(
-      dossierId,
-      defs,
-      valuesByQQP,
-      weights,
-      normStats,
-      meanCoeff,
-      stdCoeff
+  if (X.length < 5) {
+    throw new Error(
+      `Only ${X.length} complete training samples — need at least 5.`
     );
-    if (predicted !== null) {
-      predictions.push(predicted);
-      actuals.push(actual);
-    }
   }
 
-  const n = predictions.length;
-  let mae = 0, mse = 0;
-  for (let i = 0; i < n; i++) {
-    const err = Math.abs(predictions[i] - actuals[i]);
+  // ── Cross-validate and train ────────────────────────────────────────────
+
+  const folds = Math.min(CV_FOLDS, X.length);
+  const cvResult = crossValidateRidge(X, y, LAMBDA_CANDIDATES, folds);
+  const bestLambda = cvResult.bestLambda;
+
+  const model = trainRidge(X, y, bestLambda);
+
+  // ── Compute training metrics ────────────────────────────────────────────
+
+  let mae = 0;
+  let mse = 0;
+  const predictions: number[] = [];
+
+  for (let i = 0; i < X.length; i++) {
+    const pred = Math.max(F_MIN, Math.min(F_MAX, predictRidge(X[i], model)));
+    predictions.push(pred);
+    const err = Math.abs(pred - y[i]);
     mae += err;
     mse += err * err;
   }
-  mae = n > 0 ? mae / n : 0;
-  const rmse = n > 0 ? Math.sqrt(mse / n) : 0;
+  mae /= X.length;
+  const rmse = Math.sqrt(mse / X.length);
 
-  // R² on training set
-  const meanActual = n > 0 ? mean(actuals) : meanCoeff;
-  const ssTot = actuals.reduce((acc, a) => acc + (a - meanActual) ** 2, 0);
-  const ssRes = predictions.reduce(
-    (acc, p, i) => acc + (p - actuals[i]) ** 2,
-    0
-  );
+  const yMean = y.reduce((a, b) => a + b, 0) / y.length;
+  const ssTot = y.reduce((acc, v) => acc + (v - yMean) ** 2, 0);
+  const ssRes = predictions.reduce((acc, p, i) => acc + (p - y[i]) ** 2, 0);
   const r_squared = ssTot > 0 ? 1 - ssRes / ssTot : 0;
+
+  // ── Store model version ─────────────────────────────────────────────────
+
+  // Convert weights array to named map
+  const namedWeights: Record<string, number> = {};
+  for (let i = 0; i < QQP_NAMES.length; i++) {
+    namedWeights[QQP_NAMES[i]] = model.weights[i] ?? 0;
+  }
 
   const { data: maxVersionRow } = await admin
     .from("qqp_model_versions")
@@ -236,15 +250,38 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
     .maybeSingle();
   const nextVersion = (maxVersionRow?.version ?? 0) + 1;
 
-  // Insert new version first, then atomically flip active flag
+  // Get active QQP prompt version for linking
+  const { data: activeQQPPrompt } = await admin
+    .from("prompt_versions")
+    .select("id")
+    .eq("prompt_type", "qqp_extraction")
+    .eq("is_active", true)
+    .maybeSingle();
+
   const { data: newModel } = await admin
     .from("qqp_model_versions")
     .insert({
       version: nextVersion,
-      weights: { ...weights, _norm_stats: normStats, _mean_coeff: meanCoeff, _std_coeff: stdCoeff },
-      training_dossier_count: effectiveCoeffs.size,
-      accuracy_metrics: { mae, rmse, r_squared, n_predictions: n },
-      notes: `Auto-calibrated from ${effectiveCoeffs.size} dossiers. ${calibratedCount} QQPs calibrated.`,
+      weights: namedWeights,
+      intercept: model.intercept,
+      lambda: bestLambda,
+      training_dossier_count: X.length,
+      accuracy_metrics: {
+        mae,
+        rmse,
+        r_squared,
+        n_predictions: X.length,
+        cv_scores: cvResult.scores,
+      },
+      prompt_version_id: activeQQPPrompt?.id ?? null,
+      training_config: {
+        cv_folds: folds,
+        n_samples: X.length,
+        feature_names: QQP_NAMES,
+        lambda_candidates: LAMBDA_CANDIDATES,
+        best_lambda: bestLambda,
+      },
+      notes: `Ridge regression (λ=${bestLambda}) from ${X.length} dossiers. MAE=${mae.toFixed(3)}, R²=${r_squared.toFixed(3)}.`,
       is_active: false,
     })
     .select("id")
@@ -252,37 +289,27 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
 
   if (!newModel?.id) throw new Error("Failed to insert new model version.");
 
-  // Deactivate all previous, then activate the new one
-  await admin.from("qqp_model_versions").update({ is_active: false }).neq("id", newModel.id);
-  await admin.from("qqp_model_versions").update({ is_active: true }).eq("id", newModel.id);
+  // Flip active flag: activate new first to avoid window with no active model
+  await admin
+    .from("qqp_model_versions")
+    .update({ is_active: true })
+    .eq("id", newModel.id);
+  await admin
+    .from("qqp_model_versions")
+    .update({ is_active: false })
+    .neq("id", newModel.id);
 
   // ── Re-evaluate all analyzed dossiers ────────────────────────────────────
 
-  const { data: allAnalyzed } = await admin
-    .from("reference_dossiers")
-    .select("id, known_price_per_sqm, known_finishing_coefficient")
-    .eq("status", "analyzed");
+  const evalEntries = Array.from(dossierFValues.entries());
+  for (let ei = 0; ei < evalEntries.length; ei++) {
+    const [dossierId, fTrue] = evalEntries[ei];
+    const scores = dossierScores.get(dossierId);
+    if (!scores) continue;
 
-  for (const dossier of allAnalyzed ?? []) {
-    const qqpDossierId = dossier.id;
-    const predicted = predictCoefficient(
-      qqpDossierId,
-      defs,
-      valuesByQQP,
-      weights,
-      normStats,
-      meanCoeff,
-      stdCoeff
-    );
-
-    if (predicted === null) continue;
-
-    let predictionError: number | null = null;
-    if (dossier.known_finishing_coefficient != null) {
-      predictionError = predicted - dossier.known_finishing_coefficient;
-    } else if (dossier.known_price_per_sqm != null && nationalBasePrice > 0) {
-      predictionError = predicted - dossier.known_price_per_sqm / nationalBasePrice;
-    }
+    const x = QQP_NAMES.map((name) => scores[name] ?? 0);
+    const predicted = Math.max(F_MIN, Math.min(F_MAX, predictRidge(x, model)));
+    const predictionError = predicted - fTrue;
 
     await admin
       .from("reference_dossiers")
@@ -291,77 +318,23 @@ export async function calibrateWeights(): Promise<CalibrationResult> {
         prediction_error: predictionError,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", qqpDossierId);
+      .eq("id", dossierId);
   }
 
   return {
-    modelVersionId: newModel?.id ?? "",
+    modelVersionId: newModel.id,
     version: nextVersion,
-    dossiersUsed: effectiveCoeffs.size,
-    qqpsCalibrated: calibratedCount,
+    dossiersUsed: X.length,
+    qqpsCalibrated: QQP_NAMES.length,
     metrics: { mae, rmse, r_squared },
   };
-}
-
-// ── Prediction model ──────────────────────────────────────────────────────────
-
-/**
- * Predicts the finishing coefficient for a dossier using the calibrated weights.
- * Uses a z-score weighted model centered on the training mean coefficient.
- */
-function predictCoefficient(
-  dossierId: string,
-  defs: Array<{ id: string; name: string; data_type: string }>,
-  valuesByQQP: Map<string, Map<string, number>>,
-  weights: Record<string, number>,
-  normStats: Record<string, NormStats>,
-  meanCoeff: number,
-  stdCoeff: number
-): number | null {
-  let weightedSum = 0;
-  let totalAbsWeight = 0;
-  let n = 0;
-
-  for (const def of defs) {
-    const w = weights[def.name];
-    if (!w || w === 0) continue;
-
-    const qqpMap = valuesByQQP.get(def.id);
-    const val = qqpMap?.get(dossierId);
-    if (val === undefined) continue;
-
-    const stats = normStats[def.name];
-    let normalized: number;
-
-    if (def.data_type === "boolean") {
-      normalized = val; // 0 or 1
-    } else if (stats && stats.std > 0) {
-      // Z-score, clamped to [-2, 2]
-      normalized = Math.max(-2, Math.min(2, (val - stats.mean) / stats.std)) / 2;
-    } else {
-      continue;
-    }
-
-    weightedSum += w * normalized;
-    totalAbsWeight += Math.abs(w);
-    n++;
-  }
-
-  if (n === 0) return null;
-
-  // Scale contribution: at full correlation (weight=1) and z=1, shift by stdCoeff
-  const scaleFactor = totalAbsWeight > 0 ? stdCoeff / totalAbsWeight : 0;
-  const predicted = meanCoeff + weightedSum * scaleFactor;
-
-  // Clamp to valid range
-  return Math.max(0.7, Math.min(1.5, predicted));
 }
 
 // ── Check calibration trigger ─────────────────────────────────────────────────
 
 /**
- * Returns true if the count of dossiers analyzed since the last model version
- * has reached the calibration_interval threshold.
+ * Returns true if enough new dossiers have been analyzed since the last
+ * model version to warrant retraining.
  */
 export async function shouldAutoCalibrate(): Promise<boolean> {
   const admin = createSupabaseAdminClient();
