@@ -1,0 +1,115 @@
+.public-report-root {
+  min-height: 100vh;
+  background: hsl(0 0% 100%);
+  color: hsl(0 0% 9%);
+}
+
+.public-report-header {
+  border-bottom: 1px solid hsl(20 14% 90%);
+  background: hsl(40 30% 98%);
+}
+.public-report-header .prh-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.public-report-header .prh-brand a {
+  font-family: var(--font-bricolage), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: hsl(0 0% 9%);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+}
+.public-report-header .prh-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C85A2A;
+  margin-left: 4px;
+  transform: translateY(-7px);
+}
+.public-report-header .prh-tag {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: hsl(20 8% 40%);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.public-report-body {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.public-report-pending {
+  max-width: 36rem;
+  margin: 64px auto;
+  padding: 32px;
+  background: hsl(40 30% 98%);
+  border: 1px solid hsl(20 14% 90%);
+  border-radius: 12px;
+  text-align: center;
+}
+.public-report-pending h2 {
+  font-family: var(--font-bricolage), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.public-report-pending p {
+  color: hsl(20 8% 40%);
+  font-size: 0.95rem;
+}
+
+.public-report-footer {
+  border-top: 1px solid hsl(20 14% 90%);
+  padding: 48px 24px 32px;
+  background: hsl(40 30% 98%);
+}
+.public-report-footer .prf-cta {
+  max-width: 36rem;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+.public-report-footer .prf-cta h3 {
+  font-family: var(--font-bricolage), Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.public-report-footer .prf-cta p {
+  color: hsl(20 8% 40%);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+.public-report-footer .prf-btn {
+  display: inline-block;
+  padding: 12px 22px;
+  background: #C85A2A;
+  color: #FFF;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+.public-report-footer .prf-btn:hover {
+  background: #8B3C1A;
+}
+.public-report-footer .prf-meta {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid hsl(20 14% 90%);
+  text-align: center;
+  font-size: 0.78rem;
+  color: hsl(20 8% 50%);
+}
