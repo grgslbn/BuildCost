@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       postcode: body.postcode.trim(),
       postcode_provided_by: "user",
       status: "uploading",
+      source: "public",
     })
     .select("id")
     .single();

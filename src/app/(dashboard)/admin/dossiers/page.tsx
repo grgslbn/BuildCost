@@ -19,20 +19,21 @@ import {
 } from "@/components/ui/tabs";
 import { DossierUploadForm } from "@/components/dossiers/upload-form";
 import { BatchUploadForm } from "@/components/dossiers/batch-upload-form";
-import { GDriveImportForm } from "@/components/dossiers/gdrive-import-form";
 import { DossierTable, type DossierRow } from "@/components/dossiers/dossier-table";
-import { BatchProcessButton } from "@/components/dossiers/batch-process-button";
+import { BatchProcessButton, type BatchDossier } from "@/components/dossiers/batch-process-button";
 import { RetryFailedButton } from "@/components/dossiers/retry-failed-button";
 import { DeleteAllButton } from "@/components/dossiers/delete-all-button";
+import { AutoRefresh } from "@/components/dossiers/auto-refresh";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function getDossiers(tenantId: string): Promise<DossierRow[]> {
   const admin = createSupabaseAdminClient();
   const { data, error } = await admin
     .from("reference_dossiers")
     .select(
-      "id, address, postcode, building_type, apartment_count, known_price_per_sqm, expert_finishing_level, predicted_finishing_level, status, error_message, created_at"
+      "id, address, postcode, building_type, apartment_count, known_total_sqm, sqm_extraction, known_price_per_sqm, expert_finishing_level, predicted_finishing_level, status, error_message, created_at"
     )
     .eq("tenant_id", tenantId)
     .order("created_at", { ascending: false });
@@ -41,7 +42,25 @@ async function getDossiers(tenantId: string): Promise<DossierRow[]> {
     console.error("Failed to fetch dossiers", error);
     return [];
   }
-  return (data ?? []) as DossierRow[];
+
+  return (data ?? []).map((d) => {
+    // Support both v11b (project_totals) and legacy (summary) format
+    const sqm = d.sqm_extraction as Record<string, unknown> | null;
+    let gross: number | null = null;
+    if (sqm) {
+      // v11b format: project_totals.total_cat1_sqm + total_cat2_sqm
+      const pt = sqm.project_totals as { total_cat1_sqm?: number; total_cat2_sqm?: number } | undefined;
+      if (pt) {
+        gross = (pt.total_cat1_sqm ?? 0) + (pt.total_cat2_sqm ?? 0);
+      } else {
+        // Legacy format
+        const summary = sqm.summary as { total_gross_sqm?: number } | undefined;
+        gross = summary?.total_gross_sqm ?? null;
+      }
+    }
+    const total_sqm = d.known_total_sqm != null ? Number(d.known_total_sqm) : (gross != null && gross > 0 ? gross : null);
+    return { ...d, total_sqm } as DossierRow;
+  });
 }
 
 export default async function AdminDossiersPage() {
@@ -67,13 +86,13 @@ export default async function AdminDossiersPage() {
   }
 
   const dossiers = tenantId ? await getDossiers(tenantId) : [];
-  const pendingIds = dossiers
+  const pendingDossiers: BatchDossier[] = dossiers
     .filter((d) => d.status === "pending")
-    .map((d) => d.id);
-  const failedIds = dossiers
+    .map((d) => ({ id: d.id, address: d.address, postcode: d.postcode }));
+  const failedDossiers: BatchDossier[] = dossiers
     .filter((d) => d.status === "error")
-    .map((d) => d.id);
-  const allIds = dossiers.map((d) => d.id);
+    .map((d) => ({ id: d.id, address: d.address, postcode: d.postcode }));
+  const allIds = dossiers.map((d) => d.id); // for DeleteAllButton
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
@@ -89,21 +108,19 @@ export default async function AdminDossiersPage() {
         <CardHeader>
           <CardTitle>Upload dossiers</CardTitle>
           <CardDescription>
-            Use <strong>Batch upload</strong> to drop many files at once, <strong>Google Drive</strong> to import a whole folder, or <strong>Detailed upload</strong> for a single file with full PDF analysis.
+            Use <strong>Batch upload</strong> to drop many files at once (metadata filled later).
+            Use <strong>Detailed upload</strong> for a single file with full PDF analysis and
+            pre-filled metadata.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="batch">
             <TabsList className="mb-6">
               <TabsTrigger value="batch">Batch upload</TabsTrigger>
-              <TabsTrigger value="gdrive">Import from Google Drive</TabsTrigger>
               <TabsTrigger value="detailed">Detailed upload (single)</TabsTrigger>
             </TabsList>
             <TabsContent value="batch">
               <BatchUploadForm />
-            </TabsContent>
-            <TabsContent value="gdrive">
-              <GDriveImportForm />
             </TabsContent>
             <TabsContent value="detailed">
               <DossierUploadForm />
@@ -121,20 +138,21 @@ export default async function AdminDossiersPage() {
             <h2 className="text-lg font-medium">All dossiers</h2>
             <p className="text-sm text-muted-foreground">
               {dossiers.length} dossier{dossiers.length !== 1 ? "s" : ""} in your workspace.
-              {pendingIds.length > 0 && (
+              {pendingDossiers.length > 0 && (
                 <span className="ml-1 text-amber-600">
-                  {pendingIds.length} pending processing.
+                  {pendingDossiers.length} pending processing.
                 </span>
               )}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <RetryFailedButton failedCount={failedIds.length} />
-            <BatchProcessButton dossierIds={pendingIds} />
+            <RetryFailedButton dossiers={failedDossiers} />
+            <BatchProcessButton dossiers={pendingDossiers} />
             <DeleteAllButton dossierIds={allIds} />
           </div>
         </div>
         <DossierTable dossiers={dossiers} />
+        <AutoRefresh statuses={dossiers.map((d) => d.status)} />
       </div>
     </div>
   );
