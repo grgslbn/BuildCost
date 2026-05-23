@@ -110,8 +110,9 @@ WHAT IS INCLUDED in enclosed m² (= cat1_sqm + cat2_sqm):
   → RULE: measure the OUTER WALL perimeter (thickest boundary), not the "enclosed" sub-annotation
 
 AFTER MEASURING enclosed area, CLASSIFY into cat1 and cat2:
-- cat1_sqm = LIVABLE: appartementen, kantoren, handelspand, woonruimtes, residential circulation (trappenhal, lifthal, gangen, inkomhal), inpandige terrassen/loggias, zolder/attic under pitched roof
-- cat2_sqm = ENCLOSED NON-LIVABLE: garage, parkeergarage, bergingen, technische ruimtes, fietsenstalling, afvalberging
+- cat1_sqm = LIVABLE: appartementen, kantoren, handelspand, woonruimtes, residential circulation (trappenhal, lifthal, gangen, inkomhal), inpandige terrassen/loggias, INHABITED attic/zolder (converted to bedrooms, living space, or office)
+- cat2_sqm = ENCLOSED NON-LIVABLE: garage, parkeergarage, bergingen, technische ruimtes, fietsenstalling, afvalberging, UNINHABITED attic/zolder (unfinished, storage-only, no rooms)
+- ZOLDER RULE: a zolder/attic is cat1 ONLY if it contains named livable rooms (slaapkamer, bureau, speelkamer, etc.) or is labeled as "bewoonbaar"/"ingericht". If the zolder is just open storage, unfinished, or has no named rooms → cat2. When in doubt (e.g. label just says "zolder" with no room names), classify as cat2.
 - RULE: cat1 + cat2 = total enclosed (outer wall measurement). Classification does NOT change the measurement.
 - SIMPLE DEFAULT: apartment floors → cat1. Kelders with parking/bergingen → cat2. Mixed floors → split by visible function.
 
