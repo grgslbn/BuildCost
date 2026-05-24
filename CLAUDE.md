@@ -1,13 +1,13 @@
-# CLAUDE.md — BuildCost (PlanBased)
+# CLAUDE.md — PlanBase (planbased.xyz)
 
 > **Shared context for all Claude Code sessions. Update after every milestone.**
-> **Last updated: 2026-05-22**
+> **Last updated: 2026-05-24**
 
 ---
 
 ## What This Is
 
-BuildCost (deployed as **planbased.xyz**) is a web tool for Belgian building insurance companies to estimate reconstruction costs after sinister (fire, flood, etc.) based ONLY on an uploaded building plan. The system extracts surface areas via Claude Vision, discovers finishing-level parameters (QQPs), and calculates a precise rebuild cost per m².
+**PlanBase** (deployed as **planbased.xyz**, repo name `BuildCost`) is a web tool for Belgian building insurance companies to estimate reconstruction costs after sinister (fire, flood, etc.) based ONLY on an uploaded building plan. The system extracts surface areas via Claude Vision, discovers finishing-level parameters (QQPs), and calculates a precise rebuild cost per m².
 
 **This is NOT real estate valuation.** It's construction rebuild cost. Regional variation is handled via a postcode coefficient.
 
@@ -48,6 +48,7 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 | `/` | Landing page (public) |
 | `/estimate` | End-user estimation: upload → processing → results |
 | `/estimations` | User's estimation history |
+| `/report/[id]` | **Public** shareable report (UUID-as-secret, no auth needed) |
 | `/admin/dossiers` | Upload & manage reference dossiers |
 | `/admin/benchmark` | Benchmark runs overview + ground truth |
 | `/admin/benchmark/[runId]` | Per-dossier benchmark results |
@@ -55,14 +56,29 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 | `/admin/prompts` | Versioned SQM/QQP prompt management |
 | `/admin/settings` | Category prices, ABEX, regional factor config |
 | `/admin/leads` | Email capture + report sending |
+| `/admin/tenants` | Tenant management: list, create, invite users |
+| `/admin/billing` | Cross-tenant usage overview with monthly stats |
+| `/admin/roadmap` | Internal Kanban task board (Georges & Tiemen) |
 | `/analytics` | API call logs, model performance, system health |
+| `/customer/overview` | Customer portal: stats + recent estimations |
+| `/customer/estimations` | Customer estimation list |
+| `/customer/estimations/[id]` | Customer detail: hero cost, confidence bars, share |
+| `/customer/usage` | Monthly usage history |
+| `/customer/account` | Profile + sign out |
 
 ## Key API Routes
 
 | Route | Purpose |
 |-------|---------|
 | `/api/estimate-process` | **Main pipeline**: PDF → classify → render → SQM → QQP → cost. `maxDuration=300` |
+| `/api/estimate-status/[id]` | Poll estimation status (timeout detection built in) |
 | `/api/process-dossier` | Process reference dossiers (training data) |
+| `/api/report/[id]/pdf` | Generate PDF report via pdf-lib (no auth, UUID-as-secret) |
+| `/api/my/share-report` | Email report to recipient with "shared by" context |
+| `/api/my/usage` | Customer's own monthly usage |
+| `/api/admin/roadmap` | CRUD for roadmap items (GET/POST/PATCH/DELETE) |
+| `/api/admin/tenants/...` | Tenant management + user invite |
+| `/api/admin/usage/...` | Cross-tenant usage for billing page |
 | `/api/benchmark/run` | Create benchmark run, returns dossier list |
 | `/api/benchmark/run/[runId]/init` | Create estimation row for benchmark dossier |
 | `/api/benchmark/run/[runId]/record` | Compare estimation with ground truth |
@@ -112,23 +128,25 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - **Components**: shadcn/ui. Install via `npx shadcn-ui@latest add [component]`
 - **DB access**: `createSupabaseAdminClient()` (service_role, bypasses RLS) for API routes. `createSupabaseServerClient()` (anon key + cookies) for user-facing server components.
 - **Environment**: Vercel env vars pulled via `vercel env pull`. Supabase keys are NOT in `.env.local` — they're in Vercel.
-- **Migrations**: SQL files in `supabase/migrations/`. Applied manually via Supabase dashboard SQL editor (CLI not linked).
+- **Migrations**: SQL files in `supabase/migrations/`. Applied via Supabase MCP tool (`apply_migration`) or manually via Supabase dashboard SQL editor (CLI not linked).
 - **SKIP_AUTH**: `middleware.ts` checks `SKIP_AUTH` env var to bypass auth in development.
 
 ## Multi-Tenant & Customer Portal
 
 - **Auth**: Supabase Auth with magic link. `getSessionWithRole()` helper routes admin vs customer users.
-- **Admin sidebar**: Tenants + Billing nav items
-- `/admin/tenants` — tenant management UI: list, create, invite users
-- `/admin/billing` — cross-tenant usage overview with monthly stats
-- **Customer portal** (`/customer/*`) — branded terracotta/Bricolage layout:
-  - `/customer/overview` — stats + recent estimations + new-estimation CTA
-  - `/customer/estimations` — full list with cost/finishing/status
-  - `/customer/estimations/[id]` — detail with hero cost, confidence bars, share
-  - `/customer/usage` — monthly usage history
-  - `/customer/account` — profile + sign out
+- **Admin sidebar**: Dossiers, QQP, Prompts, Settings, Benchmark, Leads, Tenants, Billing, Roadmap
+- **Customer portal** (`/customer/*`) — branded terracotta/Bricolage layout
 - `tenant_usage_monthly` materialized view for billing data
 - API routes: `/api/admin/tenants/...`, `/api/admin/usage/...`, `/api/my/usage`, `/api/my/share-report`
+
+## Shareable Reports & PDF (Task 12)
+
+- `/report/[id]` — public report page, no auth, UUID is the secret (Google Docs model)
+- Shows: hero cost card, CAT1/2/3 breakdown, room list per floor, PDF download button
+- `/api/report/[id]/pdf` — generates A4 PDF via `pdf-lib` with full cost breakdown
+- `sendReportDirect(estimationId, email, sharedBy?)` in `src/lib/email/send-report.ts`
+  - Used by customer share flow; injects "shared by [name] from [company]" banner
+  - `sendReportForLead(leadId)` is the legacy public funnel path
 
 ## Supabase Details
 
@@ -136,9 +154,9 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - **Region**: eu-west-1
 - **URL**: `https://sqmpgzzjxsmywmpsplmu.supabase.co`
 - **Storage bucket**: `plans` (private, 50 MB limit, PDF/PNG/JPG)
-- **Key tables**: `estimations`, `reference_dossiers`, `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `prompt_versions`, `qqp_model_versions`, `postcode_prices`, `abex_index`, `users`, `tenant_usage_monthly`
+- **Key tables**: `estimations`, `reference_dossiers`, `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `prompt_versions`, `qqp_model_versions`, `postcode_prices`, `abex_index`, `users`, `tenants`, `leads`, `tenant_usage_monthly`, `roadmap_items`
 
-## Current Status (2026-05-22)
+## Current Status (2026-05-24)
 
 ### Working
 - [x] Full end-to-end estimation pipeline (upload → SQM → QQP → cost)
@@ -147,9 +165,15 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - [x] Benchmark system with admin UI for run management + per-dossier results
 - [x] Prompt versioning system (SQM + QQP)
 - [x] QQP ridge regression model training from reference dossiers
-- [x] Admin pages: dossiers, benchmark, QQP model, prompts, settings, leads
+- [x] Admin pages: dossiers, benchmark, QQP model, prompts, settings, leads, tenants, billing, roadmap
 - [x] Email capture during processing + report sending
 - [x] Postcode extracted from plan (no user input needed)
+- [x] Multi-tenant system with customer portal (`/customer/*`)
+- [x] Shareable public report page (`/report/[id]`) — UUID-as-secret model
+- [x] PDF download (`/api/report/[id]/pdf`) via pdf-lib
+- [x] "Share by email" from customer portal with sender context
+- [x] Admin Kanban roadmap (`/admin/roadmap`) — Supabase-backed, drag-and-drop
+- [x] Architecture docs: `docs/document-analysis-flows.html` (dark) + `docs/document-analysis-flows-light.html` (light/PlanBase)
 
 ### First Benchmark Results (21 May overnight)
 - 35 dossiers attempted, 19 processed (16 skipped — browser went to sleep)
