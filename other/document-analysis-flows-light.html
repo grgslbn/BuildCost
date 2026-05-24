@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanBase — Document Analysis Flows</title>
+<style>
+  :root {
+    --bg:        #F7F6F3;
+    --surface:   #FFFFFF;
+    --surface2:  #F0EDE8;
+    --border:    #E0D9D0;
+    --text:      #1A1714;
+    --muted:     #7A6E65;
+    --est:       #1D6EE8;
+    --dossier:   #8B31E8;
+    --bench:     #C47D00;
+    --analyze:   #0A9E8C;
+    --claude:    #C85A2A;
+    --supabase:  #059669;
+    --error:     #DC2626;
+    --warning:   #EA580C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    padding: 0 0 80px;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────────── */
+  .page-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--border);
+    padding: 36px 48px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+  .page-header h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .page-header h1 span { color: var(--claude); }
+  .page-header p { color: var(--muted); margin-top: 4px; font-size: 0.875rem; }
+
+  .legend { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ─── LAYOUT ─────────────────────────────────────────────── */
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+  section { margin-top: 48px; }
+  h2 {
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+
+  /* ─── CARDS ──────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  /* ─── ENTRY POINTS GRID ──────────────────────────────────── */
+  .entry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .entry-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .entry-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .entry-est::before    { background: var(--est); }
+  .entry-dossier::before { background: var(--dossier); }
+  .entry-bench::before  { background: var(--bench); }
+  .entry-analyze::before { background: var(--analyze); }
+
+  .entry-icon { font-size: 1.65rem; margin-bottom: 10px; }
+  .entry-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .entry-route {
+    font-family: monospace; font-size: 0.73rem;
+    color: var(--muted); margin-bottom: 10px;
+    background: var(--surface2); padding: 3px 7px; border-radius: 4px;
+    display: inline-block;
+  }
+  .entry-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 0.69rem; font-weight: 600; margin-top: 10px; margin-right: 4px;
+  }
+  .badge-timeout { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+  .badge-noauth  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .badge-auth    { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+
+  /* ─── PIPELINE ───────────────────────────────────────────── */
+  .pipeline-wrap { overflow-x: auto; padding-bottom: 8px; }
+  .pipeline { display: flex; align-items: flex-start; gap: 0; min-width: 980px; }
+
+  .pipe-step {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 14px;
+    min-height: 160px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .pipe-step + .pipe-step { margin-left: -1px; border-radius: 0; }
+  .pipe-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-step:last-child  { border-radius: 0 10px 10px 0; }
+
+  .pipe-num { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .pipe-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .pipe-detail { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+  .pipe-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 600; margin-top: 6px; }
+
+  .arrow-right {
+    flex: 0 0 24px; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 1rem; z-index: 1; margin-top: 40px;
+    background: var(--bg); padding: 0 2px;
+  }
+
+  /* ─── FLOW COMPARISON ────────────────────────────────────── */
+  .flow-matrix { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+  .flow-matrix th, .flow-matrix td {
+    padding: 9px 14px; border: 1px solid var(--border); text-align: left;
+  }
+  .flow-matrix th { background: var(--surface2); font-weight: 700; font-size: 0.78rem; white-space: nowrap; }
+  .flow-matrix td { background: var(--surface); }
+  .flow-matrix tr:hover td { background: #FAF8F5; }
+
+  .check  { color: var(--supabase); font-size: 1rem; }
+  .cross  { color: #CBD5E1; font-size: 1rem; }
+  .partial{ color: var(--warning); font-size: 1rem; }
+
+  /* ─── DETAILED FLOW ──────────────────────────────────────── */
+  .flow-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  .step-list { list-style: none; }
+  .step-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+  .step-list li:last-child { border-bottom: none; }
+
+  .step-num {
+    flex: 0 0 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.68rem; font-weight: 700;
+    background: var(--surface2); color: var(--muted); margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .step-note  { color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
+
+  .step-api   { background: #FEF0E8; border: 1px solid #F4C3A4; color: #9A3412; border-radius: 4px; padding: 3px 8px; font-size: 0.71rem; margin-top: 4px; display: inline-block; }
+  .step-store { background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; border-radius: 4px; padding: 3px 8px; font-size: 0.71rem; margin-top: 4px; display: inline-block; }
+  .step-local { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: 4px; padding: 3px 8px; font-size: 0.71rem; margin-top: 4px; display: inline-block; }
+  .step-warn  { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; border-radius: 4px; padding: 3px 8px; font-size: 0.71rem; margin-top: 4px; display: inline-block; }
+
+  /* ─── CLAUDE CALLS TABLE ─────────────────────────────────── */
+  .claude-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .claude-table th, .claude-table td {
+    padding: 10px 14px; border: 1px solid var(--border); text-align: left; vertical-align: top;
+  }
+  .claude-table th { background: #FEF0E8; color: #9A3412; font-size: 0.74rem; font-weight: 700; white-space: nowrap; }
+  .claude-table td { background: var(--surface); }
+  .claude-table tr:hover td { background: #FAF8F5; }
+  .mono { font-family: monospace; font-size: 0.78rem; }
+  .thinking-yes { color: var(--claude); font-weight: 700; }
+  .thinking-no  { color: var(--muted); }
+
+  /* ─── DATA MAP ───────────────────────────────────────────── */
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .data-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .data-table-name { font-family: monospace; font-size: 0.85rem; font-weight: 700; color: var(--supabase); margin-bottom: 8px; }
+  .data-field {
+    display: flex; gap: 6px; align-items: flex-start;
+    padding: 3px 0; font-size: 0.775rem; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .data-field:last-child { border-bottom: none; }
+  .data-field-name { color: var(--text); min-width: 0; word-break: break-all; }
+  .data-type { font-family: monospace; font-size: 0.69rem; color: var(--muted); flex-shrink: 0; }
+  .written-by { margin-top: 10px; font-size: 0.71rem; color: var(--muted); }
+  .written-by span { display: inline-block; padding: 1px 6px; border-radius: 3px; margin: 2px; font-size: 0.68rem; }
+
+  /* ─── LIMITATIONS ────────────────────────────────────────── */
+  .limit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .limit-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--error);
+    border-radius: 0 8px 8px 0;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .limit-title { font-size: 0.85rem; font-weight: 700; color: var(--error); margin-bottom: 6px; }
+  .limit-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .limit-mitigation {
+    margin-top: 8px; font-size: 0.74rem; color: #065F46;
+    background: #ECFDF5; border: 1px solid #A7F3D0;
+    border-radius: 4px; padding: 5px 8px;
+  }
+  .limit-mitigation::before { content: '↳ '; }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  .page-footer {
+    margin-top: 64px; border-top: 1px solid var(--border);
+    padding: 18px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.775rem; color: var(--muted);
+    background: var(--surface);
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .entry-grid  { grid-template-columns: 1fr 1fr; }
+    .flow-columns { grid-template-columns: 1fr; }
+    .data-grid   { grid-template-columns: 1fr; }
+    .limit-grid  { grid-template-columns: 1fr; }
+    .wrap { padding: 0 20px; }
+    .page-header { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="wrap">
+    <h1>PlanBase — <span>Document Analysis Flows</span></h1>
+    <p>Architecture map: all entry points, Claude API calls, Supabase writes, tools, and limitations.</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--est)"></div>Estimate / Public funnel</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--dossier)"></div>Reference dossiers</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--bench)"></div>Benchmark</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--analyze)"></div>Analyze-PDF (quick scan)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--claude)"></div>Claude API call</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--supabase)"></div>Supabase write</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════════════════════
+     1. ENTRY POINTS
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Entry Points</h2>
+  <div class="entry-grid">
+
+    <div class="entry-card entry-est">
+      <div class="entry-icon">🏠</div>
+      <div class="entry-name">Estimation</div>
+      <div class="entry-route">POST /api/estimate-process</div>
+      <div class="entry-desc">End-to-end pipeline for a single building plan uploaded via the public landing page or customer portal. Produces the full cost report shown to the user.</div>
+      <div>
+        <span class="badge badge-timeout">300s max</span>
+        <span class="badge badge-noauth">No auth (internal)</span>
+      </div>
+    </div>
+
+    <div class="entry-card entry-dossier">
+      <div class="entry-icon">📁</div>
+      <div class="entry-name">Reference Dossier</div>
+      <div class="entry-route">POST /api/process-dossier</div>
+      <div class="entry-desc">Processes an expert reference file — full page classification, metadata extraction, SQM + QQP extraction, expert-F back-calculation, and self-learning triggers.</div>
+      <div>
+        <span class="badge badge-timeout">300s max</span>
+        <span class="badge badge-auth">Auth required</span>
+      </div>
+    </div>
+
+    <div class="entry-card entry-bench">
+      <div class="entry-icon">📊</div>
+      <div class="entry-name">Benchmark</div>
+      <div class="entry-route">/api/benchmark/run/…</div>
+      <div class="entry-desc">Orchestrates estimation on every reference dossier in sequence. Creates estimation rows, fires the estimate-process pipeline per dossier, polls results, then records error metrics.</div>
+      <div>
+        <span class="badge badge-timeout">Sequential</span>
+        <span class="badge badge-auth">Auth required</span>
+      </div>
+    </div>
+
+    <div class="entry-card entry-analyze">
+      <div class="entry-icon">🔍</div>
+      <div class="entry-name">Quick Scan</div>
+      <div class="entry-route">POST /api/analyze-pdf</div>
+      <div class="entry-desc">Lightweight scan: splits pages, classifies each page type, extracts metadata from expert-report / pricing-table pages. Returns JSON — no SQM, no cost, nothing stored to DB.</div>
+      <div>
+        <span class="badge badge-timeout">300s max</span>
+        <span class="badge badge-auth">Auth required</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     2. SHARED PIPELINE STEPS
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Shared Pipeline Steps</h2>
+  <p style="color:var(--muted);font-size:0.82rem;margin-bottom:16px;">All four entry points share subsets of the same sequential processing steps. Tags below show which flows use each step.</p>
+  <div class="pipeline-wrap">
+    <div class="pipeline">
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 1</div>
+        <div class="pipe-title">📥 Download</div>
+        <div class="pipe-detail">Pull file from Supabase Storage bucket <code>plans</code>. Supports PDF and raw images (PNG/JPG).</div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Estimate</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+          <span class="pipe-tag" style="background:#FFFBEB;color:var(--bench)">Benchmark</span>
+          <span class="pipe-tag" style="background:#F0FDFA;color:var(--analyze)">Quick Scan</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 2</div>
+        <div class="pipe-title">✂️ Split Pages</div>
+        <div class="pipe-detail"><code>splitPdfPages()</code> — single-page PDFs as base64. Used as fallback render tier or classification input. Cap: 40 pages.</div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Fallback</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+          <span class="pipe-tag" style="background:#F0FDFA;color:var(--analyze)">Quick Scan</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 3</div>
+        <div class="pipe-title">🏷️ Classify Pages</div>
+        <div class="pipe-detail">
+          <strong style="color:var(--est)">Estimate:</strong> Local mupdf keyword heuristics — free, no API.<br><br>
+          <strong style="color:var(--dossier)">Dossier &amp; Quick Scan:</strong> Claude API — batches of 4, 512 tokens, types: floor_plan / expert_report / photo / pricing_table / cover / other.
+        </div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Local only</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">Claude API</span>
+          <span class="pipe-tag" style="background:#F0FDFA;color:var(--analyze)">Claude API</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 4</div>
+        <div class="pipe-title">🖼️ Render to PNG</div>
+        <div class="pipe-detail">
+          <strong>Tier 1:</strong> mupdf + sharp, 300 DPI, max 5 000 px. Auto-detects landscape multi-plan sheets (2-split or 3-split).<br><br>
+          <strong>Tier 2 (fallback):</strong> base64 PDF doc blocks if mupdf unavailable.
+        </div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Both tiers</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">Both tiers</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 5</div>
+        <div class="pipe-title">📐 SQM Extraction</div>
+        <div class="pipe-detail">Claude Sonnet with <strong style="color:var(--claude)">extended thinking (10 000 token budget)</strong>. Streaming. Extracts rooms, areas (CAT1/2/3), building type, scale. Retry with T=0 on JSON failure. Cap: 12 pages.</div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Estimate</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+          <span class="pipe-tag" style="background:#FFFBEB;color:var(--bench)">via Estimate</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 6</div>
+        <div class="pipe-title">✨ QQP Extraction</div>
+        <div class="pipe-detail">Claude Sonnet, no thinking, 8 192 tokens. Extracts 35+ quality parameters (windows, doors, kitchen, heating, etc.) + finishing coefficient + per-QQP confidence. Retry with T=0 on failure.</div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">+ plan images</span>
+          <span class="pipe-tag" style="background:#F5F3FF;color:var(--dossier)">text-only</span>
+          <span class="pipe-tag" style="background:#FFFBEB;color:var(--bench)">via Estimate</span>
+        </div>
+      </div>
+
+      <div class="arrow-right">→</div>
+
+      <div class="pipe-step">
+        <div class="pipe-num">Step 7</div>
+        <div class="pipe-title">💰 Cost Calculation</div>
+        <div class="pipe-detail">Pure maths — no API. Ridge regression maps QQP scores → F ∈ [0.70, 1.50]. Postcode → regional factor. ABEX index. Interpolate CAT1/2/3 prices, compute totals.</div>
+        <div style="margin-top:10px;display:flex;gap:3px;flex-wrap:wrap;">
+          <span class="pipe-tag" style="background:#EFF6FF;color:var(--est)">Estimate</span>
+          <span class="pipe-tag" style="background:#FFFBEB;color:var(--bench)">via Estimate</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     3. FLOW COMPARISON MATRIX
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Flow Comparison</h2>
+  <table class="flow-matrix">
+    <thead>
+      <tr>
+        <th>Step / Feature</th>
+        <th style="color:var(--est)">🏠 Estimate</th>
+        <th style="color:var(--dossier)">📁 Dossier</th>
+        <th style="color:var(--bench)">📊 Benchmark</th>
+        <th style="color:var(--analyze)">🔍 Quick Scan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Page split</strong></td><td><span class="partial">◑</span> Fallback only</td><td><span class="check">✓</span> Always</td><td><span class="check">✓</span> via Estimate</td><td><span class="check">✓</span> Always</td></tr>
+      <tr><td><strong>Page classification (AI)</strong></td><td><span class="cross">✗</span> Local heuristics</td><td><span class="check">✓</span> Claude, batched</td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Claude, batched</td></tr>
+      <tr><td><strong>Metadata extraction</strong></td><td><span class="cross">✗</span></td><td><span class="check">✓</span> From expert pages</td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Returns in response</td></tr>
+      <tr><td><strong>Render to PNG (mupdf)</strong></td><td><span class="check">✓</span> Tier 1</td><td><span class="check">✓</span> Tier 1</td><td><span class="check">✓</span> via Estimate</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>SQM extraction (Claude + thinking)</strong></td><td><span class="check">✓</span> 10k thinking</td><td><span class="check">✓</span> 10k thinking</td><td><span class="check">✓</span> via Estimate</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>QQP extraction (Claude)</strong></td><td><span class="check">✓</span> + plan images</td><td><span class="check">✓</span> text-only</td><td><span class="check">✓</span> via Estimate</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>Ridge F prediction</strong></td><td><span class="check">✓</span></td><td><span class="partial">◑</span> back-calc only</td><td><span class="check">✓</span> via Estimate</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>Regional + ABEX factors</strong></td><td><span class="check">✓</span></td><td><span class="check">✓</span> for back-calc</td><td><span class="check">✓</span> via Estimate</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>Cost calculation</strong></td><td><span class="check">✓</span></td><td><span class="partial">◑</span> Expert only</td><td><span class="check">✓</span> Predicted + Expert</td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>Stores to DB</strong></td><td><span class="check">✓</span> estimations</td><td><span class="check">✓</span> reference_dossiers + dossier_qqp_values</td><td><span class="check">✓</span> evaluation_results</td><td><span class="cross">✗</span> Response only</td></tr>
+      <tr><td><strong>QQP self-learning trigger</strong></td><td><span class="cross">✗</span></td><td><span class="check">✓</span> If |error| &gt; 15%</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+      <tr><td><strong>Auto-calibrate Ridge model</strong></td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Non-fatal</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     4. FLOW DEEP-DIVES
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Flow Deep-Dives</h2>
+  <div class="flow-columns">
+
+    <!-- Estimate -->
+    <div class="card" style="border-top:3px solid var(--est)">
+      <h3 style="color:var(--est)">🏠 estimate-process — Full Pipeline</h3>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:14px;">Main user-facing pipeline. Triggered by <code>/api/estimate</code> as fire-and-forget. Internal 250s watchdog before Vercel's 300s hard limit.</p>
+      <ul class="step-list">
+        <li><div class="step-num">1</div><div class="step-body"><div class="step-title">Load settings &amp; download PDF</div><div class="step-note">Reads extraction model, QQP model, pricing tiers, ABEX, and versioned prompts from DB. Downloads from Storage.</div><span class="step-store">estimations ← status='processing'</span></div></li>
+        <li><div class="step-num">2</div><div class="step-body"><div class="step-title">Local floor-plan detection</div><div class="step-note">mupdf keyword heuristics scan page labels for "plan", "ground floor", "etage", etc. Zero API cost. Returns floor plan page numbers + floor labels.</div><span class="step-local">local only — no API</span></div></li>
+        <li><div class="step-num">3</div><div class="step-body"><div class="step-title">Render selected pages → PNG</div><div class="step-note">mupdf + sharp at 300 DPI, max 5 000 px. Landscape detection: splits double-plan sheets into 2 or 3 sub-images. Fallback: base64 PDF blocks if mupdf unavailable.</div><span class="step-local">mupdf + sharp</span></div></li>
+        <li><div class="step-num">4</div><div class="step-body"><div class="step-title">SQM Extraction</div><div class="step-note">Claude Sonnet with extended thinking (10k budget). Streams response. Max 12 floor-plan pages. Extracts rooms, areas per category, building type, scale confidence. Retry once with T=0 on JSON failure.</div><span class="step-api">Claude API — 26 384 max tokens — Thinking ON</span><br><span class="step-store">api_call_log ← tokens in/out</span></div></li>
+        <li><div class="step-num">5</div><div class="step-body"><div class="step-title">QQP Extraction</div><div class="step-note">Claude Sonnet without thinking. 8 192 max tokens. Sends SQM output + plan images. Extracts 35+ quality parameters with scores [0.0–1.0] and per-QQP confidence + reasoning.</div><span class="step-api">Claude API — 8 192 max tokens — Thinking OFF</span><br><span class="step-store">api_call_log ← tokens in/out</span></div></li>
+        <li><div class="step-num">6</div><div class="step-body"><div class="step-title">F prediction → Cost calculation</div><div class="step-note">Ridge regression model maps QQP scores → F ∈ [0.70, 1.50]. Postcode lookup → regional factor. ABEX index. Interpolate CAT1/2/3 prices, compute totals.</div><span class="step-local">pure maths — no API</span></div></li>
+        <li><div class="step-num">7</div><div class="step-body"><div class="step-title">Write result</div><div class="step-note">Full estimation data: SQM breakdown, QQP values, cost per category, confidence scores, processing time.</div><span class="step-store">estimations ← status='complete'</span></div></li>
+      </ul>
+    </div>
+
+    <!-- Dossier -->
+    <div class="card" style="border-top:3px solid var(--dossier)">
+      <h3 style="color:var(--dossier)">📁 process-dossier — Reference Analysis</h3>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:14px;">Richer flow for training data. Includes AI page classification, metadata extraction, expert F back-calculation, and self-learning triggers.</p>
+      <ul class="step-list">
+        <li><div class="step-num">1</div><div class="step-body"><div class="step-title">Load dossier &amp; download PDF</div><div class="step-note">Loads reference_dossiers row. Downloads PDF from Storage.</div></div></li>
+        <li><div class="step-num">2</div><div class="step-body"><div class="step-title">Split all pages</div><div class="step-note">splitPdfPages() — base64 single-page PDFs. Used for classification and rendering.</div></div></li>
+        <li><div class="step-num">3</div><div class="step-body"><div class="step-title">Page classification (AI)</div><div class="step-note">Claude Sonnet, batches of 4, 512 tokens/batch. Types: floor_plan / expert_report / pricing_table / photo / cover / other. Stored once; reused on re-runs.</div><span class="step-api">Claude API — 512 tokens/batch — Thinking OFF</span><br><span class="step-store">reference_dossiers ← page_classifications</span><br><span class="step-store">api_call_log</span></div></li>
+        <li><div class="step-num">4</div><div class="step-body"><div class="step-title">Metadata extraction</div><div class="step-note">Filters to expert_report + pricing_table pages (max 6). Extracts address, postcode, building type, apartment count, known price, known SQM, expert finishing level.</div><span class="step-api">Claude API — 2 048 tokens — Thinking OFF</span><br><span class="step-store">reference_dossiers ← address, postcode, …</span></div></li>
+        <li><div class="step-num">5</div><div class="step-body"><div class="step-title">Render floor plans → SQM Extraction</div><div class="step-note">Same as Estimate flow: mupdf tier-1 then base64 fallback. Claude Sonnet + 10k thinking. Stream + retry logic.</div><span class="step-api">Claude API — 26 384 max tokens — Thinking ON</span><br><span class="step-store">reference_dossiers ← sqm_extraction</span></div></li>
+        <li><div class="step-num">6</div><div class="step-body"><div class="step-title">QQP Extraction (text-only)</div><div class="step-note">No plan images — prompt uses SQM output + known expert context (price, notes). Extracts same 35+ parameters.</div><span class="step-api">Claude API — 8 192 tokens — Thinking OFF</span><br><span class="step-store">dossier_qqp_values ← upsert per QQP</span></div></li>
+        <li><div class="step-num">7</div><div class="step-body"><div class="step-title">Expert F back-calculation</div><div class="step-note">If known_total_price + known_total_sqm available: reverse-solve F from cost formula + regional + ABEX. Clamp to [0.70, 1.50].</div><span class="step-local">pure maths — no API</span></div></li>
+        <li><div class="step-num">8</div><div class="step-body"><div class="step-title">Self-learning triggers</div><div class="step-note">If |prediction_error| &gt; 15%: log suggested new QQPs. Check auto-calibrate threshold. Both non-fatal.</div><span class="step-store">qqp_discovery_log</span><br><span class="step-store">reference_dossiers ← prediction_error, status='analyzed'</span></div></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="flow-columns" style="margin-top:18px;">
+
+    <!-- Benchmark -->
+    <div class="card" style="border-top:3px solid var(--bench)">
+      <h3 style="color:var(--bench)">📊 Benchmark — Accuracy Evaluation</h3>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:14px;">Orchestrator that reuses estimate-process across all reference dossiers and compares predicted costs vs. expert ground truth.</p>
+      <ul class="step-list">
+        <li><div class="step-num">1</div><div class="step-body"><div class="step-title">Create run</div><div class="step-note">Selects dossiers (mode: "all" or "difficult"), creates evaluation_runs row, returns dossier list to client-side runner.</div><span class="step-store">evaluation_runs ← status='running'</span></div></li>
+        <li><div class="step-num">2</div><div class="step-body"><div class="step-title">Init estimation per dossier</div><div class="step-note">Creates estimations row with dossier's plan path and postcode.</div><span class="step-store">estimations ← status='uploading'</span></div></li>
+        <li><div class="step-num">3</div><div class="step-body"><div class="step-title">Fire estimation pipeline</div><div class="step-note">Client calls /api/estimate-process with estimationId. Full 7-step pipeline runs.</div><span class="step-api">← estimate-process pipeline</span></div></li>
+        <li><div class="step-num">4</div><div class="step-body"><div class="step-title">Poll for completion</div><div class="step-note">Client polls every few seconds. Stuck detection: if updated_at hasn't moved in 6 min → marks as Vercel-killed.</div></div></li>
+        <li><div class="step-num">5</div><div class="step-body"><div class="step-title">Record result</div><div class="step-note">Computes CAT1/2/3 area error %, cost error %, F delta vs. expert ground truth.</div><span class="step-store">evaluation_results ← all error metrics</span></div></li>
+        <li><div class="step-num">6</div><div class="step-body"><div class="step-title">Finalize</div><div class="step-note">Aggregates: cost MAE, median error, % within 10%/15%, F MAE.</div><span class="step-store">evaluation_runs ← aggregate_metrics, status='complete'</span></div></li>
+      </ul>
+    </div>
+
+    <!-- Quick Scan -->
+    <div class="card" style="border-top:3px solid var(--analyze)">
+      <h3 style="color:var(--analyze)">🔍 analyze-pdf — Quick Scan</h3>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:14px;">Lightweight inspection tool. No SQM/QQP, nothing stored to DB. Returns raw classification + metadata as JSON.</p>
+      <ul class="step-list">
+        <li><div class="step-num">1</div><div class="step-body"><div class="step-title">Download PDF from Storage</div><div class="step-note">Reads storagePath from request body. Uses admin client (service role).</div></div></li>
+        <li><div class="step-num">2</div><div class="step-body"><div class="step-title">Split pages (up to 40)</div><div class="step-note">splitPdfPages(buffer, 40) — array of base64 single-page PDFs.</div></div></li>
+        <li><div class="step-num">3</div><div class="step-body"><div class="step-title">Classify all pages</div><div class="step-note">classifyPages() — batches of 4, Claude Sonnet, 512 tokens/batch. Returns type, confidence, description per page.</div><span class="step-api">Claude API — 512 tokens/batch — Thinking OFF</span></div></li>
+        <li><div class="step-num">4</div><div class="step-body"><div class="step-title">Extract metadata</div><div class="step-note">extractMetadata() — filters to expert_report + pricing_table pages (max 6, fallback first 4). Extracts address, postcode, price, sqm, etc.</div><span class="step-api">Claude API — 2 048 tokens — Thinking OFF</span></div></li>
+        <li><div class="step-num">5</div><div class="step-body"><div class="step-title">Return JSON (nothing stored)</div><div class="step-note">Response: totalPageCount, processedPageCount, classifications[], floorPlanPages[], extractedMetadata. No DB writes.</div><span class="step-local">response only</span></div></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     5. CLAUDE API CALLS SUMMARY
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>All Claude API Calls</h2>
+  <table class="claude-table">
+    <thead>
+      <tr>
+        <th>Call type</th>
+        <th>Used in</th>
+        <th>Model</th>
+        <th>Thinking</th>
+        <th>Max tokens</th>
+        <th>Input content</th>
+        <th>Output</th>
+        <th>Retry?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>SQM Extraction</strong></td>
+        <td><span style="color:var(--est)">Estimate</span><br><span style="color:var(--dossier)">Dossier</span><br><span style="color:var(--bench)">Benchmark</span></td>
+        <td class="mono">claude-sonnet-4-6</td>
+        <td class="thinking-yes">✓ 10 000 tokens<br>Streaming</td>
+        <td class="mono">26 384<br><span style="color:var(--muted)">(10k+16k)</span></td>
+        <td>System (SQM v11b, ~1 200 lines) + floor context + rendered plan images (PNG or PDF doc blocks)</td>
+        <td>JSON: buildings[], project_totals, scale_confidence, warnings</td>
+        <td>Yes — T=0, no thinking, stricter prompt</td>
+      </tr>
+      <tr>
+        <td><strong>QQP Extraction</strong></td>
+        <td><span style="color:var(--est)">Estimate</span><br><span style="color:var(--dossier)">Dossier</span></td>
+        <td class="mono">claude-sonnet-4-6</td>
+        <td class="thinking-no">✗ None</td>
+        <td class="mono">8 192</td>
+        <td>System (QQP) + user prompt (SQM output + scoring guides) + plan images (Estimate only)</td>
+        <td>JSON: qqp_values{}, finishing_assessment, new_qqp_suggestions[]</td>
+        <td>Yes — T=0, stricter prompt</td>
+      </tr>
+      <tr>
+        <td><strong>Page Classification</strong></td>
+        <td><span style="color:var(--dossier)">Dossier</span><br><span style="color:var(--analyze)">Quick Scan</span></td>
+        <td class="mono">claude-sonnet-4-6</td>
+        <td class="thinking-no">✗ None</td>
+        <td class="mono">512</td>
+        <td>System (classify) + up to 4 PDF pages as document blocks</td>
+        <td>JSON array: [{pageNumber, type, confidence, description}]</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td><strong>Metadata Extraction</strong></td>
+        <td><span style="color:var(--dossier)">Dossier</span><br><span style="color:var(--analyze)">Quick Scan</span></td>
+        <td class="mono">claude-sonnet-4-6</td>
+        <td class="thinking-no">✗ None</td>
+        <td class="mono">2 048</td>
+        <td>User template + up to 6 expert/pricing pages as doc blocks</td>
+        <td>JSON: address, postcode, building_type, apartment_count, known_price, known_sqm, expert_finishing_level</td>
+        <td>No (null on failure)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    <div style="background:#FEF0E8;border:1px solid #F4C3A4;border-radius:8px;padding:14px 16px;">
+      <div style="font-size:0.74rem;color:#9A3412;margin-bottom:4px;font-weight:600;">SQM call (approx)</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--claude)">$0.05 – $0.15</div>
+      <div style="font-size:0.72rem;color:var(--muted)">per estimation — varies by plan complexity</div>
+    </div>
+    <div style="background:#FEF0E8;border:1px solid #F4C3A4;border-radius:8px;padding:14px 16px;">
+      <div style="font-size:0.74rem;color:#9A3412;margin-bottom:4px;font-weight:600;">QQP call (approx)</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--claude)">$0.01 – $0.03</div>
+      <div style="font-size:0.72rem;color:var(--muted)">per estimation</div>
+    </div>
+    <div style="background:#FEF0E8;border:1px solid #F4C3A4;border-radius:8px;padding:14px 16px;">
+      <div style="font-size:0.74rem;color:#9A3412;margin-bottom:4px;font-weight:600;">Classification (approx)</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--claude)">$0.001 – $0.005</div>
+      <div style="font-size:0.72rem;color:var(--muted)">per dossier (batched, 512 tok)</div>
+    </div>
+    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:14px 16px;">
+      <div style="font-size:0.74rem;color:#065F46;margin-bottom:4px;font-weight:600;">Floor plan detection</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--supabase)">FREE</div>
+      <div style="font-size:0.72rem;color:var(--muted)">local mupdf heuristics (Estimate flow)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     6. SUPABASE DATA MAP
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Supabase Data Written Per Flow</h2>
+  <div class="data-grid">
+
+    <div class="data-card">
+      <div class="data-table-name">estimations</div>
+      <div class="data-field"><span class="data-field-name">sqm_extraction</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">sub_areas</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">extracted_qqps</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">total_livable_sqm / total_gross_sqm</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">finishing_level / finishing_coefficient</span><span class="data-type">text / numeric</span></div>
+      <div class="data-field"><span class="data-field-name">estimated_total_cost</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">sqm_confidence / qqp_confidence / overall_confidence</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">base_price_per_sqm / abex_factor</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">model_version_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">processing_time_ms / status</span><span class="data-type">int / text</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#EFF6FF;color:var(--est)">Estimate</span>
+        <span style="background:#FFFBEB;color:var(--bench)">Benchmark</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">reference_dossiers</div>
+      <div class="data-field"><span class="data-field-name">page_classifications</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">sqm_extraction</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">qqp_extraction</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">address / postcode / municipality</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">building_type / apartment_count</span><span class="data-type">text / int</span></div>
+      <div class="data-field"><span class="data-field-name">known_total_price / known_total_sqm / known_price_per_sqm</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">expert_finishing_level</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">predicted_finishing_coefficient / predicted_finishing_level</span><span class="data-type">numeric / text</span></div>
+      <div class="data-field"><span class="data-field-name">prediction_error</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">status</span><span class="data-type">text</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">dossier_qqp_values</div>
+      <div class="data-field"><span class="data-field-name">dossier_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">qqp_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">value_numeric</span><span class="data-type">numeric [0–1]</span></div>
+      <div class="data-field"><span class="data-field-name">confidence</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">extraction_notes</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">extraction_method</span><span class="data-type">'ai_extracted'</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">evaluation_runs</div>
+      <div class="data-field"><span class="data-field-name">name</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">sqm_prompt_version_id / qqp_prompt_version_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">model_version_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">dossier_count</span><span class="data-type">int</span></div>
+      <div class="data-field"><span class="data-field-name">aggregate_metrics</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">status</span><span class="data-type">running / complete</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#FFFBEB;color:var(--bench)">Benchmark</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">evaluation_results</div>
+      <div class="data-field"><span class="data-field-name">run_id / dossier_id / estimation_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">cat1_error_pct / cat2_error_pct / cat3_error_pct</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">cost_error_pct</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">predicted_cost / expert_cost</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">predicted_f / expert_f / f_delta</span><span class="data-type">numeric</span></div>
+      <div class="data-field"><span class="data-field-name">status</span><span class="data-type">complete / error / skipped</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#FFFBEB;color:var(--bench)">Benchmark</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">api_call_log</div>
+      <div class="data-field"><span class="data-field-name">call_type</span><span class="data-type">sqm / qqp / classification / metadata</span></div>
+      <div class="data-field"><span class="data-field-name">model</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">tokens_input / tokens_output</span><span class="data-type">int</span></div>
+      <div class="data-field"><span class="data-field-name">duration_ms</span><span class="data-type">int</span></div>
+      <div class="data-field"><span class="data-field-name">status / error_message</span><span class="data-type">text</span></div>
+      <div class="data-field"><span class="data-field-name">estimation_id / dossier_id</span><span class="data-type">uuid</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#EFF6FF;color:var(--est)">Estimate</span>
+        <span style="background:#F5F3FF;color:var(--dossier)">Dossier</span>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-table-name">qqp_discovery_log</div>
+      <div class="data-field"><span class="data-field-name">dossier_id</span><span class="data-type">uuid</span></div>
+      <div class="data-field"><span class="data-field-name">suggested_qqps</span><span class="data-type">jsonb</span></div>
+      <div class="data-field"><span class="data-field-name">residual_error</span><span class="data-type">numeric</span></div>
+      <div class="written-by">Written by:
+        <span style="background:#F5F3FF;color:var(--dossier)">Dossier (if |error| &gt; 15%)</span>
+      </div>
+    </div>
+
+    <div class="data-card" style="background:var(--surface2)">
+      <div class="data-table-name" style="color:var(--muted)">Read-only lookups</div>
+      <div class="data-field"><span class="data-field-name">system_settings</span><span class="data-type">model names, pricing</span></div>
+      <div class="data-field"><span class="data-field-name">prompt_versions</span><span class="data-type">SQM / QQP prompts</span></div>
+      <div class="data-field"><span class="data-field-name">qqp_definitions</span><span class="data-type">active QQP list</span></div>
+      <div class="data-field"><span class="data-field-name">qqp_model_versions</span><span class="data-type">Ridge weights</span></div>
+      <div class="data-field"><span class="data-field-name">postcode_prices</span><span class="data-type">regional base price/m²</span></div>
+      <div class="data-field"><span class="data-field-name">abex_index</span><span class="data-type">construction price index</span></div>
+      <div class="written-by">Read by all flows</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     7. LIMITATIONS
+══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>Known Limitations &amp; Failure Modes</h2>
+  <div class="limit-grid">
+
+    <div class="limit-card">
+      <div class="limit-title">⏱ Vercel 300s hard limit</div>
+      <div class="limit-desc">SQM extraction with 10k thinking + QQP on a large VerzamelPDF (20+ floor plan pages) typically takes 4–8 minutes — exceeding Vercel Pro's limit. Only ~5% of complex dossiers complete within the limit.</div>
+      <div class="limit-mitigation">Internal 250s watchdog exits gracefully before Vercel kills the process. Benchmark stuck-detection marks estimations &gt; 6 min as failed.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🖥️ mupdf runtime availability</div>
+      <div class="limit-desc">High-quality PNG rendering (300 DPI, landscape splitting) depends on mupdf being available in the serverless environment. Not guaranteed on all Vercel runtimes.</div>
+      <div class="limit-mitigation">Automatic two-tier fallback: if mupdf fails, sends raw base64 PDF document blocks to Claude instead — lower quality but functional.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">📄 Max 12 floor-plan pages</div>
+      <div class="limit-desc">SQM extraction caps at 12 rendered floor-plan pages. Large apartment buildings with many floor types may have plans beyond this limit silently ignored.</div>
+      <div class="limit-mitigation">Local heuristic classification pre-filters to actual floor plan pages before the cap applies, mitigating impact for most files.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🔢 JSON parsing failures</div>
+      <div class="limit-desc">Claude occasionally outputs malformed JSON, especially in SQM extraction for complex buildings. Single retry with T=0 and stricter prompt is built in; if both fail, the estimation errors out.</div>
+      <div class="limit-mitigation">Retry with T=0 resolves ~80% of failures. If both fail, estimation is marked status='error' with the raw output stored.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🗺️ Missing postcode → factor = 1.0</div>
+      <div class="limit-desc">If the extracted postcode isn't in postcode_prices, the regional factor defaults to 1.0 (neutral). Can skew costs for rural or uncommon postcodes.</div>
+      <div class="limit-mitigation">Postcode is extracted from the plan itself by Claude. If missing or unrecognised, cost is still computed — just without regional adjustment.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">👁️ Scale &amp; small text legibility</div>
+      <div class="limit-desc">Claude Vision struggles with very small dimension annotations or hand-written labels on scanned/low-res plans. scale_confidence below 0.6 flags an unreliable extraction.</div>
+      <div class="limit-mitigation">Confidence propagates to overall_confidence. High-DPI mupdf rendering (300 DPI) mitigates most cases — scanned plans remain difficult.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🧪 Ridge model accuracy</div>
+      <div class="limit-desc">F coefficient prediction depends on the quality of training data. With only 43 dossiers, the model may overfit or underfit for unusual building types.</div>
+      <div class="limit-mitigation">Self-learning: if prediction error &gt; 15%, new QQP suggestions are logged. Auto-calibration re-trains when enough new data accumulates.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🌙 Browser tab sleep kills benchmark</div>
+      <div class="limit-desc">The benchmark runner is client-side (for-loop in the browser). If Chrome throttles the background tab, the sequential loop stalls mid-run.</div>
+      <div class="limit-mitigation">Keep the benchmark tab in the foreground. Stuck detection automatically marks estimations that haven't updated in 6 minutes as failed.</div>
+    </div>
+
+    <div class="limit-card">
+      <div class="limit-title">🔄 QQP text-only for dossiers</div>
+      <div class="limit-desc">The dossier flow sends no plan images to the QQP extraction step — works purely from SQM JSON output. Limits quality for visual cues (window quality, facade materials).</div>
+      <div class="limit-mitigation">Expert context (known_price_per_sqm, notes) is injected into the prompt when available, partially compensating for the lack of visual input.</div>
+    </div>
+
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div class="page-footer">
+  <span style="font-weight:600;color:var(--text)">PlanBase</span>
+  <span>Document Analysis Architecture Map · May 24, 2026 · 07:48 · planbased.xyz</span>
+</div>
+
+</body>
+</html>
