@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Processing — Old vs New · PlanBase</title>
+<style>
+  :root {
+    --bg:       #F7F6F3;
+    --surface:  #FFFFFF;
+    --surface2: #F0EDE8;
+    --border:   #E0D9D0;
+    --text:     #1A1714;
+    --muted:    #7A6E65;
+    --accent:   #C85A2A;
+
+    /* flow colours */
+    --old:      #DC2626;   /* red */
+    --new:      #16A34A;   /* green */
+    --shared:   #2563EB;   /* blue */
+    --queue:    #7C3AED;   /* purple */
+    --claude:   #C85A2A;   /* terracotta */
+    --supabase: #059669;   /* emerald */
+    --railway:  #6D28D9;   /* violet */
+    --warn:     #D97706;   /* amber */
+    --danger:   #DC2626;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    padding: 32px 24px 64px;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 1240px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .page-header h1 {
+    font-family: Georgia, serif;
+    font-size: 28px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .page-header .sub {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .brand { color: var(--accent); font-weight: 600; }
+
+  /* ── Toggle callout ── */
+  .toggle-banner {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(200,90,42,0.10);
+  }
+  .toggle-flag {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    background: #FFF3ED;
+    color: var(--accent);
+    border: 1.5px solid #F4C4A8;
+    border-radius: 8px;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
+  .toggle-desc { font-size: 13px; color: var(--muted); flex: 1; }
+  .toggle-desc strong { color: var(--text); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .pill.old    { background:#FEE2E2; color:var(--old); }
+  .pill.new    { background:#DCFCE7; color:var(--new); }
+  .pill.queue  { background:#EDE9FE; color:var(--queue); }
+  .pill.warn   { background:#FEF3C7; color:var(--warn); }
+  .pill.shared { background:#DBEAFE; color:var(--shared); }
+  .pill.railway{ background:#EDE9FE; color:var(--railway); }
+
+  /* ── Section ── */
+  .section { margin-bottom: 44px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+  }
+
+  /* ── OLD vs NEW columns ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .flow-column {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .flow-column.old-col { border-top: 4px solid var(--old); }
+  .flow-column.new-col { border-top: 4px solid var(--new); }
+
+  .flow-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .flow-header .label {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .flow-header .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: monospace;
+  }
+
+  .flow-body { padding: 16px 20px; }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+    position: relative;
+  }
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 34px;
+    bottom: -2px;
+    width: 2px;
+    background: var(--border);
+  }
+  .step-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-num.old-n  { background:#FEE2E2; color:var(--old);    border:1.5px solid #FCA5A5; }
+  .step-num.new-n  { background:#DCFCE7; color:var(--new);    border:1.5px solid #86EFAC; }
+  .step-num.same-n { background:#DBEAFE; color:var(--shared); border:1.5px solid #93C5FD; }
+  .step-num.queue-n{ background:#EDE9FE; color:var(--queue);  border:1.5px solid #C4B5FD; }
+
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-title { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .step-detail { font-size: 12px; color: var(--muted); }
+  .step-detail code {
+    font-family: monospace; font-size: 11px;
+    background: var(--surface2); border-radius: 4px; padding: 1px 5px;
+    color: var(--text);
+  }
+
+  .step-warn {
+    background: #FEF3C7;
+    border: 1px solid #FDE68A;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #92400E;
+    margin-top: 6px;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .step-warn .w-icon { flex-shrink: 0; font-size: 13px; margin-top: -1px; }
+
+  .step-ok {
+    background: #DCFCE7;
+    border: 1px solid #86EFAC;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #14532D;
+    margin-top: 6px;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+
+  .diverge-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #FFF3ED; color: var(--accent);
+    border: 1px solid #F4C4A8; border-radius: 6px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 2px 8px; margin-bottom: 8px;
+  }
+
+  /* ── Queue table ── */
+  .queue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 900px) { .queue-grid { grid-template-columns: 1fr 1fr; } }
+
+  /* ── Info cards ── */
+  .card {
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-title .ci { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Pipeline deep-dive ── */
+  .pipeline-box {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .pipeline-header {
+    background: var(--surface2);
+    padding: 12px 20px;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .pipeline-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0;
+  }
+  .ps {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .ps:last-child { border-right: none; }
+  .ps-num {
+    display: inline-block;
+    width: 20px; height: 20px; border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    text-align: center; line-height: 20px;
+    background: var(--surface2); color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .ps-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .ps-detail { font-size: 11px; color: var(--muted); }
+  .ps-detail code {
+    font-family: monospace; font-size: 10px;
+    background: var(--surface2); border-radius: 3px; padding: 1px 4px;
+    color: var(--text);
+  }
+  .ps-tag {
+    display: inline-flex; align-items: center; gap: 3px;
+    margin-top: 5px;
+    border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 600;
+  }
+  .ps-tag.claude-t  { background:#FFF3ED; color:var(--claude);   }
+  .ps-tag.supa-t    { background:#D1FAE5; color:var(--supabase); }
+  .ps-tag.cpu-t     { background:#F3F4F6; color:#374151;         }
+  .ps-tag.warn-t    { background:#FEF3C7; color:var(--warn);     }
+  .ps-tag.fork-t    { background:#EDE9FE; color:var(--queue);    }
+
+  /* ── Limitations grid ── */
+  .limits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 760px) { .limits-grid { grid-template-columns: 1fr; } }
+
+  .limit-card {
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .limit-card .lc-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .lc-icon { font-size: 16px; }
+  .lc-title { font-size: 13px; font-weight: 700; }
+  .lc-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .lc-body strong { color: var(--text); }
+
+  /* ── Concurrency diagram ── */
+  .slots-diagram {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .slots-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .slot-label { font-size: 12px; font-weight: 600; width: 130px; flex-shrink: 0; }
+  .slot-boxes { display: flex; gap: 6px; flex-wrap: wrap; }
+  .slot-box {
+    border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 600;
+    border: 1.5px solid;
+  }
+  .slot-box.est   { background:#DCFCE7; color:#14532D; border-color:#86EFAC; }
+  .slot-box.bg    { background:#EDE9FE; color:#4C1D95; border-color:#C4B5FD; }
+  .slot-box.empty { background:#F3F4F6; color:#9CA3AF; border-color:#E5E7EB; border-style:dashed; }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 5px 0; font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .cl-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .cl-text { flex: 1; }
+  .cl-text code {
+    font-family: monospace; font-size: 11px;
+    background: var(--surface2); border-radius: 4px; padding: 1px 5px;
+  }
+
+  /* ── Footer ── */
+  .page-footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+  }
+
+  hr.divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  /* ── Inline flex rows ── */
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 200px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>Upload Processing — <span class="brand">Old vs New</span></h1>
+  <p class="sub">PlanBase · Pipeline Architecture · May 24, 2026</p>
+  <div style="margin-top:14px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+    <span class="pill old">⚠ Old — Vercel direct (USE_QUEUE=false)</span>
+    <span class="pill new">✓ New — Railway queue (USE_QUEUE=true)</span>
+    <span class="pill shared">↔ Shared — runEstimationPipeline()</span>
+  </div>
+</div>
+
+<!-- ══ FEATURE FLAG BANNER ════════════════════════════════════════════════ -->
+<div class="toggle-banner">
+  <div class="toggle-flag">USE_QUEUE</div>
+  <div class="toggle-desc">
+    <strong>One env var, set on Vercel, determines the entire execution path.</strong><br>
+    <code style="font-family:monospace;font-size:11px;">false</code> (default) → pipeline runs inline inside the Vercel function — hard 300s timeout.
+    <code style="font-family:monospace;font-size:11px;">true</code> → job is inserted into <code style="font-family:monospace;font-size:11px;">processing_queue</code>, Railway worker picks it up — no timeout.
+    <br><span style="color:var(--warn);font-weight:600;">⚠ Rollback in 30s:</span> set <code style="font-family:monospace;font-size:11px;">USE_QUEUE=false</code> on Vercel → redeploy.
+  </div>
+</div>
+
+<!-- ══ OLD vs NEW SIDE-BY-SIDE ════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--old)"></span>
+    Old Path vs
+    <span class="dot" style="background:var(--new)"></span>
+    New Path — Step by Step
+  </div>
+
+  <div class="compare-grid">
+
+    <!-- OLD -->
+    <div class="flow-column old-col">
+      <div class="flow-header">
+        <span style="font-size:18px;">🔴</span>
+        <span class="label">OLD — Direct Vercel</span>
+        <span class="hint">USE_QUEUE=false</span>
+      </div>
+      <div class="flow-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num same-n">1</div>
+            <div class="step-body">
+              <div class="step-title">User uploads plan</div>
+              <div class="step-detail">PDF/PNG → Supabase Storage <code>plans</code> bucket. <code>estimations</code> row created with <code>status=pending</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num same-n">2</div>
+            <div class="step-body">
+              <div class="step-title">Frontend fires estimate-process</div>
+              <div class="step-detail">POST <code>/api/estimate-process</code> with <code>estimationId</code>. HTTP response held open until done.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num old-n">3</div>
+            <div class="step-body">
+              <div class="diverge-badge">⚡ DIVERGES HERE</div>
+              <div class="step-title">Pipeline runs INLINE on Vercel</div>
+              <div class="step-detail"><code>runEstimationPipeline()</code> called directly inside the Next.js API route.</div>
+              <div class="step-warn"><span class="w-icon">⏱</span> <span><strong>300s hard limit.</strong> Vercel kills the function after 5 min. Most VerzamelPDF dossiers take 4–8 min → killed, estimation left in <code>extracting_sqm</code> state.</span></div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num old-n">4</div>
+            <div class="step-body">
+              <div class="step-title">HTTP response returned</div>
+              <div class="step-detail">Returns <code>{success: true}</code> if under 300s. If killed by Vercel: no response, frontend times out polling status.</div>
+              <div class="step-warn"><span class="w-icon">🚫</span> <span>No retry. No queue. Stuck estimation must be manually reset or re-submitted.</span></div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num same-n">5</div>
+            <div class="step-body">
+              <div class="step-title">Frontend polls status</div>
+              <div class="step-detail">GET <code>/api/estimate-status/[id]</code> every ~3s. Detects stuck jobs if no <code>updated_at</code> change after 5 min.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW -->
+    <div class="flow-column new-col">
+      <div class="flow-header">
+        <span style="font-size:18px;">🟢</span>
+        <span class="label">NEW — Railway Queue</span>
+        <span class="hint">USE_QUEUE=true</span>
+      </div>
+      <div class="flow-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num same-n">1</div>
+            <div class="step-body">
+              <div class="step-title">User uploads plan</div>
+              <div class="step-detail">PDF/PNG → Supabase Storage <code>plans</code> bucket. <code>estimations</code> row created with <code>status=pending</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num same-n">2</div>
+            <div class="step-body">
+              <div class="step-title">Frontend fires estimate-process</div>
+              <div class="step-detail">POST <code>/api/estimate-process</code> with <code>estimationId</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num new-n">3</div>
+            <div class="step-body">
+              <div class="diverge-badge">⚡ DIVERGES HERE</div>
+              <div class="step-title">Job inserted into queue</div>
+              <div class="step-detail">INSERT into <code>processing_queue</code>: <code>job_type=estimate</code>, <code>priority=1</code>. Returns <code>{ok:true, queued:true}</code> immediately — Vercel function exits fast.</div>
+              <div class="step-ok">⚡ <span><strong>No timeout risk.</strong> Vercel only holds the connection for milliseconds (just a DB insert).</span></div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num queue-n">4</div>
+            <div class="step-body">
+              <div class="step-title">Railway worker claims job</div>
+              <div class="step-detail">Worker polls every <strong>2s</strong>. Atomic SQL <code>claim_queue_job()</code> — <code>FOR UPDATE SKIP LOCKED</code> prevents double-claim. Sets <code>status=claimed</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num queue-n">5</div>
+            <div class="step-body">
+              <div class="step-title">Pipeline runs on Railway</div>
+              <div class="step-detail"><code>runEstimationPipeline()</code> — same shared code, no time limit. Logs progress. Large PDFs (20+ pages) can run 8–12 min safely.</div>
+              <div class="step-ok">✓ <span><strong>No Vercel limit.</strong> Railway container has no execution timeout.</span></div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num same-n">6</div>
+            <div class="step-body">
+              <div class="step-title">Frontend polls status</div>
+              <div class="step-detail">Same GET <code>/api/estimate-status/[id]</code> polling — pipeline writes <code>progress_detail</code> to Supabase at each sub-step, visible to frontend.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /compare-grid -->
+</div>
+
+<!-- ══ SHARED PIPELINE DEEP-DIVE ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--shared)"></span>
+    Shared Pipeline — runEstimationPipeline() — Same Code, Both Paths
+  </div>
+
+  <div class="pipeline-box">
+    <div class="pipeline-header">
+      📄 <code>src/lib/pipeline/run-estimation.ts</code> — also at <code>worker/src/pipeline/run-estimation.ts</code> (relative imports)
+    </div>
+    <div class="pipeline-steps">
+
+      <div class="ps">
+        <div class="ps-num">1</div>
+        <div class="ps-title">Load estimation row</div>
+        <div class="ps-detail">SELECT * from <code>estimations</code> by ID. Reads <code>plan_storage_path</code>, <code>postcode</code>, file type.</div>
+        <span class="ps-tag supa-t">⬡ Supabase DB</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">2</div>
+        <div class="ps-title">Load settings + prompts</div>
+        <div class="ps-detail">Parallel fetch: <code>system_settings</code> (model names, CAT prices, ABEX), active SQM+QQP prompts from <code>prompt_versions</code>.</div>
+        <span class="ps-tag supa-t">⬡ Supabase DB ×2</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">3</div>
+        <div class="ps-title">Download PDF from Storage</div>
+        <div class="ps-detail"><code>admin.storage.from("plans").download()</code> → ArrayBuffer in memory. Progress: <code>downloading_pdf</code>.</div>
+        <span class="ps-tag supa-t">⬡ Supabase Storage</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">4</div>
+        <div class="ps-title">Classify pages (PDF only)</div>
+        <div class="ps-detail"><code>getFloorPlanPages()</code> — local heuristics, no Claude call. Identifies floor plan pages vs cover/legend pages. Max 40 pages scanned, 12 sent to Claude.</div>
+        <span class="ps-tag cpu-t">⚙ Local CPU</span>
+        <span class="ps-tag fork-t">PDF only</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">5</div>
+        <div class="ps-title">Render PNG @ 300 DPI</div>
+        <div class="ps-detail"><strong>Tier 1:</strong> mupdf renders landscape-split PNGs. <strong>Tier 2 fallback:</strong> if mupdf fails → <code>splitPdfPages()</code> sends base64 PDF document blocks. Progress: <code>rendering_pages</code>.</div>
+        <span class="ps-tag cpu-t">⚙ mupdf / sharp</span>
+        <span class="ps-tag warn-t">⚠ Fallback path</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">6</div>
+        <div class="ps-title">SQM Extraction — Claude</div>
+        <div class="ps-detail">Claude Sonnet + <strong>extended thinking 10K tokens</strong> + streaming. Extracts rooms, areas, floor labels, building type, postcode, scale. Model: <code>extraction_model</code> setting.</div>
+        <span class="ps-tag claude-t">◆ Claude API (thinking)</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">6b</div>
+        <div class="ps-title">SQM JSON retry (if parse fails)</div>
+        <div class="ps-detail">If <code>parseClaudeJson()</code> throws, a second call re-sends with a strict JSON retry message. No thinking on retry — temperature 0.</div>
+        <span class="ps-tag claude-t">◆ Claude API (retry)</span>
+        <span class="ps-tag warn-t">⚠ Optional</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">7</div>
+        <div class="ps-title">QQP Extraction — Claude</div>
+        <div class="ps-detail">Claude Sonnet, no thinking, 8192 max tokens. Extracts 35+ quality parameters (windows, doors, kitchen, bathroom, heating, etc.) from plan annotations + same images. Model: <code>qqp_model</code> setting.</div>
+        <span class="ps-tag claude-t">◆ Claude API (no thinking)</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">7b</div>
+        <div class="ps-title">QQP JSON retry (if parse fails)</div>
+        <div class="ps-detail">Same strict retry pattern. Returns <code>qqp_values</code> + <code>finishing_assessment</code> with coefficient + confidence.</div>
+        <span class="ps-tag claude-t">◆ Claude API (retry)</span>
+        <span class="ps-tag warn-t">⚠ Optional</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">8</div>
+        <div class="ps-title">F Coefficient (Ridge Regression)</div>
+        <div class="ps-detail"><code>predictF(qqpScores, storedModel)</code> — uses active <code>qqp_model_versions</code> row (weights + intercept). Falls back to F=1.0 if no active model. Range: 0.70–1.50.</div>
+        <span class="ps-tag cpu-t">⚙ Local math</span>
+        <span class="ps-tag supa-t">⬡ qqp_model_versions</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">9</div>
+        <div class="ps-title">Regional Factor</div>
+        <div class="ps-detail">Lookup <code>postcode_prices</code> by extracted postcode. <code>regional_factor = base_price / cat1_at_F1.0</code>. Falls back to 1.0 if postcode unknown.</div>
+        <span class="ps-tag supa-t">⬡ postcode_prices</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">10</div>
+        <div class="ps-title">ABEX Factor</div>
+        <div class="ps-detail">Lookup <code>abex_index</code> by year+semester from <code>system_settings</code>. <code>abex_factor = index_value / 1000</code>. Falls back to 1.0.</div>
+        <span class="ps-tag supa-t">⬡ abex_index</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">11</div>
+        <div class="ps-title">Cost Calculation</div>
+        <div class="ps-detail"><code>calculateCost(areas, F, pricing, regional, abex)</code>. CAT1/2/3 areas × price(F) × regional × ABEX. CAT price = min + (F−0.70)/0.80 × (max−min).</div>
+        <span class="ps-tag cpu-t">⚙ Local math</span>
+      </div>
+
+      <div class="ps">
+        <div class="ps-num">12</div>
+        <div class="ps-title">Write results to DB</div>
+        <div class="ps-detail">Single UPDATE on <code>estimations</code>: all fields at once. Sets <code>status=complete</code>. Includes <code>sqm_confidence</code>, <code>qqp_confidence</code>, <code>overall_confidence</code>, <code>processing_time_ms</code>.</div>
+        <span class="ps-tag supa-t">⬡ Supabase DB write</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUEUE ARCHITECTURE ═════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--queue)"></span>
+    Queue Architecture (NEW path only)
+  </div>
+
+  <div class="row" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-title"><span class="ci" style="background:var(--queue)"></span> processing_queue table</div>
+      <table style="width:100%;font-size:11px;border-collapse:collapse;">
+        <tr style="background:var(--surface2);">
+          <th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Column</th>
+          <th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Type / Values</th>
+          <th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Notes</th>
+        </tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">job_type</td><td style="padding:4px 8px;color:var(--muted);">estimate · dossier · benchmark</td><td style="padding:4px 8px;color:var(--muted);">Determines which worker slot</td></tr>
+        <tr style="background:var(--surface2);"><td style="padding:4px 8px;font-family:monospace;">priority</td><td style="padding:4px 8px;color:var(--muted);">1 · 5 · 10</td><td style="padding:4px 8px;color:var(--muted);">Lower = processed first</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">status</td><td style="padding:4px 8px;color:var(--muted);">pending → claimed → done/error</td><td style="padding:4px 8px;color:var(--muted);">Atomic claim via SQL fn</td></tr>
+        <tr style="background:var(--surface2);"><td style="padding:4px 8px;font-family:monospace;">worker_id</td><td style="padding:4px 8px;color:var(--muted);">estimate-slot · background-slot-N</td><td style="padding:4px 8px;color:var(--muted);">For debugging</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">attempts / max_attempts</td><td style="padding:4px 8px;color:var(--muted);">int / default 2</td><td style="padding:4px 8px;color:var(--muted);">Auto-retry on failure</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ci" style="background:var(--railway)"></span> claim_queue_job() SQL</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Atomic UPDATE with row-level lock — prevents two worker slots from claiming the same job simultaneously.</div>
+      <pre style="background:var(--surface2);border-radius:6px;padding:10px;font-size:10px;color:var(--text);overflow-x:auto;line-height:1.5;">UPDATE processing_queue
+SET status = 'claimed',
+    worker_id = p_worker_id,
+    started_at = now()
+WHERE id = (
+  SELECT id FROM processing_queue
+  WHERE status = 'pending'
+    AND job_type = ANY(p_job_types)
+  ORDER BY priority ASC, created_at ASC
+  LIMIT 1
+  FOR UPDATE SKIP LOCKED
+)
+RETURNING *;</pre>
+    </div>
+  </div>
+
+  <!-- Concurrency -->
+  <div class="slots-diagram">
+    <div class="card-title" style="margin-bottom:16px;"><span class="ci" style="background:var(--railway)"></span> Worker Concurrency — Railway Container</div>
+    <div class="slots-row">
+      <div class="slot-label" style="color:var(--new);font-size:11px;">ESTIMATE slots<br><span style="color:var(--muted);font-weight:400;">(WORKER_ESTIMATE_SLOTS=1)</span></div>
+      <div class="slot-boxes">
+        <div class="slot-box est">Slot 1 — customer upload</div>
+        <div style="font-size:11px;color:var(--muted);align-self:center;">+ more if env increased</div>
+      </div>
+    </div>
+    <div class="slots-row">
+      <div class="slot-label" style="color:var(--queue);font-size:11px;">BACKGROUND slots<br><span style="color:var(--muted);font-weight:400;">(WORKER_BACKGROUND_SLOTS=2)</span></div>
+      <div class="slot-boxes">
+        <div class="slot-box bg">Slot 1 — dossier/benchmark</div>
+        <div class="slot-box bg">Slot 2 — dossier/benchmark</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);">
+      Estimate slot polls every <strong>2s</strong> for <code>job_type IN ('estimate')</code> · Background slots poll every <strong>2s</strong> for <code>job_type IN ('dossier','benchmark')</code><br>
+      <span style="color:var(--warn);">⚠ Benchmark jobs always go to queue</span> (no <code>USE_QUEUE</code> check) — <code>job_type='benchmark'</code>, <code>priority=10</code>.
+    </div>
+  </div>
+</div>
+
+<!-- ══ JOB TYPES ══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--shared)"></span>
+    Job Types &amp; Entry Points
+  </div>
+  <div class="queue-grid">
+    <div class="card">
+      <div class="card-title"><span class="ci" style="background:var(--new)"></span> estimate — priority 1</div>
+      <div style="font-size:12px;color:var(--muted);">
+        <strong style="color:var(--text);">Source:</strong> Customer uploads plan at <code>/estimate</code><br>
+        <strong style="color:var(--text);">Route:</strong> <code>/api/estimate-process</code><br>
+        <strong style="color:var(--text);">Gate:</strong> <code>USE_QUEUE</code> env var<br>
+        <strong style="color:var(--text);">Slot:</strong> Reserved estimate slot<br>
+        <strong style="color:var(--text);">Priority:</strong> 1 (highest — served first)
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ci" style="background:var(--queue)"></span> dossier — priority 5</div>
+      <div style="font-size:12px;color:var(--muted);">
+        <strong style="color:var(--text);">Source:</strong> Admin uploads reference dossier<br>
+        <strong style="color:var(--text);">Route:</strong> <code>/api/process-dossier</code><br>
+        <strong style="color:var(--text);">Gate:</strong> <code>USE_QUEUE</code> env var<br>
+        <strong style="color:var(--text);">Slot:</strong> Background slot<br>
+        <strong style="color:var(--text);">Priority:</strong> 5 (medium)
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ci" style="background:var(--warn)"></span> benchmark — priority 10</div>
+      <div style="font-size:12px;color:var(--muted);">
+        <strong style="color:var(--text);">Source:</strong> Admin triggers benchmark run<br>
+        <strong style="color:var(--text);">Route:</strong> <code>/api/benchmark/run/[runId]/init</code><br>
+        <strong style="color:var(--text);">Gate:</strong> <strong>Always queued</strong> — no <code>USE_QUEUE</code> check<br>
+        <strong style="color:var(--text);">Slot:</strong> Background slot<br>
+        <strong style="color:var(--text);">Priority:</strong> 10 (lowest — yields to customers)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIMITATIONS & WATCH POINTS ════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--warn)"></span>
+    Limitations &amp; Things to Watch
+  </div>
+  <div class="limits-grid">
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">⚠️</span><span class="lc-title" style="color:var(--danger);">Worker Not Yet Deployed</span></div>
+      <div class="lc-body">
+        <strong>Current state: USE_QUEUE=false</strong> (old path active). Railway worker exists in <code>worker/</code> dir but hasn't been deployed yet. Migration <code>20260524_processing_queue.sql</code> also not yet applied to Supabase.<br><br>
+        Next steps: apply migration → deploy worker to Railway → set <code>USE_QUEUE=true</code>.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">🔄</span><span class="lc-title">2s Poll Latency</span></div>
+      <div class="lc-body">
+        Worker polls Supabase every <strong>2 seconds</strong>. After job insertion, there's a 0–2s lag before it's claimed. For customer-facing estimates this is negligible — user sees "Processing…" state. For benchmarks, this latency accumulates across many jobs (43 dossiers × avg 2s = ~90s extra).
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">💥</span><span class="lc-title">Worker Crash Mid-Job</span></div>
+      <div class="lc-body">
+        If Railway container crashes while a job is <code>claimed</code>/<code>processing</code>, the job stays in that state forever — no auto-timeout recovery today. The estimation row will be stuck in <code>extracting_sqm</code> or <code>analyzing_qqp</code>.<br><br>
+        <strong>Workaround:</strong> manual reset in Supabase or re-submit. Future fix: a cron job that resets jobs stuck in claimed &gt;15 min.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">📸</span><span class="lc-title">mupdf Render Fallback</span></div>
+      <div class="lc-body">
+        mupdf renders PNGs at 300 DPI (landscape pages split in half). If mupdf fails, falls back to base64 PDF document blocks sent directly to Claude. Fallback is <strong>slower and less accurate</strong> — Claude reads native PDF instead of high-res rendered images. Watch logs for <code>"mupdf render failed"</code>.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">🧠</span><span class="lc-title">SQM Extended Thinking — 10K Budget</span></div>
+      <div class="lc-body">
+        <code>thinking.budget_tokens = 10000</code> + max_tokens 26384. Extended thinking is the slowest part — typically 60–120s alone for complex plans. Retry (JSON parse fail) sends a second call <strong>without thinking</strong> at temperature 0. Two retries in a row would be ~200s just for SQM.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">🗺️</span><span class="lc-title">Postcode Fallback = Regional Factor 1.0</span></div>
+      <div class="lc-body">
+        If Claude fails to extract a valid postcode from the plan, or the postcode isn't in <code>postcode_prices</code>, regional factor defaults to <strong>1.0</strong> (Brussels reference). This silently makes estimates less accurate for non-Brussels properties. Watch <code>postcode</code> field in <code>estimations</code> rows.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">🔑</span><span class="lc-title">Worker Env Vars Required</span></div>
+      <div class="lc-body">
+        Railway container needs: <code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>, <code>ANTHROPIC_API_KEY</code>. Optional: <code>WORKER_ESTIMATE_SLOTS</code> (default 1), <code>WORKER_BACKGROUND_SLOTS</code> (default 2). Without service role key, worker cannot bypass RLS on <code>processing_queue</code>.
+      </div>
+    </div>
+
+    <div class="limit-card">
+      <div class="lc-head"><span class="lc-icon">🔁</span><span class="lc-title">Retry Logic — max_attempts=2</span></div>
+      <div class="lc-body">
+        Failed jobs (exception thrown) increment <code>attempts</code>. If <code>attempts &lt; max_attempts</code> (default 2), job resets to <code>pending</code> for retry. After 2 failures, status = <code>error</code>. Estimation row is also updated with <code>status=error</code> + <code>error_message</code> so the frontend shows it.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ACTIVATION CHECKLIST ═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--new)"></span>
+    Activation Checklist — Switch from Old to New
+  </div>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Apply migration <code>supabase/migrations/20260524_processing_queue.sql</code> in Supabase dashboard SQL editor</span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Deploy worker to Railway: set root dir = <code>worker/</code>, add env vars (<code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>, <code>ANTHROPIC_API_KEY</code>)</span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Verify worker logs show <code>[worker] Starting — estimate slots: 1, background slots: 2</code></span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Test with <code>USE_QUEUE=false</code> first — confirm old path still works</span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Set <code>USE_QUEUE=true</code> on Vercel → redeploy (takes ~2 min)</span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Submit a test estimate → check <code>processing_queue</code> row appears in Supabase → status changes <code>pending → claimed → done</code></span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Confirm estimation row reaches <code>status=complete</code> with valid cost output</span></li>
+      <li><span class="cl-icon">⬜</span><span class="cl-text">Run benchmark against all 43 dossiers via Railway worker (queue handles everything, no browser-tab sleep issue)</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ ROLLBACK ═══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="dot" style="background:var(--danger)"></span>
+    Rollback — Back to Old Path in 30 Seconds
+  </div>
+  <div class="toggle-banner" style="border-color:var(--danger);box-shadow:0 2px 8px rgba(220,38,38,0.10);">
+    <div class="toggle-flag" style="background:#FEF2F2;color:var(--danger);border-color:#FCA5A5;">USE_QUEUE=false</div>
+    <div class="toggle-desc">
+      Set <code>USE_QUEUE=false</code> on Vercel → click <strong>Redeploy</strong>.<br>
+      Vercel redeploy takes ~2 minutes. After that: all new estimate jobs run inline again (old path).<br>
+      <span style="color:var(--muted);">Jobs already in <code>processing_queue</code> will still be processed by Railway worker (it doesn't check the flag). If you also want to stop the worker: pause the Railway service.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+<div class="page-footer">
+  <span><strong style="color:var(--text);">PlanBase</strong></span>
+  <span>Upload Processing Architecture · Old vs New · May 24, 2026 · 07:48</span>
+  <span>planbased.xyz</span>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
