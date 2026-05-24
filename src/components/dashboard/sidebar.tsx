@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Users,
   FlaskConical,
+  Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +38,8 @@ const NAV: NavItem[] = [
   { label: "Benchmark", href: "/admin/benchmark", icon: FlaskConical, group: "Admin" },
   { label: "Leads", href: "/admin/leads", icon: Users, group: "Admin" },
   { label: "Tenants", href: "/admin/tenants", icon: Building2, group: "Admin" },
-  { label: "Billing", href: "/admin/billing", icon: BarChart3, group: "Admin" },
+  { label: "Billing",  href: "/admin/billing",  icon: BarChart3, group: "Admin" },
+  { label: "Roadmap",  href: "/admin/roadmap",  icon: Map,       group: "Admin" },
 ];
 
 export function Sidebar() {
