@@ -1,7 +1,23 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Shared context for all Claude Code sessions. Update after every milestone.**
 > **Last updated: 2026-05-24**
+
+---
+
+## ⚠️ STANDING INSTRUCTION — READ BEFORE EVERY COMMIT
+
+**Before running `git commit` or `git push`, always check whether CLAUDE.md needs updating.**
+
+Ask yourself:
+- Did I add or change a page, route, API endpoint, or Supabase table?
+- Did I change a core convention, pattern, or architectural decision?
+- Did the project name, domain, or tech stack change?
+- Did the "Current Status / Working / Next Steps" section change?
+
+If yes to any of the above → update CLAUDE.md first, then commit both together.
+Update the `Last updated` date at the top whenever you touch this file.
+
+---
 
 ---
 
