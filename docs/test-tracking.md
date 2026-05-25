@@ -271,3 +271,113 @@ Eerste indicaties (2 punten, hoge spreiding, onzeker):
 - Cat1 min: ~€900–1.100 | Cat1 max: ~€2.700–2.900
 - Cat2 min: ~€300–400 | Cat2 max: ~€850–950
 - Cat3 min: ~€150–200 | Cat3 max: ~€400–450
+
+---
+
+## Batch Benchmark Run — 2026-05-25 (Run b007ce33)
+
+**Benchmark:** SQM v4 + QQP v1  
+**Model:** v22  
+**Dossiers:** 35 (alle)  
+**Run ID:** `b007ce33-c049-43ef-a9ff-933e4f7b2c14`  
+**Commando:** `node scripts/benchmark-run.mjs --all --concurrency 3`
+
+### Resultaten
+
+| Status | Aantal |
+|---|---|
+| Geslaagd (echte output) | 18 |
+| mupdf-fout (output €0) | 17 |
+| Pipeline crash | 0 |
+
+**mupdf-probleem:** In de lokale Windows dev-omgeving faalt mupdf WASM met `_ is not a function`. De pipeline valt terug op `splitPdfPages` zonder visuele rendering — voor deze 17 dossiers levert de pipeline €0 op (cost=-100%). Dit is een dev-omgeving probleem, geen model-probleem.
+
+### Werkende dossiers (18)
+
+| Dossier | cost err | cat1 err | F pipe | F exp | pipe | expert |
+|---|---|---|---|---|---|---|
+| 25-54222800028 | -74.2% | -69.9% | 1.06 | — | €540k | €2.096k |
+| 25-54729100040 | -70.3% | N/A | 1.34 | — | €1.121k | €3.773k |
+| 26-55290100025 | -65.5% | -76.6% | 1.30 | — | €340k | €986k |
+| 25-54728100067 | -17.2% | -10.9% | 0.97 | — | €1.529k | €1.846k |
+| 25-54204200049 | -12.7% | **0.0%** ⭐ | 1.37 | 1.50 | €1.586k | €1.818k |
+| 26-55236600031 (run A) | -1.3% | -6.0% | 1.27 | — | €857k | €868k |
+| 26-55236600031 (run B) | -0.5% | -2.3% | 1.23 | — | €864k | €868k |
+| 25-54018400043 | +0.7% | -53.4% | 1.18 | — | €1.682k | €1.671k |
+| 26-55236600031 (run C) | +3.5% | -0.7% | 1.33 | — | €899k | €868k |
+| 26-55308600031 | +8.0% | -12.1% | 1.31 | — | €1.020k | €945k |
+| 26-55263200022 | +9.8% | **0.0%** ⭐ | 1.35 | 1.50 | €976k | €889k |
+| 25-54628700066 | +15.9% | -30.2% | 1.34 | — | €5.794k | €4.999k |
+| 25-54738600027 | +23.7% | -12.6% | 1.47 | — | €1.835k | €1.483k |
+| 24-51940600064 | +33.5% | +6.6% | 1.33 | — | €16.056k | €12.026k |
+| 26-55067300033 | +36.2% | -19.4% | 1.29 | 1.06 | €1.421k | €1.043k |
+| 25-54011200035 | +41.3% | **-0.3%** ⭐ | 1.37 | 1.49 | €3.362k | €2.380k |
+| 25-53858000022 | +41.7% | N/A | 1.35 | — | €3.452k | €2.437k |
+| 24-51641700043 | +48.3% | **+1.4%** ⭐ | 1.38 | 1.34 | €623k | €420k |
+
+### Aggregate statistieken (35 dossiers, incl. mupdf-groep)
+- **Cost MAE: 63.0%** (vertekend door 17× -100%)
+- **Median cost error: -74.2%**
+- **Binnen 10%: 17%** (3/18 werkende dossiers: runs A, B, C van zelfde PDF)
+- **SQM cat1 MAE: 59.4%**, cat2: 64.3%, cat3: 106.8%
+- **F MAE: 0.24**
+
+### Herhaalbaarheid — dossier 26-55236600031 (3 onafhankelijke runs)
+
+Hetzelfde PDF 3× apart door de pipeline gestuurd als apart herhaalbaarheidstest:
+
+| Run | cost err | cat1 err | F |
+|---|---|---|---|
+| A | -1.3% | -6.0% | 1.27 |
+| B | -0.5% | -2.3% | 1.23 |
+| C | +3.5% | -0.7% | 1.33 |
+
+**Spreiding cost: ~5%** — pipeline is redelijk reproduceerbaar. Variatie in F (1.23–1.33) drijft de kostspreding.
+
+### Perfecte-SQM kalibratiepunten (4 dossiers, ≤1.4% m²-fout)
+
+| Dossier | cat1 pipe/exp | cat2 pipe/exp | F pipe | F exp | cost err | Notitie |
+|---|---|---|---|---|---|---|
+| 25-54204200049 | 537/537 (0%) | 115/115 (0%) | 1.37 | 1.50 | **-12.7%** | F-delta dekt prijsoverschatting |
+| 26-55263200022 | 363/363 (0%) | 33/33 (0%) | 1.35 | 1.50 | **+9.8%** | Meest betrouwbaar kalibratiepunt |
+| 25-54011200035 | 1039/1042 (0%) | 404/404 (0%) | 1.37 | 1.49 | **+41.3%** | Grootst afwijkend — type/regio? |
+| 24-51641700043 | 220/217 (+1%) | 34/38 (-11%) | 1.38 | 1.34 | **+48.3%** | F exp lager dan pipe → prijs echt te hoog |
+
+Observaties:
+- **F-model stelselmatig te laag**: pipeline schat F=1.23–1.47, expert gebruikt overwegend F=1.34–1.50
+- **Kostfout bij perfecte SQM varieert van -12.7% tot +48.3%** → groot deel van de fout zit in de prijstabel
+- **Dossier 25-54011200035 en 24-51641700043** zijn sterk overgepriced: perfect SQM maar +40% duurder
+- **Dossier 26-55263200022** (+9.8%) is hét beste kalibratiepunt: 0% SQM-fout, realistisch F-verschil
+
+---
+
+## Bijgewerkte Analyse (na batch benchmark)
+
+### Systemische fouten samengevat
+
+| Foutbron | Impact | Prioriteit |
+|---|---|---|
+| **mupdf kapot (Windows dev)** | 17/35 dossiers → €0 | 🔴 Blocker |
+| **DB prijzen te hoog** | +10% tot +50% bij correcte SQM | 🔴 Hoog |
+| **F-model onderschat F** | Pipeline 1.3–1.4 vs expert ≥1.4–1.5 | 🟠 Middel |
+| **SQM-extractie variabel** | Cat1 MAE ~59%, Cat3 MAE ~107% | 🟠 Middel |
+| **Cat3 m² onderschat** | Terrassen/balkons structureel te weinig | 🟡 Laag |
+
+### Aanbevolen prijstabel-correcties
+
+Op basis van de 4 perfecte-SQM dossiers (zie boven) plus D4/D5:
+
+| | Huidige DB max | Geschatte correcte max | Δ |
+|---|---|---|---|
+| Cat1 | ~€3.000/m² | ~€2.200–2.500/m² | -15 tot -25% |
+| Cat2 | ~€1.600/m² | ~€950–1.100/m² | -30 tot -40% |
+| Cat3 | ~€900/m² | ~€600–700/m² | -25 tot -30% |
+
+> Gebaseerd op: D4 expert Cat1=€2.161, D5 expert Cat1=€2.528, benchmark-run perfecte-SQM gemiddeld impliceert Cat1 max ≤€2.500.
+
+### Volgende stappen
+
+- [ ] **Fix mupdf in Windows dev** — mupdf-wasm of fallback verbeteren zodat alle 35 dossiers echte output geven
+- [ ] **DB min/max-prijzen verlagen** — Cat1 max ~-20%, Cat2 max ~-35%, Cat3 max ~-28%
+- [ ] **QQP-prompt verbeteren** — F systematisch te laag; prompts herzien of weegvectoren aanpassen zodat F dichter bij 1.50 uitkomt voor kwaliteitsgebouwen
+- [ ] **Vervolgbenchmark** na fixes om verbetering te meten
