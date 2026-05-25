@@ -15,6 +15,9 @@ export type LeadRow = {
   email: string;
   company: string | null;
   role: string | null;
+  intent: string | null;
+  volume: string | null;
+  region: string | null;
   created_at: string;
   email_sent: boolean;
   email_sent_at: string | null;
@@ -51,13 +54,16 @@ function csvCell(v: string | number | null | undefined): string {
 }
 
 function downloadCsv(leads: LeadRow[]) {
-  const header = ["email", "company", "role", "building_type", "total_cost", "livable_sqm", "postcode", "email_sent", "date"];
+  const header = ["email", "company", "role", "intent", "volume", "region", "building_type", "total_cost", "livable_sqm", "postcode", "email_sent", "date"];
   const lines = [header.join(",")];
   for (const l of leads) {
     lines.push([
       csvCell(l.email),
       csvCell(l.company),
       csvCell(l.role),
+      csvCell(l.intent),
+      csvCell(l.volume),
+      csvCell(l.region),
       csvCell(l.estimation?.building_type),
       csvCell(l.estimation?.estimated_total_cost),
       csvCell(l.estimation?.total_livable_sqm),
@@ -230,7 +236,9 @@ export function LeadsTable({ leads, pendingEmails }: { leads: LeadRow[]; pending
             <TableRow>
               <TableHead className="pl-6">Email</TableHead>
               <TableHead>Company</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead>Intent</TableHead>
+              <TableHead>Volume</TableHead>
+              <TableHead>Region</TableHead>
               <TableHead>Estimation</TableHead>
               <TableHead>Plan file</TableHead>
               <TableHead>Postcode</TableHead>
@@ -246,7 +254,19 @@ export function LeadsTable({ leads, pendingEmails }: { leads: LeadRow[]; pending
                 <TableRow key={l.id} className="hover:bg-muted/40">
                   <TableCell className="pl-6 font-medium text-sm">{l.email}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{l.company ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{l.role ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {l.intent ? (
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        l.intent === "beta_signup" ? "bg-violet-100 text-violet-700" :
+                        l.intent === "expert_review" ? "bg-amber-100 text-amber-700" :
+                        "bg-muted text-muted-foreground"
+                      }`}>
+                        {l.intent.replace(/_/g, " ")}
+                      </span>
+                    ) : "—"}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{l.volume ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{l.region ?? "—"}</TableCell>
                   <TableCell>
                     {e ? (
                       <Link

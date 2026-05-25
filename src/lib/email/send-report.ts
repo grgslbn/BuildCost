@@ -319,3 +319,141 @@ export async function sendReportForLead(leadId: string): Promise<SendReportResul
     return { status: "error", message: msg };
   }
 }
+
+// ── sendBetaWelcomeEmail ──────────────────────────────────────────────────────
+
+export async function sendBetaWelcomeEmail(
+  recipientEmail: string,
+  companyName: string | null
+): Promise<SendReportResult> {
+  const serverToken = process.env.POSTMARK_SERVER_TOKEN;
+  if (!serverToken) return { status: "error", message: "POSTMARK_SERVER_TOKEN not configured" };
+
+  const company = companyName ?? "your company";
+  const subject = "Welcome to PlanBase — beta access confirmed";
+
+  const text = [
+    `Hi,`,
+    ``,
+    `Thanks for requesting beta access to PlanBase for ${company}.`,
+    ``,
+    `We're building AI-powered reconstruction cost estimation for Belgian insurers,`,
+    `and your early feedback will shape the product.`,
+    ``,
+    `Here's what happens next:`,
+    ``,
+    `1. We'll set up your tenant within 24 hours`,
+    `2. You'll receive a magic link to access your dashboard`,
+    `3. Upload your first building plan and get an instant estimate`,
+    ``,
+    `During the beta, everything is free. Your dossiers help train our model,`,
+    `and your feedback directly shapes v1.`,
+    ``,
+    `Questions? Just reply to this email.`,
+    ``,
+    `— The PlanBase team`,
+  ].join("\n");
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#F6F5F1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F5F1;">
+  <tr><td align="center" style="padding:40px 20px;">
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:12px;border:1px solid #E8E0D8;overflow:hidden;">
+      <tr><td style="padding:28px 28px 0;">
+        <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#1A1714;margin-bottom:4px;">PlanBase</div>
+        <div style="font-size:12px;color:#9C9088;margin-bottom:24px;">AI-powered reconstruction cost estimation</div>
+      </td></tr>
+      <tr><td style="padding:0 28px 28px;">
+        <p style="margin:0 0 16px;color:#524840;font-size:15px;line-height:1.6;">Hi,</p>
+        <p style="margin:0 0 16px;color:#524840;font-size:15px;line-height:1.6;">
+          Thanks for requesting beta access to PlanBase for <strong style="color:#1A1714;">${company}</strong>.
+          We're building AI-powered reconstruction cost estimation for Belgian insurers,
+          and your early feedback will shape the product.
+        </p>
+        <div style="background:#F2EDE8;border-radius:8px;padding:20px;margin:20px 0;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1A1714;margin-bottom:12px;">What happens next</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td style="padding:5px 0;font-size:14px;color:#524840;">1 · We'll set up your tenant within 24 hours</td></tr>
+            <tr><td style="padding:5px 0;font-size:14px;color:#524840;">2 · You'll receive a magic link to your dashboard</td></tr>
+            <tr><td style="padding:5px 0;font-size:14px;color:#524840;">3 · Upload your first plan → instant estimate</td></tr>
+          </table>
+        </div>
+        <p style="margin:0 0 16px;color:#524840;font-size:15px;line-height:1.6;">
+          During the beta, everything is free. Your dossiers help train our model,
+          and your feedback directly shapes v1.
+        </p>
+        <p style="margin:0;color:#524840;font-size:15px;line-height:1.6;">
+          Questions? Just reply to this email.
+        </p>
+      </td></tr>
+      <tr><td style="padding:18px 28px;border-top:1px solid #E8E0D8;font-size:12px;color:#9C9088;">
+        PlanBase — AI-powered reconstruction cost estimation for Belgian insurance.
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+
+  try {
+    const client = new ServerClient(serverToken);
+    const result = await client.sendEmail({
+      From: FROM,
+      To: recipientEmail,
+      Subject: subject,
+      TextBody: text,
+      HtmlBody: html,
+      MessageStream: MESSAGE_STREAM,
+    });
+    return { status: "sent", messageId: result.MessageID };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return { status: "error", message: msg };
+  }
+}
+
+// ── sendAdminAlert ────────────────────────────────────────────────────────────
+
+export async function sendAdminAlert(
+  lead: { email: string; company: string | null; intent: string },
+  extra?: { estimationId?: string; volume?: string | null; region?: string | null }
+): Promise<void> {
+  const serverToken = process.env.POSTMARK_SERVER_TOKEN;
+  const adminEmail = process.env.ADMIN_ALERT_EMAIL;
+  if (!serverToken || !adminEmail) return; // silently skip if not configured
+
+  const isBeta = lead.intent === "beta_signup";
+  const subject = isBeta
+    ? `🟢 New beta signup: ${lead.company ?? lead.email}`
+    : `📄 New upload: ${lead.email}`;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://planbased.xyz";
+
+  const lines = [
+    `Email: ${lead.email}`,
+    lead.company ? `Company: ${lead.company}` : null,
+    extra?.volume ? `Volume: ${extra.volume}` : null,
+    extra?.region ? `Region: ${extra.region}` : null,
+    extra?.estimationId
+      ? `Estimation: ${appUrl}/estimations/${extra.estimationId}`
+      : null,
+    `Intent: ${lead.intent}`,
+    `Time: ${new Date().toLocaleString("fr-BE", { timeZone: "Europe/Brussels" })}`,
+  ].filter(Boolean).join("\n");
+
+  const text = `New lead on PlanBase:\n\n${lines}\n\nView all leads: ${appUrl}/admin/leads`;
+
+  try {
+    const client = new ServerClient(serverToken);
+    await client.sendEmail({
+      From: FROM,
+      To: adminEmail,
+      Subject: subject,
+      TextBody: text,
+      MessageStream: MESSAGE_STREAM,
+    });
+  } catch (err) {
+    // Non-blocking — log but never fail the user flow
+    console.error("[admin-alert] failed:", err instanceof Error ? err.message : err);
+  }
+}

@@ -1,6 +1,6 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Last updated: 2026-05-25** (Postmark migration)
+> **Last updated: 2026-05-25** (Beta signup CTA wiring complete)
 
 ---
 
@@ -163,10 +163,20 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - `sendReportDirect(estimationId, email, sharedBy?)` in `src/lib/email/send-report.ts`
   - Used by customer share flow; injects "shared by [name] from [company]" banner
   - `sendReportForLead(leadId)` is the legacy public funnel path
+- `sendBetaWelcomeEmail(email, company)` — welcome email sent on `beta_signup` intent; HTML template with "What happens next" section
+- `sendAdminAlert(lead, extra?)` — fire-and-forget text-only alert to `ADMIN_ALERT_EMAIL`; skipped silently if env vars unset; subject varies by intent
 - **Email provider: Postmark** (`postmark` npm package, `ServerClient`)
-  - Env vars: `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM` (default `"PlanBase <noreply@planbased.xyz>"`), `POSTMARK_MESSAGE_STREAM` (default `"outbound"`)
+  - Env vars: `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM` (default `"PlanBase <noreply@planbased.xyz>"`), `POSTMARK_MESSAGE_STREAM` (default `"outbound"`), `ADMIN_ALERT_EMAIL`
   - Migrated from Resend 2026-05-25 — Postmark isolates per-project via Servers, no cross-project bleed
   - Auth emails (magic link, tenant invite) still use Supabase Auth built-in email — configure SMTP in Supabase dashboard if needed
+
+## Landing Page Beta Signup (CTA)
+
+- `src/components/landing/CTA.tsx` — controlled form: `company` (required), `email` (required), `volume` (optional select), `region` (optional select)
+- POSTs to `/api/public/leads` with `intent: "beta_signup"`, `volume`, `region`
+- `leads` table columns: `email`, `company`, `role`, `intent`, `volume`, `region`, `estimation_id`, `ip_address`, `user_agent`, `email_sent`, `email_error`, ...
+- On success: `sendBetaWelcomeEmail` to lead + `sendAdminAlert` fire-and-forget
+- Admin leads table (`/admin/leads`) shows `intent` badge (colour-coded), `volume`, `region` columns + CSV export includes them
 
 ## Supabase Details
 

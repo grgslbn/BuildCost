@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getClientIp } from "@/lib/public-rate-limit";
-import { sendReportForLead } from "@/lib/email/send-report";
+import { sendReportForLead, sendBetaWelcomeEmail, sendAdminAlert } from "@/lib/email/send-report";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,10 @@ export async function POST(req: NextRequest) {
     email?: string;
     company?: string;
     role?: string;
+    volume?: string;
+    region?: string;
     estimationId?: string;
-    intent?: "report" | "expert_review";
+    intent?: "report" | "expert_review" | "beta_signup";
   };
 
   const email = body.email?.trim().toLowerCase() ?? "";
@@ -27,6 +29,8 @@ export async function POST(req: NextRequest) {
     email,
     estimationId: body.estimationId ?? null,
     intent: body.intent ?? "report",
+    volume: body.volume ?? null,
+    region: body.region ?? null,
     hasPostmarkToken: !!process.env.POSTMARK_SERVER_TOKEN,
     postmarkTokenLen: process.env.POSTMARK_SERVER_TOKEN?.length ?? 0,
     postmarkTokenPrefix: process.env.POSTMARK_SERVER_TOKEN?.slice(0, 4) ?? null,
@@ -38,6 +42,9 @@ export async function POST(req: NextRequest) {
       email,
       company: body.company?.trim() || null,
       role: body.role?.trim() || null,
+      volume: body.volume?.trim() || null,
+      region: body.region?.trim() || null,
+      intent: body.intent ?? "report",
       estimation_id: body.estimationId ?? null,
       ip_address: getClientIp(req),
       user_agent: req.headers.get("user-agent")?.slice(0, 500) ?? null,
@@ -54,6 +61,24 @@ export async function POST(req: NextRequest) {
   }
 
   console.log(LOG, "lead saved", lead.id);
+
+  // Fire-and-forget admin alert — never blocks user response
+  sendAdminAlert(
+    { email, company: body.company ?? null, intent: body.intent ?? "report" },
+    { estimationId: body.estimationId, volume: body.volume, region: body.region }
+  ).catch(() => {});
+
+  // ── Beta signup path ────────────────────────────────────────────────────────
+  if (body.intent === "beta_signup") {
+    const welcomeResult = await sendBetaWelcomeEmail(email, body.company ?? null);
+    console.log(LOG, "beta welcome email", welcomeResult);
+    return NextResponse.json({
+      status: "ok",
+      leadId: lead.id,
+      emailStatus: welcomeResult.status === "sent" ? "sent" : "error",
+      emailDebug: welcomeResult.status === "error" ? welcomeResult.message : null,
+    });
+  }
 
   let emailStatus: "sent" | "pending" | "no_estimation" | "error" = "pending";
   let emailDebug: string | null = null;

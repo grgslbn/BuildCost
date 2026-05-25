@@ -21,7 +21,7 @@ export default async function LeadsPage() {
   const [leadsRes, publicEstCountRes] = await Promise.all([
     admin
       .from("leads")
-      .select("id, email, company, role, estimation_id, email_sent, email_sent_at, email_error, created_at")
+      .select("id, email, company, role, intent, volume, region, estimation_id, email_sent, email_sent_at, email_error, created_at")
       .order("created_at", { ascending: false })
       .limit(1000),
     admin
@@ -35,6 +35,9 @@ export default async function LeadsPage() {
     email: string;
     company: string | null;
     role: string | null;
+    intent: string | null;
+    volume: string | null;
+    region: string | null;
     estimation_id: string | null;
     email_sent: boolean | null;
     email_sent_at: string | null;
@@ -63,6 +66,9 @@ export default async function LeadsPage() {
       email: l.email,
       company: l.company,
       role: l.role,
+      intent: l.intent,
+      volume: l.volume,
+      region: l.region,
       created_at: l.created_at,
       email_sent: l.email_sent ?? false,
       email_sent_at: l.email_sent_at,
