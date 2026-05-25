@@ -98,9 +98,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Estimation not found" }, { status: 404 });
     }
 
+    // ── Idempotency guard: skip if already processing or done ────────────────
+    if (est.status === "processing") {
+      console.log(`[estimate-process] Skipping ${estimationId} — already processing`);
+      return NextResponse.json({ status: "already_processing" });
+    }
+    if (est.status === "completed") {
+      console.log(`[estimate-process] Skipping ${estimationId} — already completed`);
+      return NextResponse.json({ status: "already_completed" });
+    }
+
     if (!est.plan_storage_path) {
       await setStatus(admin, estimationId, "error", { error_message: "No plan file attached." });
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
+    }
+
+    // ── Mark as processing (atomic: prevents concurrent runs) ─────────────────
+    const { data: claimed, error: claimError } = await admin
+      .from("estimations")
+      .update({ status: "processing", updated_at: new Date().toISOString() })
+      .eq("id", estimationId)
+      .neq("status", "processing")  // Only claim if NOT already processing
+      .neq("status", "completed")   // And NOT already completed
+      .select("id")
+      .single();
+
+    if (claimError || !claimed) {
+      console.log(`[estimate-process] Race condition: ${estimationId} claimed by another worker`);
+      return NextResponse.json({ status: "already_processing" });
     }
 
     // Load settings and prompts in parallel
