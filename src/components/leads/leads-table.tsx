@@ -77,7 +77,7 @@ function downloadCsv(leads: LeadRow[]) {
   const a = document.createElement("a");
   a.href = url;
   const stamp = new Date().toISOString().slice(0, 10);
-  a.download = `buildcost-leads-${stamp}.csv`;
+  a.download = `planbase-leads-${stamp}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

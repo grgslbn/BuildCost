@@ -1,9 +1,9 @@
 import { ServerClient } from "postmark";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
-const FROM = process.env.POSTMARK_FROM ?? "PlanBase <noreply@planbased.xyz>";
+const FROM = process.env.POSTMARK_FROM ?? "PlanBase <team@planbased.xyz>";
 const MESSAGE_STREAM = process.env.POSTMARK_MESSAGE_STREAM ?? "outbound";
-const REPORT_BASE = process.env.NEXT_PUBLIC_REPORT_BASE_URL ?? "https://build-cost-eight.vercel.app";
+const REPORT_BASE = process.env.NEXT_PUBLIC_REPORT_BASE_URL ?? "https://planbased.xyz";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -47,7 +47,7 @@ function buildEmail(est: EstimationRow): { subject: string; text: string; html: 
   const area      = fmtSqm(est.total_gross_sqm ?? est.total_livable_sqm);
   const sub       = est.sub_areas ?? {};
 
-  const subject = `Your BuildCost rebuild estimate — ${total}`;
+  const subject = `Your PlanBase rebuild estimate — ${total}`;
 
   const text = [
     "Hi,",
@@ -81,7 +81,7 @@ function buildEmail(est: EstimationRow): { subject: string; text: string; html: 
     "• Full calculation methodology",
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     "",
-    "BuildCost — AI-powered reconstruction cost estimation",
+    "PlanBase — AI-powered reconstruction cost estimation",
     "Questions? Reply to this email.",
   ].filter(Boolean).join("\n");
 
@@ -96,7 +96,7 @@ function buildEmail(est: EstimationRow): { subject: string; text: string; html: 
   <tr><td align="center">
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden;border:1px solid #E8E0D8;">
       <tr><td style="padding:24px 28px;border-bottom:1px solid #E8E0D8;">
-        <div style="font-family:Georgia,serif;font-size:22px;color:#1A1714;">BuildCost</div>
+        <div style="font-family:Georgia,serif;font-size:22px;color:#1A1714;">PlanBase</div>
         <div style="font-size:13px;color:#9C9088;margin-top:2px;">Your reconstruction cost estimate</div>
       </td></tr>
       <tr><td style="padding:28px;">
@@ -137,7 +137,7 @@ function buildEmail(est: EstimationRow): { subject: string; text: string; html: 
         </div>
       </td></tr>
       <tr><td style="padding:18px 28px;border-top:1px solid #E8E0D8;font-size:12px;color:#9C9088;">
-        BuildCost — AI-powered reconstruction cost estimation for Belgian insurance.<br>
+        PlanBase — AI-powered reconstruction cost estimation for Belgian insurance.<br>
         Questions? Just reply to this email.
       </td></tr>
     </table>
@@ -279,7 +279,7 @@ export async function sendReportForLead(leadId: string): Promise<SendReportResul
   }
 
   const { subject, text, html } = buildEmail(est as EstimationRow);
-  console.log(SR_LOG, "calling Resend API", {
+  console.log(SR_LOG, "calling Postmark API", {
     to: lead.email,
     from: FROM,
     subject,
@@ -351,6 +351,8 @@ export async function sendBetaWelcomeEmail(
     ``,
     `Questions? Just reply to this email.`,
     ``,
+    `Visit us: https://planbased.xyz`,
+    ``,
     `— The PlanBase team`,
   ].join("\n");
 
@@ -383,9 +385,12 @@ export async function sendBetaWelcomeEmail(
           During the beta, everything is free. Your dossiers help train our model,
           and your feedback directly shapes v1.
         </p>
-        <p style="margin:0;color:#524840;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 24px;color:#524840;font-size:15px;line-height:1.6;">
           Questions? Just reply to this email.
         </p>
+        <div style="text-align:center;">
+          <a href="https://planbased.xyz" style="display:inline-block;background:#C85A2A;color:#FFFFFF;padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Visit planbased.xyz →</a>
+        </div>
       </td></tr>
       <tr><td style="padding:18px 28px;border-top:1px solid #E8E0D8;font-size:12px;color:#9C9088;">
         PlanBase — AI-powered reconstruction cost estimation for Belgian insurance.
