@@ -13,7 +13,8 @@ import { splitPdfPages } from "@/lib/pdf/split-pages";
 
 import { logApiCall } from "@/lib/ai/log-api-call";
 import { categorizeAreas, getTotalGrossSqm, getBuildingType, getUnitCount } from "@/lib/cost/area-categories";
-import { calculateCost, interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { calculateCost, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { getRegionalCoefficient } from "@/lib/cost/regional-coefficients";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import { flattenQQPScores, predictF, type StoredModel } from "@/lib/qqp/model-prediction";
 import { QQP_NAMES, QQP_REFERENCE_RANGES } from "@/lib/qqp/reference-ranges";
@@ -498,16 +499,16 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Regional factor & ABEX ────────────────────────────────────────────────
-    const { data: postcodeRow } = await admin
-      .from("postcode_prices")
-      .select("base_price_per_sqm, municipality, region")
-      .eq("postcode", est.postcode ?? "")
-      .maybeSingle();
+    // Postcode: prefer extracted from plan, fall back to user-supplied value
+    const extractedPostcode =
+      (sqmExtraction.project as Record<string, unknown> | undefined)?.postcode as string | null | undefined
+      ?? est.postcode
+      ?? null;
 
-    const cat1AtF1       = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
-    const regionalFactor = postcodeRow
-      ? Number(postcodeRow.base_price_per_sqm) / cat1AtF1
-      : 1.0;
+    const regionalLookup = getRegionalCoefficient(extractedPostcode);
+    const regionalFactor = regionalLookup.coeff;
+
+    console.log(`[estimate-process] postcode=${extractedPostcode ?? "null"} → coeff=${regionalFactor} (${regionalLookup.label})`);
 
     const { data: abexRow } = await admin
       .from("abex_index")
@@ -536,7 +537,7 @@ export async function POST(req: NextRequest) {
         extracted_qqps:          qqpExtraction.qqp_values,
         finishing_level:         costBreakdown.finishing_label,
         finishing_coefficient:   finishingCoefficient,
-        base_price_per_sqm:      postcodeRow ? Number(postcodeRow.base_price_per_sqm) : cat1AtF1,
+        base_price_per_sqm:      costBreakdown.cat1_price_per_sqm,
         abex_factor:             abexFactor,
         estimated_price_per_sqm: costBreakdown.effective_price_per_livable_sqm,
         estimated_total_cost:    costBreakdown.total_cost,
@@ -549,7 +550,8 @@ export async function POST(req: NextRequest) {
         status:                  "complete",
         error_message:           null,
         updated_at:              new Date().toISOString(),
-        postcode:                est.postcode,
+        postcode:                extractedPostcode ?? est.postcode ?? null,
+        postcode_provided_by:    extractedPostcode ? "llm" : "user",
       })
       .eq("id", estimationId);
 
