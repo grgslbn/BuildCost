@@ -42,7 +42,7 @@ const NAV: NavItem[] = [
   { label: "Roadmap",  href: "/admin/roadmap",  icon: Map,       group: "Admin" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
   const pathname = usePathname();
 
   const ungrouped = NAV.filter((i) => !i.group);
@@ -95,6 +95,32 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* Queue status indicator */}
+      <div className="border-t p-3">
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium",
+            useQueue
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-muted text-muted-foreground"
+          )}
+          title={useQueue ? "USE_QUEUE=true — Railway worker active" : "USE_QUEUE=false — pipeline runs inline on Vercel (300s limit)"}
+        >
+          <span className="relative flex h-2 w-2 shrink-0">
+            {useQueue && (
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            )}
+            <span
+              className={cn(
+                "relative inline-flex h-2 w-2 rounded-full",
+                useQueue ? "bg-emerald-500" : "bg-muted-foreground/40"
+              )}
+            />
+          </span>
+          {useQueue ? "Queue ON" : "Direct mode"}
+        </div>
+      </div>
     </aside>
   );
 }

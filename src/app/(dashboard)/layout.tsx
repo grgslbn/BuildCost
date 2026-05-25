@@ -15,9 +15,11 @@ export default async function DashboardLayout({
     if (!session.isAdmin) redirect("/customer/overview");
   }
 
+  const useQueue = process.env.USE_QUEUE === "true";
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+      <Sidebar useQueue={useQueue} />
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
