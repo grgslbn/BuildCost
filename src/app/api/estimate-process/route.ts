@@ -517,7 +517,7 @@ export async function POST(req: NextRequest) {
       .eq("semester", abexSemester)
       .maybeSingle();
 
-    const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
+    const abexFactor = abexRow ? Number(abexRow.index_value) / 1056 : 1.0;
 
     // ── Area categorisation & cost calculation ────────────────────────────────
     const areas         = categorizeAreas(sqmExtraction);

@@ -54,7 +54,7 @@ export async function GET() {
     .eq("semester", abexSemester)
     .maybeSingle();
 
-  const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
+  const abexFactor = abexRow ? Number(abexRow.index_value) / 1056 : 1.0;
 
   const { data: rawDossiers, error } = await admin
     .from("reference_dossiers")

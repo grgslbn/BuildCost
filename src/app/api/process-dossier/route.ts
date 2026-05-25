@@ -560,7 +560,7 @@ export async function POST(req: NextRequest) {
       .eq("semester", abexSemester)
       .maybeSingle();
 
-    const abexFactor = abexRow ? Number(abexRow.index_value) / 1000 : 1.0;
+    const abexFactor = abexRow ? Number(abexRow.index_value) / 1056 : 1.0;
     const cat1AtF1 = interpolatePrice(1.0, pricing.cat1_min, pricing.cat1_max);
     const regionalFactor = postcodeRow
       ? Number(postcodeRow.base_price_per_sqm) / cat1AtF1
