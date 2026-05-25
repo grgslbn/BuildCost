@@ -61,6 +61,15 @@ export async function POST(
 
   const authUserId = inviteData.user.id;
 
+  // Check whether the inviting admin has a public.users row —
+  // invited_by has a FK → public.users(id), so we can only set it
+  // if the admin was created through the normal invite flow themselves.
+  const { data: adminProfile } = await admin
+    .from("users")
+    .select("id")
+    .eq("id", session.authUser.id)
+    .maybeSingle();
+
   // Create profile row in users table
   const { error: profileError } = await admin.from("users").upsert(
     {
@@ -69,7 +78,7 @@ export async function POST(
       email,
       full_name: full_name ?? null,
       role: "customer",
-      invited_by: session.authUser.id,
+      invited_by: adminProfile ? session.authUser.id : null,
       invited_at: new Date().toISOString(),
     },
     { onConflict: "id" }
@@ -77,7 +86,10 @@ export async function POST(
 
   if (profileError) {
     console.error("[invite] Failed to create user profile:", profileError);
-    return NextResponse.json({ error: "User invited but profile creation failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: `Profile creation failed: ${profileError.message}` },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({
