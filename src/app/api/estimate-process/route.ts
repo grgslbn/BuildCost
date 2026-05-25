@@ -98,9 +98,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Estimation not found" }, { status: 404 });
     }
 
-    // ── Idempotency guard: skip if already processing or done ────────────────
-    if (est.status === "processing") {
-      console.log(`[estimate-process] Skipping ${estimationId} — already processing`);
+    // ── Idempotency guard: skip if already in-progress or done ──────────────
+    const IN_PROGRESS_STATUSES = ["extracting_sqm", "analyzing_qqp", "calculating"];
+    if (IN_PROGRESS_STATUSES.includes(est.status)) {
+      console.log(`[estimate-process] Skipping ${estimationId} — already in progress (${est.status})`);
       return NextResponse.json({ status: "already_processing" });
     }
     if (est.status === "completed") {
@@ -111,21 +112,6 @@ export async function POST(req: NextRequest) {
     if (!est.plan_storage_path) {
       await setStatus(admin, estimationId, "error", { error_message: "No plan file attached." });
       return NextResponse.json({ error: "No plan file" }, { status: 422 });
-    }
-
-    // ── Mark as processing (atomic: prevents concurrent runs) ─────────────────
-    // Use array (no .single()) — PostgREST UPDATE returns [] when 0 rows matched.
-    const { data: claimed, error: claimError } = await admin
-      .from("estimations")
-      .update({ status: "processing", updated_at: new Date().toISOString() })
-      .eq("id", estimationId)
-      .neq("status", "processing")  // Only claim if NOT already processing
-      .neq("status", "completed")   // And NOT already completed
-      .select("id");
-
-    if (claimError || !claimed || claimed.length === 0) {
-      console.log(`[estimate-process] Race condition or already claimed: ${estimationId}`);
-      return NextResponse.json({ status: "already_processing" });
     }
 
     // Load settings and prompts in parallel
