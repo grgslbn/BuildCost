@@ -114,17 +114,17 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Mark as processing (atomic: prevents concurrent runs) ─────────────────
+    // Use array (no .single()) — PostgREST UPDATE returns [] when 0 rows matched.
     const { data: claimed, error: claimError } = await admin
       .from("estimations")
       .update({ status: "processing", updated_at: new Date().toISOString() })
       .eq("id", estimationId)
       .neq("status", "processing")  // Only claim if NOT already processing
       .neq("status", "completed")   // And NOT already completed
-      .select("id")
-      .single();
+      .select("id");
 
-    if (claimError || !claimed) {
-      console.log(`[estimate-process] Race condition: ${estimationId} claimed by another worker`);
+    if (claimError || !claimed || claimed.length === 0) {
+      console.log(`[estimate-process] Race condition or already claimed: ${estimationId}`);
       return NextResponse.json({ status: "already_processing" });
     }
 
