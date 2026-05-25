@@ -16,6 +16,7 @@ import {
   Users,
   FlaskConical,
   Map,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ const NAV: NavItem[] = [
   { label: "Tenants", href: "/admin/tenants", icon: Building2, group: "Admin" },
   { label: "Billing",  href: "/admin/billing",  icon: BarChart3, group: "Admin" },
   { label: "Roadmap",  href: "/admin/roadmap",  icon: Map,       group: "Admin" },
+  { label: "Email test", href: "/admin/email-test", icon: Mail, group: "Admin" },
 ];
 
 export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
@@ -73,7 +75,7 @@ export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
       {/* Logo */}
       <div className="flex h-14 items-center gap-2 border-b px-4">
         <Building2 className="h-5 w-5 text-primary" />
-        <span className="font-semibold tracking-tight">BuildCost</span>
+        <span className="font-semibold tracking-tight">PlanBase</span>
       </div>
 
       {/* Nav */}
