@@ -27,9 +27,9 @@ export async function POST(req: NextRequest) {
     email,
     estimationId: body.estimationId ?? null,
     intent: body.intent ?? "report",
-    hasResendKey: !!process.env.RESEND_API_KEY,
-    resendKeyLen: process.env.RESEND_API_KEY?.length ?? 0,
-    resendKeyPrefix: process.env.RESEND_API_KEY?.slice(0, 4) ?? null,
+    hasPostmarkToken: !!process.env.POSTMARK_SERVER_TOKEN,
+    postmarkTokenLen: process.env.POSTMARK_SERVER_TOKEN?.length ?? 0,
+    postmarkTokenPrefix: process.env.POSTMARK_SERVER_TOKEN?.slice(0, 4) ?? null,
   });
 
   const { data: lead, error } = await admin
@@ -82,16 +82,16 @@ export async function POST(req: NextRequest) {
       // Estimation still processing — will be picked up by /api/send-pending-reports
       console.log(LOG, "estimation not complete yet — deferring email", { status: est.status });
       emailDebug = `deferred (estimation status: ${est.status})`;
-    } else if (!process.env.RESEND_API_KEY) {
-      // Estimation IS complete but the API key is missing. Persist this on
+    } else if (!process.env.POSTMARK_SERVER_TOKEN) {
+      // Estimation IS complete but the token is missing. Persist this on
       // the lead row so the admin UI surfaces it instead of silently failing.
-      console.error(LOG, "RESEND_API_KEY is NOT set — cannot send email");
+      console.error(LOG, "POSTMARK_SERVER_TOKEN is NOT set — cannot send email");
       await admin
         .from("leads")
-        .update({ email_error: "RESEND_API_KEY not configured at request time" })
+        .update({ email_error: "POSTMARK_SERVER_TOKEN not configured at request time" })
         .eq("id", lead.id);
       emailStatus = "error";
-      emailDebug = "RESEND_API_KEY not configured";
+      emailDebug = "POSTMARK_SERVER_TOKEN not configured";
     } else {
       console.log(LOG, "attempting synchronous send for lead", lead.id);
       const result = await sendReportForLead(lead.id);

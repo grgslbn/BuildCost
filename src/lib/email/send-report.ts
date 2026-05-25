@@ -1,7 +1,8 @@
-import { Resend } from "resend";
+import { ServerClient } from "postmark";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
-const FROM = process.env.RESEND_FROM ?? "BuildCost <onboarding@resend.dev>";
+const FROM = process.env.POSTMARK_FROM ?? "PlanBase <noreply@planbased.xyz>";
+const MESSAGE_STREAM = process.env.POSTMARK_MESSAGE_STREAM ?? "outbound";
 const REPORT_BASE = process.env.NEXT_PUBLIC_REPORT_BASE_URL ?? "https://build-cost-eight.vercel.app";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -163,8 +164,8 @@ export async function sendReportDirect(
   recipientEmail: string,
   sharedBy?: SharedByContext
 ): Promise<SendReportResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return { status: "error", message: "RESEND_API_KEY not configured" };
+  const apiKey = process.env.POSTMARK_SERVER_TOKEN;
+  if (!apiKey) return { status: "error", message: "POSTMARK_SERVER_TOKEN not configured" };
 
   const admin = createSupabaseAdminClient();
   const { data: est, error } = await admin
@@ -201,10 +202,16 @@ export async function sendReportDirect(
     : baseText;
 
   try {
-    const resend = new Resend(apiKey);
-    const result = await resend.emails.send({ from: FROM, to: recipientEmail, subject, text, html });
-    if (result.error) return { status: "error", message: result.error.message ?? JSON.stringify(result.error) };
-    return { status: "sent", messageId: result.data?.id };
+    const client = new ServerClient(apiKey);
+    const result = await client.sendEmail({
+      From: FROM,
+      To: recipientEmail,
+      Subject: subject,
+      TextBody: text,
+      HtmlBody: html,
+      MessageStream: MESSAGE_STREAM,
+    });
+    return { status: "sent", messageId: result.MessageID };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     return { status: "error", message: msg };
@@ -213,11 +220,9 @@ export async function sendReportDirect(
 
 // ── sendReportForLead (legacy — public funnel) ────────────────────────────────
 
-const SR_LOG = "[send-report]";
-
 export async function sendReportForLead(leadId: string): Promise<SendReportResult> {
   const SR_LOG = "[send-report]";
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = process.env.POSTMARK_SERVER_TOKEN;
   console.log(SR_LOG, "called", {
     leadId,
     hasKey: !!apiKey,
@@ -227,8 +232,8 @@ export async function sendReportForLead(leadId: string): Promise<SendReportResul
   });
 
   if (!apiKey) {
-    console.error(SR_LOG, "no RESEND_API_KEY in process.env");
-    return { status: "error", message: "RESEND_API_KEY not configured" };
+    console.error(SR_LOG, "no POSTMARK_SERVER_TOKEN in process.env");
+    return { status: "error", message: "POSTMARK_SERVER_TOKEN not configured" };
   }
 
   const admin = createSupabaseAdminClient();
@@ -283,31 +288,21 @@ export async function sendReportForLead(leadId: string): Promise<SendReportResul
   });
 
   try {
-    const resend = new Resend(apiKey);
-    const result = await resend.emails.send({
-      from: FROM,
-      to: lead.email,
-      subject,
-      text,
-      html,
+    const client = new ServerClient(apiKey);
+    const result = await client.sendEmail({
+      From: FROM,
+      To: lead.email,
+      Subject: subject,
+      TextBody: text,
+      HtmlBody: html,
+      MessageStream: MESSAGE_STREAM,
     });
 
-    console.log(SR_LOG, "Resend API response", {
-      hasData: !!result.data,
-      messageId: result.data?.id ?? null,
-      hasError: !!result.error,
-      errorName: result.error?.name ?? null,
-      errorMessage: result.error?.message ?? null,
-      rawError: result.error ? JSON.stringify(result.error) : null,
+    console.log(SR_LOG, "Postmark API response", {
+      messageId: result.MessageID,
+      to: result.To,
+      submittedAt: result.SubmittedAt,
     });
-
-    if (result.error) {
-      const msg = result.error.message ?? JSON.stringify(result.error);
-      await admin.from("leads").update({
-        email_error: msg,
-      }).eq("id", leadId);
-      return { status: "error", message: msg };
-    }
 
     await admin.from("leads").update({
       email_sent: true,
@@ -315,11 +310,11 @@ export async function sendReportForLead(leadId: string): Promise<SendReportResul
       email_error: null,
     }).eq("id", leadId);
 
-    console.log(SR_LOG, "email sent successfully", { leadId, messageId: result.data?.id });
-    return { status: "sent", messageId: result.data?.id };
+    console.log(SR_LOG, "email sent successfully", { leadId, messageId: result.MessageID });
+    return { status: "sent", messageId: result.MessageID };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    console.error(SR_LOG, "Resend threw exception", { msg, err });
+    console.error(SR_LOG, "Postmark threw exception", { msg, err });
     await admin.from("leads").update({ email_error: msg }).eq("id", leadId);
     return { status: "error", message: msg };
   }

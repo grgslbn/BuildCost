@@ -1,6 +1,6 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Last updated: 2026-05-24**
+> **Last updated: 2026-05-25** (Postmark migration)
 
 ---
 
@@ -163,6 +163,10 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - `sendReportDirect(estimationId, email, sharedBy?)` in `src/lib/email/send-report.ts`
   - Used by customer share flow; injects "shared by [name] from [company]" banner
   - `sendReportForLead(leadId)` is the legacy public funnel path
+- **Email provider: Postmark** (`postmark` npm package, `ServerClient`)
+  - Env vars: `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM` (default `"PlanBase <noreply@planbased.xyz>"`), `POSTMARK_MESSAGE_STREAM` (default `"outbound"`)
+  - Migrated from Resend 2026-05-25 — Postmark isolates per-project via Servers, no cross-project bleed
+  - Auth emails (magic link, tenant invite) still use Supabase Auth built-in email — configure SMTP in Supabase dashboard if needed
 
 ## Supabase Details
 
@@ -198,7 +202,25 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - **Conclusion**: SQM extraction is solid, cost error comes from F/pricing. Vercel timeout is the #1 blocker for benchmarking.
 
 ### Next Steps
-- [ ] Solve Vercel 300s timeout (options: local CLI benchmark, Inngest background jobs, pipeline optimization)
+- [x] Railway worker built — `USE_QUEUE=true` to activate (see Railway Worker section below)
+- [ ] Apply `supabase/migrations/20260524_processing_queue.sql` in Supabase dashboard
+- [ ] Deploy worker to Railway (set root dir to `worker/`, add SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / ANTHROPIC_API_KEY)
+- [ ] Test with `USE_QUEUE=false` first, flip to `true` after worker verified
 - [ ] Investigate cost error source: regional factor, ABEX correction, or QQP weight calibration
-- [ ] Complete benchmark run on all 35 dossiers (need working timeout solution first)
-- [ ] Improve QQP extraction and F calculation based on benchmark insights
+- [ ] Complete benchmark run on all 35 dossiers via Railway worker queue
+
+---
+
+## Railway Worker (added 2026-05-24)
+
+- **Purpose:** Runs the estimation pipeline without Vercel's 300s timeout
+- **Deployment:** `worker/` directory → Railway container
+- **Queue table:** `processing_queue` in Supabase (migration: `supabase/migrations/20260524_processing_queue.sql`)
+- **Feature flag:** `USE_QUEUE` env var on Vercel (`true`/`false`, default `false`)
+- **How it works:** `estimate-process` route inserts into queue when `USE_QUEUE=true`; worker polls every 2s and calls the shared pipeline
+- **Concurrency:** 1 reserved estimate slot + 2 background slots (`WORKER_ESTIMATE_SLOTS`, `WORKER_BACKGROUND_SLOTS` env vars)
+- **Shared code:** `src/lib/pipeline/run-estimation.ts` — single source of truth; worker copy at `worker/src/pipeline/run-estimation.ts` uses relative imports
+- **Benchmark:** Always queued (`job_type: 'benchmark'`, priority 10) — no feature flag needed
+- **Rollback:** Set `USE_QUEUE=false` on Vercel → redeploy (30s) → old direct flow restored
+- **Monitoring:** Railway logs for worker activity; `processing_queue` table in Supabase for job status
+- **Worker env vars:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `WORKER_ESTIMATE_SLOTS` (default 1), `WORKER_BACKGROUND_SLOTS` (default 2)
