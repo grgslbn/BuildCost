@@ -17,6 +17,7 @@ import {
   FlaskConical,
   Map,
   Mail,
+  Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,8 @@ const NAV: NavItem[] = [
   { label: "Tenants", href: "/admin/tenants", icon: Building2, group: "Admin" },
   { label: "Billing",  href: "/admin/billing",  icon: BarChart3, group: "Admin" },
   { label: "Roadmap",  href: "/admin/roadmap",  icon: Map,       group: "Admin" },
-  { label: "Email test", href: "/admin/email-test", icon: Mail, group: "Admin" },
+  { label: "Email test",    href: "/admin/email-test",    icon: Mail,        group: "Admin" },
+  { label: "Pipeline test", href: "/admin/pipeline-test", icon: Cpu,         group: "Admin" },
 ];
 
 export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
