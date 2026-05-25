@@ -551,7 +551,7 @@ export async function POST(req: NextRequest) {
         error_message:           null,
         updated_at:              new Date().toISOString(),
         postcode:                extractedPostcode ?? est.postcode ?? null,
-        postcode_provided_by:    extractedPostcode ? "llm" : "user",
+        postcode_provided_by:    extractedPostcode ? "plan" : "user",
       })
       .eq("id", estimationId);
 
