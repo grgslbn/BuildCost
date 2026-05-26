@@ -27,7 +27,7 @@ function getClient(): Anthropic {
 export const anthropic = new Proxy({} as Anthropic, {
   get(_t, prop: string | symbol) {
     const c = getClient();
-    const v = (c as Record<string | symbol, unknown>)[prop];
+    const v = (c as unknown as Record<string | symbol, unknown>)[prop];
     return typeof v === "function" ? (v as (...a: unknown[]) => unknown).bind(c) : v;
   },
 });
