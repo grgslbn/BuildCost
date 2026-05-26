@@ -139,7 +139,7 @@ export default async function BenchmarkPage({
                       <td className="px-4 py-3 text-right">{fmt(run.metrics?.cost_within_15_pct ? run.metrics.cost_within_15_pct * 100 : null)}</td>
                       <td className="px-4 py-3 text-center"><StatusBadge status={run.status} /></td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {new Date(run.started_at).toLocaleDateString("nl-BE")}
+                        {new Date(run.started_at).toLocaleString("nl-BE", { dateStyle: "short", timeStyle: "short" })}
                       </td>
                     </tr>
                   ))}
