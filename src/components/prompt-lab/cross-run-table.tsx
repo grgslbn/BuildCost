@@ -40,7 +40,7 @@ function fmtEur(n: number | null | undefined): string {
 
 export function CrossRunTable({ results }: { results: CrossRunResult[] }) {
   if (results.length === 0) {
-    return <p className="text-sm text-muted-foreground">Dit dossier is nog niet in een benchmark run verwerkt.</p>;
+    return <p className="text-sm text-muted-foreground">This dossier has not been processed in any run yet.</p>;
   }
 
   return (
@@ -49,8 +49,8 @@ export function CrossRunTable({ results }: { results: CrossRunResult[] }) {
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-4 py-3 text-left font-medium">Run</th>
-            <th className="px-4 py-3 text-right font-medium">Datum</th>
-            <th className="px-4 py-3 text-right font-medium">Kosten</th>
+            <th className="px-4 py-3 text-right font-medium">Date</th>
+            <th className="px-4 py-3 text-right font-medium">Cost</th>
             <th className="px-4 py-3 text-right font-medium">Cost Δ</th>
             <th className="px-4 py-3 text-right font-medium">Cat1 Δ</th>
             <th className="px-4 py-3 text-right font-medium">Cat2 Δ</th>
