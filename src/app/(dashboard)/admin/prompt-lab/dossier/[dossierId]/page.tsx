@@ -100,6 +100,18 @@ export default async function DossierDetailPage({
 
   const hasCalculation = !!dossier.calculation_storage_path;
 
+  // Get latest successful result to pre-populate the tester
+  const latestSuccessful = crossRunResults.find((r) => !r.error_message && r.predicted_total_cost != null);
+  const initialResult = latestSuccessful
+    ? {
+        cat1_sqm: latestSuccessful.extracted_cat1_sqm,
+        cat2_sqm: latestSuccessful.extracted_cat2_sqm,
+        cat3_sqm: latestSuccessful.extracted_cat3_sqm,
+        total_cost: latestSuccessful.predicted_total_cost,
+        processing_time_ms: null as number | null,
+      }
+    : null;
+
   const initialGt = gt
     ? {
         expert_total_price: gt.expert_total_price as number | null,
@@ -225,6 +237,7 @@ export default async function DossierDetailPage({
             dossierId={dossierId}
             hasCalculation={hasCalculation}
             initialGt={initialGt}
+            initialResult={initialResult}
           />
         </CardContent>
       </Card>

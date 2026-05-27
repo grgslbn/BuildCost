@@ -38,7 +38,7 @@ function computeAccuracyScore(result: DossierAccuracy): number | null {
   return Math.max(0, Math.min(100, 100 - avgError));
 }
 
-type FilterMode = "all" | "tested" | "untested" | "errors";
+type FilterMode = "all" | "ready" | "tested" | "untested" | "errors";
 
 export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { dossiers: Dossier[]; latestResults?: Record<string, DossierAccuracy> }) {
   const [dossiers, setDossiers] = useState(initial);
@@ -63,6 +63,7 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
     )) return false;
 
     // Status filter
+    if (filter === "ready") return d.plan_file_name && d.calculation_file_name && !latestResults[d.id];
     if (filter === "tested") return latestResults[d.id] && !latestResults[d.id].error_message;
     if (filter === "untested") return !latestResults[d.id];
     if (filter === "errors") return latestResults[d.id]?.error_message != null;
@@ -75,6 +76,7 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
   // Stats
   const testedCount = Object.values(latestResults).filter((r) => !r.error_message).length;
   const errorCount = Object.values(latestResults).filter((r) => r.error_message).length;
+  const readyCount = dossiers.filter((d) => d.plan_file_name && d.calculation_file_name && !latestResults[d.id]).length;
 
   async function handleUpload(dossierId: string, fileType: "plan" | "calculation", file: File) {
     setUploading((prev) => ({ ...prev, [dossierId]: fileType }));
@@ -114,8 +116,8 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
 
   function FileStatus({ name, uploading: isUploading }: { name: string | null; uploading: boolean }) {
     if (isUploading) return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
-    if (name) return <span className="inline-flex items-center gap-1 text-xs text-green-600"><CheckCircle2 className="h-3 w-3" />{name}</span>;
-    return <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="h-3 w-3" />Missing</span>;
+    if (name) return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+    return <XCircle className="h-4 w-4 text-muted-foreground/40" />;
   }
 
   return (
@@ -129,8 +131,8 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
           className="flex-1 min-w-[200px] rounded-md border border-input bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
-        <div className="flex gap-1">
-          {(["all", "tested", "untested", "errors"] as FilterMode[]).map((f) => (
+        <div className="flex gap-1 flex-wrap">
+          {(["all", "ready", "tested", "untested", "errors"] as FilterMode[]).map((f) => (
             <button
               key={f}
               onClick={() => { setFilter(f); setPage(0); }}
@@ -141,6 +143,7 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
               }`}
             >
               {f === "all" && `All (${dossiers.length})`}
+              {f === "ready" && `Ready (${readyCount})`}
               {f === "tested" && `Tested (${testedCount})`}
               {f === "untested" && `Untested (${dossiers.length - testedCount - errorCount})`}
               {f === "errors" && `Errors (${errorCount})`}

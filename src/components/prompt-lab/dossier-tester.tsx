@@ -44,21 +44,47 @@ function computeError(llm: number | null, expert: number | null): number | null 
   return ((llm - expert) / expert) * 100;
 }
 
+type InitialResult = {
+  cat1_sqm: number | null;
+  cat2_sqm: number | null;
+  cat3_sqm: number | null;
+  total_cost: number | null;
+  processing_time_ms: number | null;
+};
+
 export function DossierTester({
   dossierId,
   hasCalculation,
   initialGt,
+  initialResult,
 }: {
   dossierId: string;
   hasCalculation: boolean;
   initialGt: GroundTruth | null;
+  initialResult?: InitialResult | null;
 }) {
-  const [phase, setPhase] = useState<TestPhase>("idle");
-  const [statusText, setStatusText] = useState("");
+  const hasInitialResult = !!initialResult?.total_cost;
+  const [phase, setPhase] = useState<TestPhase>(hasInitialResult ? "done" : "idle");
+  const [statusText, setStatusText] = useState(hasInitialResult ? "Previous result" : "");
   const [errorText, setErrorText] = useState("");
   const [gt, setGt] = useState<GroundTruth | null>(initialGt);
-  const [result, setResult] = useState<EstimationResult | null>(null);
-  const [processingTime, setProcessingTime] = useState<number | null>(null);
+  const [result, setResult] = useState<EstimationResult | null>(
+    hasInitialResult
+      ? {
+          cat1_sqm: initialResult!.cat1_sqm ?? 0,
+          cat2_sqm: initialResult!.cat2_sqm ?? 0,
+          cat3_sqm: initialResult!.cat3_sqm ?? 0,
+          total_cost: initialResult!.total_cost ?? 0,
+          finishing_coefficient: null,
+          confidence: null,
+          processing_time_ms: initialResult!.processing_time_ms ?? null,
+          warnings: [],
+        }
+      : null,
+  );
+  const [processingTime, setProcessingTime] = useState<number | null>(
+    initialResult?.processing_time_ms ?? null,
+  );
 
   const extractGt = useCallback(async (): Promise<GroundTruth | null> => {
     if (!hasCalculation) return null;
@@ -242,7 +268,7 @@ export function DossierTester({
           ) : (
             <Play className="h-3.5 w-3.5 mr-1.5" />
           )}
-          {isRunning ? "Testing..." : "Test dossier"}
+          {isRunning ? "Testing..." : result ? "Re-test" : "Test dossier"}
         </Button>
 
         {statusText && (
