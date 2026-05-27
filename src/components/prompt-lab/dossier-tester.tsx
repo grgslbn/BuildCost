@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2, Play, RotateCcw, AlertTriangle } from "lucide-react";
 import { ComparisonTable, computeOverallAccuracy, type ComparisonRow } from "./comparison-table";
@@ -63,6 +64,7 @@ export function DossierTester({
   initialGt: GroundTruth | null;
   initialResult?: InitialResult | null;
 }) {
+  const router = useRouter();
   const hasInitialResult = !!initialResult?.total_cost;
   const [phase, setPhase] = useState<TestPhase>(hasInitialResult ? "done" : "idle");
   const [statusText, setStatusText] = useState(hasInitialResult ? "Previous result" : "");
@@ -202,7 +204,7 @@ export function DossierTester({
       setPhase("done");
       setStatusText("Complete!");
 
-      // Record the result in the background (fire-and-forget)
+      // Record the result in the background, then refresh server components (GT card, results table)
       fetch("/api/admin/prompt-lab/record-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -210,7 +212,9 @@ export function DossierTester({
           dossierId,
           estimationId: pipelineOutcome.estimationId,
         }),
-      }).catch(() => {/* ignore recording errors */});
+      })
+        .then(() => router.refresh())
+        .catch(() => {/* ignore recording errors */});
     } catch (err) {
       setPhase("error");
       setErrorText(err instanceof Error ? err.message : "Unknown error");
