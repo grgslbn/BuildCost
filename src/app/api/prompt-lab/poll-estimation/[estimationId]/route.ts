@@ -16,7 +16,7 @@ export async function GET(
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from("estimations")
-    .select("status, error_message, created_at")
+    .select("status, error_message, created_at, sub_areas, sqm_extraction, finishing_coefficient, overall_confidence, processing_time_ms")
     .eq("id", params.estimationId)
     .single();
 
@@ -37,6 +37,26 @@ export async function GET(
         .eq("id", params.estimationId);
       return NextResponse.json({ status: "error", done: true, stuck: true });
     }
+  }
+
+  if (done && data.status === "complete") {
+    const sub = data.sub_areas as Record<string, number> | null;
+    const sqm = data.sqm_extraction as Record<string, unknown> | null;
+    const totals = sqm?.project_totals as Record<string, number> | undefined;
+    return NextResponse.json({
+      status: data.status,
+      done,
+      result: {
+        cat1_sqm: totals?.total_cat1_sqm ?? sub?.cat1_sqm ?? 0,
+        cat2_sqm: totals?.total_cat2_sqm ?? sub?.cat2_sqm ?? 0,
+        cat3_sqm: totals?.total_cat3_sqm ?? sub?.cat3_sqm ?? 0,
+        total_cost: sub?.total_cost ?? 0,
+        finishing_coefficient: data.finishing_coefficient,
+        confidence: data.overall_confidence,
+        processing_time_ms: data.processing_time_ms,
+        warnings: (sqm?.extraction_warnings as string[] | undefined) ?? [],
+      },
+    });
   }
 
   return NextResponse.json({ status: data.status, done });

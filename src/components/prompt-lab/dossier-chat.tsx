@@ -10,10 +10,22 @@ type Message = {
   content: string;
 };
 
+type EstimationResult = {
+  cat1_sqm: number;
+  cat2_sqm: number;
+  cat3_sqm: number;
+  total_cost: number;
+  finishing_coefficient: number | null;
+  confidence: number | null;
+  processing_time_ms: number | null;
+  warnings: string[];
+};
+
 type TestResult = {
   estimationId: string;
   status: "polling" | "done" | "error";
   detail?: string;
+  result?: EstimationResult;
 };
 
 export function DossierChat({ dossierId }: { dossierId: string }) {
@@ -144,9 +156,14 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
         try {
           const pollRes = await fetch(`/api/prompt-lab/poll-estimation/${estimationId}`);
           if (pollRes.ok) {
-            const { done } = await pollRes.json();
-            if (done) {
-              setTestResult({ estimationId, status: "done", detail: "Pipeline complete! Refresh to see results." });
+            const pollData = await pollRes.json();
+            if (pollData.done) {
+              setTestResult({
+                estimationId,
+                status: pollData.status === "complete" ? "done" : "error",
+                detail: pollData.status === "complete" ? "Pipeline complete!" : (pollData.error_message ?? "Pipeline failed"),
+                result: pollData.result,
+              });
               return;
             }
           }
@@ -205,6 +222,11 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
             }`}
           >
             {testResult.detail}
+            {testResult.result?.processing_time_ms && (
+              <span className="text-muted-foreground ml-1">
+                ({(testResult.result.processing_time_ms / 1000).toFixed(0)}s)
+              </span>
+            )}
           </span>
         )}
         {messages.length > 0 && (
@@ -219,6 +241,48 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
           </Button>
         )}
       </div>
+
+      {/* Test result card */}
+      {testResult?.result && (
+        <div className="border rounded-lg p-3 mt-3 bg-muted/30 space-y-2">
+          <div className="grid grid-cols-4 gap-3 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Cat1 (livable)</p>
+              <p className="font-semibold">{testResult.result.cat1_sqm.toFixed(1)} m²</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Cat2 (enclosed)</p>
+              <p className="font-semibold">{testResult.result.cat2_sqm.toFixed(1)} m²</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Cat3 (outdoor)</p>
+              <p className="font-semibold">{testResult.result.cat3_sqm.toFixed(1)} m²</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Total cost</p>
+              <p className="font-semibold">€{Math.round(testResult.result.total_cost).toLocaleString("nl-BE")}</p>
+            </div>
+          </div>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            {testResult.result.finishing_coefficient != null && (
+              <span>F = {testResult.result.finishing_coefficient.toFixed(2)}</span>
+            )}
+            {testResult.result.confidence != null && (
+              <span>Confidence: {(testResult.result.confidence * 100).toFixed(0)}%</span>
+            )}
+          </div>
+          {testResult.result.warnings.length > 0 && (
+            <div className="text-xs text-amber-600 space-y-0.5">
+              {testResult.result.warnings.slice(0, 3).map((w, i) => (
+                <p key={i}>⚠ {w}</p>
+              ))}
+              {testResult.result.warnings.length > 3 && (
+                <p>+ {testResult.result.warnings.length - 3} more warnings</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-4">
