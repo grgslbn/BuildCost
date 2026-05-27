@@ -1,9 +1,9 @@
 /**
  * POST /api/admin/prompt-lab/test-dossier
  *
- * Runs the pipeline on a single dossier and returns the estimation ID.
- * Creates an estimation row, fires estimate-process (fire-and-forget),
- * and returns the ID for the client to poll.
+ * Creates an estimation row for a dossier and returns the estimation ID.
+ * The client is responsible for firing /api/estimate-process and polling status.
+ * (Server-side fire-and-forget doesn't work reliably on Vercel.)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -53,19 +53,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Fire estimate-process (fire and forget)
-  // Use the request's own origin so it works on both localhost and Vercel
-  const baseUrl = req.nextUrl.origin;
-
-  fetch(`${baseUrl}/api/estimate-process`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ estimationId }),
-  }).catch(() => {}); // intentional fire-and-forget
+  // NOTE: The client fires /api/estimate-process directly after receiving the estimationId.
+  // Server-side fire-and-forget doesn't work reliably on Vercel (function context dies after response).
 
   return NextResponse.json({
     estimationId,
     dossierId,
-    message: "Pipeline started. Poll estimation status to track progress.",
+    message: "Estimation created. Client should fire estimate-process.",
   });
 }

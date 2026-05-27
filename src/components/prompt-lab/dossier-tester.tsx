@@ -120,7 +120,7 @@ export function DossierTester({
   }, [dossierId, hasCalculation]);
 
   const runPipeline = useCallback(async (): Promise<PipelineOutcome | null> => {
-    // Start estimation
+    // Step 1: Create estimation row
     const res = await fetch("/api/admin/prompt-lab/test-dossier", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -130,6 +130,14 @@ export function DossierTester({
     if (!res.ok) throw new Error(data.error || "Failed to start pipeline");
 
     const { estimationId } = data;
+
+    // Step 2: Fire estimate-process from the CLIENT (not server-side fire-and-forget)
+    // This avoids Vercel killing the background fetch when the test-dossier response closes.
+    fetch("/api/estimate-process", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estimationId }),
+    }).catch(() => {}); // fire-and-forget from browser — connection stays alive
 
     // Poll until done (max 10 min)
     for (let i = 0; i < 240; i++) {
