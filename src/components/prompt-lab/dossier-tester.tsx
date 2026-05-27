@@ -142,6 +142,8 @@ export function DossierTester({
     }).catch(() => {}); // fire-and-forget from browser — connection stays alive
 
     // Poll until done (max 10 min)
+    // Use a sentinel to distinguish pipeline errors from network hiccups
+    const PIPELINE_ERROR = Symbol("pipeline_error");
     for (let i = 0; i < 240; i++) {
       await new Promise((r) => setTimeout(r, 2500));
       try {
@@ -155,16 +157,19 @@ export function DossierTester({
               return { result: pollData.result as EstimationResult, estimationId };
             }
             if (pollData.status === "error") {
-              throw new Error(pollData.error_message || "Pipeline failed");
+              const err = new Error(pollData.error_message || "Pipeline failed");
+              (err as unknown as Record<symbol, boolean>)[PIPELINE_ERROR] = true;
+              throw err;
             }
             return null;
           }
         }
       } catch (e) {
-        if (e instanceof Error && e.message !== "Pipeline failed" && !e.message.includes("413")) {
-          continue; // network hiccup — retry
+        // Re-throw pipeline errors immediately; retry network hiccups
+        if (e instanceof Error && (e as unknown as Record<symbol, boolean>)[PIPELINE_ERROR]) {
+          throw e;
         }
-        throw e;
+        continue;
       }
     }
     throw new Error("Pipeline timed out (>10 min)");
