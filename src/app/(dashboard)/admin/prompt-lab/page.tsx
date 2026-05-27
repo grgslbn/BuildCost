@@ -191,9 +191,9 @@ export default async function BenchmarkPage({
       {tab === "dossiers" && (
         <Card>
           <CardHeader>
-            <CardTitle>Dossier bestanden</CardTitle>
+            <CardTitle>Dossier files</CardTitle>
             <CardDescription>
-              Upload per dossier het plan (→ LLM) en de berekening (→ ground truth vergelijking).
+              Upload plan (→ LLM extraction) and calculation (→ ground truth comparison) per dossier.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">

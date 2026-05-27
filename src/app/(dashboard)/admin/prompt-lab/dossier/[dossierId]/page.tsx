@@ -39,7 +39,7 @@ export default async function DossierDetailPage({
   }
 
   if (!dossier) {
-    return <div className="p-8 text-center text-muted-foreground">Dossier niet gevonden.</div>;
+    return <div className="p-8 text-center text-muted-foreground">Dossier not found.</div>;
   }
 
   // Fetch ground truth
@@ -98,7 +98,7 @@ export default async function DossierDetailPage({
             {dossier.plan_file_name || dossierId.slice(0, 8)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {[dossier.address, dossier.postcode, dossier.building_type].filter(Boolean).join(" · ") || "Geen adresgegevens"}
+            {[dossier.address, dossier.postcode, dossier.building_type].filter(Boolean).join(" · ") || "No address data"}
           </p>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default async function DossierDetailPage({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Bestanden</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Files</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
@@ -116,7 +116,7 @@ export default async function DossierDetailPage({
               ) : (
                 <XCircle className="h-4 w-4 text-muted-foreground" />
               )}
-              <span>Plan: {dossier.plan_file_name || "Ontbreekt"}</span>
+              <span>Plan: {dossier.plan_file_name || "Missing"}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               {dossier.calculation_file_name ? (
@@ -124,7 +124,7 @@ export default async function DossierDetailPage({
               ) : (
                 <XCircle className="h-4 w-4 text-muted-foreground" />
               )}
-              <span>Berekening: {dossier.calculation_file_name || "Ontbreekt"}</span>
+              <span>Calculation: {dossier.calculation_file_name || "Missing"}</span>
             </div>
           </CardContent>
         </Card>
@@ -136,15 +136,15 @@ export default async function DossierDetailPage({
           <CardContent>
             {gt ? (
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Totaalprijs: <span className="font-medium">{fmtEur(gt.expert_total_price)}</span></div>
-                <div>Afwerking: <span className="font-medium">{gt.expert_finishing_level || "—"}</span></div>
+                <div>Total price: <span className="font-medium">{fmtEur(gt.expert_total_price)}</span></div>
+                <div>Finishing: <span className="font-medium">{gt.expert_finishing_level || "—"}</span></div>
                 <div>Cat1: <span className="font-medium">{gt.expert_cat1_sqm?.toFixed(1) ?? "—"} m²</span></div>
                 <div>Cat2: <span className="font-medium">{gt.expert_cat2_sqm?.toFixed(1) ?? "—"} m²</span></div>
                 <div>Cat3: <span className="font-medium">{gt.expert_cat3_sqm?.toFixed(1) ?? "—"} m²</span></div>
-                <div>Vertrouwen: <span className="font-medium">{gt.extraction_confidence?.toFixed(2) ?? "—"}</span></div>
+                <div>Confidence: <span className="font-medium">{gt.extraction_confidence?.toFixed(2) ?? "—"}</span></div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Nog geen ground truth geëxtraheerd.</p>
+              <p className="text-sm text-muted-foreground">No ground truth extracted yet.</p>
             )}
           </CardContent>
         </Card>
@@ -163,7 +163,7 @@ export default async function DossierDetailPage({
       {/* Cross-run comparison */}
       <Card>
         <CardHeader>
-          <CardTitle>Resultaten per run</CardTitle>
+          <CardTitle>Results per run</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <CrossRunTable results={crossRunResults} />
@@ -173,7 +173,7 @@ export default async function DossierDetailPage({
       {/* Annotations */}
       <Card>
         <CardHeader>
-          <CardTitle>Annotaties</CardTitle>
+          <CardTitle>Annotations</CardTitle>
         </CardHeader>
         <CardContent>
           <DossierAnnotations

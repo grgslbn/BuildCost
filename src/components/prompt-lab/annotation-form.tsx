@@ -7,15 +7,15 @@ import { Loader2, Plus } from "lucide-react";
 import { ANNOTATION_CATEGORIES, type AnnotationCategory, type BenchmarkAnnotation } from "@/lib/prompt-lab/types";
 
 const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
-  general: "Algemeen",
-  vision_limit: "Vision limiet",
-  prompt_issue: "Prompt probleem",
-  classifier_error: "Classifier fout",
-  scale_error: "Schaal fout",
-  room_missing: "Kamer ontbreekt",
-  room_extra: "Kamer teveel",
-  qqp_error: "QQP fout",
-  ground_truth_error: "Ground truth fout",
+  general: "General",
+  vision_limit: "Vision limit",
+  prompt_issue: "Prompt issue",
+  classifier_error: "Classifier error",
+  scale_error: "Scale error",
+  room_missing: "Room missing",
+  room_extra: "Room extra",
+  qqp_error: "QQP error",
+  ground_truth_error: "GT error",
 };
 
 export function AnnotationForm({
@@ -69,14 +69,14 @@ export function AnnotationForm({
         </select>
       </div>
       <Textarea
-        placeholder="Notitie toevoegen..."
+        placeholder="Add a note..."
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
       />
       <Button type="submit" size="sm" disabled={saving || !body.trim()}>
         {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Plus className="h-3 w-3 mr-1" />}
-        Toevoegen
+        Add
       </Button>
     </form>
   );

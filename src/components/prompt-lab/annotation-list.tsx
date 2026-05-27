@@ -18,15 +18,15 @@ const CATEGORY_COLORS: Record<AnnotationCategory, string> = {
 };
 
 const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
-  general: "Algemeen",
-  vision_limit: "Vision limiet",
-  prompt_issue: "Prompt probleem",
-  classifier_error: "Classifier fout",
-  scale_error: "Schaal fout",
-  room_missing: "Kamer ontbreekt",
-  room_extra: "Kamer teveel",
-  qqp_error: "QQP fout",
-  ground_truth_error: "GT fout",
+  general: "General",
+  vision_limit: "Vision limit",
+  prompt_issue: "Prompt issue",
+  classifier_error: "Classifier error",
+  scale_error: "Scale error",
+  room_missing: "Room missing",
+  room_extra: "Room extra",
+  qqp_error: "QQP error",
+  ground_truth_error: "GT error",
 };
 
 export function AnnotationList({
@@ -53,7 +53,7 @@ export function AnnotationList({
   }
 
   if (annotations.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nog geen annotaties.</p>;
+    return <p className="text-sm text-muted-foreground">No annotations yet.</p>;
   }
 
   return (

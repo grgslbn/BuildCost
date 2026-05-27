@@ -59,7 +59,7 @@ export function DossierUploadTable({ dossiers: initial }: { dossiers: Dossier[] 
   function FileStatus({ name, uploading: isUploading }: { name: string | null; uploading: boolean }) {
     if (isUploading) return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
     if (name) return <span className="inline-flex items-center gap-1 text-xs text-green-600"><CheckCircle2 className="h-3 w-3" />{name}</span>;
-    return <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="h-3 w-3" />Ontbreekt</span>;
+    return <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="h-3 w-3" />Missing</span>;
   }
 
   return (
@@ -68,11 +68,11 @@ export function DossierUploadTable({ dossiers: initial }: { dossiers: Dossier[] 
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-4 py-3 text-left font-medium">Dossier</th>
-            <th className="px-4 py-3 text-left font-medium">Adres</th>
+            <th className="px-4 py-3 text-left font-medium">Address</th>
             <th className="px-4 py-3 text-left font-medium">Postcode</th>
             <th className="px-4 py-3 text-left font-medium">Plan</th>
-            <th className="px-4 py-3 text-left font-medium">Berekening</th>
-            <th className="px-4 py-3 text-center font-medium">Acties</th>
+            <th className="px-4 py-3 text-left font-medium">Calculation</th>
+            <th className="px-4 py-3 text-center font-medium">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -131,7 +131,7 @@ export function DossierUploadTable({ dossiers: initial }: { dossiers: Dossier[] 
                     onClick={() => calcRefs.current[d.id]?.click()}
                   >
                     <Upload className="h-3 w-3 mr-1" />
-                    Berekening
+                    Calculation
                   </Button>
                 </div>
                 {errors[d.id] && (
@@ -144,7 +144,7 @@ export function DossierUploadTable({ dossiers: initial }: { dossiers: Dossier[] 
       </table>
       {dossiers.length === 0 && (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          Geen dossiers gevonden. Upload eerst dossiers via &quot;Dossiers&quot; in het menu.
+          No dossiers found. Upload dossiers first via the bulk upload script.
         </div>
       )}
     </div>
