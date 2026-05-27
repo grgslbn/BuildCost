@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   // Fetch dossier
   const { data: dossier } = await admin
     .from("reference_dossiers")
-    .select("id, tenant_id, plan_storage_path, plan_file_name")
+    .select("id, tenant_id, plan_storage_path, plan_file_name, postcode")
     .eq("id", dossierId)
     .single();
 
@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
     tenant_id: dossier.tenant_id,
     plan_storage_path: dossier.plan_storage_path,
     plan_file_name: dossier.plan_file_name,
+    postcode: dossier.postcode,
     status: "uploaded",
-    reference_dossier_id: dossier.id,
   });
 
   if (insertErr) {
