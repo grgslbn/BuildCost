@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrossRunTable } from "@/components/prompt-lab/cross-run-table";
 import { DossierAnnotations } from "@/components/prompt-lab/dossier-annotations";
+import { DossierTester } from "@/components/prompt-lab/dossier-tester";
 import { DossierChat } from "@/components/prompt-lab/dossier-chat";
 import type { BenchmarkAnnotation } from "@/lib/prompt-lab/types";
 
@@ -23,10 +24,10 @@ export default async function DossierDetailPage({
   const admin = createSupabaseAdminClient();
   const { dossierId } = params;
 
-  // Fetch dossier — fall back without calculation_file_name if column doesn't exist yet
+  // Fetch dossier
   let { data: dossier, error: dossierErr } = await admin
     .from("reference_dossiers")
-    .select("id, plan_file_name, calculation_file_name, address, postcode, building_type, known_total_price, expert_finishing_level")
+    .select("id, plan_file_name, calculation_file_name, calculation_storage_path, address, postcode, building_type, known_total_price, expert_finishing_level")
     .eq("id", dossierId)
     .single();
   if (dossierErr?.code === "42703") {
@@ -35,7 +36,7 @@ export default async function DossierDetailPage({
       .select("id, plan_file_name, address, postcode, building_type, known_total_price, expert_finishing_level")
       .eq("id", dossierId)
       .single();
-    dossier = fb.data ? { ...fb.data, calculation_file_name: null } as typeof dossier : null;
+    dossier = fb.data ? { ...fb.data, calculation_file_name: null, calculation_storage_path: null } as typeof dossier : null;
   }
 
   if (!dossier) {
@@ -77,7 +78,7 @@ export default async function DossierDetailPage({
     };
   });
 
-  // Fetch annotations — table may not exist yet before migration
+  // Fetch annotations
   let annotations: Record<string, unknown>[] | null = null;
   const { data: annData, error: annErr } = await admin
     .from("benchmark_annotations")
@@ -86,8 +87,21 @@ export default async function DossierDetailPage({
     .order("created_at", { ascending: false });
   if (!annErr) annotations = annData;
 
+  const hasCalculation = !!dossier.calculation_storage_path;
+
+  const initialGt = gt
+    ? {
+        expert_total_price: gt.expert_total_price as number | null,
+        expert_cat1_sqm: gt.expert_cat1_sqm as number | null,
+        expert_cat2_sqm: gt.expert_cat2_sqm as number | null,
+        expert_cat3_sqm: gt.expert_cat3_sqm as number | null,
+        expert_finishing_level: gt.expert_finishing_level as string | null,
+        extraction_confidence: gt.extraction_confidence as number | null,
+      }
+    : null;
+
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-8">
+    <div className="mx-auto max-w-5xl space-y-6 p-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link href="/admin/prompt-lab?tab=dossiers" className="text-muted-foreground hover:text-foreground">
@@ -103,7 +117,7 @@ export default async function DossierDetailPage({
         </div>
       </div>
 
-      {/* File status + Ground truth */}
+      {/* Files + Ground Truth — compact row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -144,16 +158,40 @@ export default async function DossierDetailPage({
                 <div>Confidence: <span className="font-medium">{gt.extraction_confidence?.toFixed(2) ?? "—"}</span></div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No ground truth extracted yet.</p>
+              <p className="text-sm text-muted-foreground">
+                {hasCalculation
+                  ? "Not extracted yet — click Test to auto-extract."
+                  : "No calculation file uploaded."}
+              </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Chat */}
+      {/* Test dossier — main action area */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Test Pipeline</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Sends the plan to the LLM for extraction, then compares with expert calculation.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <DossierTester
+            dossierId={dossierId}
+            hasCalculation={hasCalculation}
+            initialGt={initialGt}
+          />
+        </CardContent>
+      </Card>
+
+      {/* AI Chat — for deeper analysis */}
       <Card>
         <CardHeader>
           <CardTitle>AI Chat</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Chat with AI about extraction results, prompt issues, or plan details.
+          </p>
         </CardHeader>
         <CardContent>
           <DossierChat dossierId={dossierId} />

@@ -3,36 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Play, RotateCcw } from "lucide-react";
+import { Loader2, Send, RotateCcw } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
 
-type EstimationResult = {
-  cat1_sqm: number;
-  cat2_sqm: number;
-  cat3_sqm: number;
-  total_cost: number;
-  finishing_coefficient: number | null;
-  confidence: number | null;
-  processing_time_ms: number | null;
-  warnings: string[];
-};
-
-type TestResult = {
-  estimationId: string;
-  status: "polling" | "done" | "error";
-  detail?: string;
-  result?: EstimationResult;
-};
-
 export function DossierChat({ dossierId }: { dossierId: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -131,62 +112,6 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
     }
   }
 
-  async function handleTestDossier() {
-    setTestResult({ estimationId: "", status: "polling", detail: "Starting pipeline..." });
-
-    try {
-      const res = await fetch("/api/admin/prompt-lab/test-dossier", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dossierId }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setTestResult({ estimationId: "", status: "error", detail: data.error });
-        return;
-      }
-
-      const { estimationId } = data;
-      setTestResult({ estimationId, status: "polling", detail: "Pipeline running..." });
-
-      // Poll until done (max 10 min)
-      for (let i = 0; i < 240; i++) {
-        await new Promise((r) => setTimeout(r, 2500));
-        try {
-          const pollRes = await fetch(`/api/prompt-lab/poll-estimation/${estimationId}`);
-          if (pollRes.ok) {
-            const pollData = await pollRes.json();
-            if (pollData.done) {
-              setTestResult({
-                estimationId,
-                status: pollData.status === "complete" ? "done" : "error",
-                detail: pollData.status === "complete" ? "Pipeline complete!" : (pollData.error_message ?? "Pipeline failed"),
-                result: pollData.result,
-              });
-              return;
-            }
-          }
-          setTestResult({
-            estimationId,
-            status: "polling",
-            detail: `Pipeline running... (${Math.round((i + 1) * 2.5)}s)`,
-          });
-        } catch {
-          // network hiccup — retry
-        }
-      }
-
-      setTestResult({ estimationId, status: "error", detail: "Timed out (>10 min)" });
-    } catch (err) {
-      setTestResult({
-        estimationId: "",
-        status: "error",
-        detail: err instanceof Error ? err.message : "Unknown error",
-      });
-    }
-  }
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -195,41 +120,10 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
   }
 
   return (
-    <div className="flex flex-col h-[600px]">
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 pb-3 border-b">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleTestDossier}
-          disabled={testResult?.status === "polling"}
-        >
-          {testResult?.status === "polling" ? (
-            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-          ) : (
-            <Play className="h-3 w-3 mr-1" />
-          )}
-          Test dossier
-        </Button>
-        {testResult && (
-          <span
-            className={`text-xs ${
-              testResult.status === "done"
-                ? "text-green-600"
-                : testResult.status === "error"
-                  ? "text-destructive"
-                  : "text-muted-foreground"
-            }`}
-          >
-            {testResult.detail}
-            {testResult.result?.processing_time_ms && (
-              <span className="text-muted-foreground ml-1">
-                ({(testResult.result.processing_time_ms / 1000).toFixed(0)}s)
-              </span>
-            )}
-          </span>
-        )}
-        {messages.length > 0 && (
+    <div className="flex flex-col h-[500px]">
+      {/* Header */}
+      {messages.length > 0 && (
+        <div className="flex items-center gap-2 pb-3 border-b">
           <Button
             variant="ghost"
             size="sm"
@@ -237,50 +131,8 @@ export function DossierChat({ dossierId }: { dossierId: string }) {
             onClick={() => setMessages([])}
           >
             <RotateCcw className="h-3 w-3 mr-1" />
-            Clear
+            Clear chat
           </Button>
-        )}
-      </div>
-
-      {/* Test result card */}
-      {testResult?.result && (
-        <div className="border rounded-lg p-3 mt-3 bg-muted/30 space-y-2">
-          <div className="grid grid-cols-4 gap-3 text-sm">
-            <div>
-              <p className="text-xs text-muted-foreground">Cat1 (livable)</p>
-              <p className="font-semibold">{testResult.result.cat1_sqm.toFixed(1)} m²</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Cat2 (enclosed)</p>
-              <p className="font-semibold">{testResult.result.cat2_sqm.toFixed(1)} m²</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Cat3 (outdoor)</p>
-              <p className="font-semibold">{testResult.result.cat3_sqm.toFixed(1)} m²</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total cost</p>
-              <p className="font-semibold">€{Math.round(testResult.result.total_cost).toLocaleString("nl-BE")}</p>
-            </div>
-          </div>
-          <div className="flex gap-4 text-xs text-muted-foreground">
-            {testResult.result.finishing_coefficient != null && (
-              <span>F = {testResult.result.finishing_coefficient.toFixed(2)}</span>
-            )}
-            {testResult.result.confidence != null && (
-              <span>Confidence: {(testResult.result.confidence * 100).toFixed(0)}%</span>
-            )}
-          </div>
-          {testResult.result.warnings.length > 0 && (
-            <div className="text-xs text-amber-600 space-y-0.5">
-              {testResult.result.warnings.slice(0, 3).map((w, i) => (
-                <p key={i}>⚠ {w}</p>
-              ))}
-              {testResult.result.warnings.length > 3 && (
-                <p>+ {testResult.result.warnings.length - 3} more warnings</p>
-              )}
-            </div>
-          )}
         </div>
       )}
 
