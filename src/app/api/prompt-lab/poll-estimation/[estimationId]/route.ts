@@ -32,12 +32,15 @@ export async function GET(
   if (!done && data.created_at) {
     const age = Date.now() - new Date(data.created_at).getTime();
     if (age > STUCK_THRESHOLD_MS) {
+      const stuckMsg = data.status === "uploading"
+        ? "Pipeline never started (estimate-process was not triggered)"
+        : `Pipeline killed by Vercel — stuck in "${data.status}" for >${Math.round(age / 1000)}s`;
       // Mark as error so it doesn't stay stuck forever
       await admin
         .from("estimations")
-        .update({ status: "error", error_message: "Pipeline killed by Vercel (>300s function limit)" })
+        .update({ status: "error", error_message: stuckMsg })
         .eq("id", params.estimationId);
-      return NextResponse.json({ status: "error", done: true, stuck: true });
+      return NextResponse.json({ status: "error", done: true, stuck: true, error_message: stuckMsg });
     }
   }
 
