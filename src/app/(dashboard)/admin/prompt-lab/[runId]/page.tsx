@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/benchmark/[runId]/page.tsx
+// src/app/(dashboard)/admin/prompt-lab/[runId]/page.tsx
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
-import type { EvaluationRun, EvaluationResult } from "@/lib/benchmark/types";
+import type { EvaluationRun, EvaluationResult } from "@/lib/prompt-lab/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -68,7 +68,7 @@ export default async function BenchmarkRunDetailPage({
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
       <div className="flex items-center gap-3">
-        <Link href="/admin/benchmark" className="text-muted-foreground hover:text-foreground">
+        <Link href="/admin/prompt-lab" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -131,7 +131,11 @@ export default async function BenchmarkRunDetailPage({
                 const fileName = result.reference_dossiers?.plan_file_name || result.dossier_id.slice(0, 8);
                 return (
                   <tr key={result.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-medium">{fileName}</td>
+                    <td className="px-4 py-3 font-medium">
+                      <Link href={`/admin/prompt-lab/dossier/${result.dossier_id}`} className="text-primary hover:underline">
+                        {fileName}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-right">{fmtEur(result.predicted_total_cost)}</td>
                     <td className={cn("px-4 py-3 text-right", errorColor(result.cost_error_pct))}>
                       {result.cost_error_pct != null ? `${result.cost_error_pct > 0 ? "+" : ""}${result.cost_error_pct.toFixed(1)}%` : "—"}

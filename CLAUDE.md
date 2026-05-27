@@ -1,6 +1,6 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Last updated: 2026-05-25** (Beta signup CTA wiring complete)
+> **Last updated: 2026-05-27** (Benchmark → Prompt Lab rename, 637 split dossiers uploaded)
 
 ---
 
@@ -66,8 +66,9 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 | `/estimations` | User's estimation history |
 | `/report/[id]` | **Public** shareable report (UUID-as-secret, no auth needed) |
 | `/admin/dossiers` | Upload & manage reference dossiers |
-| `/admin/benchmark` | Benchmark runs overview + ground truth |
-| `/admin/benchmark/[runId]` | Per-dossier benchmark results |
+| `/admin/prompt-lab` | Prompt Lab: runs, dossiers, ground truth |
+| `/admin/prompt-lab/[runId]` | Per-dossier run results |
+| `/admin/prompt-lab/dossier/[dossierId]` | Dossier detail: cross-run comparison + annotations |
 | `/admin/qqp` | QQP management, model versions, weight bars |
 | `/admin/prompts` | Versioned SQM/QQP prompt management |
 | `/admin/settings` | Category prices, ABEX, regional factor config |
@@ -95,12 +96,14 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 | `/api/admin/roadmap` | CRUD for roadmap items (GET/POST/PATCH/DELETE) |
 | `/api/admin/tenants/...` | Tenant management + user invite |
 | `/api/admin/usage/...` | Cross-tenant usage for billing page |
-| `/api/benchmark/run` | Create benchmark run, returns dossier list |
-| `/api/benchmark/run/[runId]/init` | Create estimation row for benchmark dossier |
-| `/api/benchmark/run/[runId]/record` | Compare estimation with ground truth |
-| `/api/benchmark/run/[runId]/finalize` | Compute aggregate metrics |
-| `/api/benchmark/poll-estimation/[id]` | Poll estimation status + stuck detection |
-| `/api/benchmark/extract-gt` | AI-extract ground truth from expert calculations |
+| `/api/prompt-lab/run` | Create prompt lab run, returns dossier list |
+| `/api/prompt-lab/run/[runId]/init` | Create estimation row for dossier |
+| `/api/prompt-lab/run/[runId]/record` | Compare estimation with ground truth |
+| `/api/prompt-lab/run/[runId]/finalize` | Compute aggregate metrics |
+| `/api/prompt-lab/poll-estimation/[id]` | Poll estimation status + stuck detection |
+| `/api/prompt-lab/extract-gt` | AI-extract ground truth from expert calculations |
+| `/api/admin/prompt-lab/upload` | Upload plan/calculation PDF per dossier |
+| `/api/admin/prompt-lab/annotations` | CRUD for dossier annotations |
 | `/api/calibrate-weights` | Ridge regression on QQP weights |
 | `/api/retroactive-extract` | Re-extract QQPs from stored SQM data |
 
@@ -117,20 +120,22 @@ Upload PDF → classify pages → render PNG → SQM extraction (Claude + 10K th
 - **F Calculation**: Ridge regression model trained on reference dossiers. Maps QQP values → finishing coefficient.
 - **Prompt Versioning**: `prompt_versions` table stores versioned SQM/QQP prompts. Active version used by pipeline. Managed via `/admin/prompts`.
 
-## Benchmark System
+## Prompt Lab (formerly Benchmark)
 
-Evaluates pipeline accuracy against expert ground truth (43 reference dossiers with known expert calculations).
+Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers with separate plan + calculation PDFs.
 
-**Tables**: `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`
-**Spec**: `docs/superpowers/specs/2026-05-21-benchmark-system-design.md`
-**Plan**: `docs/superpowers/plans/2026-05-21-benchmark-system.md`
+**UI route**: `/admin/prompt-lab` (tabs: Runs, Dossiers, Ground Truth)
+**Tables**: `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `benchmark_annotations`
+**Dossier storage**: Each dossier has separate `plan_storage_path` (sent to LLM) and `calculation_storage_path` (used for GT extraction only)
 
-**Flow**: Extract ground truth from expert PDFs → Create run → For each dossier: init estimation → fire pipeline → poll until done → record (compare with expert) → finalize (aggregate metrics)
+**Flow**: Upload split dossiers (plan + berekening) → Extract ground truth from calculation PDFs → Create run → For each dossier: init estimation → fire pipeline (plan only) → poll until done → record (compare with expert) → finalize (aggregate metrics)
 
 **Metrics tracked per dossier**: Cat1/Cat2/Cat3 SQM error %, cost error %, F delta, predicted vs expert cost
 **Aggregate metrics**: Cost MAE, cost median, worst case, within 10%/15%, F MAE
+**Annotations**: Per-dossier notes with categories (vision_limit, prompt_issue, classifier_error, scale_error, room_missing, etc.)
 
-**Current client-side runner** (`start-run-button.tsx`) processes dossiers sequentially. Stuck detection marks estimations >6 min as Vercel-killed.
+**Client-side runner** (`start-run-button.tsx`) processes dossiers sequentially. Stuck detection marks estimations >6 min as Vercel-killed.
+**Dossier detail** (`/admin/prompt-lab/dossier/[id]`): Cross-run comparison + annotation system for collaborative prompt iteration.
 
 ## Known Issues & Constraints
 
@@ -150,7 +155,7 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 ## Multi-Tenant & Customer Portal
 
 - **Auth**: Supabase Auth with magic link. `getSessionWithRole()` helper routes admin vs customer users.
-- **Admin sidebar**: Dossiers, QQP, Prompts, Settings, Benchmark, Leads, Tenants, Billing, Roadmap
+- **Admin sidebar**: Dossiers, QQP, Prompts, Settings, Prompt Lab, Leads, Tenants, Billing, Roadmap
 - **Customer portal** (`/customer/*`) — branded terracotta/Bricolage layout
 - `tenant_usage_monthly` materialized view for billing data
 - API routes: `/api/admin/tenants/...`, `/api/admin/usage/...`, `/api/my/usage`, `/api/my/share-report`
@@ -192,7 +197,7 @@ Evaluates pipeline accuracy against expert ground truth (43 reference dossiers w
 - [x] Full end-to-end estimation pipeline (upload → SQM → QQP → cost)
 - [x] Public estimation page at planbased.xyz
 - [x] 43 reference dossiers uploaded with expert ground truth extracted
-- [x] Benchmark system with admin UI for run management + per-dossier results
+- [x] Prompt Lab (formerly Benchmark) with admin UI for run management + per-dossier results + annotations
 - [x] Prompt versioning system (SQM + QQP)
 - [x] QQP ridge regression model training from reference dossiers
 - [x] Admin pages: dossiers, benchmark, QQP model, prompts, settings, leads, tenants, billing, roadmap

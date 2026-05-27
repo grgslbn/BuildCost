@@ -90,3 +90,30 @@ export type ExtractedGroundTruth = {
   expert_finishing_level: string | null;
   confidence: number;
 };
+
+// ── Annotation ─────────────────────────────────────────────────────
+
+export const ANNOTATION_CATEGORIES = [
+  "general",
+  "vision_limit",
+  "prompt_issue",
+  "classifier_error",
+  "scale_error",
+  "room_missing",
+  "room_extra",
+  "qqp_error",
+  "ground_truth_error",
+] as const;
+
+export type AnnotationCategory = (typeof ANNOTATION_CATEGORIES)[number];
+
+export type BenchmarkAnnotation = {
+  id: string;
+  dossier_id: string;
+  run_id: string | null;
+  category: AnnotationCategory;
+  body: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};

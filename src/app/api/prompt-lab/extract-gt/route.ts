@@ -49,7 +49,7 @@ export async function GET() {
 
   const { data: dossiers } = await admin
     .from("reference_dossiers")
-    .select("id, plan_file_name")
+    .select("id, plan_file_name, calculation_file_name, calculation_storage_path")
     .not("plan_storage_path", "is", null);
 
   const { data: existing } = await admin
@@ -60,7 +60,11 @@ export async function GET() {
   const pending = (dossiers ?? []).filter((d) => !existingIds.has(d.id));
 
   return NextResponse.json({
-    pending: pending.map((d) => ({ id: d.id, name: d.plan_file_name ?? d.id.slice(0, 8) })),
+    pending: pending.map((d) => ({
+      id: d.id,
+      name: d.plan_file_name ?? d.id.slice(0, 8),
+      hasCalculation: !!d.calculation_storage_path,
+    })),
     total: dossiers?.length ?? 0,
     alreadyExtracted: existingIds.size,
   });
@@ -78,18 +82,24 @@ export async function POST(req: NextRequest) {
 
     const { data: dossier } = await admin
       .from("reference_dossiers")
-      .select("id, plan_storage_path, plan_file_name, page_classifications")
+      .select("id, plan_storage_path, plan_file_name, calculation_storage_path, calculation_file_name, page_classifications")
       .eq("id", dossierId)
       .single();
 
-    if (!dossier?.plan_storage_path) {
-      return NextResponse.json({ error: "Dossier not found or no file" }, { status: 404 });
+    if (!dossier) {
+      return NextResponse.json({ error: "Dossier not found" }, { status: 404 });
+    }
+
+    // Prefer calculation file for GT extraction; fall back to plan (legacy VerzamelPDF)
+    const gtFilePath = dossier.calculation_storage_path ?? dossier.plan_storage_path;
+    if (!gtFilePath) {
+      return NextResponse.json({ error: "No file available for GT extraction" }, { status: 404 });
     }
 
     // Download PDF from storage
     const { data: fileBlob, error: dlErr } = await admin.storage
       .from("plans")
-      .download(dossier.plan_storage_path);
+      .download(gtFilePath);
     if (dlErr || !fileBlob) {
       return NextResponse.json({ error: `Download failed: ${dlErr?.message}` }, { status: 500 });
     }

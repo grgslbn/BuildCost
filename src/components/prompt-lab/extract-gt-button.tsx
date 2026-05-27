@@ -18,7 +18,7 @@ export function ExtractGroundTruthButton() {
     setState("loading");
 
     // Fetch pending dossiers
-    const res = await fetch("/api/benchmark/extract-gt");
+    const res = await fetch("/api/prompt-lab/extract-gt");
     const { pending, alreadyExtracted } = (await res.json()) as {
       pending: PendingDossier[];
       total: number;
@@ -49,7 +49,7 @@ export function ExtractGroundTruthButton() {
       setProgress([...items]);
 
       try {
-        const r = await fetch("/api/benchmark/extract-gt", {
+        const r = await fetch("/api/prompt-lab/extract-gt", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dossierId: pending[i].id }),

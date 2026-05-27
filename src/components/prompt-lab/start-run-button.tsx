@@ -24,7 +24,7 @@ export function StartRunButton() {
     setError(null);
 
     // 1. Create run
-    const createRes = await fetch("/api/benchmark/run", {
+    const createRes = await fetch("/api/prompt-lab/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: runName || undefined, mode }),
@@ -60,7 +60,7 @@ export function StartRunButton() {
         const dossierId = dossiers[i].dossierId;
 
         // Step 1: create estimation row
-        const initRes = await fetch(`/api/benchmark/run/${runId}/init`, {
+        const initRes = await fetch(`/api/prompt-lab/run/${runId}/init`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dossierId }),
@@ -87,7 +87,7 @@ export function StartRunButton() {
           await new Promise((r) => setTimeout(r, 2500));
           try {
             const pollRes = await fetch(
-              `/api/benchmark/poll-estimation/${initData.estimationId}`
+              `/api/prompt-lab/poll-estimation/${initData.estimationId}`
             );
             if (pollRes.ok) {
               const { done } = (await pollRes.json()) as { done: boolean };
@@ -98,7 +98,7 @@ export function StartRunButton() {
         if (!pollDone) throw new Error("Estimation timed out (>10 min)");
 
         // Step 4: record result (compare with ground truth)
-        const recordRes = await fetch(`/api/benchmark/run/${runId}/record`, {
+        const recordRes = await fetch(`/api/prompt-lab/run/${runId}/record`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dossierId, estimationId: initData.estimationId }),
@@ -129,7 +129,7 @@ export function StartRunButton() {
 
     // 4. Finalize run (compute aggregates)
     try {
-      await fetch(`/api/benchmark/run/${runId}/finalize`, { method: "POST" });
+      await fetch(`/api/prompt-lab/run/${runId}/finalize`, { method: "POST" });
     } catch { /* best effort */ }
 
     setState("done");

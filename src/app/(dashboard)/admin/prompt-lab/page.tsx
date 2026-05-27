@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/benchmark/page.tsx
+// src/app/(dashboard)/admin/prompt-lab/page.tsx
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { EvaluationRun, GroundTruth } from "@/lib/benchmark/types";
-import { ExtractGroundTruthButton } from "@/components/benchmark/extract-gt-button";
-import { StartRunButton } from "@/components/benchmark/start-run-button";
+import type { EvaluationRun, GroundTruth } from "@/lib/prompt-lab/types";
+import { ExtractGroundTruthButton } from "@/components/prompt-lab/extract-gt-button";
+import { StartRunButton } from "@/components/prompt-lab/start-run-button";
+import { DossierUploadTable } from "@/components/prompt-lab/dossier-upload-table";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,6 +28,33 @@ async function getRuns(): Promise<EvaluationRun[]> {
     .order("started_at", { ascending: false });
   if (error) { console.error("Failed to fetch runs:", error); return []; }
   return (data ?? []) as EvaluationRun[];
+}
+
+type DossierRow = {
+  id: string;
+  plan_file_name: string | null;
+  calculation_file_name: string | null;
+  address: string | null;
+  postcode: string | null;
+};
+
+async function getDossiers(): Promise<DossierRow[]> {
+  const admin = createSupabaseAdminClient();
+  // Try with calculation_file_name; fall back without it if column doesn't exist yet
+  let { data, error } = await admin
+    .from("reference_dossiers")
+    .select("id, plan_file_name, calculation_file_name, address, postcode")
+    .order("created_at", { ascending: false });
+  if (error?.code === "42703") {
+    const fallback = await admin
+      .from("reference_dossiers")
+      .select("id, plan_file_name, address, postcode")
+      .order("created_at", { ascending: false });
+    data = (fallback.data ?? []).map((d) => ({ ...d, calculation_file_name: null })) as typeof data;
+    error = fallback.error;
+  }
+  if (error) { console.error("Failed to fetch dossiers:", error); return []; }
+  return (data ?? []) as DossierRow[];
 }
 
 async function getGroundTruth(): Promise<(GroundTruth & { plan_file_name: string | null })[]> {
@@ -68,21 +96,21 @@ export default async function BenchmarkPage({
   searchParams: { tab?: string };
 }) {
   const tab = searchParams.tab ?? "runs";
-  const [runs, groundTruth] = await Promise.all([getRuns(), getGroundTruth()]);
+  const [runs, groundTruth, dossiers] = await Promise.all([getRuns(), getGroundTruth(), getDossiers()]);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Benchmark</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Prompt Lab</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Evaluate pipeline accuracy against expert ground truth. Run benchmarks via CLI, review results here.
+          Evaluate pipeline accuracy against expert ground truth. Run tests, review results, iterate on prompts.
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b">
         <Link
-          href="/admin/benchmark?tab=runs"
+          href="/admin/prompt-lab?tab=runs"
           className={cn(
             "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
             tab === "runs" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
@@ -91,7 +119,16 @@ export default async function BenchmarkPage({
           Runs ({runs.length})
         </Link>
         <Link
-          href="/admin/benchmark?tab=ground-truth"
+          href="/admin/prompt-lab?tab=dossiers"
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+            tab === "dossiers" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Dossiers ({dossiers.length})
+        </Link>
+        <Link
+          href="/admin/prompt-lab?tab=ground-truth"
           className={cn(
             "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
             tab === "ground-truth" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
@@ -129,7 +166,7 @@ export default async function BenchmarkPage({
                   {runs.map((run) => (
                     <tr key={run.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3">
-                        <Link href={`/admin/benchmark/${run.id}`} className="font-medium text-primary hover:underline">
+                        <Link href={`/admin/prompt-lab/${run.id}`} className="font-medium text-primary hover:underline">
                           {run.name}
                         </Link>
                       </td>
@@ -149,6 +186,20 @@ export default async function BenchmarkPage({
           )}
         </Card>
         </>
+      )}
+
+      {tab === "dossiers" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Dossier bestanden</CardTitle>
+            <CardDescription>
+              Upload per dossier het plan (→ LLM) en de berekening (→ ground truth vergelijking).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <DossierUploadTable dossiers={dossiers} />
+          </CardContent>
+        </Card>
       )}
 
       {tab === "ground-truth" && (

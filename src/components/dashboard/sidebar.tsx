@@ -37,7 +37,7 @@ const NAV: NavItem[] = [
   { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
   { label: "Prompts", href: "/admin/prompts", icon: Terminal, group: "Admin" },
   { label: "Settings", href: "/admin/settings", icon: Settings, group: "Admin" },
-  { label: "Benchmark", href: "/admin/benchmark", icon: FlaskConical, group: "Admin" },
+  { label: "Prompt Lab", href: "/admin/prompt-lab", icon: FlaskConical, group: "Admin" },
   { label: "Leads", href: "/admin/leads", icon: Users, group: "Admin" },
   { label: "Tenants", href: "/admin/tenants", icon: Building2, group: "Admin" },
   { label: "Billing",  href: "/admin/billing",  icon: BarChart3, group: "Admin" },
