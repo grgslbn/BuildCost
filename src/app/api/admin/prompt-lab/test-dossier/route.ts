@@ -54,11 +54,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Fire estimate-process (fire and forget)
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+  // Use the request's own origin so it works on both localhost and Vercel
+  const baseUrl = req.nextUrl.origin;
 
   fetch(`${baseUrl}/api/estimate-process`, {
     method: "POST",
