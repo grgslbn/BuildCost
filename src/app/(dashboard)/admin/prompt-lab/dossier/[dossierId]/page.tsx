@@ -1,11 +1,12 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrossRunTable } from "@/components/prompt-lab/cross-run-table";
 import { DossierAnnotations } from "@/components/prompt-lab/dossier-annotations";
 import { DossierTester } from "@/components/prompt-lab/dossier-tester";
 import { DossierChat } from "@/components/prompt-lab/dossier-chat";
+import { DossierNavKeys } from "@/components/prompt-lab/dossier-nav-keys";
 import type { BenchmarkAnnotation } from "@/lib/prompt-lab/types";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +43,16 @@ export default async function DossierDetailPage({
   if (!dossier) {
     return <div className="p-8 text-center text-muted-foreground">Dossier not found.</div>;
   }
+
+  // Fetch prev/next dossier for navigation
+  const { data: allDossierIds } = await admin
+    .from("reference_dossiers")
+    .select("id")
+    .order("created_at", { ascending: false });
+  const ids = (allDossierIds ?? []).map((d) => d.id);
+  const currentIdx = ids.indexOf(dossierId);
+  const prevId = currentIdx > 0 ? ids[currentIdx - 1] : null;
+  const nextId = currentIdx < ids.length - 1 ? ids[currentIdx + 1] : null;
 
   // Fetch ground truth
   const { data: gt } = await admin
@@ -102,18 +113,51 @@ export default async function DossierDetailPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-8">
+      <DossierNavKeys prevId={prevId} nextId={nextId} />
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link href="/admin/prompt-lab?tab=dossiers" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-semibold tracking-tight">
             {dossier.plan_file_name || dossierId.slice(0, 8)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {[dossier.address, dossier.postcode, dossier.building_type].filter(Boolean).join(" · ") || "No address data"}
+            {currentIdx >= 0 && <span className="ml-2">({currentIdx + 1} / {ids.length})</span>}
           </p>
+        </div>
+        {/* Prev / Next navigation */}
+        <div className="flex items-center gap-1">
+          {prevId ? (
+            <Link
+              href={`/admin/prompt-lab/dossier/${prevId}`}
+              className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Prev
+            </Link>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm text-muted-foreground/40 cursor-not-allowed">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Prev
+            </span>
+          )}
+          {nextId ? (
+            <Link
+              href={`/admin/prompt-lab/dossier/${nextId}`}
+              className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              Next
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm text-muted-foreground/40 cursor-not-allowed">
+              Next
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          )}
         </div>
       </div>
 

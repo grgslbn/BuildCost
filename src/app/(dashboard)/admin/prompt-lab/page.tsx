@@ -38,6 +38,19 @@ type DossierRow = {
   postcode: string | null;
 };
 
+/** Latest evaluation result per dossier (best cost_error_pct across runs) */
+type DossierAccuracy = {
+  dossier_id: string;
+  cost_error_pct: number | null;
+  cat1_error_pct: number | null;
+  cat2_error_pct: number | null;
+  cat3_error_pct: number | null;
+  predicted_total_cost: number | null;
+  error_message: string | null;
+  run_name: string;
+  run_date: string;
+};
+
 async function getDossiers(): Promise<DossierRow[]> {
   const admin = createSupabaseAdminClient();
   // Try with calculation_file_name; fall back without it if column doesn't exist yet
@@ -55,6 +68,35 @@ async function getDossiers(): Promise<DossierRow[]> {
   }
   if (error) { console.error("Failed to fetch dossiers:", error); return []; }
   return (data ?? []) as DossierRow[];
+}
+
+async function getLatestResults(): Promise<Record<string, DossierAccuracy>> {
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin
+    .from("evaluation_results")
+    .select("dossier_id, cost_error_pct, cat1_error_pct, cat2_error_pct, cat3_error_pct, predicted_total_cost, error_message, evaluation_runs!inner(name, started_at)")
+    .order("created_at", { ascending: false });
+  if (error) { console.error("Failed to fetch results:", error); return {}; }
+
+  // Keep only the latest result per dossier
+  const map: Record<string, DossierAccuracy> = {};
+  for (const row of data ?? []) {
+    const did = row.dossier_id as string;
+    if (map[did]) continue; // already have a newer result
+    const run = row.evaluation_runs as unknown as { name: string; started_at: string };
+    map[did] = {
+      dossier_id: did,
+      cost_error_pct: row.cost_error_pct as number | null,
+      cat1_error_pct: row.cat1_error_pct as number | null,
+      cat2_error_pct: row.cat2_error_pct as number | null,
+      cat3_error_pct: row.cat3_error_pct as number | null,
+      predicted_total_cost: row.predicted_total_cost as number | null,
+      error_message: row.error_message as string | null,
+      run_name: run.name,
+      run_date: run.started_at,
+    };
+  }
+  return map;
 }
 
 async function getGroundTruth(): Promise<(GroundTruth & { plan_file_name: string | null })[]> {
@@ -96,7 +138,7 @@ export default async function BenchmarkPage({
   searchParams: { tab?: string };
 }) {
   const tab = searchParams.tab ?? "runs";
-  const [runs, groundTruth, dossiers] = await Promise.all([getRuns(), getGroundTruth(), getDossiers()]);
+  const [runs, groundTruth, dossiers, latestResults] = await Promise.all([getRuns(), getGroundTruth(), getDossiers(), getLatestResults()]);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
@@ -197,7 +239,7 @@ export default async function BenchmarkPage({
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <DossierUploadTable dossiers={dossiers} />
+            <DossierUploadTable dossiers={dossiers} latestResults={latestResults} />
           </CardContent>
         </Card>
       )}

@@ -26,6 +26,11 @@ type EstimationResult = {
   warnings: string[];
 };
 
+type PipelineOutcome = {
+  result: EstimationResult;
+  estimationId: string;
+};
+
 type TestPhase =
   | "idle"
   | "extracting_gt"
@@ -88,7 +93,7 @@ export function DossierTester({
     }
   }, [dossierId, hasCalculation]);
 
-  const runPipeline = useCallback(async (): Promise<EstimationResult | null> => {
+  const runPipeline = useCallback(async (): Promise<PipelineOutcome | null> => {
     // Start estimation
     const res = await fetch("/api/admin/prompt-lab/test-dossier", {
       method: "POST",
@@ -111,7 +116,7 @@ export function DossierTester({
           if (pollData.done) {
             if (pollData.result) {
               setProcessingTime(pollData.result.processing_time_ms);
-              return pollData.result as EstimationResult;
+              return { result: pollData.result as EstimationResult, estimationId };
             }
             if (pollData.status === "error") {
               throw new Error(pollData.error_message || "Pipeline failed");
@@ -146,15 +151,15 @@ export function DossierTester({
         setStatusText("Running pipeline...");
       }
 
-      const [pipelineResult, gtResult] = await Promise.all([
+      const [pipelineOutcome, gtResult] = await Promise.all([
         runPipeline(),
         needsGt ? extractGt() : Promise.resolve(gt),
       ]);
 
       if (gtResult) setGt(gtResult);
-      if (pipelineResult) setResult(pipelineResult);
+      if (pipelineOutcome) setResult(pipelineOutcome.result);
 
-      if (!pipelineResult) {
+      if (!pipelineOutcome) {
         setPhase("error");
         setErrorText("Pipeline returned no results");
         return;
@@ -162,6 +167,16 @@ export function DossierTester({
 
       setPhase("done");
       setStatusText("Complete!");
+
+      // Record the result in the background (fire-and-forget)
+      fetch("/api/admin/prompt-lab/record-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dossierId,
+          estimationId: pipelineOutcome.estimationId,
+        }),
+      }).catch(() => {/* ignore recording errors */});
     } catch (err) {
       setPhase("error");
       setErrorText(err instanceof Error ? err.message : "Unknown error");
