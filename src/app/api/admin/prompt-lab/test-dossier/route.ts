@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     plan_storage_path: dossier.plan_storage_path,
     plan_file_name: dossier.plan_file_name,
     postcode: dossier.postcode,
-    status: "uploaded",
+    status: "uploading",
   });
 
   if (insertErr) {
