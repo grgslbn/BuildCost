@@ -39,23 +39,27 @@ export async function GET(
     }
   }
 
-  if (done && data.status === "complete") {
+  if (done) {
     const sub = data.sub_areas as Record<string, number> | null;
     const sqm = data.sqm_extraction as Record<string, unknown> | null;
     const totals = sqm?.project_totals as Record<string, number> | undefined;
+    const hasData = (totals?.total_cat1_sqm ?? sub?.cat1_sqm ?? 0) > 0 || (sub?.total_cost ?? 0) > 0;
     return NextResponse.json({
       status: data.status,
       done,
-      result: {
-        cat1_sqm: totals?.total_cat1_sqm ?? sub?.cat1_sqm ?? 0,
-        cat2_sqm: totals?.total_cat2_sqm ?? sub?.cat2_sqm ?? 0,
-        cat3_sqm: totals?.total_cat3_sqm ?? sub?.cat3_sqm ?? 0,
-        total_cost: sub?.total_cost ?? 0,
-        finishing_coefficient: data.finishing_coefficient,
-        confidence: data.overall_confidence,
-        processing_time_ms: data.processing_time_ms,
-        warnings: (sqm?.extraction_warnings as string[] | undefined) ?? [],
-      },
+      error_message: data.error_message,
+      ...(hasData ? {
+        result: {
+          cat1_sqm: totals?.total_cat1_sqm ?? sub?.cat1_sqm ?? 0,
+          cat2_sqm: totals?.total_cat2_sqm ?? sub?.cat2_sqm ?? 0,
+          cat3_sqm: totals?.total_cat3_sqm ?? sub?.cat3_sqm ?? 0,
+          total_cost: sub?.total_cost ?? 0,
+          finishing_coefficient: data.finishing_coefficient,
+          confidence: data.overall_confidence,
+          processing_time_ms: data.processing_time_ms,
+          warnings: (sqm?.extraction_warnings as string[] | undefined) ?? [],
+        },
+      } : {}),
     });
   }
 
