@@ -198,7 +198,7 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 ### Working
 - [x] Full end-to-end estimation pipeline (upload → SQM → QQP → cost)
 - [x] Public estimation page at planbased.xyz
-- [x] 43 reference dossiers uploaded with expert ground truth extracted
+- [x] 633 reference dossiers uploaded, 15 with expert ground truth extracted
 - [x] Prompt Lab (formerly Benchmark) with admin UI for run management + per-dossier results + annotations
 - [x] Prompt versioning system (SQM + QQP)
 - [x] QQP ridge regression model training from reference dossiers
@@ -212,25 +212,34 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 - [x] Admin Kanban roadmap (`/admin/roadmap`) — Supabase-backed, drag-and-drop
 - [x] Architecture docs: `docs/document-analysis-flows.html` (dark) + `docs/document-analysis-flows-light.html` (light/PlanBase)
 
-### First Benchmark Results (21 May overnight)
-- 35 dossiers attempted, 19 processed (16 skipped — browser went to sleep)
-- **1 success**: Cat1 SQM 0.0% error (perfect!), cost +38.6% (QQP/pricing issue)
-- **18 failures**: All Vercel 300s timeout on VerzamelPDF files
-- **Conclusion**: SQM extraction is solid, cost error comes from F/pricing. Vercel timeout is the #1 blocker for benchmarking.
+### Benchmark Results
+
+**First run (21 May):** 35 dossiers, 19 processed (16 skipped — browser sleep). 1 success: Cat1 SQM 0.0% error, cost +38.6%. Rest: Vercel 300s timeout on VerzamelPDFs.
+
+**Second run (28 May — 15 dossiers with GT, large plan files):** Running. Early results: Cat1 extraction is accurate when real floor plans are present (e.g., -3.4% error for 870 m² building). ~56% of SPLIT_V2 plan files are cadastral maps (100-500KB), producing 0 m². Only plans >2MB consistently have architectural floor plans (132 out of 609).
+
+### Plan file quality (SPLIT_V2)
+| Size range | Count | Likely content |
+|------------|-------|----------------|
+| < 100KB | 7 | Cadastral only |
+| 100KB - 500KB | 344 | Probably cadastral |
+| 500KB - 2MB | 126 | May have plans |
+| 2MB - 10MB | 86 | Likely has floor plans |
+| > 10MB | 46 | Definitely has floor plans |
 
 ### Next Steps
-- [x] Railway worker built — `USE_QUEUE=true` to activate (see Railway Worker section below)
-- [x] Apply `processing_queue` migration in Supabase (incl. `payload` column fix + `claim_queue_job` function)
-- [x] Worker env var bridge fix: `SUPABASE_URL` → `NEXT_PUBLIC_SUPABASE_URL` (commit ccf4d4e)
-- [x] Worker tested locally: queue insert → claim → pipeline execution works end-to-end
-- [x] Fix Next.js fetchCache bug: poll endpoints cached stale Supabase responses (`fetchCache = "force-no-store"`, commit 8bec1e5)
-- [x] Fix stuck detection: use `updated_at` instead of `created_at` (commit dea71b2)
-- [x] Full pipeline test: 3 dossiers processed via worker queue in ~50s each (SQM + QQP + cost)
-- [ ] **Push pending commits** — `git push origin main` (auto-mode blocked, do manually)
+- [x] Railway worker built and tested locally
+- [x] Fix Next.js fetchCache bug (commit 8bec1e5)
+- [x] Fix stuck detection (commit dea71b2)
+- [x] LLM vs Expert comparison card (`llm-vs-expert-card.tsx`) with extraction detail view (commit f59fe27, f266195)
+- [x] GT extraction for 10 new dossiers (total: 15 with ground truth)
+- [x] Mini benchmark run to verify comparison card end-to-end
+- [ ] **Push pending commits** — `git push origin main` (3 commits: comparison card + extraction detail + CLAUDE.md)
 - [ ] Deploy worker to Railway (see deployment instructions below)
-- [ ] **DATA ISSUE**: Split plan PDFs from SPLIT_V2 contain cadastral maps, not architectural floor plans — SQM extraction correctly returns 0. Need to verify split quality.
-- [ ] Investigate cost error source: regional factor, ABEX correction, or QQP weight calibration
-- [ ] Complete benchmark run on all 637 dossiers via Railway worker queue
+- [ ] Extract GT for remaining ~120 dossiers with large plan files
+- [ ] Full benchmark run on all GT dossiers
+- [ ] Investigate cost error source: regional factor, ABEX correction, QQP weight calibration
+- [ ] Improve per-building comparison (needs per-building expert data from calculation PDFs)
 
 ---
 

@@ -265,18 +265,39 @@ export default async function BenchmarkPage({
                     <th className="px-4 py-3 text-right font-medium">Cat2 m²</th>
                     <th className="px-4 py-3 text-right font-medium">Cat3 m²</th>
                     <th className="px-4 py-3 text-right font-medium">Confidence</th>
+                    <th className="px-4 py-3 text-right font-medium">Latest cost Δ</th>
                     <th className="px-4 py-3 text-center font-medium">Verified</th>
                   </tr>
                 </thead>
                 <tbody>
                   {groundTruth.map((gt) => (
                     <tr key={gt.id} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="px-4 py-3 font-medium">{gt.plan_file_name || gt.dossier_id.slice(0, 8)}</td>
+                      <td className="px-4 py-3 font-medium">
+                        <Link href={`/admin/prompt-lab/dossier/${gt.dossier_id}`} className="text-primary hover:underline">
+                          {gt.plan_file_name || gt.dossier_id.slice(0, 8)}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-right">{fmtEur(gt.expert_total_price)}</td>
                       <td className="px-4 py-3 text-right">{gt.expert_cat1_sqm?.toFixed(1) ?? "—"}</td>
                       <td className="px-4 py-3 text-right">{gt.expert_cat2_sqm?.toFixed(1) ?? "—"}</td>
                       <td className="px-4 py-3 text-right">{gt.expert_cat3_sqm?.toFixed(1) ?? "—"}</td>
                       <td className="px-4 py-3 text-right">{gt.extraction_confidence?.toFixed(2) ?? "—"}</td>
+                      <td className={cn("px-4 py-3 text-right tabular-nums", (() => {
+                        const r = latestResults[gt.dossier_id];
+                        if (!r || r.error_message || r.cost_error_pct == null) return "text-muted-foreground";
+                        const abs = Math.abs(r.cost_error_pct);
+                        if (abs <= 10) return "text-green-600";
+                        if (abs <= 20) return "text-amber-600";
+                        return "text-red-600";
+                      })())}>
+                        {(() => {
+                          const r = latestResults[gt.dossier_id];
+                          if (!r) return "—";
+                          if (r.error_message) return "Error";
+                          if (r.cost_error_pct == null) return "—";
+                          return `${r.cost_error_pct > 0 ? "+" : ""}${r.cost_error_pct.toFixed(1)}%`;
+                        })()}
+                      </td>
                       <td className="px-4 py-3 text-center">
                         {gt.verified ? <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /> : <span className="text-muted-foreground">—</span>}
                       </td>
