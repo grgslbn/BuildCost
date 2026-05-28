@@ -93,10 +93,13 @@ async function setStatus(
   status: string,
   extra: Record<string, unknown> = {},
 ) {
-  await admin
+  const { error } = await admin
     .from("estimations")
     .update({ status, updated_at: new Date().toISOString(), ...extra })
     .eq("id", id);
+  if (error) {
+    console.error(`[pipeline] setStatus(${status}) failed:`, error.message);
+  }
 }
 
 function buildFloorContext(images: RenderedImage[]): string {
@@ -607,7 +610,7 @@ export async function runEstimationPipeline(
     const overallConfidence = (sqmConfidence + qqpConfidence) / 2;
 
     // ── Write final result ───────────────────────────────────────────────────
-    await admin
+    const { error: finalUpdateErr } = await admin
       .from("estimations")
       .update({
         building_type: sqmBuildingType,
@@ -635,6 +638,12 @@ export async function runEstimationPipeline(
         postcode_provided_by: extractedPostcode ? "plan" : "user",
       })
       .eq("id", estimationId);
+
+    if (finalUpdateErr) {
+      console.error("[pipeline] Final update failed:", finalUpdateErr.message);
+      // Try a minimal status-only update as fallback
+      await setStatus(admin, estimationId, "complete");
+    }
 
     progress("complete");
     return { success: true };

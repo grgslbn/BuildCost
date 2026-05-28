@@ -18,7 +18,7 @@ export async function GET(
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from("estimations")
-    .select("status, error_message, created_at, sub_areas, sqm_extraction, finishing_coefficient, overall_confidence, processing_time_ms")
+    .select("status, error_message, created_at, updated_at, sub_areas, sqm_extraction, finishing_coefficient, overall_confidence, processing_time_ms")
     .eq("id", params.estimationId)
     .single();
 
@@ -28,13 +28,19 @@ export async function GET(
 
   const done = data.status === "complete" || data.status === "error";
 
-  // Detect stuck estimations: if still running after 6 min, Vercel likely killed the function
-  if (!done && data.created_at) {
-    const age = Date.now() - new Date(data.created_at).getTime();
+  // Detect stuck estimations: if status hasn't been updated in 6 min, the
+  // function was likely killed (Vercel 300s limit) or the worker crashed.
+  // Use updated_at (last status change) rather than created_at so that
+  // queue-based processing (which may start seconds or minutes after
+  // creation) is correctly tracked.
+  if (!done && (data.updated_at || data.created_at)) {
+    const lastActivity = new Date(data.updated_at || data.created_at).getTime();
+    const age = Date.now() - lastActivity;
     if (age > STUCK_THRESHOLD_MS) {
+      const totalAge = Date.now() - new Date(data.created_at).getTime();
       const stuckMsg = data.status === "uploading"
         ? "Pipeline never started (estimate-process was not triggered)"
-        : `Pipeline killed by Vercel — stuck in "${data.status}" for >${Math.round(age / 1000)}s`;
+        : `Pipeline killed by Vercel — stuck in "${data.status}" for >${Math.round(totalAge / 1000)}s`;
       // Mark as error so it doesn't stay stuck forever
       await admin
         .from("estimations")
