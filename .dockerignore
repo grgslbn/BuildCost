@@ -1,0 +1,13 @@
+# Docker build context excludes
+node_modules
+.next
+.vercel
+.git
+.env*
+*.log
+dist
+.claude
+.superpowers
+scripts
+docs
+supabase

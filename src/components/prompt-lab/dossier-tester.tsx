@@ -139,6 +139,7 @@ export function DossierTester({
     // - 2500px (vs 5000px default) = ~75% fewer image tokens
     // - 150 DPI (vs 300 default) = faster rendering
     // - 10 pages (vs 12 default) = less content
+    // Benchmark jobs get priority 10 (lowest) so customer estimates (priority 1) always go first
     fetch("/api/estimate-process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -147,6 +148,8 @@ export function DossierTester({
         maxWidth: 2500,
         dpi: 150,
         maxPages: 10,
+        jobType: "benchmark",
+        priority: 10,
       }),
     }).catch(() => {}); // fire-and-forget from browser — connection stays alive
 

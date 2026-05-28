@@ -1,0 +1,9 @@
+[build]
+# Worker Dockerfile needs repo root as build context (copies both worker/ and src/)
+dockerfilePath = "worker/Dockerfile"
+
+[deploy]
+# Worker process — no HTTP port, no health check
+healthcheckPath = ""
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

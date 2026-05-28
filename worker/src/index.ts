@@ -180,7 +180,7 @@ class SlotRunner {
   }
 
   async tryProcess(): Promise<void> {
-    if (this.busy) return;
+    if (this.busy || shuttingDown) return;
 
     const job = await claimJob(this.workerId, this.jobTypes);
     if (!job) return;
@@ -194,9 +194,28 @@ class SlotRunner {
   }
 }
 
+// ── Graceful shutdown ───────────────────────────────────────────────────────
+
+let shuttingDown = false;
+
+function setupShutdownHandlers() {
+  const onSignal = (signal: string) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`[worker] Received ${signal} — finishing active jobs then exiting...`);
+    // The poll loop checks `shuttingDown` and won't claim new jobs.
+    // Active jobs finish naturally; after they're done, the process exits.
+  };
+
+  process.on("SIGTERM", () => onSignal("SIGTERM"));
+  process.on("SIGINT", () => onSignal("SIGINT"));
+}
+
 // ── Main loop ────────────────────────────────────────────────────────────────
 
 async function main() {
+  setupShutdownHandlers();
+
   console.log(`[worker] Starting PlanBase worker`);
   console.log(`[worker] Estimate slots: ${ESTIMATE_SLOTS}, Background slots: ${BACKGROUND_SLOTS}`);
   console.log(`[worker] Poll interval: ${POLL_INTERVAL}ms`);
@@ -218,7 +237,7 @@ async function main() {
   const allSlots = [...estimateSlots, ...backgroundSlots];
 
   // Poll loop
-  while (true) {
+  while (!shuttingDown) {
     try {
       // Fire off all idle slots in parallel
       const promises = allSlots
@@ -234,6 +253,20 @@ async function main() {
 
     await new Promise((r) => setTimeout(r, POLL_INTERVAL));
   }
+
+  // Wait for busy slots to finish
+  const busySlots = allSlots.filter((s) => s.isBusy());
+  if (busySlots.length > 0) {
+    console.log(`[worker] Waiting for ${busySlots.length} active job(s) to finish...`);
+    // Poll until all slots are idle (max 5 minutes)
+    const deadline = Date.now() + 5 * 60 * 1000;
+    while (allSlots.some((s) => s.isBusy()) && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+
+  console.log("[worker] Shutdown complete");
+  process.exit(0);
 }
 
 // ── Start ────────────────────────────────────────────────────────────────────

@@ -72,10 +72,18 @@ export function StartRunButton() {
         // The AI pipeline can take 60–300 s; waiting for the response causes
         // CDN/proxy timeouts that surface as spurious 401/504 errors.
         // This matches the pattern used by the regular estimate page.
+        // Benchmark runs use reduced resolution + lower priority than customer estimates.
         fetch("/api/estimate-process", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ estimationId: initData.estimationId }),
+          body: JSON.stringify({
+            estimationId: initData.estimationId,
+            maxWidth: 2500,
+            dpi: 150,
+            maxPages: 10,
+            jobType: "benchmark",
+            priority: 10,
+          }),
         }).catch(() => {}); // intentional fire-and-forget
 
         // Step 3: poll the DB until estimation reaches a terminal state (max 10 min)

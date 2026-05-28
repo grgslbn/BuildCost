@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
       dpi?: number;
       maxPages?: number;
       thinkingBudget?: number;
+      jobType?: string;   // 'estimate' (default) or 'benchmark'
+      priority?: number;  // 1 (default, highest) to 10 (benchmark)
     };
 
     const { estimationId } = body;
@@ -47,8 +49,8 @@ export async function POST(req: NextRequest) {
 
       const { error: queueErr } = await admin.from("processing_queue").insert({
         estimation_id: estimationId,
-        job_type: "estimate",
-        priority: 1,
+        job_type: body.jobType ?? "estimate",
+        priority: body.priority ?? 1,
         payload,
       });
 
