@@ -87,6 +87,7 @@ export default async function DossierDetailPage({
       expert_f: r.expert_f as number | null,
       f_error: r.f_error as number | null,
       error_message: r.error_message as string | null,
+      sqm_extraction: r.sqm_extraction as Record<string, unknown> | null,
     };
   });
 
@@ -249,6 +250,7 @@ export default async function DossierDetailPage({
                 expert_total_price: gt.expert_total_price as number | null,
                 expert_finishing_level: gt.expert_finishing_level as string | null,
               }}
+              sqmExtraction={latestSuccessful.sqm_extraction as Record<string, unknown> | null}
             />
           </CardContent>
         </Card>
