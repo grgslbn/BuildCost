@@ -7,6 +7,7 @@ import { DossierAnnotations } from "@/components/prompt-lab/dossier-annotations"
 import { DossierTester } from "@/components/prompt-lab/dossier-tester";
 import { DossierChat } from "@/components/prompt-lab/dossier-chat";
 import { DossierNavKeys } from "@/components/prompt-lab/dossier-nav-keys";
+import { LlmVsExpertCard } from "@/components/prompt-lab/llm-vs-expert-card";
 import type { BenchmarkAnnotation } from "@/lib/prompt-lab/types";
 
 export const dynamic = "force-dynamic";
@@ -223,6 +224,35 @@ export default async function DossierDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* LLM vs Expert comparison — always visible when data exists */}
+      {latestSuccessful && gt && (
+        <Card>
+          <CardHeader>
+            <CardTitle>LLM vs Expert (CED)</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Vergelijking van de laatste LLM-extractie met de expertberekening
+            </p>
+          </CardHeader>
+          <CardContent>
+            <LlmVsExpertCard
+              data={{
+                llm_cat1_sqm: latestSuccessful.extracted_cat1_sqm,
+                llm_cat2_sqm: latestSuccessful.extracted_cat2_sqm,
+                llm_cat3_sqm: latestSuccessful.extracted_cat3_sqm,
+                llm_total_cost: latestSuccessful.predicted_total_cost,
+                llm_finishing_coefficient: latestSuccessful.predicted_f,
+                llm_confidence: null,
+                expert_cat1_sqm: gt.expert_cat1_sqm as number | null,
+                expert_cat2_sqm: gt.expert_cat2_sqm as number | null,
+                expert_cat3_sqm: gt.expert_cat3_sqm as number | null,
+                expert_total_price: gt.expert_total_price as number | null,
+                expert_finishing_level: gt.expert_finishing_level as string | null,
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Test dossier — main action area */}
       <Card>
