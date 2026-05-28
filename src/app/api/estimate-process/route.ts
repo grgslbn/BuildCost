@@ -82,7 +82,13 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body = await req.json() as { estimationId?: string };
+    const body = await req.json() as {
+      estimationId?: string;
+      maxWidth?: number;
+      dpi?: number;
+      maxPages?: number;
+      thinkingBudget?: number;
+    };
     estimationId = body.estimationId;
     if (!estimationId) {
       return NextResponse.json({ error: "Missing estimationId" }, { status: 400 });
@@ -184,10 +190,11 @@ export async function POST(req: NextRequest) {
         40
       );
 
-      // Filter to floor plan classifications, cap at MAX_SQM_PAGES
+      // Filter to floor plan classifications, cap at maxPages
+      const effectiveMaxPages = body.maxPages ?? MAX_SQM_PAGES;
       const planClassifications = allClassifications
         .filter((p) => floorPlanPages.includes(p.pageNumber))
-        .slice(0, MAX_SQM_PAGES);
+        .slice(0, effectiveMaxPages);
 
       // Try mupdf PNG rendering first (WS1 quality), fall back to PDF document blocks
       let sqmContent: Anthropic.MessageParam["content"];
@@ -195,7 +202,7 @@ export async function POST(req: NextRequest) {
         const planImages = await renderPdfPagesToImages(
           Buffer.from(arrayBuffer),
           planClassifications,
-          { maxWidth: 5000, dpi: 300 }
+          { maxWidth: body.maxWidth ?? 5000, dpi: body.dpi ?? 300 }
         );
 
         // Build floor label context (WS1 approach — helps Claude identify floors)
@@ -228,7 +235,7 @@ export async function POST(req: NextRequest) {
         const selectedPages = pages.filter((p) =>
           floorPlanPages.includes(p.pageNumber)
         );
-        const pagesToSend = (selectedPages.length > 0 ? selectedPages : pages).slice(0, MAX_SQM_PAGES);
+        const pagesToSend = (selectedPages.length > 0 ? selectedPages : pages).slice(0, effectiveMaxPages);
         planImageBlocks = pagesToSend.flatMap(
           (page): Anthropic.ContentBlockParam[] => [
             { type: "text" as const, text: `\n--- Page ${page.pageNumber} ---` },
@@ -249,11 +256,12 @@ export async function POST(req: NextRequest) {
       }
 
       // SQM extraction with extended thinking (streaming to handle >10min ops)
+      const effectiveThinking = body.thinkingBudget ?? THINKING_BUDGET;
       const sqmCallStart = Date.now();
       const sqmRes = await anthropic.messages.stream({
         model: extractionModel,
-        max_tokens: THINKING_BUDGET + 16384,
-        thinking: { type: "enabled", budget_tokens: THINKING_BUDGET },
+        max_tokens: effectiveThinking + 16384,
+        thinking: { type: "enabled", budget_tokens: effectiveThinking },
         system: prompts.sqmSystem,
         messages: [{ role: "user", content: sqmContent }],
       }).finalMessage();
@@ -317,11 +325,12 @@ export async function POST(req: NextRequest) {
         ...planImageBlocks,
       ];
 
+      const effectiveThinkingImg = body.thinkingBudget ?? THINKING_BUDGET;
       const callStart = Date.now();
       const imgRes = await anthropic.messages.stream({
         model:      extractionModel,
-        max_tokens: THINKING_BUDGET + 16384,
-        thinking:   { type: "enabled", budget_tokens: THINKING_BUDGET },
+        max_tokens: effectiveThinkingImg + 16384,
+        thinking:   { type: "enabled", budget_tokens: effectiveThinkingImg },
         system:     prompts.sqmSystem,
         messages:   [{ role: "user", content: imgContent }],
       }).finalMessage();

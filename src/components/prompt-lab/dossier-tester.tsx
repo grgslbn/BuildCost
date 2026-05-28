@@ -135,10 +135,19 @@ export function DossierTester({
 
     // Step 2: Fire estimate-process from the CLIENT (not server-side fire-and-forget)
     // This avoids Vercel killing the background fetch when the test-dossier response closes.
+    // Use reduced resolution to fit within Vercel's 300s function limit:
+    // - 2500px (vs 5000px default) = ~75% fewer image tokens
+    // - 150 DPI (vs 300 default) = faster rendering
+    // - 10 pages (vs 12 default) = less content
     fetch("/api/estimate-process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estimationId }),
+      body: JSON.stringify({
+        estimationId,
+        maxWidth: 2500,
+        dpi: 150,
+        maxPages: 10,
+      }),
     }).catch(() => {}); // fire-and-forget from browser — connection stays alive
 
     // Poll until done (max 10 min)
