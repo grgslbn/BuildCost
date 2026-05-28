@@ -1,6 +1,6 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Last updated: 2026-05-27** (Benchmark → Prompt Lab rename, 637 split dossiers uploaded)
+> **Last updated: 2026-05-28** (Railway worker verified locally, env var bridge fix, deployment instructions)
 
 ---
 
@@ -191,7 +191,7 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 - **Storage bucket**: `plans` (private, 50 MB limit, PDF/PNG/JPG)
 - **Key tables**: `estimations`, `reference_dossiers`, `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `prompt_versions`, `qqp_model_versions`, `postcode_prices`, `abex_index`, `users`, `tenants`, `leads`, `tenant_usage_monthly`, `roadmap_items`
 
-## Current Status (2026-05-24)
+## Current Status (2026-05-28)
 
 ### Working
 - [x] Full end-to-end estimation pipeline (upload → SQM → QQP → cost)
@@ -218,24 +218,43 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 
 ### Next Steps
 - [x] Railway worker built — `USE_QUEUE=true` to activate (see Railway Worker section below)
-- [ ] Apply `supabase/migrations/20260524_processing_queue.sql` in Supabase dashboard
-- [ ] Deploy worker to Railway (set root dir to `worker/`, add SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / ANTHROPIC_API_KEY)
-- [ ] Test with `USE_QUEUE=false` first, flip to `true` after worker verified
+- [x] Apply `processing_queue` migration in Supabase (incl. `payload` column fix + `claim_queue_job` function)
+- [x] Worker env var bridge fix: `SUPABASE_URL` → `NEXT_PUBLIC_SUPABASE_URL` (commit ccf4d4e)
+- [x] Worker tested locally: queue insert → claim → pipeline execution works end-to-end
+- [ ] **BLOCKER**: Anthropic API credits depleted — add credits at console.anthropic.com
+- [ ] Deploy worker to Railway (see deployment instructions below)
+- [ ] Re-run test dossier to verify full pipeline (SQM + QQP + cost)
 - [ ] Investigate cost error source: regional factor, ABEX correction, or QQP weight calibration
-- [ ] Complete benchmark run on all 35 dossiers via Railway worker queue
+- [ ] Complete benchmark run on all 637 dossiers via Railway worker queue
 
 ---
 
 ## Railway Worker (added 2026-05-24)
 
 - **Purpose:** Runs the estimation pipeline without Vercel's 300s timeout
-- **Deployment:** `worker/` directory → Railway container
 - **Queue table:** `processing_queue` in Supabase (migration: `supabase/migrations/20260524_processing_queue.sql`)
 - **Feature flag:** `USE_QUEUE` env var on Vercel (`true`/`false`, default `false`)
 - **How it works:** `estimate-process` route inserts into queue when `USE_QUEUE=true`; worker polls every 2s and calls the shared pipeline
 - **Concurrency:** 1 reserved estimate slot + 2 background slots (`WORKER_ESTIMATE_SLOTS`, `WORKER_BACKGROUND_SLOTS` env vars)
-- **Shared code:** `src/lib/pipeline/run-estimation.ts` — single source of truth; worker copy at `worker/src/pipeline/run-estimation.ts` uses relative imports
+- **Shared code:** `src/lib/pipeline/run-estimation.ts` — single source of truth; worker imports via `../../src/lib/pipeline/run-estimation.js`
+- **Env var bridge:** Worker sets `NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL` before imports, because shared code (logApiCall, getPromptSettings) creates its own Supabase client
 - **Benchmark:** Always queued (`job_type: 'benchmark'`, priority 10) — no feature flag needed
 - **Rollback:** Set `USE_QUEUE=false` on Vercel → redeploy (30s) → old direct flow restored
 - **Monitoring:** Railway logs for worker activity; `processing_queue` table in Supabase for job status
-- **Worker env vars:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `WORKER_ESTIMATE_SLOTS` (default 1), `WORKER_BACKGROUND_SLOTS` (default 2)
+
+### Railway Deployment
+
+**IMPORTANT:** The Docker build context must be the **repo root**, not `worker/`.
+
+In Railway project settings:
+- **Root Directory:** `/` (blank / repo root)
+- **Dockerfile Path:** `worker/Dockerfile`
+- **Watch Paths:** `worker/**`, `src/lib/pipeline/**`, `src/lib/ai/**`, `src/lib/supabase/**`
+
+**Environment variables to set in Railway:**
+- `SUPABASE_URL` = `https://sqmpgzzjxsmywmpsplmu.supabase.co`
+- `SUPABASE_SERVICE_ROLE_KEY` = (from Supabase dashboard)
+- `ANTHROPIC_API_KEY` = (Anthropic console)
+- `WORKER_ESTIMATE_SLOTS` = `1` (default)
+- `WORKER_BACKGROUND_SLOTS` = `2` (default)
+- `POLL_INTERVAL_MS` = `2000` (default)
