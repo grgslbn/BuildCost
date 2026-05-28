@@ -139,9 +139,11 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 
 ## Known Issues & Constraints
 
-1. **Vercel Pro 300s function limit** — #1 blocker. Most VerzamelPDF dossiers exceed this timeout. The SQM extraction with extended thinking (10K) + QQP extraction can take 4-8 min for large PDFs. Only ~5% of dossiers complete within the limit.
+1. **Vercel Pro 300s function limit** — Solved by Railway worker queue. Worker processes dossiers in ~50s without timeout.
 2. **Browser tab sleep kills benchmark runner** — The client-side for-loop stops when Chrome throttles background tabs. The runner must stay in the foreground.
 3. **SQM v9 prompt plateau** — 18/24 perfect on test set, remaining errors are Claude vision model limitations (can't read small text, misidentifies room boundaries).
+4. **Next.js 14 fetch caching** — `dynamic = "force-dynamic"` does NOT prevent Supabase client fetch caching. All polling API routes MUST also export `fetchCache = "force-no-store"`. Without this, poll endpoints return stale data from the first request.
+5. **Split dossier plan quality** — Many SPLIT_V2 "Plannen.pdf" files contain only cadastral/location maps, not architectural floor plans. SQM extraction correctly returns 0 for these. Need to verify split quality before running full benchmark.
 
 ## Conventions
 
@@ -221,9 +223,12 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 - [x] Apply `processing_queue` migration in Supabase (incl. `payload` column fix + `claim_queue_job` function)
 - [x] Worker env var bridge fix: `SUPABASE_URL` → `NEXT_PUBLIC_SUPABASE_URL` (commit ccf4d4e)
 - [x] Worker tested locally: queue insert → claim → pipeline execution works end-to-end
-- [ ] **BLOCKER**: Anthropic API credits depleted — add credits at console.anthropic.com
+- [x] Fix Next.js fetchCache bug: poll endpoints cached stale Supabase responses (`fetchCache = "force-no-store"`, commit 8bec1e5)
+- [x] Fix stuck detection: use `updated_at` instead of `created_at` (commit dea71b2)
+- [x] Full pipeline test: 3 dossiers processed via worker queue in ~50s each (SQM + QQP + cost)
+- [ ] **Push pending commits** — `git push origin main` (auto-mode blocked, do manually)
 - [ ] Deploy worker to Railway (see deployment instructions below)
-- [ ] Re-run test dossier to verify full pipeline (SQM + QQP + cost)
+- [ ] **DATA ISSUE**: Split plan PDFs from SPLIT_V2 contain cadastral maps, not architectural floor plans — SQM extraction correctly returns 0. Need to verify split quality.
 - [ ] Investigate cost error source: regional factor, ABEX correction, or QQP weight calibration
 - [ ] Complete benchmark run on all 637 dossiers via Railway worker queue
 
