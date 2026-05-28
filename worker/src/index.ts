@@ -17,6 +17,14 @@
  *   POLL_INTERVAL_MS          - Poll interval in ms (default: 2000)
  */
 
+// Bridge env var names BEFORE any imports that use @/ paths.
+// The shared pipeline code (logApiCall, getPromptSettings) calls
+// createSupabaseAdminClient() which reads NEXT_PUBLIC_SUPABASE_URL.
+// Railway sets SUPABASE_URL; this alias ensures the shared code works.
+if (process.env.SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.SUPABASE_URL;
+}
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import Anthropic from "@anthropic-ai/sdk";
 import { runEstimationPipeline, type PipelineOptions } from "../../src/lib/pipeline/run-estimation.js";
