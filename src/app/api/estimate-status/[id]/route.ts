@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // first response (status: "uploading") for all subsequent polls.
 export const dynamic  = "force-dynamic";
 export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 // Processing steps that can time out — if updated_at hasn't moved in 5 min,
 // the background worker died without writing an error (e.g. a 504).

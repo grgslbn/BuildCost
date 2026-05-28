@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 // Vercel Pro has a 300s function limit. If the estimate-process function is
 // killed by Vercel before it can set an error status, the estimation gets
