@@ -3,10 +3,11 @@
  *
  * Internal route — called fire-and-forget from the client.
  *
- * Two execution paths controlled by USE_QUEUE env var:
- *   USE_QUEUE=false (default): runs pipeline inline on Vercel (300s limit)
- *   USE_QUEUE=true: inserts job into processing_queue, returns immediately
- *                   Railway worker picks up the job (no timeout)
+ * Execution path logic:
+ *   - jobType "benchmark" or "dossier" → ALWAYS queued (Railway worker, no timeout)
+ *   - jobType "estimate" (default):
+ *       USE_QUEUE=false → runs pipeline inline on Vercel (300s limit)
+ *       USE_QUEUE=true  → inserts job into processing_queue, Railway worker picks it up
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -38,9 +39,15 @@ export async function POST(req: NextRequest) {
     }
 
     const useQueue = process.env.USE_QUEUE === "true";
+    const jobType = body.jobType ?? "estimate";
+    const priority = body.priority ?? 1;
+
+    // Benchmark and dossier jobs ALWAYS go to queue (no Vercel timeout risk)
+    // Customer estimates are gated by USE_QUEUE env var
+    const shouldQueue = useQueue || jobType !== "estimate";
 
     // ── Queue path: insert job and return immediately ────────────────────────
-    if (useQueue) {
+    if (shouldQueue) {
       const payload: Record<string, unknown> = {};
       if (body.maxWidth) payload.maxWidth = body.maxWidth;
       if (body.dpi) payload.dpi = body.dpi;
@@ -49,17 +56,24 @@ export async function POST(req: NextRequest) {
 
       const { error: queueErr } = await admin.from("processing_queue").insert({
         estimation_id: estimationId,
-        job_type: body.jobType ?? "estimate",
-        priority: body.priority ?? 1,
+        job_type: jobType,
+        priority,
         payload,
       });
 
       if (queueErr) {
         console.error("[estimate-process] Queue insert failed:", queueErr.message);
-        // Fallback: run inline if queue insert fails
+        if (jobType !== "estimate") {
+          // Non-estimate jobs MUST be queued — no inline fallback
+          return NextResponse.json(
+            { error: `Queue insert failed: ${queueErr.message}` },
+            { status: 500 },
+          );
+        }
+        // Estimate jobs can fall back to inline
         console.log("[estimate-process] Falling back to inline execution");
       } else {
-        console.log(`[estimate-process] Queued ${estimationId} for Railway worker`);
+        console.log(`[estimate-process] Queued ${estimationId} (${jobType}, priority ${priority})`);
         return NextResponse.json({ ok: true, queued: true, estimationId });
       }
     }
