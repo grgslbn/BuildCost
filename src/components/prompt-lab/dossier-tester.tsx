@@ -199,7 +199,7 @@ export function DossierTester({
       const needsGt = !gt && hasCalculation;
 
       if (needsGt) {
-        setStatusText("Extracting ground truth + running pipeline...");
+        setStatusText("Expert-data ophalen + pipeline draaien...");
       } else {
         setStatusText("Running pipeline...");
       }
@@ -343,7 +343,7 @@ export function DossierTester({
       {result && !gt && phase === "done" && (
         <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
           <p className="text-xs font-medium text-muted-foreground">
-            Pipeline results (no ground truth available for comparison)
+            Pipeline-resultaten (geen expert-data om mee te vergelijken)
           </p>
           <div className="grid grid-cols-4 gap-4 text-sm">
             <div>

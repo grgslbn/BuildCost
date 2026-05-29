@@ -195,7 +195,7 @@ export function DossierUploadTable({
             <th className="px-4 py-3 text-left font-medium">Postcode</th>
             <th className="px-4 py-3 text-left font-medium">Plan</th>
             <th className="px-4 py-3 text-left font-medium">Calc</th>
-            <th className="px-4 py-3 text-right font-medium w-[160px]">Ground truth (CED)</th>
+            <th className="px-4 py-3 text-right font-medium w-[160px]">Expert (CED)</th>
             <th className="px-4 py-3 text-right font-medium w-[150px]">Kost Δ vs CED</th>
             <th className="px-4 py-3 text-center font-medium">Actions</th>
           </tr>
@@ -235,7 +235,7 @@ export function DossierUploadTable({
                     ) : (
                       <Sparkles className="h-3 w-3 mr-1" />
                     )}
-                    Extract GT
+                    Extract Expert
                   </Button>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>

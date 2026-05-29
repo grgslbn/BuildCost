@@ -117,7 +117,7 @@ export default async function PromptLabPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Prompt Lab</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Eén plan → SQM + QQP → kost, vergeleken met de CED-expert. Upload, extraheer ground truth, test en bekijk de afwijking per dossier.
+          Eén plan → SQM + QQP → kost, vergeleken met de CED-expert. Upload, extraheer expert-data, test en bekijk de afwijking per dossier.
         </p>
       </div>
 
@@ -125,7 +125,7 @@ export default async function PromptLabPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Batch test (alle dossiers met ground truth)</CardTitle>
+            <CardTitle className="text-sm font-medium">Batch test (alle dossiers met expert-data)</CardTitle>
           </CardHeader>
           <CardContent>
             <StartRunButton />
@@ -133,7 +133,7 @@ export default async function PromptLabPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Ground truth extractie (alle zonder GT)</CardTitle>
+            <CardTitle className="text-sm font-medium">Expert-data extractie (alle zonder expert)</CardTitle>
           </CardHeader>
           <CardContent>
             <ExtractGroundTruthButton />
@@ -145,10 +145,10 @@ export default async function PromptLabPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Dossiers ({dossiers.length}) · {gtCount} met ground truth · {testedCount} getest
+            Dossiers ({dossiers.length}) · {gtCount} met expert-data · {testedCount} getest
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Upload plan (→ LLM) en berekening (→ CED ground truth). Klik een dossier voor de pipeline-walkthrough + AI-analyse.
+            Upload plan (→ LLM) en berekening (→ CED expert). Klik een dossier voor de pipeline-walkthrough + AI-analyse.
           </p>
         </CardHeader>
         <CardContent className="p-0">

@@ -242,7 +242,7 @@ export default async function DossierDetailPage({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ground Truth (Expert)</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Expert (CED)</CardTitle>
           </CardHeader>
           <CardContent>
             {gt ? (

@@ -100,12 +100,12 @@ export function ExtractGroundTruthButton() {
         ) : running ? (
           <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {current}/{stats.total} extracting...</>
         ) : (
-          <><Sparkles className="mr-2 h-4 w-4" /> Extract Ground Truth</>
+          <><Sparkles className="mr-2 h-4 w-4" /> Extract Expert</>
         )}
       </Button>
 
       {done && stats.total === 0 && (
-        <p className="text-xs text-muted-foreground">All dossiers already have ground truth extracted.</p>
+        <p className="text-xs text-muted-foreground">Alle dossiers hebben al expert-data.</p>
       )}
 
       {(running || done) && stats.total > 0 && (

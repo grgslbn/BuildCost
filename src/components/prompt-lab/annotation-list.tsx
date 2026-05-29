@@ -26,7 +26,7 @@ const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
   room_missing: "Room missing",
   room_extra: "Room extra",
   qqp_error: "QQP error",
-  ground_truth_error: "GT error",
+  ground_truth_error: "Expert error",
 };
 
 export function AnnotationList({
