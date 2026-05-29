@@ -2,9 +2,8 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { Upload, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle2, XCircle, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AccuracyBar } from "./accuracy-badge";
 
 type Dossier = {
   id: string;
@@ -26,23 +25,36 @@ type DossierAccuracy = {
   run_date: string;
 };
 
-function computeAccuracyScore(result: DossierAccuracy): number | null {
-  // If there's an error, no score
-  if (result.error_message) return null;
-  // If no cost_error_pct, can't compute
-  const errors = [result.cat1_error_pct, result.cat2_error_pct, result.cat3_error_pct, result.cost_error_pct]
-    .filter((e): e is number => e != null)
-    .map((e) => Math.abs(e));
-  if (errors.length === 0) return null;
-  const avgError = errors.reduce((a, b) => a + b, 0) / errors.length;
-  return Math.max(0, Math.min(100, 100 - avgError));
+function fmtEur(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return `€${Math.round(n).toLocaleString("nl-BE")}`;
 }
 
+/** Colour for the cost deviation vs expert: green ≤10%, amber ≤20%, red beyond. */
+function costDeltaColor(pct: number | null): string {
+  if (pct == null) return "text-muted-foreground";
+  const abs = Math.abs(pct);
+  if (abs <= 10) return "text-green-600";
+  if (abs <= 20) return "text-amber-600";
+  return "text-red-600 font-medium";
+}
+
+type GtInfo = { expert_total_price: number | null };
 type FilterMode = "all" | "ready" | "tested" | "untested" | "errors";
 
-export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { dossiers: Dossier[]; latestResults?: Record<string, DossierAccuracy> }) {
+export function DossierUploadTable({
+  dossiers: initial,
+  latestResults = {},
+  groundTruth = {},
+}: {
+  dossiers: Dossier[];
+  latestResults?: Record<string, DossierAccuracy>;
+  groundTruth?: Record<string, GtInfo>;
+}) {
   const [dossiers, setDossiers] = useState(initial);
+  const [gt, setGt] = useState<Record<string, GtInfo>>(groundTruth);
   const [uploading, setUploading] = useState<Record<string, "plan" | "calculation" | null>>({});
+  const [extractingGt, setExtractingGt] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterMode>("all");
@@ -50,6 +62,28 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
   const pageSize = 50;
   const planRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const calcRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  async function handleExtractGt(dossierId: string) {
+    setExtractingGt((prev) => ({ ...prev, [dossierId]: true }));
+    setErrors((prev) => ({ ...prev, [dossierId]: null }));
+    try {
+      const res = await fetch("/api/prompt-lab/extract-gt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dossierId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGt((prev) => ({ ...prev, [dossierId]: { expert_total_price: data.result?.expert_total_price ?? null } }));
+      } else {
+        setErrors((prev) => ({ ...prev, [dossierId]: data.error?.slice(0, 80) ?? "GT extractie mislukt" }));
+      }
+    } catch {
+      setErrors((prev) => ({ ...prev, [dossierId]: "GT extractie mislukt" }));
+    } finally {
+      setExtractingGt((prev) => ({ ...prev, [dossierId]: false }));
+    }
+  }
 
   // Filter and search
   const filtered = dossiers.filter((d) => {
@@ -161,7 +195,8 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
             <th className="px-4 py-3 text-left font-medium">Postcode</th>
             <th className="px-4 py-3 text-left font-medium">Plan</th>
             <th className="px-4 py-3 text-left font-medium">Calc</th>
-            <th className="px-4 py-3 text-left font-medium w-[120px]">Accuracy</th>
+            <th className="px-4 py-3 text-right font-medium w-[160px]">Ground truth (CED)</th>
+            <th className="px-4 py-3 text-right font-medium w-[150px]">Kost Δ vs CED</th>
             <th className="px-4 py-3 text-center font-medium">Actions</th>
           </tr>
         </thead>
@@ -181,13 +216,45 @@ export function DossierUploadTable({ dossiers: initial, latestResults = {} }: { 
               <td className="px-4 py-3">
                 <FileStatus name={d.calculation_file_name} uploading={uploading[d.id] === "calculation"} />
               </td>
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-right">
+                {gt[d.id] ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                    <span className="tabular-nums">{fmtEur(gt[d.id].expert_total_price)}</span>
+                  </span>
+                ) : d.calculation_file_name ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    disabled={extractingGt[d.id]}
+                    onClick={() => handleExtractGt(d.id)}
+                  >
+                    {extractingGt[d.id] ? (
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3 w-3 mr-1" />
+                    )}
+                    Extract GT
+                  </Button>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </td>
+              <td className="px-4 py-3 text-right">
                 {latestResults[d.id] ? (
                   (() => {
-                    const score = computeAccuracyScore(latestResults[d.id]);
-                    if (score != null) return <AccuracyBar score={score} />;
-                    if (latestResults[d.id].error_message) return <span className="text-xs text-destructive">Error</span>;
-                    return <span className="text-xs text-muted-foreground">—</span>;
+                    const r = latestResults[d.id];
+                    if (r.error_message) return <span className="text-xs text-destructive">Error</span>;
+                    if (r.cost_error_pct == null) return <span className="text-xs text-muted-foreground">—</span>;
+                    return (
+                      <span title={`Voorspeld: ${fmtEur(r.predicted_total_cost)} · run "${r.run_name}"`} className="inline-flex flex-col items-end leading-tight">
+                        <span className={`tabular-nums ${costDeltaColor(r.cost_error_pct)}`}>
+                          {r.cost_error_pct > 0 ? "+" : ""}{r.cost_error_pct.toFixed(1)}%
+                        </span>
+                        <span className="text-[11px] text-muted-foreground tabular-nums">{fmtEur(r.predicted_total_cost)}</span>
+                      </span>
+                    );
                   })()
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>

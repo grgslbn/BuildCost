@@ -124,7 +124,7 @@ Upload PDF → classify pages → render PNG → SQM extraction (Claude + 10K th
 
 Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers with separate plan + calculation PDFs.
 
-**UI route**: `/admin/prompt-lab` (tabs: Runs, Dossiers, Ground Truth)
+**UI route**: `/admin/prompt-lab` — **single Dossiers hub** (geen tabs meer). Toolbar bovenaan: "Batch test" (`StartRunButton`) + "Ground truth extractie" (`ExtractGroundTruthButton`, bulk alle zonder GT). Dossiers-tabel toont per rij: Plan/Calc-status, **Ground truth (CED)** kolom (expert-prijs + ✓, of per-rij "Extract GT"-knop wanneer calc aanwezig & geen GT), en **Kost Δ vs CED** (eindbegroting-afwijking %, kleur-gecodeerd: groen ≤10%, amber ≤20%, rood erboven). Filters: All/Ready/Tested/Untested/Errors. Runs-historiek + GT-lijst verwijderd uit UI (data blijft in DB; run-detail pagina `/[runId]` bestaat nog).
 **Tables**: `benchmark_ground_truth`, `evaluation_runs`, `evaluation_results`, `benchmark_annotations`
 **Dossier storage**: Each dossier has separate `plan_storage_path` (sent to LLM) and `calculation_storage_path` (used for GT extraction only)
 
