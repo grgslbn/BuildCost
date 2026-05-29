@@ -135,7 +135,8 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 **Annotations**: Per-dossier notes with categories (vision_limit, prompt_issue, classifier_error, scale_error, room_missing, etc.)
 
 **Client-side runner** (`start-run-button.tsx`) processes dossiers sequentially. Stuck detection marks estimations >6 min as Vercel-killed.
-**Dossier detail** (`/admin/prompt-lab/dossier/[id]`): Cross-run comparison + annotation system for collaborative prompt iteration.
+**Dossier detail** (`/admin/prompt-lab/dossier/[id]`): **Pipeline walkthrough** (`pipeline-walkthrough.tsx`) — 5 numbered steps (Plan→2 lenzen → SQM per-verdiep → QQP scores+F → eenheidsprijs per categorie → totale kost), elke stap met inline CED-vergelijking. Plus AI-analyse chat (`dossier-chat.tsx`) met "Analyseer dit dossier"-knop die de volledige data (SQM per-verdiep, QQP-scores, eenheidsprijzen, CED-delta's) ziet en een gestructureerd rapport geeft (wat goed/fout, prompt-aanbevelingen, vragen). Cross-run comparison + annotation system.
+**Shared helpers**: `src/lib/prompt-lab/compare.ts` (status/kleur/eenheidsprijs), `src/components/prompt-lab/status-icon.tsx`, `src/components/prompt-lab/extraction-details.tsx` (per-verdiep tabel). Eenheidsprijzen per categorie afgeleid uit F via `interpolatePrice`; expert-F via `backcalculateF` (al opgeslagen als `expert_f`).
 
 ## Known Issues & Constraints
 

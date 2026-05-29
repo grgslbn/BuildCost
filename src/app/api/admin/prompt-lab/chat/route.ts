@@ -12,6 +12,7 @@ import { anthropic } from "@/lib/ai/client";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { renderPdfPagesToImages } from "@/lib/pdf/render-plans";
+import { interpolatePrice, type PricingConfig } from "@/lib/cost/calculate-cost";
 import type Anthropic from "@anthropic-ai/sdk";
 
 export const maxDuration = 120;
@@ -21,11 +22,27 @@ type ChatMessage = {
   content: string;
 };
 
+// Structured-analysis instruction injected when the client requests mode:"analyze".
+const ANALYZE_INSTRUCTION = `Voer nu een volledige analyse uit van dit dossier. Bekijk de plan-afbeeldingen, de SQM per-verdiep extractie, de QQP-scores, de afgeleide eenheidsprijzen en de CED-vergelijking. Structureer je antwoord in exact deze vier secties (gebruik Markdown-koppen):
+
+## 1. Wat loopt goed
+Welke stappen kloppen (SQM / QQP / F / eenheidsprijs / totaal)? Wees concreet met cijfers.
+
+## 2. Wat loopt fout
+Per stap (SQM, QQP, F, eenheidsprijs, totaal): waar wijkt de LLM af van CED en waaróm (vision-limiet, schaalfout, gemiste kamer, foute QQP-score, ...)? Verwijs naar specifieke verdiepen/kamers.
+
+## 3. Aanbevelingen voor de prompts
+Concrete, copy-pastebare aanpassingen voor de SQM-extractieprompt en de QQP-extractieprompt om deze fouten te vermijden.
+
+## 4. Vragen om SQM/QQP te verfijnen
+Stel 2–4 gerichte vragen aan de gebruiker waarvan het antwoord helpt om de SQM- of QQP-extractie te verbeteren.`;
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { dossierId, messages } = body as {
+  const { dossierId, messages, mode } = body as {
     dossierId: string;
     messages: ChatMessage[];
+    mode?: "analyze" | "chat";
   };
 
   if (!dossierId || !messages?.length) {
@@ -37,7 +54,7 @@ export async function POST(req: NextRequest) {
   const admin = createSupabaseAdminClient();
 
   // ── Load all context in parallel ───────────────────────────────────
-  const [dossierRes, gtRes, resultsRes, annotationsRes, prompts] =
+  const [dossierRes, gtRes, resultsRes, annotationsRes, settingsRes, prompts] =
     await Promise.all([
       admin
         .from("reference_dossiers")
@@ -62,8 +79,26 @@ export async function POST(req: NextRequest) {
         .select("*")
         .eq("dossier_id", dossierId)
         .order("created_at", { ascending: false }),
+      admin
+        .from("system_settings")
+        .select("key, value")
+        .in("key", [
+          "cat1_price_min", "cat1_price_max",
+          "cat2_price_min", "cat2_price_max",
+          "cat3_price_min", "cat3_price_max",
+        ]),
       getPromptSettings(),
     ]);
+
+  const settings = Object.fromEntries((settingsRes.data ?? []).map((s) => [s.key, s.value]));
+  const pricing: PricingConfig = {
+    cat1_min: (settings.cat1_price_min as number) ?? 1100,
+    cat1_max: (settings.cat1_price_max as number) ?? 1900,
+    cat2_min: (settings.cat2_price_min as number) ?? 550,
+    cat2_max: (settings.cat2_price_max as number) ?? 950,
+    cat3_min: (settings.cat3_price_min as number) ?? 330,
+    cat3_max: (settings.cat3_price_max as number) ?? 570,
+  };
 
   const dossier = dossierRes.data;
   if (!dossier?.plan_storage_path) {
@@ -176,6 +211,72 @@ export async function POST(req: NextRequest) {
           .join("\n")
       : "No annotations.";
 
+  // ── Detailed per-step data from the latest successful result ───────
+  const latest = (results as Record<string, unknown>[]).find(
+    (r) => !r.error_message && r.predicted_total_cost != null,
+  );
+
+  // SQM per-floor breakdown (the actual extraction, not just totals)
+  let sqmDetail = "No SQM extraction available.";
+  const sqmEx = latest?.sqm_extraction as
+    | {
+        project?: { description?: string; scale?: string; scale_confidence?: number };
+        buildings?: Array<{
+          name?: string; id?: string; type?: string;
+          floors?: Array<{ label: string; cat1_sqm: number; cat2_sqm: number; cat3_sqm: number; contents?: string; measurement?: string }>;
+        }>;
+        extraction_warnings?: string[];
+      }
+    | undefined;
+  if (sqmEx?.buildings?.length) {
+    const lines: string[] = [];
+    if (sqmEx.project?.description) lines.push(`Project: ${sqmEx.project.description}`);
+    if (sqmEx.project?.scale) lines.push(`Scale: ${sqmEx.project.scale} (confidence ${sqmEx.project.scale_confidence ?? "?"})`);
+    for (const b of sqmEx.buildings) {
+      lines.push(`\nBuilding "${b.name ?? b.id}" (${b.type ?? "?"}):`);
+      for (const f of b.floors ?? []) {
+        lines.push(`  - ${f.label}: Cat1 ${f.cat1_sqm}m² / Cat2 ${f.cat2_sqm}m² / Cat3 ${f.cat3_sqm}m²${f.contents ? ` — ${f.contents}` : ""}${f.measurement ? ` [${f.measurement}]` : ""}`);
+      }
+    }
+    if (sqmEx.extraction_warnings?.length) {
+      lines.push(`\nWarnings:\n${sqmEx.extraction_warnings.map((w) => `  • ${w}`).join("\n")}`);
+    }
+    sqmDetail = lines.join("\n");
+  }
+
+  // QQP scores with reasoning
+  let qqpDetail = "No QQP scores available.";
+  const qqpVals = latest?.extracted_qqps as
+    | Record<string, { score: number; confidence?: number; reasoning?: string }>
+    | undefined;
+  if (qqpVals && Object.keys(qqpVals).length > 0) {
+    qqpDetail = Object.entries(qqpVals)
+      .map(([name, v]) => `  ${name}: ${v.score >= 0 ? "+" : ""}${v.score.toFixed(2)} (conf ${v.confidence?.toFixed(2) ?? "?"})${v.reasoning ? ` — ${v.reasoning}` : ""}`)
+      .join("\n");
+  }
+
+  // Derived unit prices per category (LLM vs expert, both from F via the pricing curve)
+  let unitPriceDetail = "No F available to derive unit prices.";
+  const predF = latest?.predicted_f as number | null;
+  const expF = latest?.expert_f as number | null;
+  if (predF != null) {
+    const llmP = {
+      cat1: Math.round(interpolatePrice(predF, pricing.cat1_min, pricing.cat1_max)),
+      cat2: Math.round(interpolatePrice(predF, pricing.cat2_min, pricing.cat2_max)),
+      cat3: Math.round(interpolatePrice(predF, pricing.cat3_min, pricing.cat3_max)),
+    };
+    const expP = expF != null ? {
+      cat1: Math.round(interpolatePrice(expF, pricing.cat1_min, pricing.cat1_max)),
+      cat2: Math.round(interpolatePrice(expF, pricing.cat2_min, pricing.cat2_max)),
+      cat3: Math.round(interpolatePrice(expF, pricing.cat3_min, pricing.cat3_max)),
+    } : null;
+    unitPriceDetail = [
+      `Predicted F: ${predF.toFixed(2)} → LLM €/m²: CAT1 ${llmP.cat1}, CAT2 ${llmP.cat2}, CAT3 ${llmP.cat3}`,
+      expP ? `Expert F: ${expF!.toFixed(2)} → afgeleide expert €/m²: CAT1 ${expP.cat1}, CAT2 ${expP.cat2}, CAT3 ${expP.cat3}` : "Expert F: unknown",
+      gt?.expert_total_price && gt?.expert_cat1_sqm ? `Reality-check expert €/m² woonopp = ${Math.round(gt.expert_total_price / gt.expert_cat1_sqm)}` : "",
+    ].filter(Boolean).join("\n");
+  }
+
   const systemPrompt = `You are a prompt engineering assistant for PlanBase, a Belgian building cost estimation tool.
 You are helping the user iterate on extraction prompts by analyzing a specific dossier.
 
@@ -191,11 +292,20 @@ File: ${dossier.plan_file_name ?? "unknown"}
 Address: ${dossier.address ?? "unknown"}, ${dossier.postcode ?? "unknown"}
 Building type: ${dossier.building_type ?? "unknown"}
 
-## Ground truth (expert)
+## Ground truth (expert / CED)
 ${gtSummary}
 
-## Latest evaluation results
+## Latest evaluation results (aggregate errors per run)
 ${resultsSummary}
+
+## SQM-lens — per-verdiep extractie (laatste run)
+${sqmDetail}
+
+## QQP-lens — scores (laatste run, -1 = onder standaard, 0 = gemiddeld, +1 = luxe)
+${qqpDetail}
+
+## Eenheidsprijzen per categorie (afgeleid uit F)
+${unitPriceDetail}
 
 ## Annotations
 ${annotationsSummary}
@@ -218,9 +328,15 @@ ${prompts.qqpSystem.slice(0, 2000)}${prompts.qqpSystem.length > 2000 ? "\n... [t
 Respond in Dutch or English depending on what the user writes. Be concise but thorough.`;
 
   // ── Build messages for Claude ──────────────────────────────────────
+  // In analyze mode, the first user turn is replaced by the structured-analysis
+  // instruction (the client just sends a trigger message).
+  const firstUserText =
+    mode === "analyze" ? ANALYZE_INSTRUCTION : messages[0]?.content ?? "";
+
   // First user message includes plan images
   const claudeMessages: Anthropic.MessageParam[] = messages.map(
     (msg, idx) => {
+      const text = idx === 0 ? firstUserText : msg.content;
       if (idx === 0 && msg.role === "user" && planImageBlocks.length > 0) {
         return {
           role: "user" as const,
@@ -230,13 +346,13 @@ Respond in Dutch or English depending on what the user writes. Be concise but th
               text: "Here are the floor plan images for this dossier:",
             },
             ...planImageBlocks,
-            { type: "text" as const, text: `\n\nUser question: ${msg.content}` },
+            { type: "text" as const, text: `\n\n${mode === "analyze" ? text : `User question: ${text}`}` },
           ],
         };
       }
       return {
         role: msg.role as "user" | "assistant",
-        content: msg.content,
+        content: text,
       };
     }
   );
@@ -244,7 +360,7 @@ Respond in Dutch or English depending on what the user writes. Be concise but th
   // ── Stream response ────────────────────────────────────────────────
   const stream = await anthropic.messages.stream({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
+    max_tokens: mode === "analyze" ? 6000 : 4096,
     system: systemPrompt,
     messages: claudeMessages,
   });

@@ -7,7 +7,9 @@ import { DossierAnnotations } from "@/components/prompt-lab/dossier-annotations"
 import { DossierTester } from "@/components/prompt-lab/dossier-tester";
 import { DossierChat } from "@/components/prompt-lab/dossier-chat";
 import { DossierNavKeys } from "@/components/prompt-lab/dossier-nav-keys";
-import { LlmVsExpertCard } from "@/components/prompt-lab/llm-vs-expert-card";
+import { PipelineWalkthrough } from "@/components/prompt-lab/pipeline-walkthrough";
+import type { SqmExtraction } from "@/components/prompt-lab/extraction-details";
+import type { PricingConfig } from "@/lib/cost/calculate-cost";
 import type { BenchmarkAnnotation } from "@/lib/prompt-lab/types";
 
 export const dynamic = "force-dynamic";
@@ -88,6 +90,7 @@ export default async function DossierDetailPage({
       f_error: r.f_error as number | null,
       error_message: r.error_message as string | null,
       sqm_extraction: r.sqm_extraction as Record<string, unknown> | null,
+      extracted_qqps: r.extracted_qqps as Record<string, { score: number; confidence?: number; reasoning?: string }> | null,
     };
   });
 
@@ -99,6 +102,42 @@ export default async function DossierDetailPage({
     .eq("dossier_id", dossierId)
     .order("created_at", { ascending: false });
   if (!annErr) annotations = annData;
+
+  // Pricing config (same source/defaults as the pipeline) for unit-price derivation
+  const { data: settingsRows } = await admin
+    .from("system_settings")
+    .select("key, value")
+    .in("key", [
+      "cat1_price_min", "cat1_price_max",
+      "cat2_price_min", "cat2_price_max",
+      "cat3_price_min", "cat3_price_max",
+    ]);
+  const settings = Object.fromEntries((settingsRows ?? []).map((s) => [s.key, s.value]));
+  const pricing: PricingConfig = {
+    cat1_min: (settings.cat1_price_min as number) ?? 1100,
+    cat1_max: (settings.cat1_price_max as number) ?? 1900,
+    cat2_min: (settings.cat2_price_min as number) ?? 550,
+    cat2_max: (settings.cat2_price_max as number) ?? 950,
+    cat3_min: (settings.cat3_price_min as number) ?? 330,
+    cat3_max: (settings.cat3_price_max as number) ?? 570,
+  };
+
+  // QQP definitions grouped by category — for labelling/grouping the QQP scores
+  const [{ data: qqpCats }, { data: qqpDefs }] = await Promise.all([
+    admin.from("qqp_categories").select("id, name, display_name, sort_order").order("sort_order"),
+    admin.from("qqp_definitions").select("id, category_id, name, display_name, weight, sort_order, is_active").eq("is_active", true).order("sort_order"),
+  ]);
+  const qqpGroups = (qqpCats ?? []).map((c) => ({
+    categoryName: c.name as string,
+    displayName: c.display_name as string,
+    items: (qqpDefs ?? [])
+      .filter((d) => d.category_id === c.id)
+      .map((d) => ({
+        name: d.name as string,
+        displayName: d.display_name as string,
+        weight: (d.weight as number | null) ?? null,
+      })),
+  }));
 
   const hasCalculation = !!dossier.calculation_storage_path;
 
@@ -226,31 +265,41 @@ export default async function DossierDetailPage({
         </Card>
       </div>
 
-      {/* LLM vs Expert comparison — always visible when data exists */}
-      {latestSuccessful && gt && (
+      {/* Pipeline walkthrough — plan → SQM → QQP → eenheidsprijs → totale kost */}
+      {latestSuccessful && (
         <Card>
           <CardHeader>
-            <CardTitle>LLM vs Expert (CED)</CardTitle>
+            <CardTitle>Pipeline: plan → SQM → QQP → kost (vs CED expert)</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Vergelijking van de laatste LLM-extractie met de expertberekening
+              Stap-voor-stap van de laatste LLM-extractie, elke stap vergeleken met de expertberekening.
             </p>
           </CardHeader>
           <CardContent>
-            <LlmVsExpertCard
+            <PipelineWalkthrough
               data={{
+                planFileName: dossier.plan_file_name ?? null,
+                buildingCount:
+                  (latestSuccessful.sqm_extraction as { buildings?: unknown[] } | null)?.buildings?.length ?? null,
                 llm_cat1_sqm: latestSuccessful.extracted_cat1_sqm,
                 llm_cat2_sqm: latestSuccessful.extracted_cat2_sqm,
                 llm_cat3_sqm: latestSuccessful.extracted_cat3_sqm,
-                llm_total_cost: latestSuccessful.predicted_total_cost,
-                llm_finishing_coefficient: latestSuccessful.predicted_f,
-                llm_confidence: null,
-                expert_cat1_sqm: gt.expert_cat1_sqm as number | null,
-                expert_cat2_sqm: gt.expert_cat2_sqm as number | null,
-                expert_cat3_sqm: gt.expert_cat3_sqm as number | null,
-                expert_total_price: gt.expert_total_price as number | null,
-                expert_finishing_level: gt.expert_finishing_level as string | null,
+                predicted_f: latestSuccessful.predicted_f,
+                expert_f: latestSuccessful.expert_f,
+                predicted_total_cost: latestSuccessful.predicted_total_cost,
+                sqmExtraction: latestSuccessful.sqm_extraction as SqmExtraction | null,
+                qqpScores: latestSuccessful.extracted_qqps,
+                qqpGroups,
+                pricing,
+                gt: gt
+                  ? {
+                      expert_cat1_sqm: gt.expert_cat1_sqm as number | null,
+                      expert_cat2_sqm: gt.expert_cat2_sqm as number | null,
+                      expert_cat3_sqm: gt.expert_cat3_sqm as number | null,
+                      expert_total_price: gt.expert_total_price as number | null,
+                      expert_finishing_level: gt.expert_finishing_level as string | null,
+                    }
+                  : null,
               }}
-              sqmExtraction={latestSuccessful.sqm_extraction as Record<string, unknown> | null}
             />
           </CardContent>
         </Card>
