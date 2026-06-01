@@ -26,6 +26,10 @@ export type SqmConfidenceInput = {
   unitCount?: number | null;
   /** Number of building levels detected (from section/titles), if available */
   levelCount?: number | null;
+  /** A TOTAL floor area printed on the plan/table (e.g. "Totale oppervlakte"), if read.
+   *  Used only as an under-capture cross-check: if the summed extraction falls far
+   *  below a stated total, capture is incomplete → downgrade. Never used to inflate. */
+  statedTotalSqm?: number | null;
 };
 
 export type SqmConfidenceLevel = "high" | "medium" | "low";
@@ -51,6 +55,7 @@ export function computeSqmConfidence(
     netUnitSqmSum = null,
     unitCount = null,
     levelCount = null,
+    statedTotalSqm = null,
   } = input;
 
   const flags: string[] = [];
@@ -108,6 +113,25 @@ export function computeSqmConfidence(
   if (cat1Sqm > 0 && cat3Sqm > cat1Sqm * 0.6) {
     flags.push(`terras (${Math.round(cat3Sqm)}) groot t.o.v. woon (${Math.round(cat1Sqm)}) — categorisatie nazien`);
     score -= 0.15;
+  }
+
+  // 6. Stated-total cross-check (under-capture detector). When the plan/table prints a
+  //    TOTAL floor area, the summed extraction should be in its ballpark. A big shortfall
+  //    means floors/units were missed (the classic Tier-2 failure on big/mixed bundles).
+  //    Conservative: only PENALISE a shortfall; never inflate confidence on a match.
+  if (statedTotalSqm != null && statedTotalSqm > 50) {
+    const captured = cat1Sqm + cat2Sqm + cat3Sqm;
+    const ratio = captured / statedTotalSqm;
+    if (ratio < 0.7) {
+      flags.push(`gevonden ${Math.round(captured)} m² << vermeld totaal ${Math.round(statedTotalSqm)} m² (${Math.round(ratio * 100)}%) — capture onvolledig`);
+      score -= 0.45;
+    } else if (ratio < 0.85) {
+      flags.push(`gevonden ${Math.round(captured)} m² onder vermeld totaal ${Math.round(statedTotalSqm)} m² (${Math.round(ratio * 100)}%) — mogelijk onvolledig`);
+      score -= 0.2;
+    } else if (ratio > 1.3) {
+      flags.push(`gevonden ${Math.round(captured)} m² boven vermeld totaal ${Math.round(statedTotalSqm)} m² (${Math.round(ratio * 100)}%) — mogelijke dubbeltelling`);
+      score -= 0.2;
+    }
   }
 
   score = Math.max(0, Math.min(1, score));

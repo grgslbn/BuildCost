@@ -692,6 +692,9 @@ export async function runEstimationPipeline(
       cat2Sqm: areasForDisplay.cat2_sqm,
       cat3Sqm: areasForDisplay.cat3_sqm,
       unitCount: sqmUnitCount,
+      // under-capture cross-check: a printed total floor area from the labeled route
+      // (null for Route A, which is exact and has no stated m² total).
+      statedTotalSqm: visionSqm?.statedTotal ?? null,
     });
     // Confidence by tier: an exact table (text- or vision-read) is trustworthy;
     // printed labels are medium (capped, capture varies); a bare measurement is gated
@@ -699,10 +702,20 @@ export async function runEstimationPipeline(
     let gatedSqmConfidence: number;
     if (resolvedTier === "area_table") gatedSqmConfidence = Math.max(0.9, sqmConfidence);
     else if (resolvedTier === "area_table_vision") gatedSqmConfidence = 0.9;
-    else if (resolvedTier === "labeled_plan")
+    else if (resolvedTier === "labeled_plan") {
+      // Safe default: unverified labels stay medium (≤0.6 → manual panel). A printed
+      // TOTAL that AGREES with the captured sum = verified-complete → trust (skip panel);
+      // a shortfall = incomplete capture → downgrade + flag.
       gatedSqmConfidence = Math.min(0.6, visionSqm?.confidence ?? 0.5, sqmSanity.score + 0.15);
-    else gatedSqmConfidence = Math.min(sqmConfidence, sqmSanity.score);
-    if (resolvedTier === "plan_vision" && sqmSanity.flags.length > 0) {
+      const total = visionSqm?.statedTotal ?? 0;
+      if (total > 50) {
+        const ratio =
+          (areasForDisplay.cat1_sqm + areasForDisplay.cat2_sqm + areasForDisplay.cat3_sqm) / total;
+        if (ratio >= 0.9 && ratio <= 1.15) gatedSqmConfidence = Math.max(gatedSqmConfidence, 0.72);
+        else if (ratio < 0.7) gatedSqmConfidence = Math.min(gatedSqmConfidence, 0.4);
+      }
+    } else gatedSqmConfidence = Math.min(sqmConfidence, sqmSanity.score);
+    if (resolvedTier !== "area_table" && resolvedTier !== "area_table_vision" && sqmSanity.flags.length > 0) {
       console.warn(
         `[pipeline] SQM sanity (${estimationId}) ${sqmSanity.level} (${sqmSanity.score}): ${sqmSanity.flags.join(" | ")}`,
       );

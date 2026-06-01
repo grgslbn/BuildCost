@@ -151,6 +151,7 @@ Upload PDF → classify pages → render PNG → SQM ROUTER (per-dossier best si
 - **Multi-floor buildings = one sheet per floor** → must enumerate every floor + sum (per-page aggregation).
 - **GT caveat**: `scripts/sqm-groundtruth.json` `heated_m2` over-counts on some dossiers (parking/kelder/atelier counted as cat1: 516605, 540184, 546287). The niveau-aware vision categorisation is more cost-correct; back-tests should compare against a niveau-aware corrected GT.
 - **Scanned/image PDFs** (e.g. 550471): `pdftotext` finds nothing → classify pages + extract via VISION only.
+- **Stated-total cross-check** (`computeSqmConfidence` `statedTotalSqm`): when the plan/table prints a TOTAL floor area, the summed extraction is checked against it — a big shortfall (<70%) = incomplete capture → downgrade + flag (catches the mixed-use Tier-2 weakness, e.g. 546287 −8%); an agreeing total (90–115%) lets a labeled extraction skip the manual panel (verified-complete). Conservative: only penalises shortfall/over-count, never inflates blindly.
 - Backtest harness: `scripts/backtest-router.mjs`; per-method experiments: `scripts/sqm-*.mjs`, `scripts/measure-*.mjs`.
 
 - **SQM measurement (bare_plan tier)**: Claude Sonnet with extended thinking (10K budget). Processes rendered plan pages to identify rooms and calculate areas. v9 prompt: 18/24 perfect on test set.

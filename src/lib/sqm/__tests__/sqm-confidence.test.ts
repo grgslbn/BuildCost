@@ -42,4 +42,34 @@ describe("computeSqmConfidence", () => {
     const r = computeSqmConfidence({ cat1Sqm: 900, cat2Sqm: 300, cat3Sqm: 80 });
     expect(r.level).toBe("high");
   });
+
+  it("stated-total cross-check: big shortfall → under-capture flag + downgrade", () => {
+    // captured 1200 vs stated 2400 = 50% → incomplete capture
+    const r = computeSqmConfidence({
+      cat1Sqm: 1100, cat2Sqm: 100, cat3Sqm: 0, statedTotalSqm: 2400,
+    });
+    expect(r.flags.some((f) => /capture onvolledig|onvolledig/i.test(f))).toBe(true);
+    expect(r.score).toBeLessThan(0.75);
+  });
+
+  it("stated-total cross-check: captured matches stated total → no penalty", () => {
+    const r = computeSqmConfidence({
+      cat1Sqm: 1600, cat2Sqm: 300, cat3Sqm: 100, statedTotalSqm: 2000,
+    });
+    expect(r.flags.some((f) => /totaal/i.test(f))).toBe(false);
+    expect(r.level).toBe("high");
+  });
+
+  it("stated-total cross-check: large over-capture → double-count flag", () => {
+    const r = computeSqmConfidence({
+      cat1Sqm: 2800, cat2Sqm: 200, cat3Sqm: 0, statedTotalSqm: 2000,
+    });
+    expect(r.flags.some((f) => /dubbeltelling|boven vermeld/i.test(f))).toBe(true);
+  });
+
+  it("no stated total → cross-check is a no-op", () => {
+    const a = computeSqmConfidence({ cat1Sqm: 1600, cat2Sqm: 0, cat3Sqm: 0 });
+    const b = computeSqmConfidence({ cat1Sqm: 1600, cat2Sqm: 0, cat3Sqm: 0, statedTotalSqm: null });
+    expect(a.score).toBe(b.score);
+  });
 });
