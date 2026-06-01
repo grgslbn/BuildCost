@@ -26,7 +26,7 @@ const estId = ins.data.id; console.log("   ✓ estimationId:", estId);
 
 console.log("3) live pipeline triggeren op planbased.xyz (inline, kan ~2-4 min duren)…");
 const ctrl = new AbortController(); const to = setTimeout(()=>ctrl.abort(), 295000);
-fetch(`${SITE}/api/estimate-process`, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ estimationId: estId }), signal: ctrl.signal }).then(r=>r.text()).then(t=>console.log("   estimate-process resp:", t.slice(0,200))).catch(e=>console.log("   estimate-process fetch:", String(e.message).slice(0,80))).finally(()=>clearTimeout(to));
+fetch(`${SITE}/api/estimate-process`, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ estimationId: estId, dpi: 100, maxPages: 10 }), signal: ctrl.signal }).then(r=>r.text()).then(t=>console.log("   estimate-process resp:", t.slice(0,200))).catch(e=>console.log("   estimate-process fetch:", String(e.message).slice(0,80))).finally(()=>clearTimeout(to));
 
 console.log("4) pollen…");
 for (let i=0;i<70;i++){
