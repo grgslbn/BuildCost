@@ -7,20 +7,22 @@ const env = {}; for (const l of readFileSync(resolve(ROOT, ".env.local"), "utf8"
 const URL = env.NEXT_PUBLIC_SUPABASE_URL, KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 const sb = createClient(URL, KEY, { auth: { persistSession: false } });
 const PUBLIC_TENANT = "00000000-0000-0000-0000-000000000002";
-const FILE = "C:/Users/tieme/Desktop/testing 1_6/23-4999740plannen.pdf";
+const FILE = process.argv[2] || "C:/Users/tieme/Desktop/testing 1_6/23-4999740plannen.pdf";
+const POSTCODE = process.argv[3] || "1030";
+const FNAME = FILE.split(/[\\/]/).pop();
 const SITE = "https://planbased.xyz";
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
 const id = randomUUID();
-const path = `${PUBLIC_TENANT}/${id}/23-4999740plannen.pdf`;
+const path = `${PUBLIC_TENANT}/${id}/${FNAME}`;
 console.log("1) upload naar storage:", path);
 const buf = readFileSync(FILE);
 let up = await sb.storage.from("plans").upload(path, buf, { contentType: "application/pdf", upsert: true });
 if (up.error) { console.error("upload fout:", up.error.message); process.exit(1); }
 console.log("   ✓ geüpload");
 
-console.log("2) estimation-rij aanmaken (postcode 1030)");
-const ins = await sb.from("estimations").insert({ tenant_id: PUBLIC_TENANT, created_by: null, plan_storage_path: path, plan_file_name: "23-4999740plannen.pdf", postcode: "1030", postcode_provided_by: "user", status: "uploading", source: "public" }).select("id").single();
+console.log("2) estimation-rij aanmaken (postcode "+POSTCODE+")");
+const ins = await sb.from("estimations").insert({ tenant_id: PUBLIC_TENANT, created_by: null, plan_storage_path: path, plan_file_name: FNAME, postcode: POSTCODE, postcode_provided_by: "user", status: "uploading", source: "public" }).select("id").single();
 if (ins.error) { console.error("insert fout:", ins.error.message); process.exit(1); }
 const estId = ins.data.id; console.log("   ✓ estimationId:", estId);
 
