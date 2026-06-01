@@ -1,0 +1,188 @@
+{
+ "24-516605": {
+  "heated_m2": 3968,
+  "heated_eur": 1551,
+  "strict_cat1": 1775,
+  "total": 6628592.5
+ },
+ "24-519406": {
+  "heated_m2": 5690,
+  "heated_eur": 1942,
+  "strict_cat1": 4765,
+  "total": 12025627.5
+ },
+ "25-537092": {
+  "heated_m2": 6244,
+  "heated_eur": 1870,
+  "strict_cat1": 5630,
+  "total": 13503500
+ },
+ "25-538580": {
+  "heated_m2": 0,
+  "heated_eur": null,
+  "strict_cat1": 0,
+  "total": 2436781
+ },
+ "25-540112": {
+  "heated_m2": 1042,
+  "heated_eur": 1821,
+  "strict_cat1": 565,
+  "total": 2379800
+ },
+ "25-540184": {
+  "heated_m2": 883,
+  "heated_eur": 1615,
+  "strict_cat1": 684,
+  "total": 1670506.4
+ },
+ "25-540243": {
+  "heated_m2": 1563,
+  "heated_eur": 2344,
+  "strict_cat1": 1109,
+  "total": 4616025
+ },
+ "25-542042": {
+  "heated_m2": 652,
+  "heated_eur": 2788,
+  "strict_cat1": 537,
+  "total": 1818000
+ },
+ "25-542077": {
+  "heated_m2": 2009,
+  "heated_eur": 2830,
+  "strict_cat1": 1876,
+  "total": 6453095.5
+ },
+ "25-542228": {
+  "heated_m2": 550,
+  "heated_eur": 3000,
+  "strict_cat1": 275,
+  "total": 2096200
+ },
+ "25-542310": {
+  "heated_m2": 2780,
+  "heated_eur": 1867,
+  "strict_cat1": 2658,
+  "total": 7063700
+ },
+ "25-546287": {
+  "heated_m2": 2419,
+  "heated_eur": 1691,
+  "strict_cat1": 1501,
+  "total": 4999377.5
+ },
+ "25-546795": {
+  "heated_m2": 1478,
+  "heated_eur": 2199,
+  "strict_cat1": 1340,
+  "total": 3770476.6
+ },
+ "25-546796": {
+  "heated_m2": 2432,
+  "heated_eur": 1944,
+  "strict_cat1": 2432,
+  "total": 6867400
+ },
+ "25-546832": {
+  "heated_m2": 3089,
+  "heated_eur": 2548,
+  "strict_cat1": 0,
+  "total": 10752050
+ },
+ "25-547233": {
+  "heated_m2": 2839,
+  "heated_eur": 2418,
+  "strict_cat1": 2169,
+  "total": 9348200
+ },
+ "25-547281": {
+  "heated_m2": 853,
+  "heated_eur": 2047,
+  "strict_cat1": 389,
+  "total": 1845835
+ },
+ "25-547291": {
+  "heated_m2": 0,
+  "heated_eur": null,
+  "strict_cat1": 0,
+  "total": 3772720
+ },
+ "25-547560": {
+  "heated_m2": 3003,
+  "heated_eur": 2039,
+  "strict_cat1": 2661,
+  "total": 7284362
+ },
+ "25-547561": {
+  "heated_m2": 800,
+  "heated_eur": 2069,
+  "strict_cat1": 785,
+  "total": 1981150
+ },
+ "25-547563": {
+  "heated_m2": 16783,
+  "heated_eur": 2261,
+  "strict_cat1": 14194,
+  "total": 57065550
+ },
+ "26-550471": {
+  "heated_m2": 2126,
+  "heated_eur": 2202,
+  "strict_cat1": 1879,
+  "total": 5003086
+ },
+ "26-550795": {
+  "heated_m2": 1763,
+  "heated_eur": 2014,
+  "strict_cat1": 1151,
+  "total": 4324301.9
+ },
+ "26-551605": {
+  "heated_m2": 0,
+  "heated_eur": null,
+  "strict_cat1": 0,
+  "total": 2572855
+ },
+ "26-551925": {
+  "heated_m2": 2828,
+  "heated_eur": 2133,
+  "strict_cat1": 2253,
+  "total": 6596900.7
+ },
+ "26-552370": {
+  "heated_m2": 417,
+  "heated_eur": 2222,
+  "strict_cat1": 304,
+  "total": 1096140
+ },
+ "26-552710": {
+  "heated_m2": 819,
+  "heated_eur": 2913,
+  "strict_cat1": 784,
+  "total": 3086306
+ },
+ "26-553024": {
+  "heated_m2": 4827,
+  "heated_eur": 3300,
+  "strict_cat1": 4827,
+  "total": 18687000
+ },
+ "26-553026": {
+  "heated_m2": 421,
+  "heated_eur": 2256,
+  "strict_cat1": 0,
+  "total": 1075550
+ },
+ "26-553086": {
+  "heated_m2": 453,
+  "heated_eur": 2005,
+  "strict_cat1": 411,
+  "total": 944551.5
+ },
+ "26-553550": {
+  "heated_m2": 725,
+  "heated_eur": 1726,
+  "strict_cat1": 213,
+  "total": 1476278
+ }
+}

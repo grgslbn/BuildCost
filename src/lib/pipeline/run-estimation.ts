@@ -17,7 +17,14 @@ import {
   parseClaudeJson,
   STRICT_JSON_RETRY_MESSAGE,
 } from "@/lib/ai/prompts";
-import { renderPdfPagesToImages, type RenderedImage } from "@/lib/pdf/render-plans";
+import {
+  renderPdfPagesToImages,
+  renderSpecificPagesToBase64,
+  renderPlanTilesToBase64,
+  tileImageToBase64,
+  getPdfText,
+  type RenderedImage,
+} from "@/lib/pdf/render-plans";
 import { getFloorPlanPages } from "@/lib/pdf/classify-pages-local";
 import { splitPdfPages } from "@/lib/pdf/split-pages";
 import { logApiCall } from "@/lib/ai/log-api-call";
@@ -28,6 +35,17 @@ import {
   getUnitCount,
 } from "@/lib/cost/area-categories";
 import { calculateCost, type PricingConfig } from "@/lib/cost/calculate-cost";
+import { computeSqmConfidence } from "@/lib/sqm/sqm-confidence";
+import { detectSqmSource, type SqmSource } from "@/lib/sqm/sqm-router";
+import {
+  extractAreaTableViaVision,
+  type AreaTableExtraction,
+} from "@/lib/sqm/extract-area-table";
+import {
+  extractSqmViaVision,
+  aggregateVisionSqm,
+  type VisionSqmResult,
+} from "@/lib/sqm/vision-extract";
 import { getRegionalCoefficient } from "@/lib/cost/regional-coefficients";
 import { getPromptSettings } from "@/lib/ai/prompt-settings";
 import {
@@ -219,6 +237,8 @@ export async function runEstimationPipeline(
 
     let sqmExtraction: Record<string, unknown>;
     let planImageBlocks: Anthropic.ContentBlockParam[] = [];
+    // 1-indexed floor-plan page numbers (PDF only) — reused for the tiled label route.
+    let floorPlanPageNums: number[] = [];
 
     if (isPdf) {
       checkTimeout();
@@ -232,6 +252,7 @@ export async function runEstimationPipeline(
       const planClassifications = allClassifications
         .filter((p) => floorPlanPages.includes(p.pageNumber))
         .slice(0, maxPages);
+      floorPlanPageNums = planClassifications.map((p) => p.pageNumber);
 
       // Try mupdf PNG rendering, fall back to PDF document blocks
       let sqmContent: Anthropic.MessageParam["content"];
@@ -440,7 +461,200 @@ export async function runEstimationPipeline(
     const sqmBuildingType = getBuildingType(sqmExtraction);
     const sqmUnitCount = getUnitCount(sqmExtraction);
     const totalGrossSqm = getTotalGrossSqm(sqmExtraction);
-    const areasForDisplay = categorizeAreas(sqmExtraction);
+    const visionAreas = categorizeAreas(sqmExtraction);
+
+    // Base64 of the plan images we already rendered (PDF pages OR a JPEG/PNG upload),
+    // reused by the universal vision extractor below — no extra render.
+    const planImagesB64: string[] = planImageBlocks
+      .filter(
+        (b): b is Anthropic.ImageBlockParam =>
+          b.type === "image" && (b.source as { type?: string })?.type === "base64",
+      )
+      .map((b) => (b.source as { data: string }).data);
+
+    // ── SQM router — Route A: structured area-table override ─────────────────
+    // Benchmark 2026-05-31: vision MEASUREMENT of bare raster plans is unreliable
+    // (12 methods, ~38% even at high confidence — irreducible vision limit). BUT
+    // when a dossier contains a structured area table (architect oppervlaktestaat /
+    // meetstaat / berekening), reading that table with VISION is EXACT (validated
+    // median 0%, 23/23 within 5% vs heated-floor GT). The router detects the table
+    // from reliable text markers and overrides the measured areas with the table.
+    let sqmSource: SqmSource = "plan_vision";
+    let areaTable: AreaTableExtraction | null = null;
+    if (isPdf) {
+      try {
+        const pdfText = await getPdfText(Buffer.from(arrayBuffer));
+        const detected = detectSqmSource(pdfText);
+        sqmSource = detected.source;
+        // Always ATTEMPT the area-table route via vision. extractAreaTableViaVision
+        // self-guards: it locates table pages from header markers ("Berekening",
+        // "Opp/inhoud", "meetstaat" — extractable even when the table VALUES are a
+        // non-extractable font) and returns found=false cheaply if there are none.
+        // This lifts table coverage far beyond the strict text-detector (which only
+        // fired on 7/37 CED dossiers because pdftotext can't read the table values).
+        {
+          areaTable = await extractAreaTableViaVision(
+            pdfText,
+            (pages) =>
+              renderSpecificPagesToBase64(Buffer.from(arrayBuffer), pages),
+            async ({ system, text, imagesB64 }) => {
+              const res = await claude.messages.create({
+                model: extractionModel,
+                max_tokens: 4096,
+                system,
+                messages: [
+                  {
+                    role: "user",
+                    content: [
+                      { type: "text" as const, text },
+                      ...imagesB64.map((b) => ({
+                        type: "image" as const,
+                        source: {
+                          type: "base64" as const,
+                          media_type: "image/png" as const,
+                          data: b,
+                        },
+                      })),
+                    ],
+                  },
+                ],
+              });
+              const blk = res.content.find((c) => c.type === "text");
+              const raw = blk && "text" in blk ? blk.text : "";
+              try {
+                return parseClaudeJson(raw) as Record<string, unknown>;
+              } catch {
+                return null;
+              }
+            },
+          );
+        }
+      } catch (e) {
+        console.warn(
+          `[pipeline] route-A area-table detection failed (${estimationId}):`,
+          (e as Error).message?.slice(0, 120),
+        );
+      }
+    }
+
+    const useRouteA = !!areaTable?.found && areaTable.areas.cat1 >= 20;
+
+    // ── Universal vision extractor ───────────────────────────────────────────
+    // Runs when route A (vision area-table) did NOT find a structured table. Works on
+    // rendered PDF floor pages (tiled, per-page) OR a JPEG/PNG upload — so this is what
+    // finally makes image uploads route correctly. It reads the best available signal:
+    //   • a table/meetstaat the text path can't read (non-extractable fonts, or a JPEG
+    //     photo of a table) → area_table, EXACT;
+    //   • printed m² labels → labeled_plan, medium confidence;
+    //   • only dimensions → bare_plan, low confidence (we keep the detailed v9
+    //     measurement for those and just flag them).
+    const callVisionJson = async ({
+      system,
+      text,
+      imagesB64,
+    }: {
+      system: string;
+      text: string;
+      imagesB64: string[];
+    }) => {
+      const res = await claude.messages.create({
+        model: extractionModel,
+        max_tokens: 4500,
+        system,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text" as const, text },
+              ...imagesB64.map((b) => ({
+                type: "image" as const,
+                source: { type: "base64" as const, media_type: "image/png" as const, data: b },
+              })),
+            ],
+          },
+        ],
+      });
+      const blk = res.content.find((c) => c.type === "text");
+      const raw = blk && "text" in blk ? blk.text : "";
+      try {
+        return parseClaudeJson(raw) as Record<string, unknown>;
+      } catch {
+        return null;
+      }
+    };
+
+    let visionSqm: VisionSqmResult | null = null;
+    if (!useRouteA && planImagesB64.length) {
+      try {
+        if (isPdf && floorPlanPageNums.length) {
+          // PER-PAGE aggregation: multi-floor buildings put each floor on its own
+          // sheet, so we tile + extract EACH floor page and sum (validated −0% on a
+          // 12-floor apartment building). The API downsamples to ~1568px, so tiling is
+          // what keeps the small printed m² labels legible. Capped to bound cost/time.
+          const FLOOR_PAGE_CAP = 8;
+          const pagesToScan = floorPlanPageNums.slice(0, FLOOR_PAGE_CAP);
+          const perPage: Array<VisionSqmResult | null> = [];
+          for (const pageNum of pagesToScan) {
+            checkTimeout();
+            const tiles = await renderPlanTilesToBase64(Buffer.from(arrayBuffer), [pageNum], {
+              maxTiles: 9,
+            });
+            if (!tiles.length) continue;
+            perPage.push(await extractSqmViaVision(tiles, callVisionJson));
+          }
+          visionSqm = aggregateVisionSqm(perPage);
+        } else {
+          // JPEG / image upload, or a PDF with no classified floor pages. For an image
+          // upload, TILE it (overview + 3×3) so printed labels/dimensions survive the
+          // ~1568px API downsample — same legibility win as PDF tiling.
+          let imgs = planImagesB64;
+          if (!isPdf) {
+            try {
+              const tiles = await tileImageToBase64(Buffer.from(arrayBuffer));
+              if (tiles.length) imgs = tiles;
+            } catch {
+              /* fall back to the full image */
+            }
+          }
+          visionSqm = await extractSqmViaVision(imgs, callVisionJson);
+        }
+      } catch (e) {
+        console.warn(
+          `[pipeline] universal vision extract failed (${estimationId}):`,
+          (e as Error).message?.slice(0, 120),
+        );
+      }
+    }
+
+    // ── Resolve the SQM source — highest-reliability signal wins ──────────────
+    const mapAreas = (a: { cat1: number; cat2: number; cat3: number }) => ({
+      cat1_sqm: a.cat1,
+      cat2_sqm: a.cat2,
+      cat3_sqm: a.cat3,
+    });
+    type SqmTier = "area_table" | "area_table_vision" | "labeled_plan" | "plan_vision";
+    let resolvedTier: SqmTier;
+    let areasForDisplay: { cat1_sqm: number; cat2_sqm: number; cat3_sqm: number };
+    if (useRouteA && areaTable) {
+      resolvedTier = "area_table";
+      areasForDisplay = mapAreas(areaTable.areas);
+    } else if (visionSqm && visionSqm.kind === "area_table" && visionSqm.areas.cat1 >= 20) {
+      resolvedTier = "area_table_vision";
+      areasForDisplay = mapAreas(visionSqm.areas);
+    } else if (visionSqm && visionSqm.kind === "labeled_plan" && visionSqm.areas.cat1 >= 20) {
+      resolvedTier = "labeled_plan";
+      areasForDisplay = mapAreas(visionSqm.areas);
+    } else {
+      resolvedTier = "plan_vision";
+      // prefer the detailed v9 measurement; fall back to the universal measure if v9 gave ~0
+      areasForDisplay =
+        visionAreas.cat1_sqm >= 20 || !visionSqm ? visionAreas : mapAreas(visionSqm.areas);
+    }
+    console.log(
+      `[pipeline] SQM source (${estimationId}): tier=${resolvedTier} textHint=${sqmSource} → cat1=${Math.round(areasForDisplay.cat1_sqm)} cat2=${Math.round(areasForDisplay.cat2_sqm)} cat3=${Math.round(areasForDisplay.cat3_sqm)} m²` +
+        (visionSqm ? ` [vision kind=${visionSqm.kind} conf=${visionSqm.confidence}]` : ""),
+    );
+
     const totalLivableSqm =
       areasForDisplay.cat1_sqm > 0 ? areasForDisplay.cat1_sqm : totalGrossSqm;
 
@@ -466,6 +680,33 @@ export async function runEstimationPipeline(
           ? allRoomConfs.reduce((a, b) => a + b, 0) / allRoomConfs.length
           : 0.7;
       })();
+
+    // Physical sanity-gating (benchmark 2026-05-31): vision SQM measurement is
+    // unreliable (12 methods tested, irreducible variance). We cannot make the
+    // measured NUMBER reliably accurate, but we CAN detect physically-implausible
+    // extractions (gross<net, near-zero livable, absurd m²/unit) and downgrade
+    // confidence so the tool flags them for manual review instead of silently
+    // emitting a wrong SQM.
+    const sqmSanity = computeSqmConfidence({
+      cat1Sqm: areasForDisplay.cat1_sqm,
+      cat2Sqm: areasForDisplay.cat2_sqm,
+      cat3Sqm: areasForDisplay.cat3_sqm,
+      unitCount: sqmUnitCount,
+    });
+    // Confidence by tier: an exact table (text- or vision-read) is trustworthy;
+    // printed labels are medium (capped, capture varies); a bare measurement is gated
+    // down by the physical sanity checks and flagged.
+    let gatedSqmConfidence: number;
+    if (resolvedTier === "area_table") gatedSqmConfidence = Math.max(0.9, sqmConfidence);
+    else if (resolvedTier === "area_table_vision") gatedSqmConfidence = 0.9;
+    else if (resolvedTier === "labeled_plan")
+      gatedSqmConfidence = Math.min(0.6, visionSqm?.confidence ?? 0.5, sqmSanity.score + 0.15);
+    else gatedSqmConfidence = Math.min(sqmConfidence, sqmSanity.score);
+    if (resolvedTier === "plan_vision" && sqmSanity.flags.length > 0) {
+      console.warn(
+        `[pipeline] SQM sanity (${estimationId}) ${sqmSanity.level} (${sqmSanity.score}): ${sqmSanity.flags.join(" | ")}`,
+      );
+    }
 
     // ── QQP extraction ───────────────────────────────────────────────────────
     checkTimeout();
@@ -597,7 +838,9 @@ export async function runEstimationPipeline(
     const abexFactor = abexRow ? Number(abexRow.index_value) / 1056 : 1.0;
 
     // ── Cost calculation ─────────────────────────────────────────────────────
-    const areas = categorizeAreas(sqmExtraction);
+    // areasForDisplay is the routed result (Route A table override when present,
+    // else vision measurement) — use it so the cost reflects the best SQM source.
+    const areas = areasForDisplay;
     const costBreakdown = calculateCost(
       areas,
       finishingCoefficient,
@@ -607,7 +850,7 @@ export async function runEstimationPipeline(
     );
 
     const qqpConfidence = qqpExtraction.finishing_assessment.confidence ?? 0.7;
-    const overallConfidence = (sqmConfidence + qqpConfidence) / 2;
+    const overallConfidence = (gatedSqmConfidence + qqpConfidence) / 2;
 
     // ── Write final result ───────────────────────────────────────────────────
     const { error: finalUpdateErr } = await admin
@@ -625,7 +868,7 @@ export async function runEstimationPipeline(
         abex_factor: abexFactor,
         estimated_price_per_sqm: costBreakdown.effective_price_per_livable_sqm,
         estimated_total_cost: costBreakdown.total_cost,
-        sqm_confidence: sqmConfidence,
+        sqm_confidence: gatedSqmConfidence,
         qqp_confidence: qqpConfidence,
         overall_confidence: overallConfidence,
         model_version_id: modelVersionId,

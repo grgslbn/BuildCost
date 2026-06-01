@@ -1,0 +1,37 @@
+[
+ {
+  "ref": "24-516605",
+  "floors": 0,
+  "gross": 0,
+  "exp": 3968,
+  "delta": null
+ },
+ {
+  "ref": "25-540243",
+  "floors": 0,
+  "gross": 0,
+  "exp": 1563,
+  "delta": null
+ },
+ {
+  "ref": "25-542077",
+  "floors": 0,
+  "gross": 0,
+  "exp": 2009,
+  "delta": null
+ },
+ {
+  "ref": "25-546287",
+  "floors": 4,
+  "gross": 1423,
+  "exp": 2419,
+  "delta": -0.412
+ },
+ {
+  "ref": "26-550795",
+  "floors": 0,
+  "gross": 0,
+  "exp": 1763,
+  "delta": null
+ }
+]

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { backcalculateF } from "../f-backcalculate";
+import { DECOUPLE_CAT2_CAT3, CAT2_DECOUPLED_BASIS, CAT3_DECOUPLED_BASIS } from "@/lib/cost/calculate-cost";
 
 describe("backcalculateF", () => {
   const pricing = {
@@ -11,11 +12,12 @@ describe("backcalculateF", () => {
     cat3_max: 570,
   };
 
-  it("midpoint pricing returns F≈1.10", () => {
+  it("midpoint pricing returns F≈1.10 (round-trip with forward model)", () => {
     const areas = { cat1_sqm: 150, cat2_sqm: 50, cat3_sqm: 20 };
     const cat1Price = 1100 + ((1.1 - 0.7) / 0.8) * 800; // 1500
-    const cat2Price = 550 + ((1.1 - 0.7) / 0.8) * 400; // 750
-    const cat3Price = 330 + ((1.1 - 0.7) / 0.8) * 240; // 450
+    // Forward model: cat2/cat3 fixed at basis (clamped to [min,max]) when decoupled, else interpolated at F.
+    const cat2Price = DECOUPLE_CAT2_CAT3 ? Math.min(950, Math.max(550, CAT2_DECOUPLED_BASIS)) : 550 + ((1.1 - 0.7) / 0.8) * 400;
+    const cat3Price = DECOUPLE_CAT2_CAT3 ? Math.min(570, Math.max(330, CAT3_DECOUPLED_BASIS)) : 330 + ((1.1 - 0.7) / 0.8) * 240;
     const totalCost =
       (150 * cat1Price + 50 * cat2Price + 20 * cat3Price) * 1.0 * 1.0;
     const result = backcalculateF(totalCost, areas, pricing, 1.0, 1.0);

@@ -1,0 +1,130 @@
+import { describe, it, expect } from "vitest";
+import { extractSqmViaVision, aggregateVisionSqm, type VisionSqmResult } from "../vision-extract";
+
+const fakeVision = (payload: Record<string, unknown> | null) => async () => payload;
+
+describe("extractSqmViaVision — assembly + categorization", () => {
+  it("uses the model's category totals when present (area_table, exact)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "area_table",
+      building_type: "appartementsgebouw",
+      rows: [
+        { label: "Appartementen + circulatie", m2: 2009, cat: "cat1" },
+        { label: "Garage", m2: 420, cat: "cat2" },
+        { label: "Terras", m2: 160, cat: "cat3" },
+      ],
+      cat1_m2: 2009, cat2_m2: 420, cat3_m2: 160,
+      stated_total_m2: 2589,
+      confidence: 0.95,
+    }));
+    expect(r).not.toBeNull();
+    expect(r!.kind).toBe("area_table");
+    expect(r!.areas).toEqual({ cat1: 2009, cat2: 420, cat3: 160 });
+    expect(r!.statedTotal).toBe(2589);
+    expect(r!.confidence).toBeCloseTo(0.95);
+  });
+
+  it("falls back to summing categorized rows when cat totals are missing", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      rows: [
+        { label: "App 0.1", m2: 84, cat: "cat1" },
+        { label: "App 0.2", m2: 92, cat: "cat1" },
+        { label: "Terras 0.1", m2: 12, cat: "cat3" },
+        { label: "Zonnepanelen", m2: 30, cat: "other" },
+      ],
+      confidence: 0.5,
+    }));
+    expect(r!.areas.cat1).toBe(176);
+    expect(r!.areas.cat3).toBe(12);
+    expect(r!.areas.cat2).toBe(0);
+  });
+
+  it("does NOT count terraces as living area (the Die Prince bug)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      rows: [
+        { label: "terras 07A", m2: 80, cat: "cat3" },
+        { label: "terras 07B", m2: 80, cat: "cat3" },
+        { label: "App 7A", m2: 120, cat: "cat1" },
+      ],
+      confidence: 0.45,
+    }));
+    expect(r!.areas.cat1).toBe(120); // only the apartment, not the terraces
+    expect(r!.areas.cat3).toBe(160);
+  });
+
+  it("classifies bare_plan with a low default confidence when none given", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "bare_plan",
+      rows: [{ label: "measured gross", m2: 300, cat: "cat1" }],
+    }));
+    expect(r!.kind).toBe("bare_plan");
+    expect(r!.confidence).toBeLessThanOrEqual(0.35);
+    expect(r!.method).toMatch(/measured/i);
+  });
+
+  it("coerces unknown kind to bare_plan and unknown cat to other", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "guess",
+      rows: [{ label: "weird", m2: 50, cat: "cat9" }],
+      confidence: 0.2,
+    }));
+    expect(r!.kind).toBe("bare_plan");
+    expect(r!.areas).toEqual({ cat1: 0, cat2: 0, cat3: 0 }); // the "cat9" row → other → excluded
+  });
+
+  it("returns null on no images or null vision response", async () => {
+    expect(await extractSqmViaVision([], fakeVision({ kind: "area_table" }))).toBeNull();
+    expect(await extractSqmViaVision(["IMG"], fakeVision(null))).toBeNull();
+  });
+
+  it("aggregates labeled pages by SUMMING (multi-floor building, Die Prince case)", () => {
+    const page = (cat1: number, cat3: number): VisionSqmResult => ({
+      kind: "labeled_plan",
+      areas: { cat1, cat2: 0, cat3 },
+      statedTotal: null,
+      confidence: 0.6,
+      method: "x",
+      rows: [],
+      raw: {},
+    });
+    const agg = aggregateVisionSqm([page(400, 87), page(439, 44), page(439, 44), null]);
+    expect(agg!.kind).toBe("labeled_plan");
+    expect(agg!.areas.cat1).toBe(1278);
+    expect(agg!.areas.cat3).toBe(175);
+    expect(agg!.confidence).toBeLessThanOrEqual(0.6);
+  });
+
+  it("a printed area table on any page wins outright (no summing of labeled pages)", () => {
+    const table: VisionSqmResult = {
+      kind: "area_table", areas: { cat1: 2009, cat2: 264, cat3: 459 }, statedTotal: 2732,
+      confidence: 0.92, method: "x", rows: [], raw: {},
+    };
+    const labeled: VisionSqmResult = {
+      kind: "labeled_plan", areas: { cat1: 800, cat2: 0, cat3: 0 }, statedTotal: null,
+      confidence: 0.5, method: "x", rows: [], raw: {},
+    };
+    const agg = aggregateVisionSqm([labeled, table, labeled]);
+    expect(agg!.kind).toBe("area_table");
+    expect(agg!.areas.cat1).toBe(2009); // table is authoritative, not 800+800+2009
+  });
+
+  it("returns null when all pages are null/empty", () => {
+    expect(aggregateVisionSqm([null, null])).toBeNull();
+    expect(aggregateVisionSqm([])).toBeNull();
+  });
+
+  it("ignores negative/garbage m² values", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      rows: [
+        { label: "App 1", m2: 100, cat: "cat1" },
+        { label: "App 2", m2: -50, cat: "cat1" },
+        { label: "App 3", m2: "abc", cat: "cat1" },
+      ],
+      confidence: 0.5,
+    }));
+    expect(r!.areas.cat1).toBe(100);
+  });
+});

@@ -1,0 +1,346 @@
+[
+ {
+  "ref": "24-516417",
+  "file": "24-51641700043VerzamelPDF_20260505_0028.pdf",
+  "building_type": "winkel",
+  "total": 420051.36,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat2": {
+    "opp": 38,
+    "val": 50739
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 234,
+    "val": 369312
+   }
+  },
+  "woonEur": null,
+  "rows": [
+   {
+    "omschrijving": "Zaal",
+    "niveau": "1. Huurdersaansprakelijkheid",
+    "opp_m2": 118,
+    "waarde_eur": 211788
+   },
+   {
+    "omschrijving": "Berging met houten tussenvloer",
+    "niveau": "1. Huurdersaansprakelijkheid",
+    "opp_m2": 38,
+    "waarde_eur": 50739
+   },
+   {
+    "omschrijving": "Keuken + kleedkamers/sanitair",
+    "niveau": "1. Huurdersaansprakelijkheid",
+    "opp_m2": 99,
+    "waarde_eur": 149024
+   },
+   {
+    "omschrijving": "Luifel",
+    "niveau": "1. Huurdersaansprakelijkheid",
+    "opp_m2": 17,
+    "waarde_eur": 8500
+   },
+   {
+    "omschrijving": "Onroerende inrichting",
+    "niveau": "2. Onroerende inrichting",
+    "opp_m2": null,
+    "waarde_eur": 0
+   }
+  ]
+ },
+ {
+  "ref": "25-547386",
+  "file": "25-54738600027VerzamelPDF_20260429_2317.pdf",
+  "building_type": "cateringkeuken met kantoorruimte",
+  "total": 1482994,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat2": {
+    "opp": 426,
+    "val": 391494
+   },
+   "cat3": {
+    "opp": 25,
+    "val": 11250
+   },
+   "other": {
+    "opp": 384,
+    "val": 1080250
+   }
+  },
+  "woonEur": null,
+  "rows": [
+   {
+    "omschrijving": "cateringkeuken vloeistofdichte vloeren, koelingen, toiletten kleedruimtes, technieken",
+    "niveau": "0",
+    "opp_m2": 411,
+    "waarde_eur": 377709
+   },
+   {
+    "omschrijving": "magazijn",
+    "niveau": "0",
+    "opp_m2": 80,
+    "waarde_eur": 92000
+   },
+   {
+    "omschrijving": "kantoren",
+    "niveau": "1",
+    "opp_m2": 274,
+    "waarde_eur": 438400
+   },
+   {
+    "omschrijving": "dakterras",
+    "niveau": "1",
+    "opp_m2": 25,
+    "waarde_eur": 11250
+   },
+   {
+    "omschrijving": "technieken",
+    "niveau": "0",
+    "opp_m2": 15,
+    "waarde_eur": 13785
+   },
+   {
+    "omschrijving": "overkapping",
+    "niveau": "0",
+    "opp_m2": 30,
+    "waarde_eur": 6750
+   },
+   {
+    "omschrijving": "ingebouwde koelingen, panelen, deuren, koelinstallaties",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 400000
+   },
+   {
+    "omschrijving": "afzuigkappen, leidingwerk, motoren",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 70000
+   },
+   {
+    "omschrijving": "hoogspanningscabine",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 63500
+   },
+   {
+    "omschrijving": "stikstofinstallatie (gehuurd)",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "zonnepanelen",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 9600
+   }
+  ]
+ },
+ {
+  "ref": "26-552566",
+  "file": "26-55256600028VerzamelPDF_20260428_2107.pdf",
+  "building_type": "loods",
+  "total": 1010625,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat2": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 1140,
+    "val": 1010625
+   }
+  },
+  "woonEur": null,
+  "rows": [
+   {
+    "omschrijving": "Loods (casco)",
+    "niveau": "1",
+    "opp_m2": 1065,
+    "waarde_eur": 931875
+   },
+   {
+    "omschrijving": "Toeslag etalage + inkomdeur",
+    "niveau": "1",
+    "opp_m2": 75,
+    "waarde_eur": 78750
+   },
+   {
+    "omschrijving": "Onroerende inrichting",
+    "niveau": "2",
+    "opp_m2": null,
+    "waarde_eur": 0
+   }
+  ]
+ },
+ {
+  "ref": "26-552632",
+  "file": "26-55263200022VerzamelPDF_20260428_2101.pdf",
+  "building_type": "winkel",
+  "total": 888650,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 315,
+    "val": 725000
+   },
+   "cat2": {
+    "opp": 33,
+    "val": 31350
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 48,
+    "val": 132300
+   }
+  },
+  "woonEur": 2302,
+  "rows": [
+   {
+    "omschrijving": "Winkelruimte",
+    "niveau": "0",
+    "opp_m2": 95,
+    "waarde_eur": 285000
+   },
+   {
+    "omschrijving": "Slagerij",
+    "niveau": "0",
+    "opp_m2": 48,
+    "waarde_eur": 96000
+   },
+   {
+    "omschrijving": "Woning",
+    "niveau": "1",
+    "opp_m2": 95,
+    "waarde_eur": 190000
+   },
+   {
+    "omschrijving": "Woning",
+    "niveau": "2",
+    "opp_m2": 80,
+    "waarde_eur": 160000
+   },
+   {
+    "omschrijving": "Woning",
+    "niveau": "3",
+    "opp_m2": 45,
+    "waarde_eur": 90000
+   },
+   {
+    "omschrijving": "Kelder",
+    "niveau": "-1",
+    "opp_m2": 33,
+    "waarde_eur": 31350
+   },
+   {
+    "omschrijving": "Koelcellen",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 36300
+   }
+  ]
+ },
+ {
+  "ref": "26-552710",
+  "file": "26-55271000035VerzamelPDF_20260426_2300.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 3086306,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 784,
+    "val": 2343376
+   },
+   "cat2": {
+    "opp": 498,
+    "val": 510450
+   },
+   "cat3": {
+    "opp": 147.2,
+    "val": 132480
+   },
+   "other": {
+    "opp": 35,
+    "val": 100000
+   }
+  },
+  "woonEur": 2989,
+  "rows": [
+   {
+    "omschrijving": "ondergrondse parkeergarage, bergingen, technieken",
+    "niveau": "-1",
+    "opp_m2": 498,
+    "waarde_eur": 510450
+   },
+   {
+    "omschrijving": "appartementen, studios",
+    "niveau": "0",
+    "opp_m2": 265,
+    "waarde_eur": 792085
+   },
+   {
+    "omschrijving": "appartementen, studio;s",
+    "niveau": "1",
+    "opp_m2": 265,
+    "waarde_eur": 792085
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "2",
+    "opp_m2": 254,
+    "waarde_eur": 759206
+   },
+   {
+    "omschrijving": "dakopbouw",
+    "niveau": "3",
+    "opp_m2": 35,
+    "waarde_eur": 42000
+   },
+   {
+    "omschrijving": "terrassen",
+    "niveau": "1",
+    "opp_m2": 82.4,
+    "waarde_eur": 74160
+   },
+   {
+    "omschrijving": "terrassen",
+    "niveau": "2",
+    "opp_m2": 64.8,
+    "waarde_eur": 58320
+   },
+   {
+    "omschrijving": "liftinstallatie",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 58000
+   }
+  ]
+ }
+]

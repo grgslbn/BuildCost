@@ -152,11 +152,27 @@ export async function classifyPagesLocal(
         confidence = 0.4 + planHits * 0.05;
       }
 
-      // Detect multi-plan landscape pages
-      const grondplanLabels = text.match(/grondplan\s*[+\-]?\s*\d+/gi) || [];
-      const planLabels =
-        text.match(/plan\s+(gelijkvloers|verdieping|kelder)/gi) || [];
-      const floorLabelsOnPage = [...grondplanLabels, ...planLabels];
+      // Detect multi-plan landscape pages — capture ALL real-world floor-title
+      // formats, not just "grondplan +N". Belgian plans label floors as
+      // "Gelijkvloers B", "1e verdieping", "+3", "Niveau 2", "Kelder", "GV", etc.
+      // Missing these left multiPlan=false → no cropping → 3 plans share one
+      // downscaled image → dimension chains unreadable (the #1 SQM-input failure).
+      const floorTitleRe =
+        /(?:grondplan|plan)\s*[+\-]?\s*\d+|gelijkvloers(?:\s+[a-z]\b)?|\b\d+\s*[°e]?\s*verdieping(?:\s+[a-z]\b)?|niv(?:eau|o)?\.?\s*[+\-]?\s*\d+|\bkelder\b(?:\s+[a-z]\b)?/gi;
+      const rawLabels = text.match(floorTitleRe) || [];
+      // normalize + dedupe so "Gelijkvloers B" and "gelijkvloers b" count once,
+      // and repeated titles across the sheet don't inflate the count
+      const seen = new Set<string>();
+      const floorLabelsOnPage: string[] = [];
+      for (const l of rawLabels) {
+        const key = l.trim().toLowerCase().replace(/\s+/g, " ");
+        if (!seen.has(key)) { seen.add(key); floorLabelsOnPage.push(l.trim()); }
+      }
+      // multiPlan: ≥2 distinct floor titles, OR a wide landscape sheet that is a
+      // floor plan with several titles (architect sheets pack plans in a row).
+      const multiPlan =
+        floorLabelsOnPage.length >= 2 ||
+        (isLandscape && type === "floor_plan" && floorLabelsOnPage.length >= 1 && width > height * 1.6);
 
       pages.push({
         pageNumber: i + 1,
@@ -166,8 +182,8 @@ export async function classifyPagesLocal(
         width,
         height,
         textLength: textLen,
-        floorLabels: floorLabelsOnPage.map((l) => l.trim()),
-        multiPlan: floorLabelsOnPage.length >= 2,
+        floorLabels: floorLabelsOnPage,
+        multiPlan,
       });
     } catch {
       pages.push({

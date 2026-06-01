@@ -1,0 +1,54 @@
+{
+  "runName": "Chat-test #4 — NA intercept-fix 0.99 (woning · 25-532411)",
+  "items": [
+    {
+      "dossierId": "da5b7537-976b-4306-9677-f65ef531f84c",
+      "postcode": "8380",
+      "expert": { "cat1": 451, "cat2": 127, "cat3": 48, "total": 959870, "cat1PerSqm": 1835 },
+      "qqpValues": {
+        "total_livable_sqm": { "score": 1.0, "confidence": 0.6, "reasoning": "451 m² woonopp — zeer grote woning (boerderij)" },
+        "floor_count": { "score": 0.5, "confidence": 0.8, "reasoning": "kelder + gelijkvloers + verdiep + zolder" },
+        "bedroom_count": { "score": 0.3, "confidence": 0.5, "reasoning": "meerdere slaapkamers (grote woning)" },
+        "has_garage": { "score": 1.0, "confidence": 0.8, "reasoning": "garage-vleugel aanwezig" },
+        "garage_sqm": { "score": 1.0, "confidence": 0.6, "reasoning": "garage ~103 m²" },
+        "has_basement": { "score": 0.5, "confidence": 0.6, "reasoning": "kelder ~24 m²" },
+        "has_office": { "score": 0.5, "confidence": 0.4, "reasoning": "ingerichte zolderkamer" },
+        "largest_bathroom_sqm": { "score": 0.0, "confidence": 0.3, "reasoning": "badkamer aanwezig, afmeting onleesbaar" },
+        "kitchen_sqm": { "score": 0.0, "confidence": 0.3, "reasoning": "keuken aanwezig, standaard" },
+        "terrace_balcony_sqm": { "score": -0.3, "confidence": 0.4, "reasoning": "geen terras; enkel carport" },
+        "bathroom_luxury_score": { "score": 0.0, "confidence": 0.3, "reasoning": "afwerking niet leesbaar op vervaagde scan" }
+      },
+      "sqmExtraction": {
+        "project": {
+          "description": "Woning (boerderij) Ter Doeststraat 30, 8380 Brugge — hoekige L-vorm met losse garagevleugel, kelder + gelijkvloers + verdiep + ingerichte zolder.",
+          "architect": null,
+          "scale": "oude handgetekende scan, sterk vervaagd; afmetingen nauwelijks leesbaar",
+          "scale_confidence": 0.4,
+          "postcode": "8380",
+          "calibration_refs": ["footprint-proporties t.o.v. garage", "kamerlabels (faded)"]
+        },
+        "buildings": [
+          {
+            "id": "B1",
+            "name": "Woning Ter Doeststraat 30",
+            "type": "house",
+            "unit_count": 1,
+            "floors": [
+              { "level": -1, "label": "Kelder", "cat1_sqm": 0, "cat2_sqm": 24, "cat3_sqm": 0, "measurement": "kelder ~24 m² (faded)", "contents": "kelder" },
+              { "level": 0, "label": "Gelijkvloers", "cat1_sqm": 185, "cat2_sqm": 100, "cat3_sqm": 48, "measurement": "leefruimtes ~185 cat1 + garage ~100 cat2; carport ~48 cat3 (faded scan, laag vertrouwen)", "contents": "leefruimtes, garage, carport" },
+              { "level": 1, "label": "1e verdiep + zolder", "cat1_sqm": 245, "cat2_sqm": 0, "cat3_sqm": 0, "measurement": "slaapkamers+badkamer ~195 + ingerichte zolder ~50 (faded)", "contents": "slaapkamers, badkamer, ingerichte zolderkamer" }
+            ],
+            "building_totals": { "cat1_sqm": 430, "cat2_sqm": 124, "cat3_sqm": 48 }
+          }
+        ],
+        "project_totals": { "total_cat1_sqm": 430, "total_cat2_sqm": 124, "total_cat3_sqm": 48, "building_count": 1 },
+        "extraction_warnings": [
+          "Oude handgetekende scan, sterk vervaagd -> afmetingen geschat, scale_confidence 0.4.",
+          "Hoekige L-vorm + losse garagevleugel; footprint geschat uit proporties.",
+          "Carport als cat3 geklasseerd (open structuur).",
+          "TEST-FOCUS: QQP-bias — grote woning met garage/kelder/zolder scoort hoog op size/features, maar afwerking is STANDAARD (expert CAT1 €1.835/m²)."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,2688 @@
+ref,cat,desc,opp,waarde,eur_per_m2
+24-517193,other,"Berekening Loods 1 Loods",840,462000,550
+24-517193,other,"Open gedeelte",420,63000,150
+24-517193,other,"Loods 2 Loods",630,315000,500
+24-517193,other,"Loods 3 Open loods",700,280000,400
+24-517193,other,"Loods 4 Loods",672,436800,650
+24-519656,other,"Berekening Loods Hangaar",1025,656000,640
+24-519656,other,"geschakelde hangaars, silo's",1690,1081600,640
+24-519656,other,"hangaars, silo's schuur",240,228000,950
+24-519656,other,"schuur",950,190000,200
+24-519656,cat1,"kantoorgebouw burelen",81,113400,1400
+24-519656,other,"burelen",81,113400,1400
+24-520212,other,"Berekening Ijzerlaan 2 Showroom/burel en",500,775000,1550
+24-520212,cat2,"en Werkplaats",870,696000,800
+24-520212,other,"Gasthuisstraat 12 bus 1 Showroom/bure el",370,444000,1200
+24-520212,cat2,"el Opslagruimte",150,90000,600
+24-520243,cat1,"Berekening Gebouw 1 Winkelruimte",795,993750,1250
+24-520243,cat2,"Opslagruimte",355,230750,650
+24-521084,cat2,"Berekening Gebouw 1 Kelder",55,49500,900
+24-521084,other,"Afdak",80,16000,200
+24-521084,other,"Loods",550,412500,750
+24-521084,cat1,"Woning",180,360000,2000
+24-521084,other,"Aangebouwde serre ( veranda)",125,137500,1100
+24-521084,cat1,"serre ( veranda) Woning",80,160000,2000
+24-521344,other,"Berekening Gebouw loods",1250,937500,750
+24-521344,other,"houten tussenvloer met",30,13500,450
+24-521344,other,"metalen trap kantoren (gecompartimen",206,360500,1750
+24-521426,cat1,"Berekening appartementsgebouw appartementen",381,744474,1954
+24-521426,other,"Doorgang naar achtergelegen",46,23920,520
+24-521426,cat1,"terrein appartementen",406,793324,1954
+24-521426,cat1,"appartementen (duplex)",333,650682,1954
+24-521426,cat1,"(duplex) appartementen",160,312640,1954
+24-521426,cat2,"garageboxen",306,131580,430
+24-522020,cat2,"Berekening Woning met leegstaande winkel kelder",128,128000,1000
+24-522020,cat1,"woning",206,432600,2100
+24-522020,cat1,"leegstaande winkelruimte",148,222000,1500
+24-522020,cat1,"Werkruimte met loods werkruimte en kantoor",165,198000,1200
+24-522020,cat1,"kantoor loods",166,141100,850
+24-522052,cat2,"Berekening Opbrengsteigendom kelderruimte",207,196650,950
+24-522052,cat1,"restaurant",207,331200,1600
+24-522052,other,"entree, traphal naar",10,18000,1800
+24-522052,cat1,"verdiepingen appartement",83,207500,2500
+24-522052,cat3,"dakterras",26,8840,340
+24-522052,cat1,"studentenkamer s, badkamer,",64,160000,2500
+24-522052,cat1,"toilet dakappartement",64,160000,2500
+24-522078,cat1,"Berekening praktijkruimte praktijk, ontvangst, behandelruimte",185,231250,1250
+24-522078,cat1,"behandelruimte , zwembad schuur met behandelruimte",45,55125,1225
+24-522078,cat2,", opslagruimte B&amp;B inrichting",120,168000,1400
+24-522078,cat2,"(bergiruimte) tecbnieken + garage",44,41800,950
+24-522078,cat2,"garage binnenpiste, box, paardenboxen,",641,397420,620
+24-522078,cat1,"Berekening praktijkruimte praktijk, ontvangst, behandelruimte,",185,231250,1250
+24-522078,cat1,"behandelruimte, zwembad schuur met behandelruimte,",45,55125,1225
+24-522078,cat2,"opslagruimte B&amp;B inrichting",120,168000,1400
+24-522131,other,"Berekening Ververij 8 -10 Loodsen",2260,1048640,464
+24-522131,cat1,"woonruimte bureau ruimte",171.78,257670,1500
+24-522131,cat1,"bureau ruimte slaapkamers, badkamers",81.06,121590,1500
+24-522155,cat2,"Berekening paardenstalling met binnenpist binnenpiste",1088,559232,514
+24-522155,cat2,"stalling met verblijfsruimte, zadelruimte,",350,254100,726
+24-522155,other,"zadelruimte, boxen aangebouwde overkappingen,",120,51000,425
+24-522268,cat2,"Berekening Gebouw 1 Garage",168,336000,2000
+24-522268,cat2,"Kelder",597,1492500,2500
+24-522268,cat1,"Woning",317,1680100,5300
+24-522268,cat1,"Woning",212,1123600,5300
+24-522268,other,"Poolhouse",254.32,1017280,4000
+24-522268,other,"Poolhouse",132.4,397188,3000
+24-522268,other,"Schuur",168,537600,3200
+24-522268,other,"Schuur",31.03,93076.2,3000
+24-522273,cat1,"Berekening A kantoren en leegstaande woning (gecompartimenteerd) kantoren",118,230100,1950
+24-522273,cat2,"kelder woning",72,68400,950
+24-522273,cat1,"woning",169,338000,2000
+24-522273,other,"(gecompartimenteerd) B loodsen loodsen",3608,3120920,865
+24-522273,other,"kantoren",53,53000,1000
+24-522273,other,"afdak afdak",1264,568800,450
+24-522273,other,"B loodsen loodsen",3608,3120920,865
+24-522319,cat1,"Berekening appartement gelegen op geljkvloers in burgerwoning appartement gelegen op",152,319200,2100
+24-522319,cat2,"gelijkvloers privatieve berging nivo",20,19000,950
+24-522405,cat1,"Berekening Bedrijfsloods Loods, kantoor, personeelsruimt",2322,1648620,710
+24-522424,other,"Berekening Gebouw loods",1260,850500,675
+24-522424,cat1,"kantoor in ruwbouw",160,128000,800
+24-522424,cat1,"ruwbouw kantoor in ruwbouw",160,128000,800
+24-522430,cat1,"Berekening Gebouw 1 Woning",135,310500,2300
+24-522430,cat1,"woning",135,297000,2200
+24-522430,cat2,"Kelder",7,6300,900
+24-522430,cat3,"Overdekt terras",15,12000,800
+24-522431,other,"Berekening Gebouw 1 Gelijkvloers",100,240000,2400
+24-522431,other,"verdieping",65,117000,1800
+24-522431,other,"Poolhouse",22,19800,900
+24-522464,other,"Berekening Bedrijfsloods Loods",2345,1702470,726
+24-522508,cat2,"Berekening A schoenwinkel kelder",855,769500,900
+24-522508,cat1,"meerprijs kantoor in",20,13000,650
+24-522508,cat2,"kelder winkelruimte",1122,1430550,1275
+24-522508,other,"B binnenzwembad zwembadruimte",160,224000,1400
+24-522508,other,"C loodsen loodsen",425,446250,1050
+24-522508,other,"afdaken m² en 12 m²",44,22000,500
+24-522510,cat2,"Berekening Loods, magazijn magazijn",222,188700,850
+24-522510,cat1,"woning leefruimtes",138,241500,1750
+24-522510,cat1,"leefruimtes slaapkamers, badkamer",138,241500,1750
+24-522511,cat2,"Berekening Bedrijfsloods, magazijn loods",770,554400,720
+24-522534,cat1,"Berekening Gebouw handelsruimtes",498,846600,1700
+24-522534,cat3,"terras",25,11250,450
+24-522534,cat1,"appartementen",445,890000,2000
+24-522534,cat3,"terrassen",52,46800,900
+24-522534,cat3,"terrassen",37,33300,900
+24-522534,cat1,"appartementen",387,774000,2000
+24-522534,cat3,"terrassen",44.5,40050,900
+24-522538,cat2,"Berekening FREDERICKXHOF kelders en parking",1700,1870000,1100
+24-522538,cat2,"parking meerprijs keuken in",50,37500,750
+24-522538,cat2,"kelder woonzorgcentr um",2038,4993100,2450
+24-522538,cat3,"um terras",12,6000,500
+24-522538,cat1,"woonzorgcentr um",1988,4870600,2450
+24-522538,cat3,"um terrassen",62,58900,950
+24-522538,cat1,"woonzorgcentr um",1432,3508400,2450
+24-522538,cat3,"um terrassen",182,172900,950
+24-522538,cat1,"woonzorgcentr um",1311,3211950,2450
+24-522538,cat3,"um terrassen",172,163400,950
+24-522538,cat1,"woonzorgcentr um",435,1065750,2450
+24-522538,cat3,"um terrassen",50,47500,950
+24-522538,cat2,"parking meerprijs keuken in kelder",50,37500,750
+24-522538,cat2,"keuken in kelder woonzorgcentru m",2038,4993100,2450
+24-522538,cat3,"m terras",12,6000,500
+24-522538,cat1,"woonzorgcentru m",1988,4870600,2450
+24-522538,cat3,"m terrassen",62,58900,950
+24-522538,cat1,"woonzorgcentru m",1432,3508400,2450
+24-522538,cat3,"m terrassen",182,172900,950
+24-522538,cat1,"woonzorgcentru m",1311,3211950,2450
+24-522538,cat3,"m terrassen",172,163400,950
+24-522538,cat1,"woonzorgcentru m",435,1065750,2450
+24-522538,cat3,"m terrassen",50,47500,950
+24-522783,cat1,"Berekening Burgerwoning Sous Terrein",60,61200,1020
+24-522783,cat1,"leefruimtes",60,225000,3750
+24-522783,cat1,"aangebouwde keuken",33,72600,2200
+24-522783,cat1,"keuken veranda",4,8000,2000
+24-522783,cat1,"slaapkamers, badkamer",93,251100,2700
+24-522783,cat1,"badkamer slaapkamers",60,162000,2700
+24-522783,cat2,"zolder",60,72000,1200
+24-522787,cat1,"Berekening Gebouw toonzaal en kantoren",100,200000,2000
+24-522787,other,"kantoren kantoren",87,165300,1900
+24-522787,cat3,"terras",8,5200,650
+24-522787,other,"loods",220,165000,750
+24-522787,other,"meerprijs kantoren in",65,71500,1100
+24-522787,other,"loods meerprijs kantoren in",75,82500,1100
+24-522787,other,"loods houten tussenvloer in",34,19210,565
+24-522845,cat2,"Berekening Bakkerij met winkel en bovenwoning kelder",140,105000,750
+24-522845,cat1,"Bakkerij winkel met atelier",228,273600,1200
+24-522845,other,"met atelier aanbouw bergruimte, uitbreiding bakkerij, onder/achter",62,55800,900
+24-522845,cat1,"onder/achter naastgelegen appartementsge bouw (casco) Appartement",140,245000,1750
+24-522918,cat1,"Berekening Handelsgelijkvloers gelijkvloerse handelsruimte,",948,1090200,1150
+24-522920,cat2,"Berekening loods met werkplaats van garagebedrijf werkplaats",468,336960,720
+24-522921,cat2,"Berekening RESIDENTIE ROBIJN kelders en garage",542,542000,1000
+24-522921,cat2,"garage ruimte autolift, fietsenstalling",87,87000,1000
+24-522921,cat2,"en berging appartementen",320,640000,2000
+24-522921,cat3,"terrassen",32,24000,750
+24-522921,cat1,"appartementen",324,648000,2000
+24-522921,cat3,"terrassen",29.5,28025,950
+24-522921,cat3,"groendak",280,46200,165
+24-522932,other,"Berekening Loods 1 Loods 1",362.5,262812.5,725
+24-522932,other,"Bureel",35,42000,1200
+24-522932,other,"Loods 2 Loods 2",600,390000,650
+24-522932,other,"Afdak Afdak",150,22500,150
+24-523201,cat2,"Berekening VME DE BOOMGAARD kelders, garage",646,623390,965
+24-523201,cat1,"appartementen",259,543900,2100
+24-523201,other,"afdak aan inkom",10,6000,600
+24-523201,cat3,"terrassen",35,12250,350
+24-523201,cat1,"appartementen",262,550200,2100
+24-523201,cat3,"terrassen",32,28800,900
+24-523201,cat1,"appartementen",254,533400,2100
+24-523201,cat3,"terrassen",40,36000,900
+24-523201,cat1,"appartement",148,325600,2200
+24-523201,cat3,"terrassen",66,59400,900
+24-523269,cat2,"Berekening A kasteel kelder met buitentoegang",305,427000,1400
+24-523269,cat1,"buitentoegang woning en kantoor",297,1336500,4500
+24-523269,cat3,"kantoor terrassen",60,60000,1000
+24-523269,cat1,"kantoor",52,83200,1600
+24-523269,cat1,"woning en kantoor",250,1125000,4500
+24-523269,cat3,"kantoor terras",11,14300,1300
+24-523269,cat1,"woning en kantoor",250,687500,2750
+24-523269,cat1,"kantoor kantoorzolder mezzanine",68,136000,2000
+24-523269,cat2,"B appartementen in de villa kelder",23,19550,850
+24-523269,cat2,"berging",50,50000,1000
+24-523269,cat1,"woning",199,398000,2000
+24-523269,cat1,"woning",249,498000,2000
+24-523269,cat2,"zolder",72,36000,500
+24-523272,cat2,"Berekening bedrijfsgebouw garagebedrijf, werkplaats met",285,230850,810
+24-523348,cat1,"Berekening hoeve woning leefruimtes",176,563200,3200
+24-523348,cat2,"berging, fietsen",11,13200,1200
+24-523348,cat1,"slaapkamers, badkamer, vide",86,275200,3200
+24-523348,cat1,"badkamer, vide veranda, kweekkas",10,12000,1200
+24-523420,cat2,"Berekening Gebouw loods met berging/refter",1017,778005,765
+24-523420,cat2,"berging/refter kantoor",38,38000,1000
+24-523426,cat2,"Berekening bedrijfsgebouw, kantoorruimte met magazijn bedrijfsloods",1010.99,849231.6,840
+24-523426,cat2,"berging, garage (achter de",60,33000,550
+24-523429,other,"Berekening Bedrijfsloods Bedrijfsloods",903,668220,740
+24-523430,other,"Berekening Gebouw loods",678,518670,765
+24-523430,other,"meerprijs kantoren 28 m², en sanitair blok",40,30000,750
+24-523430,cat1,"en sanitair blok meerprijs vergaderzaal",28,21000,750
+24-523459,other,"Berekening A machineloods machineloods",504,315000,625
+24-523459,other,"B kalverstal kalverstal",985,605775,615
+24-523459,cat2,"privégarage",59,32450,550
+24-523459,cat2,"C veestal mestkelder",4000,500000,125
+24-523459,other,"stal",5005,3003000,600
+24-523459,other,"melkhuis",270,148500,550
+24-523460,cat2,"Berekening A veestal mestkelder",700,87500,125
+24-523460,other,"stal",827,496200,600
+24-523460,cat2,"B veestal met afdak en berging mestkelder",580,72500,125
+24-523460,other,"stal",672,403200,600
+24-523460,cat2,"berging",108,59400,550
+24-523460,other,"afdak",286,52910,185
+24-523460,other,"C open stal stal",306,114750,375
+24-523513,other,"Berekening leefruimt",180,576000,3200
+24-523513,cat1,"slaapkamers, badkamer",139,444800,3200
+24-523513,cat1,"Gerenoveerde schuur. Verblijfsruimte tot leefruimte gerestaureerde",84,126000,1500
+24-523513,other,"houten schuur",46,43700,950
+24-523513,other,"schuur",156,148200,950
+24-523588,cat1,"Berekening Hoofdwoning woning",134,335000,2500
+24-523588,cat1,"woning",134,308200,2300
+24-523588,other,"afdak/hondenho k",6,3600,600
+24-523588,cat1,"Bijgebouw, volledig vernieuwd woongedeelte",167,584500,3500
+24-523588,cat2,"berging/garage met binnentrap en houten",55,82500,1500
+24-523597,other,"Berekening Gebouw A voetbalkantine kantine, barinrichting, toiletten,",336,282240,840
+24-523597,cat2,"Gebouw B kleedkamers, sanitair kleedkamers, berging, douches,",300,243000,810
+24-523597,cat2,"Gebouw C vergaderruimte vergader ruimte, keuken, berging",80,28000,350
+24-523597,cat2,"keuken, berging overkapping",35,7000,200
+24-523597,other,"bergruimte",19,3800,200
+24-523657,cat2,"Berekening restaurant kelder",90,81000,900
+24-523657,cat1,"Restaurant ruimte",235,517000,2200
+24-523657,other,"ruimte toiletten",31,55800,1800
+24-523657,cat2,"berging, schuur",140,105000,750
+24-523657,other,"verdieping (leegstand,",135,162000,1200
+24-523658,other,"Berekening Gebouw loodsen",2002,1701700,850
+24-523658,other,"afdak",285,85500,300
+24-523658,cat1,"kantoor",50,80000,1600
+24-523658,other,"tussenvloer en afgebakende binnenruimte in",40,34000,850
+24-523691,cat2,"Berekening VME CELESTE ondergrondsepa rking, kelders en",449,426550,950
+24-523691,cat1,"inrit appartementen",275,536250,1950
+24-523691,cat3,"terrassen",61,21350,350
+24-523691,cat1,"appartementen",235,458250,1950
+24-523691,cat3,"terrassen",36,30600,850
+24-523691,cat1,"appartement",169,329550,1950
+24-523691,cat3,"terrassen",30,25500,850
+24-523718,other,"Berekening Landbouwloods Machineloods, aardappaelbew",1560,1216800,780
+24-523720,cat2,"Berekening Gebouw 1 Kelder",1170,1053000,900
+24-523720,cat1,"Handelsruimtes",400,440000,1100
+24-523720,cat1,"Appartementen/ gemene delen",285,570000,2000
+24-523720,cat1,"gemene delen Appartementen/ gemene delen",830,1660000,2000
+24-523720,cat3,"gemene delen Terras",130,110500,850
+24-523720,cat1,"Appartementen/ gemene delen",830,1660000,2000
+24-523720,cat1,"Appartementen/ gemene delen",270,540000,2000
+24-523720,cat3,"gemene delen Terras",250,112500,450
+24-523871,cat1,"Berekening appartementsgebouw appartementen",535,1021850,1910
+24-523871,cat1,"appartementen",425,811750,1910
+24-523871,cat1,"appartementen",297,567270,1910
+24-523871,cat2,"Garageboxen garages",212,95400,450
+24-523872,other,"Berekening Nr 9 B loods",600,441000,735
+24-523872,other,"meerprijs kantoren en",75,75000,1000
+24-523872,other,"sanitair meerprijs kantoren",123,123000,1000
+24-523872,other,"kantoren meerprijs open betonnen",50,28750,575
+24-523994,other,"Berekening Loods Loods",863.5,604450,700
+24-524046,cat1,"Berekening Woning woning",266,665000,2500
+24-524046,cat2,"garage",28,35000,1250
+24-524046,other,"tuinkamer",40,120000,3000
+24-524046,cat1,"woning",153,367200,2400
+24-524046,cat2,"zolder",45,42750,950
+24-524046,cat2,"zolder",140,182000,1300
+24-524046,cat2,"Poolhouse met parkeerkelder parkeerkelder",109,109000,1000
+24-524046,other,"poolhouse",85,170000,2000
+24-524046,cat2,"carport voor autolift",24,24000,1000
+24-524059,other,"Berekening Gebouw 1 Loods",740,684500,925
+24-524065,other,"Berekening Gebouw 1 Loods",1730,865000,500
+24-524066,other,"Berekening Gebouw 1 Bureel",120,132000,1100
+24-524066,other,"Loods",2100,1050000,500
+24-524260,cat2,"Berekening Woning met aangebouwde garage gelijkvloers",80.64,147168,1825
+24-524260,cat1,"slaapkamers, badkamer",52.92,96579,1825
+24-524260,cat1,"badkamer slaapkamers",52.92,96579,1825
+24-524260,cat2,"garage",72,53280,740
+24-524260,cat2,"tuinverblijf /berging",47,43475,925
+24-524260,other,"Loods loods, met lift",200,148000,740
+24-524260,other,"verdieping",66,27720,420
+24-524316,other,"Berekening Gebouw Verhuurde loods in metselwerk",439,329250,750
+24-524316,other,"in metselwerk eigen machineloods",1246,872200,700
+24-524316,other,"van metaal afdak",83,16185,195
+24-524316,other,"conciërgewonin g in gebruik als",138,213900,1550
+24-524316,cat2,"opslagplaats meerprijs houten 'binnengebouw'",50,47500,950
+24-524438,cat2,"Berekening VME STELLA kelders, parking en inrit",434,418810,965
+24-524438,cat1,"en inrit appartementen",293,586000,2000
+24-524438,cat3,"terrassen",89,35600,400
+24-524438,cat1,"appartementen",268,536000,2000
+24-524438,cat3,"terrassen",34,28900,850
+24-524476,cat1,"Berekening Bedrijfsloods winkelruimte",1233,1025856,832
+24-524478,cat1,"Berekening woonhuis woning",38.7,174150,4500
+24-524478,cat1,"aanbouw keuken",19.16,61312,3200
+24-524478,cat1,"keuken aanbouw woonkamer",25.28,113760,4500
+24-524478,cat1,"woonkamer slaapkamer, badkamer",36,162000,4500
+24-524478,cat2,"badkamer zolder",24,36000,1500
+24-524478,other,"Loggia",5.24,6288,1200
+24-524484,cat1,"Berekening Appartementen weststraat 73-75 Gebouw Zilver appartementen",535.23,1050656.49,1963
+24-524484,other,"gemeenschapp elijke ruimte",56,101472,1812
+24-524484,cat3,"elijke ruimte terrassen",150,25500,170
+24-524484,cat2,"inrit parkeergarage",85,102000,1200
+24-524484,cat2,"parkeergarage appartementen",1250.1,2453946.3,1963
+24-524484,other,"gemeenschapp elijke ruimtes",80,144960,1812
+24-524484,cat3,"elijke ruimtes balkons",117,96525,825
+24-524484,cat3,"dakterras",93,39990,430
+24-524484,cat3,"groendak",262,44540,170
+24-524484,cat2,"parkeergarage, bergingen onder gebouw Zilver en Goud parkeergarage, privatieve berigingen,",2243,2130850,950
+24-524484,cat1,"Appartementen Gebouw Goud appartementen",628.88,1234491.44,1963
+24-524484,other,"gemeenschapp elijke ruimte",50,90600,1812
+24-524484,cat3,"elijke ruimte terrassen",86,14620,170
+24-524484,other,"gemeenschapp elijke ruimte",76,137712,1812
+24-524484,cat1,"elijke ruimte appartementen",1279.98,2512600.74,1963
+24-524484,other,"balcons",136,112200,825
+24-524484,other,"gemeenschapp elijke ruimte",29,52548,1812
+24-524536,other,"Berekening Gehuurd deel loods, gehuurd gedeelte",1300,975000,750
+24-524536,other,"gedeelte meerprijs kantoren",178,178000,1000
+24-524539,cat2,"Berekening Werkplaats (bouwjaar 2022) werkplaats",600,462000,770
+24-524539,cat2,"magazijn",40,16000,400
+24-524539,other,"Machineloods (1990) loods",1025,615000,600
+24-524539,other,"wasplaats",165,103125,625
+24-524539,cat1,"kantoorruimte, appartement, machineloods kantoorruimte",233,419400,1800
+24-524539,cat2,"garage, appartement",17,20400,1200
+24-524539,cat1,"appartement appartement",211,369250,1750
+24-524539,cat3,"dakterras",39,15600,400
+24-524539,other,"Machine Loods (bouwjaar 2024)",490.84,402487.49,820
+24-524541,other,"Berekening Bedrijfsgebouw loods",1005,829125,825
+24-524541,cat1,"kantoorruimte",90,86400,960
+24-524541,cat1,"appartement",150,315000,2100
+24-524541,cat3,"dakterras",60,25800,430
+24-524541,other,"overkapping",80,27200,340
+24-524543,cat1,"Berekening Bedrijfsloods, kantoorrruimte, wasserij kantoorruimte",123,224475,1825
+24-524543,cat1,"kantoorruimte",123,224475,1825
+24-524543,other,"loods",2693,2154400,800
+24-524543,other,"overkapping",207,111780,540
+24-524543,other,"personeelsruimt es, kantoren",180,144000,800
+24-524548,cat2,"Berekening Gebouw kelder",226,214700,950
+24-524548,cat1,"kantoren, winkel",226,678000,3000
+24-524548,other,"consultatieruimt es",226,678000,3000
+24-524548,other,"es consultatieruimt es",163,489000,3000
+24-524548,cat2,"es zolder",20,15000,750
+24-524570,cat1,"Berekening Gebouw 1 Leefruimtes,",145,377000,2600
+24-524570,cat1,"slaapkamers, badkamer",52,135200,2600
+24-524607,other,"Berekening Gebouw loods",2700,1890000,700
+24-524607,cat1,"meerprijs kantoor",60,54000,900
+24-524607,cat1,"kantoor meerprijs kantoor",60,54000,900
+24-524654,cat1,"leefruimtes, entree, hal, woonkamer,",196,686000,3500
+24-524654,cat2,"zitkamer, keuken berging overkappingen, luifels",33,30525,925
+24-524654,cat1,"luifels slaapkamers, badkamers,",196,686000,3500
+24-524654,cat1,"bureau zolderruimte (casco)",130,97500,750
+24-524724,other,"Berekening Gebouw 1 bedrijfsloods met KMO units",1972.91,1617786.53,820
+24-524724,other,"met KMO units tussenverdiepin g",524.14,178207.6,340
+24-524726,cat2,"Berekening winkelruimte, appartementen, magazijn, atelier ingerichte winkelruimte",861,2479680,2880
+24-524726,cat1,"winkelruimte appartement 1e verdiep (verhuur",120.86,250430.21,2072
+24-524726,cat1,"nr 131) appartement (verhuur nr 131",92.16,190955.52,2072
+24-524726,cat1,") appartement nr",258.5,535612,2072
+24-524726,cat2,"naai atelier, magazijn",258.8,232920,900
+24-524726,cat2,"magazijn kelder (magazijn)",59,50150,850
+24-524726,cat2,"(magazijn) Berging",150,135000,900
+24-524726,other,"gemeenschapp elijke ruimte",40,72000,1800
+24-524726,cat1,"appartementen Gallerie",40,32000,800
+24-524752,other,"Berekening loods",600,441000,735
+24-524752,other,"meerprijs sanitair en kantoren",75,75000,1000
+24-524752,other,"kantoren gelijkvloers meerprijs kantoren",75,75000,1000
+25-525116,cat2,"Berekening scheldeschuur met bistro, B&B woning/kantoorruimte kelder, berging, polyvalente ruimte,",200.03,170025.5,850
+25-525116,cat2,"ruimte, technieken gelijkvloers horeca / winkel",302,483200,1600
+25-525116,cat1,"horeca / winkel gelijkvloers woning / kantoor",177,318600,1800
+25-525116,cat1,"woning / kantoor B&amp;B",116,185600,1600
+25-525116,cat1,"woonkamer woning, slaapkamers,",88,158400,1800
+25-525116,cat2,"badkamer zolder",66,49500,750
+25-525116,cat3,"dakterras",20,8600,430
+25-525116,cat3,"overdekt terras",26.02,23938.4,920
+25-525533,other,"Berekening Gebouw 1 Gelijkvloers",240,720000,3000
+25-525533,other,"Eerste verdiep",180,504000,2800
+25-525533,cat2,"Zolder",180,135000,750
+25-525533,cat2,"Kelder",30,24000,800
+25-525546,cat2,"Berekening Atelier / magazijn kelder",122,109800,900
+25-525546,other,"atelier",122,134200,1100
+25-525546,other,"zolderverdiepin g",122,134200,1100
+25-525546,other,"g Laad / los toren",10,25000,2500
+25-525546,cat2,"magazijn",150,135000,900
+25-525546,other,"verdieping",150,112500,750
+25-525546,cat1,"Loft appartementen (industrieel) loft",96,177600,1850
+25-525546,other,"loft",107.25,198412.5,1850
+25-525546,other,"loft",96,177600,1850
+25-525546,cat3,"terras",24.79,16113.5,650
+25-525568,cat1,"Berekening Gebouw winkel met inrichting (maatkasten",95,256500,2700
+25-525568,other,"(maatkasten enz..) kantoren",95,209000,2200
+25-525568,other,"luifel 118 m² en",396,376200,950
+25-525568,cat1,"Berekening Gebouw winkel",95,247000,2600
+25-525568,other,"kantoren",95,218500,2300
+25-525568,other,"luifel 118 m² en",396,336600,850
+25-525573,other,"Berekening Gebouw kantoren",120,216000,1800
+25-525573,other,"kantoren",120,216000,1800
+25-525573,other,"loods",1040,884000,850
+25-525573,other,"luifel",169,42250,250
+25-525589,other,"Berekening Gebouw 1 Gelijkvloers",155,395250,2550
+25-525672,cat2,"Berekening garagebedrijf kantoor, verblijfsruimte",82,98400,1200
+25-525672,cat2,"verblijfsruimte showroom, werkplaats",721,562380,780
+25-525672,cat2,"werkplaats showroom",249,246012,988
+25-525673,cat2,"Berekening Hoofdgebouw kelder",13,12350,950
+25-525673,cat1,"eetcafé en keuken",166,323700,1950
+25-525673,cat2,"keuken berging",18,23400,1300
+25-525673,cat3,"afdak, terras",52,39000,750
+25-525673,cat1,"woonverdieping",85,170000,2000
+25-525673,cat2,"Garage/berging garage",37,40700,1100
+25-525940,cat2,"Berekening Gebouw kelders en parkeergarage",703,667850,950
+25-525940,cat2,"parkeergarage kantoren",650,1235000,1900
+25-525940,other,"afvallokaal",22,24200,1100
+25-525940,other,"kantoren",642,1219800,1900
+25-525940,other,"technieche verdieping",88,88000,1000
+25-525991,cat2,"Berekening monumentale burgerwoning kelders",112,106400,950
+25-525991,other,"leefrumtes, entree, hal, gang, voorkamer,",207,776250,3750
+25-525991,cat1,"voorkamer, achterkamer, leefkeuken slaapkamers, badkamers",181,543000,3000
+25-525991,cat2,"badkamers zolder",60,54000,900
+25-525991,cat1,"aanbouw, bijkeuken",49,107800,2200
+25-525991,cat1,"bijkeuken aanbouw, slaapkamer,",36,79200,2200
+25-525991,cat2,"badkamer berging",40,48000,1200
+25-525993,other,"Berekening Loods 1 Loods",500,250000,500
+25-525993,other,"Loods 2",450,247500,550
+25-525993,other,"Loods 3 Loods",180,99000,550
+25-525993,other,"Loods 4 Loods",375,178125,475
+25-526008,other,"Berekening Loods loods",210,157500,750
+25-526008,other,"houten tussenvloer",100,50000,500
+25-526210,cat1,"Berekening Gebouw 1 Restaurant + keuken",165,363000,2200
+25-526210,cat1,"keuken Woning",200,400000,2000
+25-526210,cat1,"Woning",135,270000,2000
+25-526210,cat2,"Zolder",70,105000,1500
+25-526210,other,"Bijgebouw",93,176700,1900
+25-526510,cat2,"Berekening winkelruimte met magazijn",258.5,310200,1200
+25-526510,cat2,"met magazijn overkapping",60,9000,150
+25-526510,cat1,"bovenwoning",104.5,188100,1800
+25-526510,cat1,"slaapkamers",71.5,128700,1800
+25-526510,cat2,"winkel / magazijn /",140,112000,800
+25-526510,other,"loods",400,256000,640
+25-526510,other,"aangebouwde overkapping",120,18000,150
+25-526513,cat2,"Berekening Villa kelders",236,265500,1125
+25-526513,cat1,"leefruimtes (hoogwaardige",236,826000,3500
+25-526513,cat1,"afwerking) slaapkamers, badkamers",160,560000,3500
+25-526513,cat2,"badkamers afgewerkte zolder",160,400000,2500
+25-526513,cat2,"Polyvalente ruimte Poolhouse / berging / garage",277,415500,1500
+25-526513,cat2,"berging / garage feestruimte",260,390000,1500
+25-526514,other,"Berekening Loods 1 Loods",240.9,144540,600
+25-526514,other,"Loods 2 Loods 2",271.8,163080,600
+25-526514,other,"Stalgebouw 1 Varkensstal 1",1034.28,723996,700
+25-526514,other,"Stalgebouw 2 Stalgebouw 2",1273.17,891219,700
+25-526531,cat2,"Berekening Werkplaats werkplaats",326,293400,900
+25-526531,other,"meerprijs kantorruimte (na",44,29700,675
+25-526531,other,"afwerking) houten tussenvloer",45,20250,450
+25-526531,other,"tussenvloer afdak",217,162750,750
+25-526540,cat2,"Berekening Woonhuis met aangebouwde garage kelder",12,10200,850
+25-526540,cat1,"leefruimtes",112,196000,1750
+25-526540,cat1,"slaapkamers badkamer",66,115500,1750
+25-526540,cat2,"badkamer garage",98,88200,900
+25-526540,cat2,"zoldering garage",98,117600,1200
+25-526540,cat2,"schuur / stalling / hangaar schuur / stalling",450,270000,600
+25-526540,other,"hangaar",130,67600,520
+25-526559,cat2,"Berekening garage, berging",362,318198,879
+25-526559,cat1,"winkelruimte",50,87500,1750
+25-526559,other,"aardappelen varkensstal",418,470250,1125
+25-526559,other,"varkensstal",237,266625,1125
+25-526559,other,"machineloods",165,118800,720
+25-526560,cat2,"Berekening Loods met showroom, kantoor, atelier, magazijn showroom, atelier, magazijn",169,236600,1400
+25-526560,cat2,"atelier, magazijn tussenverdiepin g, kantoren",78.44,98050,1250
+25-526560,other,"g, kantoren aangebouwde veranda",35,42000,1200
+25-526560,cat2,"veranda carport",46,19550,425
+25-526562,cat2,"Berekening Gebouw kruipkelder",400,300000,750
+25-526562,other,"shop",395,1224500,3100
+25-526562,cat2,"opslag",58,75400,1300
+25-526562,cat1,"kantoor en vergaderzaal (nooit in",240,576000,2400
+25-526562,other,"(nooit in gebruik) luifel",276,106260,385
+25-526562,cat3,"buitenterras",44,16500,375
+25-526624,other,"Berekening Loods, atelierruimte Loods",765,550800,720
+25-526646,other,"Berekening Gebouw technische ruimtes",285,313500,1100
+25-526646,other,"ruimtes ingerichte gewelven",594,1485000,2500
+25-526646,other,"gewelven gelijkvloerse ruimtes",851,2042400,2400
+25-526646,other,"ruimtes kerk",417,3336000,8000
+25-526646,cat3,"terras",230,80500,350
+25-526646,other,"verdieping",613,1409900,2300
+25-526646,other,"open verdieping",96,75360,785
+25-526646,other,"dakruimtes",554,1108000,2000
+25-526646,cat2,"zolder boven kerk",260,260000,1000
+25-526837,other,"Berekening Gebouw kantoren",618,1174200,1900
+25-526837,other,"kantoren",544,1033600,1900
+25-526903,cat2,"Berekening Woonhuis garage, gang, toilet, keuken",111,305250,2750
+25-526903,cat1,"woonkamer slaapkamers, badkamer",55,151250,2750
+25-526903,cat1,"badkamer slaapkamers, badkamer",55,151250,2750
+25-526903,cat1,"guesthouse leefruimte",54,94500,1750
+25-526903,cat1,"slaapkamers, badkamer",54,94500,1750
+25-526903,cat2,"badkamer berging met tussenverdiep",18,17100,950
+25-526954,cat1,"Berekening woonhuis",200,310000,1550
+25-526954,other,"verdieping",127,196850,1550
+25-526954,other,"overkapping",37,20350,550
+25-526954,cat2,"carport",27,24300,900
+25-526954,cat2,"Berging (mancave),",119,77350,650
+25-526954,cat2,"werkplaats, machineloods",320,204800,640
+25-526954,other,"stal",254,203200,800
+25-526954,other,"aanbouw",95,71250,750
+25-526954,other,"aanbouw",177,132750,750
+25-526954,other,"stal, runderen, boxen",1243,1020503,821
+25-527012,cat2,"Berekening schrijnwerkerij, atelier, showroom, appartement kelder (polyvalente",235,188000,800
+25-527012,other,"ruimte) showroom",313,196251,627
+25-527012,other,"doorgang",130,83200,640
+25-527012,other,"atelier",450,324000,720
+25-527012,cat1,"entree appartement",15,12000,800
+25-527012,cat1,"appartement appartement. leefruimtes",180,270000,1500
+25-527012,cat1,"leefruimtes slaapkamers",130,195000,1500
+25-527019,other,"Berekening Gebouw loods",800,560000,700
+25-527019,cat2,"meerprijs berging",40,18000,450
+25-527019,cat2,"berging meerprijs kantoor",40,34000,850
+25-527019,cat1,"kantoor meerprijs kantoor en WC in aan derden",28,18200,650
+25-527155,cat1,"Berekening Woning Gelijkvloers",92,174800,1900
+25-527155,other,"Eerste verdiep",60,114000,1900
+25-527155,cat2,"Zolder",60,48000,800
+25-527155,other,"Loods Loods",155,116250,750
+25-527155,cat2,"Garage Garage",82,106600,1300
+25-527155,cat1,"Bijgebouw ( woning) Bijgebouw",77,130900,1700
+25-527231,other,"Berekening Stal stal",616,298760,485
+25-527231,other,"tussenvloer",435,141375,325
+25-527231,other,"Open afdak afdak van hout en bardageplaat, vloer van",69,20355,295
+25-527232,cat1,"Berekening kantoorgebouw kantoren, sanitair",337,683436,2028
+25-527232,cat1,"sanitair vergaderruimtes , kantoren",321,650988,2028
+25-527232,other,", kantoren kantoren, sanitair,",321,650988,2028
+25-527232,cat2,"werkplaats loods, met werkplaats voor onderhoud",293,234400,800
+25-527234,cat1,"Berekening clubgebouw clubgebouw, winkel, cafetaria,",568,852000,1500
+25-527234,cat1,"douches, toiletten clubgebouw polyvalente",418,627000,1500
+25-527234,cat1,"ruimte appartement",150,277500,1850
+25-527234,cat1,"aangebouwde keuken",48,96000,2000
+25-527234,cat2,"keuken aangebouwde berging,",40,28000,700
+25-527234,other,"afslaggebouw afslaggebouw",492,255840,520
+25-527234,cat2,"materiaal berging materiaal berging,",115,78200,680
+25-527237,other,"Berekening Gebouw loodsen",3920,2744000,700
+25-527237,other,"tussenvloeren",825,412500,500
+25-527242,other,"Berekening Gebouw loods",1479,1072275,725
+25-527242,cat1,"kantoor",66,118800,1800
+25-527242,cat1,"kantoor",54,97200,1800
+25-527242,cat3,"terras",8,6800,850
+25-527242,other,"meerprijs inpandig",90,90000,1000
+25-527242,cat1,"kantoor meerprijs inpandig",90,90000,1000
+25-527242,cat1,"kantoor metalen hok voor",10,4500,450
+25-527242,cat2,"stookolietanks meerprijs inpandig magazijn met",152,91200,600
+25-527242,cat2,"magazijn met tussenvloer meerprijs inpandig magazijn met",253,151800,600
+25-527242,other,"betonnen tussenvloer smeerput",30,27000,900
+25-527242,other,"afdak aan tankinstallatie",56,15400,275
+25-527244,cat2,"Berekening handelspand met kantoorruimte en gemeubileerde studio's voor verhuur aan expats kelder met technieken en",91,109200,1200
+25-527244,cat2,"opslagruimte kantoorruimte, trapopgang,",43,107500,2500
+25-527244,cat1,"entree studio",43,118250,2750
+25-527244,cat1,"studio",43,118250,2750
+25-527509,other,"Berekening D Aardappelloods",377,188500,500
+25-527509,other,"E Loods",890,356000,400
+25-527519,cat1,"Berekening Gebouw 1 Restaurant/keuk en/vergaderzaal",345,1035000,3000
+25-527519,cat1,"en/vergaderzaal Inkomhal",44,88000,2000
+25-527519,cat3,"Terras",150,225000,1500
+25-527519,cat2,"Opslag/sanitair/t echnische",395,869000,2200
+25-527519,other,"ruimtes Overdekte stockageplaats (",125,62500,500
+25-527596,cat2,"Berekening kelder",40,34000,850
+25-527596,cat2,"garage en opslag",226,271200,1200
+25-527596,cat2,"opslag verdieping opslag",226,361600,1600
+25-527596,cat2,"opslag zolder",108,81000,750
+25-527596,cat2,"kelder",158,134300,850
+25-527596,cat1,"handel verhuurd aan derden, naai-atelier,",242,435600,1800
+25-527596,cat1,"naai-atelier, retouches appartementen",158,316000,2000
+25-527596,cat3,"terras",20,10000,500
+25-527596,cat1,"appartementen",158,316000,2000
+25-527641,other,"Berekening Gebouw loods",750,588750,785
+25-527641,other,"meerprijs kantoren",90,72000,800
+25-527641,other,"kantoren tussenvloer",150,97500,650
+25-527642,cat1,"Berekening woonhuis leefruimtes",143.9,251825,1750
+25-527642,cat1,"slaapkamers, badkamer",132.57,231997.5,1750
+25-527642,cat1,"vakantiewoning Vakantiewoning",224.81,472101,2100
+25-527642,cat1,"slaapkamers, badkamers",90.55,190155,2100
+25-527642,cat1,"badkamers slaapkamer, toilet",20,42000,2100
+25-527642,other,"bergschuur schuur",432,226800,525
+25-527642,cat2,"Schuur, stal (voormalige paardenstalling) schuur",270,279450,1035
+25-527644,cat2,"Berekening Gebouw kelders",50,50000,1000
+25-527644,cat2,"garage en berging",25,25000,1000
+25-527644,cat2,"berging afdak aan garage",39,23400,600
+25-527644,cat2,"garage vakantiewoning en, winkeltje,",233,559200,2400
+25-527644,cat1,"taverne, keuken afdak",16,9600,600
+25-527644,cat1,"vakantiewoning en",167,400800,2400
+25-527644,other,"en mezzanines",17,12750,750
+25-527644,cat2,"zolder",43,32250,750
+25-527646,other,"Berekening KMO bedrijfsgebouw met 14 units kmo units (14 units)",2834,2338050,825
+25-527696,cat1,"Berekening Kleine Waregemsestraat 9 kantoorruimte",325,574925,1769
+25-527696,cat2,"Magazijn, werkplaats",355,292875,825
+25-527696,cat2,"werkplaats magazijn, werkplaats",155,127875,825
+25-527696,cat1,"Kleine Waregemsestraat 33 kantoorruimte",178,314882,1769
+25-527696,cat1,"inbouw kantoorruimte in",75,112500,1500
+25-527696,cat2,"magazijn magazijn",877,684060,780
+25-527698,cat2,"Berekening vrijstaande villa met poolhouse en zwembad kelder",12,10800,900
+25-527698,cat1,"leefruimtes",135,472500,3500
+25-527698,cat1,"slaapkamers, badkamer",95,285000,3000
+25-527698,cat1,"badkamer zolderruimte",66.5,123025,1850
+25-527698,other,"bergzoder",14,13300,950
+25-527699,cat2,"Berekening Vrijstaande villa met dubbele garage kelders",238,249900,1050
+25-527699,cat1,"leefruimtes",180,540000,3000
+25-527699,cat2,"garage",53,90100,1700
+25-527699,cat1,"slaapkamers, badkamers",125,375000,3000
+25-527699,cat2,"badkamers afgewerkte zolder",90,135000,1500
+25-527699,other,"Poolhouse, Guesthouse Poolhouse / Guesthouse",40,140000,3500
+25-527702,cat1,"Berekening woonhuis leefruimtes",224,390880,1745
+25-527702,other,"zolderruimte (casco afgewerkt,",140,129500,925
+25-527702,other,"bakhuis bakhuis",40,30000,750
+25-527860,cat1,"Berekening Hoofdgebouw, winkel, atelier en woning winkel",133,252700,1900
+25-527860,other,"atelier",53,74200,1400
+25-527860,cat1,"woning",127,254000,2000
+25-527860,other,"atelier",85,148750,1750
+25-527860,cat1,"woning",220,440000,2000
+25-527860,cat3,"terras/carport",30,19500,650
+25-527860,other,"Tuingebouw atelier",22,22000,1000
+25-527860,other,"afdak",25,16875,675
+25-527862,cat2,"Berekening Garagebedrijf met woning woning",150,262500,1750
+25-527862,cat2,"garagebedrijf, werkplaats",700,504000,720
+25-527863,other,"Berekening Gebouw showroom",232,417600,1800
+25-527863,other,"kantoren",146,262800,1800
+25-527863,other,"personeelsvoorz ieningen",118,165200,1400
+25-527863,other,"ieningen loods",700,525000,750
+25-527863,other,"tussenvloer",372,241800,650
+25-527999,other,"Berekening Gebouw shop met vaste inrichting (koelingen, koeltogen en andere",264,792000,3000
+25-527999,cat1,"andere toonbanken, ovens, koel- en vriescel) technische ruimte, bureau,",98,127400,1300
+25-528000,cat2,"Berekening Villa Bonnie kelders, technieken,",138,131100,950
+25-528000,cat2,"berging ontbijtruimte, lounche ruiimte,",180,630000,3500
+25-528000,cat1,"hotelkamers hotelkamers",178,623000,3500
+25-528000,cat1,"hotelkamers",164,574000,3500
+25-528001,cat2,"Berekening Woning kelder",107,107000,1000
+25-528001,cat1,"woning",107,267500,2500
+25-528001,cat1,"woning",107,246100,2300
+25-528001,cat2,"zolder",54,32400,600
+25-528001,cat2,"Garage garage",56,56000,1000
+25-528001,other,"betonnen tussenvloer",39,25350,650
+25-528004,cat2,"Berekening Gebouw kelder",246,209100,850
+25-528004,cat2,"kelder als dartzaal",493,443700,900
+25-528004,cat1,"dartzaal eetcafé",242,423500,1750
+25-528004,cat1,"zalen, sanitair, keukens zonder",1052,1578000,1500
+25-528004,other,"inrichting afdak",37,7215,195
+25-528004,cat2,"garage",25,11250,450
+25-528004,cat1,"appartement",240,468000,1950
+25-528004,other,"vergaderzalen",192,336000,1750
+25-528004,cat2,"zolder",168,84000,500
+25-528005,cat2,"Berekening Vrijstaande Villa kelder met verblijfsruimte,",25.92,51836.4,2000
+25-528005,cat2,"sauna, berging kelder",19.76,39516,2000
+25-528005,other,"buitentrap",5.5,6600,1200
+25-528005,cat1,"leefruimtes, slaapkamers,",79.37,357142.5,4500
+25-528005,cat1,"badkamers leefruimtes, slaapkamers",79.37,357142.5,4500
+25-528005,cat1,"slaapkamers tussenbouw",24.92,112125.6,4499
+25-528005,other,"verdieping",93.2,419400,4500
+25-528005,cat3,"dakterras in de kap",17.8,26700,1500
+25-528006,other,"Berekening Gebouw loods",240,183600,765
+25-528006,cat2,"tussenvloer magazijn",127,55245,435
+25-528006,cat2,"magazijn meerprijs kantoor",32,23200,725
+25-528006,cat1,"kantoor meerprijs kantoor",32,20800,650
+25-528006,cat1,"kantoor meerprijs refter op tussenvloer",20,9000,450
+25-528012,other,"Berekening Gebouw 1 Gelijkvloers",174,417600,2400
+25-528012,other,"Eerste verdiep",121,266200,2200
+25-528012,cat3,"Terras",44,15400,350
+25-528014,cat1,"Berekening Woning Woning",80,160000,2000
+25-528014,cat2,"Opslag",250,137500,550
+25-528014,cat2,"Zolder",340,153000,450
+25-528014,other,"Loods Loods",400,290000,725
+25-528154,other,"Berekening Gebouw 1 Burelen/receptie /sanitair",116,185600,1600
+25-528154,cat2,"/sanitair Opslagplaats (loods)",584,408800,700
+25-528154,other,"(loods) Burelen",90,135000,1500
+25-528156,cat2,"Berekening Trimsalon met woonruimte, appartement en garages kelder",12.15,11544.4,950
+25-528156,other,"trimsalon",25,37500,1500
+25-528156,cat1,"woonruimte",105,220500,2100
+25-528156,cat2,"garage, berging",40,30000,750
+25-528156,cat1,"appartement",114,239400,2100
+25-528156,cat2,"zolder",60,57000,950
+25-528156,other,"koer",12,2700,225
+25-528157,other,"Berekening Frituur/bistro met verbruikgelegenheid verbruiksruimte, frituur, bereidingszone,",660,1521300,2305
+25-528157,cat2,"bereidingszone, berging zaaltje / verbruiksruimte",250,462500,1850
+25-528157,cat2,"verbruiksruimte keuken/berging",95,218975,2305
+25-528157,cat2,"berging",48,72000,1500
+25-528157,cat2,"magazijn, berging,",50,75000,1500
+25-528157,cat3,"kleedruimte overkapping terras",35,8750,250
+25-528157,cat1,"woning + appartement leefruimte",63,135450,2150
+25-528157,cat2,"loggia, fietsenberging",18,16650,925
+25-528157,cat2,"fietsenberging entree appartement",16,34400,2150
+25-528157,cat1,"appartement slaapkamers, badkamers",141,303150,2150
+25-528171,cat2,"Berekening Vrijstaande luxe afgewerkte villa kelder, berging",75,90000,1200
+25-528171,cat1,"leefruimtes, woonkamer keuken",216,907200,4200
+25-528171,cat3,"slaapkamer badkamer overkapping terras",12,8400,700
+25-528171,cat3,"terras slaapkamers badkamer",112,470400,4200
+25-528171,cat2,"badkamer carport",47,30550,650
+25-528199,other,"Berekening Shop shop",700,2240000,3200
+25-528199,cat2,"opslagruimte en kantoor",70,91000,1300
+25-528199,cat2,"kantoor kruipkelder",770,577500,750
+25-528199,other,"Tankstation luifel",495,222750,450
+25-528245,cat1,"Berekening nr 97 Woonhuis met chocolade aterlier leefruimtes",136,234600,1725
+25-528245,cat1,"slaapkamers",116,200100,1725
+25-528245,cat2,"zolder",116,60900,525
+25-528245,other,"atelier",100,120000,1200
+25-528245,cat2,"nr 95 voormalige woning met magazijn leefruimtes (casco)",83,103750,1250
+25-528245,other,"(casco) verdieping (casco)",68,85000,1250
+25-528245,cat2,"(casco) zolder",50,32500,650
+25-528245,other,"schuur",49,36750,750
+25-528245,other,"schuur",50,37500,750
+25-528245,cat2,"atelier, magazijn",202,166650,825
+25-528289,cat1,"Berekening Vrijstaande Villa met aangeouwde keuken verblijfsruimte leefruimtes",181,488700,2700
+25-528289,cat1,"slaapkamers, badkamer",92.5,249750,2700
+25-528289,cat2,"Garage, polyvalente ruimte Garage",57,42750,750
+25-528289,cat1,"polyvalente ruimte",57,42750,750
+25-528289,cat2,"ruimte Aangebouwde berging",25,13750,550
+25-528291,cat2,"Berekening Woonhuis kelder",30.93,29383.5,950
+25-528291,cat1,"leefruimtes",144.65,361625,2500
+25-528291,cat1,"slaapkamers",94.86,237150,2500
+25-528291,cat1,"slaapkamers",94.82,175417,1850
+25-528428,cat1,"Berekening Verhuurde woning woning",66,148500,2250
+25-528428,cat1,"woning",66,148500,2250
+25-528428,cat2,"zolder met luik",28,18900,675
+25-528428,other,"afdakje",8,6800,850
+25-528428,cat1,"Hoofdgebouw, eigen woning woning",169,485875,2875
+25-528428,cat1,"woning",125,343750,2750
+25-528428,cat2,"carport",25,21250,850
+25-528428,cat1,"doorgang tussen woning",28,27580,985
+25-528428,other,"en schuur schuur",78,97500,1250
+25-528428,other,"verdieping in schuur",78,58500,750
+25-528428,other,"schuur afdakje",9,7650,850
+25-528428,other,"Kleine stal met serre stal",9,6750,750
+25-528428,other,"serre",12,10200,850
+25-528542,cat1,"Berekening Gebouw 1 Woning",265,503500,1900
+25-528542,cat1,"Appartement",130,234000,1800
+25-528542,other,"Bijgebouw",80,56000,700
+25-528606,cat1,"Berekening Woonhuis leefruimtes",140.02,259037,1850
+25-528606,cat1,"verdieping slaapkamers,",120,222000,1850
+25-528606,cat2,"badkamer garage",30,45000,1500
+25-528606,cat2,"zolder",90,67500,750
+25-528606,cat2,"schuur, berging garage schuur, berging garage",100,95000,950
+25-528606,cat2,"machineloods machineberging , atelier,",450,251100,558
+25-528606,cat2,"voormalige varkensstal met roosters, mestkelders, (casco) voormalige varkensstal in gebruik berging,",545,198925,365
+25-528658,other,"Berekening Gebouw 1 Gelijkvloers",200,370000,1850
+25-528658,other,"Eerste verdiep",200,360000,1800
+25-528661,other,"Berekening Luifels luifel 240 m² en",346,155700,450
+25-528674,other,"Berekening Tankstation luifel",137,61650,450
+25-528675,other,"Berekening Gebouw Technische ruimte",6,7200,1200
+25-528675,other,"ruimte luifel",120,48000,400
+25-528677,cat2,"Berekening Hoofdgebouw kelder",160,136000,850
+25-528677,cat1,"kantoor en inkom",115,218500,1900
+25-528677,cat2,"appartement garage",53,66250,1250
+25-528677,cat1,"toonzaal",80,104000,1300
+25-528677,cat1,"appartement",100,210000,2100
+25-528677,cat3,"terras",22,16500,750
+25-528677,other,"Tankstation luifel",71,28400,400
+25-528679,cat1,"Berekening Gebouw nr 211 kantoor/woning",90,162000,1800
+25-528679,cat1,"woning",90,162000,1800
+25-528679,cat2,"zolder",90,45000,500
+25-528679,cat1,"toonzaal",113,180800,1600
+25-528679,cat1,"appartement",113,226000,2000
+25-528679,cat3,"betonnen terras",25,11250,450
+25-528679,cat2,"zolder",110,55000,500
+25-528679,other,"loods",475,325375,685
+25-528679,other,"tussenvloer in loods",35,26250,750
+25-528679,other,"Tankstation nr 207 luifel",126,50400,400
+25-528680,cat2,"Berekening Hoofdgebouw, verhuurd aan derden kelder",132,112200,850
+25-528680,cat1,"woning",104,218400,2100
+25-528680,cat1,"woning",120,252000,2100
+25-528680,cat2,"zolder",60,39000,650
+25-528680,other,"broodjesbar- frituur",160,280000,1750
+25-528680,cat2,"frituur werkplaats- magazijn",205,225500,1100
+25-528680,cat2,"magazijn houten afdak aan magazijn",20,7000,350
+25-528680,other,"Houten tuinchalet chalet",14,7700,550
+25-528680,other,"Houten afdak afdak",29,6525,225
+25-528682,cat2,"Berekening Verhuurde garage met toonzaal en appartement kelder",144,115200,800
+25-528682,other,"showroom",288,446400,1550
+25-528682,other,"meerprijs kantoren in",60,36000,600
+25-528682,cat2,"showroom garage",460,345000,750
+25-528682,cat2,"meerprijs kantoor, opslag, keuken in",66,46200,700
+25-528682,cat2,"keuken in showroom tussenvloer sociale ruimte en opslag in",62,46500,750
+25-528682,cat2,"en opslag in garage appartement",171,359100,2100
+25-528682,cat3,"terras",39,23400,600
+25-528682,cat2,"houten carport",30,19500,650
+25-528682,other,"Onbemand tankstation in eigen uitbating luifel",120,54000,450
+25-528962,cat2,"Berekening Kasteel kelders",872,1438800,1650
+25-528962,other,"gelijkvloers",883,4194250,4750
+25-528962,other,"verdieping",883,3532000,4000
+25-528962,other,"dakverdieping afgewerkt",375,1031250,2750
+25-528962,cat2,"afgewerkt dakverdieping zolder",479,862200,1800
+25-528962,cat2,"zolder toren",45,81000,1800
+25-528962,other,"Koetshuis horeca en museum",419,1047500,2500
+25-528962,other,"museum doorgang",35,17500,500
+25-528962,cat2,"garages",117,204750,1750
+25-528962,cat1,"appartement",166,415000,2500
+25-528962,cat2,"zolder",226,339000,1500
+25-528962,other,"torenzolder",35,49000,1400
+25-528962,cat2,"Boswachterswoning kelder",22,28600,1300
+25-528962,cat1,"woning",90,225000,2500
+25-528962,cat1,"woning",90,207000,2300
+25-528962,other,"schuurtje",62,99200,1600
+25-528962,other,"tussenvloer schuurtje",60,51000,850
+25-528969,cat1,"Berekening conciergewoning doorgang",76,41040,540
+25-528969,cat1,"leefruimtes",62,136400,2200
+25-528969,cat3,"terras",8.5,7012.5,825
+25-528969,cat1,"slaapkamers",62,136400,2200
+25-528969,cat1,"slaapkamer, leefruimte",50,110000,2200
+25-528969,cat3,"leefruimte terras",12,9900,825
+25-528977,cat2,"Berekening Gebouw 1 kelders",120,114000,950
+25-528977,cat1,"leefruimtes",198,326700,1650
+25-528977,cat1,"slaapkamers, badkamers",198,326700,1650
+25-528977,cat1,"badkamers slaapkamers, badkamers",140,231000,1650
+25-528977,other,"Wellness ruimte met sauna's Wellness ruimte met sauna's",70,350000,5000
+25-528988,cat1,"Berekening schoolgebouw klaslokalen, verkeersruimtes , vergaderruimte,",661,1202359,1819
+25-528988,cat1,"vergaderruimte, technische ruimte klaslokalen, verblijfsruimte,",567,1031373,1819
+25-528988,cat3,"lerarenruimte groendak",45,8550,190
+25-528988,cat3,"terras",25,13500,540
+25-529067,cat3,"Berekening Vrijstaande villa met zwembad, tuininriching, terrassen kelder",70,66500,950
+25-529067,cat1,"leefruimtes",532,1436400,2700
+25-529067,cat2,"garage",94.71,113652,1200
+25-529067,cat2,"verdieping zolder",247,172900,700
+25-529067,cat2,"zolder ingerichte zoderruimte, bureau,",192,403200,2100
+25-529069,other,"Berekening Gebouw kantoren",288,540000,1875
+25-529069,other,"loods aan kantoren",1080,837000,775
+25-529069,other,"kantoren binnengebouw van betonblokken",113,101700,900
+25-529069,other,"met betonnen tussenvloer achterste loods",1619,1214250,750
+25-529370,other,"Berekening Gebouw 1 Showroom",140,266000,1900
+25-529370,other,"Bureel",30,51000,1700
+25-529370,cat2,"Loods ( werkplaats)",850,722500,850
+25-529370,cat2,"werkplaats) Loods 2 ( werkplaats)",330,264000,800
+25-529370,cat2,"werkplaats) Stockageruimte",135,94500,700
+25-529439,other,"Berekening Gebouw 1 Burelen",249.05,386027.5,1550
+25-529439,cat1,"studio",37.95,91080,2400
+25-529439,cat1,"appartement + studio",219.08,427206,1950
+25-529439,cat3,"studio Dakterras",24,9600,400
+25-529439,other,"Loods",1029,746025,725
+25-529439,other,"Tussenvloer in loods",544.75,190662.5,350
+25-529510,cat2,"Berekening woonhuis kelder",20,16000,800
+25-529510,cat1,"entree, woonkamer,",100,180000,1800
+25-529510,cat2,"keuken, berging slaapkamers, badkamer",118,212400,1800
+25-529510,cat1,"badkamer zolderruimte, slaapkamers",67,120600,1800
+25-529510,cat2,"Frituur magazijn, keuken",15,18000,1200
+25-529510,cat1,"keuken bestelzone",31.5,50400,1600
+25-529510,other,"consumptiezone",24,38400,1600
+25-529538,cat1,"Berekening Woning Gelijkvloers",190,475000,2500
+25-529538,cat2,"Carport",60,102000,1700
+25-529538,other,"Eerste verdiep",190,418000,2200
+25-529538,cat1,"Bijgebouw Studio",60,150000,2500
+25-529538,other,"Mezzanine",30,27000,900
+25-529538,other,"Stalgebouw Stalgebouw/opsl agplaats",230,253000,1100
+25-529538,other,"agplaats Laag gedeelte",125,112500,900
+25-529539,other,"Berekening Gebouw A historische landbouwschuur",120,114000,950
+25-529539,other,"landbouwschuur aanbouw met ligboxen (jongvee,",214,89880,420
+25-529539,cat2,"Gebouw B Boxen, stro opslag, materiaal stalling loods met ligboxen, stro",340,167960,494
+25-529539,other,"Gebouw C mestvarkensstal varkensstal",226,176054,779
+25-529539,other,"Gebouw D jongveestal loods met ligboxen",169,139256,824
+25-529539,other,"ligboxen Aanbouw",71,31311,441
+25-529760,other,"Berekening Gebouw 1 Loods",266.9,253555,950
+25-529765,cat2,"Berekening Gebouw kelders, garage",2554,2809400,1100
+25-529765,cat1,"keuken met inrichting (alle",133,432250,3250
+25-529765,other,"toestellen) gelijkvloers",2125,5312500,2500
+25-529765,cat2,"binnentuin, inrit garage, buitenaanleg",1604,962400,600
+25-529765,other,"buitenaanleg rondom verdieping",2120,5300000,2500
+25-529765,cat3,"terrassen",139,139000,1000
+25-529765,other,"verdieping",2043,5107500,2500
+25-529765,cat3,"terras",56,56000,1000
+25-529765,other,"verdieping",1087,2717500,2500
+25-529768,other,"Berekening Gebouw showroom",232,417600,1800
+25-529768,other,"kantoren",146,262800,1800
+25-529768,other,"personeelsruimt e",118,165200,1400
+25-529768,other,"e loods",325,243750,750
+25-529768,other,"tussenvloer loods",372,241800,650
+25-529769,other,"Berekening Kapel kapel (schip en zijbeuken)",1534,1457300,950
+25-529772,other,"Berekening Gebouw loods",1241,949365,765
+25-529772,other,"houten tussenvloer",79,41475,525
+25-529772,other,"tussenvloer betonnen tussenvloer",175,118125,675
+25-529772,cat1,"tussenvloer meerprijs appartement",50,70000,1400
+25-529772,cat1,"appartement meerprijs appartement",50,70000,1400
+25-529772,cat1,"appartement appartement",166,373500,2250
+25-529772,cat1,"appartement",166,373500,2250
+25-529772,cat1,"bureau",30,54000,1800
+25-529772,cat3,"terras",30,15000,500
+25-529774,cat2,"Berekening Bedrijfsgebouw loods magazijn",516.96,672048,1300
+25-529774,cat1,"kantoor",95.3,152478.4,1600
+25-529774,cat2,"berging",50.3,42753.3,850
+25-529774,cat2,"magazijnzolderi ng",145.68,49531.2,340
+25-529880,cat2,"Berekening Gebouw 1 Kelder",9,8100,900
+25-529880,cat1,"Winkel",19.32,36708,1900
+25-529880,cat2,"Inpandige garage/atelier",95,152000,1600
+25-529880,cat2,"garage/atelier Woning",110,242000,2200
+25-529880,cat1,"Woning",135,256500,1900
+25-529880,cat2,"Zolder",82,73800,900
+25-529880,other,"Veranda",18,32400,1800
+25-529880,cat2,"Zolder ( boven atelier)",30,25500,850
+25-529882,cat2,"Berekening Gebouw kelder",181,174665,965
+25-529882,other,"sanitair en personeelsruimt",52,91000,1750
+25-529882,cat1,"e winkel",377,537225,1425
+25-529947,cat2,"Berekening woonhuis met berging, veranda, aangebouwd dieren verblijf, schuur, orangerie",103,226600,2200
+25-529947,cat2,"aangebouwde stalling",62,26350,425
+25-529947,cat2,"stalling",108,129600,1200
+25-529947,cat2,"verblijf, schuur, orangerie atelier, met tuinberging stalling",27,24975,925
+25-529947,cat2,"tuinberging",27,11475,425
+25-529947,other,"hangaar, schuur schuur,",167.5,75375,450
+25-529947,other,"Weide / boshut (dierenverblijf) Weide/boshut",23,12075,525
+25-529947,cat2,"overkapping houtopslag",40,6000,150
+25-530046,other,"Berekening Gebouw wijnbar",34,78200,2300
+25-530046,other,"degustatieruimt e en sanitair",26,52000,2000
+25-530046,cat1,"e en sanitair degustatieruimt e met keuken (voorlopig",36,75600,2100
+25-530046,cat2,"gebruikt als magazijn) dakverdieping met badkamer",33,66000,2000
+25-530052,other,"Berekening Gebouw 1 Gelijkvloers",200,470000,2350
+25-530052,cat2,"Kelder",117,175500,1500
+25-530052,cat3,"Terras",65,22750,350
+25-530053,cat2,"Berekening Gebouw 1 Schrijnwerkerij/ opslag",300,240000,800
+25-530053,cat2,"opslag Afdak",60,30000,500
+25-530053,cat1,"Winkelruimte",1050,1102500,1050
+25-530053,cat2,"Gebouw 2 Opslag",370,277500,750
+25-530054,cat2,"Berekening Gebouw winkel en opslagplaats",1095,969075,885
+25-530054,cat2,"opslagplaats meerprijs sanitair",14,9100,650
+25-530072,other,"Berekening Gebouw 1 Gelijkvloers 95",179,465400,2600
+25-530072,other,"Eerste verdiep",148,370000,2500
+25-530072,cat3,"Terras",45,20250,450
+25-530072,other,"Tweede verdiep",72,180000,2500
+25-530072,cat2,"Kelder",35,31500,900
+25-530072,cat2,"Zolder",76,68400,900
+25-530172,other,"Berekening Gebouw 1 Gelijkvloers",498,697200,1400
+25-530172,cat2,"Kelder",287,430500,1500
+25-530173,cat1,"Berekening Gebouw 1 Woning",280,672000,2400
+25-530173,cat1,"Praktijkruimte",56,95200,1700
+25-530173,cat1,"Woning",240,576000,2400
+25-530173,cat2,"Tuinberging",30,27000,900
+25-530258,cat2,"Berekening Woning Kelder",12,10800,900
+25-530258,other,"Gelijkvloers",130,299000,2300
+25-530258,other,"Eerste verdiep",105,241500,2300
+25-530258,cat2,"Doorrit",29.1,26190,900
+25-530258,other,"Bijgebouw Bijgebouw",430,344000,800
+25-530258,other,"Verdiep",430,172000,400
+25-530650,cat1,"Berekening woning entree, slaapkamers,",154,269500,1750
+25-530650,cat1,"badkamer woonkamer, keuken",65,130000,2000
+25-530650,cat1,"keuken veranda",32,38400,1200
+25-530650,cat2,"garage",50,46250,925
+25-530783,cat1,"Berekening Handelsruimte (voormalige wassalon) Handelsruimte",56,89600,1600
+25-530790,cat1,"Berekening Gebouw 1 Appartementen/ gemene delen",300,630000,2100
+25-530790,cat3,"gemene delen Terras",34,8500,250
+25-530790,cat1,"Appartementen/ gemene delen",350,735000,2100
+25-530790,cat3,"gemene delen Terras",16,14400,900
+25-530790,cat1,"Appartementen/ gemene delen",330,693000,2100
+25-530790,cat3,"gemene delen Terras",22,19800,900
+25-530790,cat2,"Garages",188,169200,900
+25-530790,cat2,"Fietsenberging",33,36300,1100
+25-530790,cat3,"Groendak",33,11550,350
+25-530820,cat1,"Berekening Half open bebouwing nr 307 leefruimtes",65,164645,2533
+25-530820,cat1,"slaapkamers, badkamer",65,164645,2533
+25-530820,cat2,"badkamer vrijstaande garage",27,14040,520
+25-530820,cat1,"Half open bebouwing nr 309 leefruimtes",68,172244,2533
+25-530820,cat1,"slaapkamers, badkamer",60,151980,2533
+25-530820,cat2,"badkamer garage",25,13000,520
+25-530959,cat2,"Berekening Werkplaats Werkplaats",109,78698,722
+25-530964,cat2,"Berekening Kasteel Edelhof gewelfde kelders",164,262400,1600
+25-530964,cat2,"kelders gelijkvloers",257,1079400,4200
+25-530964,other,"verdieping",257,1079400,4200
+25-530964,other,"zolderverdiepin g ingericht",180,630000,3500
+25-530964,cat1,"g ingericht zolder technische",77,154000,2000
+25-530964,other,"ruimte afdak aan hoofdingang",11,27500,2500
+25-531244,cat2,"Berekening magazijn met receptie, kantoren magazijn",795,643950,810
+25-531244,other,"kantoren",250,400000,1600
+25-531244,other,"kantoren",186,297600,1600
+25-531244,cat3,"dakterras",22,11880,540
+25-531273,cat1,"Berekening Steegbeluik woningen, leefruimtes",478,1314500,2750
+25-531273,cat1,"leefruimtes doorgang",18,9720,540
+25-531273,cat1,"slaapkamers, badkamer",478,1314500,2750
+25-531273,cat1,"badkamer zolderruimtes",433,1190750,2750
+25-531373,cat1,"Berekening kantoorgebouw kantoren",205.3,369540,1800
+25-531373,other,"kantoren",239.7,431460,1800
+25-531373,cat2,"opslagloodsen",1557.4,1059032,680
+25-531373,other,"loods (achterste deel )",320,192000,600
+25-531373,cat3,"deel ) terrassen",17.54,9471.6,540
+25-531381,other,"Berekening Schrijnwerkerij Loods",298,193700,650
+25-531381,cat2,"kelder",149,89400,600
+25-531381,other,"showroom",40,48000,1200
+25-531381,cat1,"kantoor",24,28800,1200
+25-531381,cat2,"Gebouw 2 kelder",93,69750,750
+25-531381,cat1,"handelsruimte (casco)",93,139500,1500
+25-531381,cat1,"(casco) appartement",64,134400,2100
+25-531517,cat2,"Berekening Gebouw opslagloodsen",2090,1567500,750
+25-531517,other,"kantoren",392,686000,1750
+25-531517,other,"productiehal",797,597750,750
+25-531517,other,"technische ruimte van",118,44250,375
+25-531668,cat2,"Berekening Vrijstaande villa inpandige garage, kelder",90,81000,900
+25-531668,cat2,"garage, kelder leefruimtes, woonkamer, keuken, berging,",170,320450,1885
+25-531668,cat2,"berging, slaapkamers, badkamer overkapping",15,14250,950
+25-531668,other,"bergzolder, geisoleerd",115,80500,700
+25-531718,cat2,"Berekening woonhuis met garage leefruimtes",100,220000,2200
+25-531718,cat1,"slaapkamers badkamer",100,220000,2200
+25-531718,cat2,"badkamer slaapkamer, zolder,",61,134200,2200
+25-531718,cat2,"badkamer aangebouwde garage, berging",45,54000,1200
+25-531718,cat1,"polyvalente ruimte polyvalente feestruimte, bar,",165,198000,1200
+25-531718,cat1,"vakantiewoning gastenverblijf / vakantiewoning",112,257600,2300
+25-531718,cat3,"vakantiewoning overkaping terras",12,14400,1200
+25-531718,cat3,"terras verdieping",40,80000,2000
+25-531718,cat2,"schuur met paardenstalling schuur",96,91200,950
+25-531719,other,"Berekening Aanpalende loods: schrijnwerkerij loods met schrijnwerkerij",420,315000,750
+25-531719,cat1,"schrijnwerkerij meerprijs kantoor en",84,75600,900
+25-531719,cat2,"berging meerprijs verdieping",84,67200,800
+25-531719,other,"Aanpalende NIEUWE loods: nog 75% niet in gebruik loods",1265,917125,725
+25-531755,cat2,"Berekening handelspand met appartementen bergingen, technieken",118,106200,900
+25-531755,cat2,"technieken handelsruime",185,305250,1650
+25-531755,cat2,"garage",37,25900,700
+25-531755,other,"gemeenschapp elijke ruimte",18,32400,1800
+25-531755,other,"elijke ruimte gemeenschapp elijke ruimte",54,97200,1800
+25-531755,cat1,"elijke ruimte appartementen",300,630000,2100
+25-531755,cat3,"dakterras",35,12250,350
+25-531755,other,"balcons",12,9600,800
+25-531836,cat2,"Berekening Vrijstaande woning met inpandige garage, aangebouwde veranda leefruimtes, woonkamer, keuken,",197,325050,1650
+25-531836,cat1,"slaapkamers, badkamer. ingerichte zolderverdiepin",130,156000,1200
+25-531836,other,"g bergzolder",30,22500,750
+25-531836,other,"aangebouwde veranda",25,30000,1200
+25-531851,other,"Berekening Gebouw loods",1880,1438200,765
+25-531851,cat1,"meerprijs appartement",198,237600,1200
+25-531851,cat1,"eigenaar meerprijs appartement",87,104400,1200
+25-531851,cat1,"dochter meerprijs appartement",144,172800,1200
+25-531851,other,"dochter afdak aan inkom loods",7,3500,500
+25-531851,other,"loods metalen aanbouw aan",166,107900,650
+25-531852,other,"Berekening showroom, presentatieruimte met kantoren showroom, kantoren",1770,1460250,825
+25-531852,other,"kantoren produktiehal",2107.5,1559550,740
+25-531852,cat2,"opslagruimte",606,454500,750
+25-531852,cat2,"opslagruimte",831.73,623797.5,750
+25-531922,other,"Berekening Gebouw 1 Gelijkvloers",230,529000,2300
+25-531922,other,"Eerste verdiep",72,144000,2000
+25-531922,cat2,"Kelder",95,114000,1200
+25-531924,other,"Berekening Bedrijfsloods Bedrijfsloods met drie units",625,512500,820
+25-531936,other,"Berekening Gebouw 1 Loods",318,286200,900
+25-531936,other,"Meerwaarde sanitair/kitchene",45,67500,1500
+25-531961,cat2,"Berekening Gebouw 1 kelder",18,17100,950
+25-531961,cat1,"Handelszaak",84,159600,1900
+25-531961,cat1,"Appartement",42.5,93500,2200
+25-531961,cat1,"Appartement",32.3,67830,2100
+25-531973,other,"Berekening Bedrijfsloods, schrijnwerkerij loods",540,456300,845
+25-531973,other,"aangebouwde overkapping",70,15750,225
+25-531973,other,"overkapping omkastng stofafzuiging",12,5040,420
+25-531984,cat1,"Berekening restaurant restaurant",167,367400,2200
+25-531984,cat3,"terras",75,11250,150
+25-531984,cat2,"zaaltje, bergingen, technieken,",154,338800,2200
+25-531984,cat3,"technieken, restaurant groendak",9,1530,170
+25-531984,cat1,"appartement",100,180000,1800
+25-531984,cat3,"dakterras",9,4860,540
+25-531984,cat1,"polyvalente ruimte in bijgebouw vergaderruimte, restaurant",34,40800,1200
+25-531989,cat1,"Berekening slachthuis, koelingen, snijdzaal. 600 m2 gelegen in groter geheel slachthuis",600,720000,1200
+25-532012,cat1,"Berekening bedrijfsgebouw kantoorruimte",240,444000,1850
+25-532012,cat1,"kantoorruimte",240,444000,1850
+25-532012,cat2,"magazijn",870,630750,725
+25-532058,cat2,"Berekening Gebouw privégarage",59,53100,900
+25-532058,cat2,"opslagloods",176,145200,825
+25-532058,other,"schrijnwerkerij",234,210600,900
+25-532086,cat2,"Berekening Slagerij, winkel met atelier, appartementen kelder",18.92,17974,950
+25-532086,cat1,"winkelruimte",117,351000,3000
+25-532086,other,"atelier",340,680000,2000
+25-532086,cat1,"entree appartement",26,48100,1850
+25-532086,cat1,"appartement appartementen",250,525000,2100
+25-532086,cat3,"dakterras",45,24300,540
+25-532086,cat1,"appartement",118,247800,2100
+25-532087,cat2,"Berekening Gebouw 1 Kelder ( garages)",400,360000,900
+25-532087,cat2,"garages) Garages/gemen e delen",310,465000,1500
+25-532087,cat1,"e delen Appartement",90,175500,1950
+25-532087,cat1,"Appartementen/ gemene delen",230,448500,1950
+25-532087,cat3,"gemene delen Terras",14,11900,850
+25-532087,cat1,"Appartementen/ gemene delen",224,436800,1950
+25-532087,cat3,"gemene delen Terras",18,15300,850
+25-532087,cat1,"Appartementen/ gemene delen",234,456300,1950
+25-532087,cat3,"gemene delen Terras",6,5100,850
+25-532087,cat3,"Terras",60,15000,250
+25-532087,other,"Apprementen/g emene delen",166,323700,1950
+25-532096,cat1,"Berekening Gebouw 1 Winkel",135,270000,2000
+25-532096,cat1,"Appartement",93,297600,3200
+25-532096,cat2,"Zolder",40,36000,900
+25-532096,cat3,"Terras",22,26400,1200
+25-532096,cat2,"Kelder",32,30400,950
+25-532096,cat1,"Berekening Gebouw 1 Winkel",135,391500,2900
+25-532143,cat2,"Berekening berging, kantoor en machineloods berging",220,110000,500
+25-532143,cat1,"kantoor met keuken",105,147000,1400
+25-532143,cat2,"keuken zolder",325,162500,500
+25-532143,other,"machineloods",480,312000,650
+25-532143,cat2,"kalverstallen mestkelder",350,78750,225
+25-532143,other,"stallen",1512,831600,550
+25-532176,cat2,"Berekening Cafe met woonhuis kelder",16,12800,800
+25-532176,cat1,"leefruimtes",74,111000,1500
+25-532176,other,"cafe",36,54000,1500
+25-532176,other,"aangebouwde veranda",20.25,35437.5,1750
+25-532176,cat1,"veranda slaapkamers",110,165000,1500
+25-532176,cat1,"toiletten, bijkeuken in",20,32000,1600
+25-532176,cat2,"bijgebouw schuur, garage, berging",62,65100,1050
+25-532176,cat2,"berging aangebouwde bergplaats",150,55500,370
+25-532176,cat2,"bergplaats aangebouwde bergplaats, garage,",66,26400,400
+25-532176,cat2,"loods, werkplaats loods",203,91350,450
+25-532187,cat2,"Berekening bedrijfsloods loods, machineberging",450,225000,500
+25-532187,cat2,"machineberging woning, leefruimtes",164,246000,1500
+25-532187,cat1,"leefruimtes slaapkamers",55,82500,1500
+25-532254,cat1,"Berekening Gebouw 1 Appartement/ge mene delen",122,292800,2400
+25-532254,cat2,"mene delen Berging/doorrit",65,136500,2100
+25-532254,cat3,"Terras",33,18150,550
+25-532254,cat1,"Appartement/ge mene delen",112,268800,2400
+25-532254,cat3,"mene delen Terras",40,38000,950
+25-532254,cat1,"Appartement/ge mene delen",105,252000,2400
+25-532255,cat2,"Berekening nr 67 eigen woning kelder",90,76500,850
+25-532255,cat1,"woning",167,367400,2200
+25-532255,cat1,"woning",90,189000,2100
+25-532255,cat2,"afgewerkte zolder",90,139500,1550
+25-532255,cat2,"garage aan het Stroopplein garage",80,80000,1000
+25-532255,other,"betonnen tussenvloer",80,70000,875
+25-532255,cat2,"nr 69-71 drie verhuurde appartementen met kelder kelder",97,82450,850
+25-532255,cat1,"appartement",97,194000,2000
+25-532255,cat3,"terras",7,6300,900
+25-532312,other,"Berekening frituur Frituur",129.23,329924.19,2553
+25-532312,cat3,"overkapping terras",32.53,29277,900
+25-532312,cat3,"terras berging, inrichting textiel",50.75,60900,1200
+25-532312,cat2,"loods loods, magazijn",215,150500,700
+25-532376,cat2,"Berekening vakantie woning kelder",17.6,15840,900
+25-532376,cat1,"leefruimtes",119,214200,1800
+25-532376,cat1,"slaapkamers, badkamer",110,198000,1800
+25-532376,cat1,"landbouwschuur, te renoveren tot woonhuis (casco waardering) schuur",231,207900,900
+25-532376,cat2,"zolder",231,80850,350
+25-532377,cat1,"Berekening Hoofdgebouw: woning, kantoor en loods woning",128,275200,2150
+25-532377,cat1,"woning",64,137600,2150
+25-532377,cat1,"kantoor",43,79550,1850
+25-532377,other,"loods",328,262400,800
+25-532377,other,"afdak aan loods",40,10000,250
+25-532377,cat2,"houten zolder/tussenvlo",99,49500,500
+25-532377,cat2,"houten hobbygarage met verbinding naar de loods garage",83,62250,750
+25-532377,cat2,"metalen garage met afdak garage",27,17550,650
+25-532377,other,"afdak",55,11000,200
+25-532411,cat2,"Berekening woning kelders",24,20400,850
+25-532411,cat1,"leefruimtes",194,355990,1835
+25-532411,cat2,"garage loft",103,128750,1250
+25-532411,cat1,"slaapkamers badkamer",203,372505,1835
+25-532411,cat1,"badkamer Ingerichte zolderkamer",54,67500,1250
+25-532411,other,"zolderkamer carpoort uitgevoerd in metaal /",47.5,14725,310
+25-532444,other,"Berekening Nr 70A broodjes- en gebakzaak en aanpalende loods broodjes en gebak",139,236300,1700
+25-532444,other,"gebak verdieping",139,222400,1600
+25-532444,other,"aanpalende loods",190,156750,825
+25-532444,other,"loods houten tussenvloer",61,28975,475
+25-532444,other,"tussenvloer open afdak aan de loods",78,16770,215
+25-532444,cat2,"de loods bergingen van metselwerk",36,24300,675
+25-532444,other,"onder het afdak houten aanbouw voor afzuiging",15,4125,275
+25-532444,other,"afzuiging houtafval technische aanbouw",2.5,2187.5,875
+25-532444,cat2,"opslagloods kelder van gegoten beton",348,348000,1000
+25-532444,other,"gegoten beton loods",348,287100,825
+25-532444,other,"meerprijs houten tussenvloer met",54,45900,850
+25-532475,cat2,"Berekening Pastorie Sint-Martinusparochie kelder",50,40000,800
+25-532475,cat1,"leefruimtes",119,178500,1500
+25-532475,cat1,"slaapkamers",119,178500,1500
+25-532475,cat2,"zolder, kapconstructie",119,83300,700
+25-532475,other,"kapconstructie",35,52500,1500
+25-532475,cat1,"slaapkamers",35,52500,1500
+25-532475,cat2,"aangebouwde dubbele garage garage, berging",50,15000,300
+25-532705,cat2,"Berekening Hotel kelders, technieken,",277,554000,2000
+25-532705,cat1,"fitness, wellnes receptie, entree, restaurant,",246,984000,4000
+25-532705,cat1,"lounche, keuken bureel, archief",28,56000,2000
+25-532705,cat1,"hotelkamers",284,908800,3200
+25-532705,cat1,"hotelkamers",279,892800,3200
+25-532705,cat1,"hotelkamers",226,723200,3200
+25-532705,cat3,"dakterras",11,5940,540
+25-532714,cat1,"Berekening Spa inrichting, behanderuimte, wachtruimte, vergaderruimte spa inrichting",90,225000,2500
+25-532714,cat3,"binnentuin / terras",10,5400,540
+25-532714,cat3,"terras Hotelkamer / personeelskame",53,132500,2500
+25-532714,cat2,"r gevestigd in parkeergarage VME appartementsge",234,263250,1125
+25-532732,cat2,"Berekening winkelruimte kelder",36,32400,900
+25-532732,other,"showroom",111,266400,2400
+25-532732,other,"showrroom",78,136500,1750
+25-532732,cat2,"garage, magazijn",78,85800,1100
+25-532732,cat2,"magazijn showroom",182.5,273750,1500
+25-532732,other,"showroom",60,90000,1500
+25-532732,cat1,"woonhuis leefruimtes",158,347600,2200
+25-532732,cat1,"slaapkamers, badkamer",137,301400,2200
+25-532732,cat1,"badkamer zolderkamer",48,105600,2200
+25-533084,cat1,"Berekening Gebouw 1 Appartementen/ gemene delen",280,560000,2000
+25-533084,cat1,"gemene delen Appartementen/ gemene delen",280,560000,2000
+25-533084,cat3,"gemene delen Terras",14,11900,850
+25-533084,cat3,"Terras",14,11900,850
+25-533084,cat1,"Appartementen/ gemene delen",172,344000,2000
+25-533084,cat3,"gemene delen Terras",80,68000,850
+25-533084,cat1,"Gemene delen/concierge",285,484500,1700
+25-533084,cat2,"woning Garages",411,369900,900
+25-533084,cat2,"Kelder/garages",696,626400,900
+25-533225,other,"Berekening Gebouw 1 Gelijkvloers",150,300000,2000
+25-533225,other,"Eerste verdiep",130,260000,2000
+25-533225,other,"Tweede verdiep",121,242000,2000
+25-533225,other,"Mezzanine",36,54000,1500
+25-533225,other,"Derde verdiep",121,242000,2000
+25-533231,cat2,"Berekening Magazijn magazijn",379,312675,825
+25-533231,cat2,"magazijn (voormalige kantoorruimte,",227,158900,700
+25-533231,cat2,"kantoorruimte, casco) magazijn (casco)",227,113500,500
+25-533279,cat2,"Berekening Gebouw 1 kelder",140,168000,1200
+25-533279,cat2,"garage",24,26400,1100
+25-533279,cat2,"speelkamer achter garage",15,20250,1350
+25-533279,cat2,"achter garage woning",190,589000,3100
+25-533279,other,"conciërgewonin g",48,105600,2200
+25-533279,cat1,"g woongedeelte eerste",167,459250,2750
+25-533279,cat3,"verdieping terras achter 11 m², voorkant 3,5",14.5,23200,1600
+25-533279,cat1,"m² ingerichte zolderverdiepin",113,226000,2000
+25-533279,cat1,"g onder dak niet ingerichte zolder",52,41600,800
+25-533575,cat2,"Berekening handelspand (Casco) kelder met winkelruimte, bergingen,",190,285000,1500
+25-533575,cat2,"bergingen, fietstalling winkelruimte",192,323328,1684
+25-533575,other,"traphal, gemeenschapp",64,126272,1973
+25-533575,cat1,"elijke ruimte winkelruimte",207,348588,1684
+25-533575,other,"traphal, gemeenschapp",28,55244,1973
+25-533575,cat1,"elijke ruimte kantoorruimte",204,343536,1684
+25-533575,other,"gemeenschapp elijke ruimte",28,55244,1973
+25-533575,cat3,"elijke ruimte terras,/loggia",5,4500,900
+25-533575,cat1,"kantoorruimte",134.79,226986.36,1684
+25-533575,other,"patio",16.21,17831,1100
+25-533749,other,"Berekening Gebouw 1 Shwowroom/op slag",825,1402500,1700
+25-533749,cat2,"slag Werkplaats",260,169000,650
+25-533749,cat2,"Verdiep werkplaats",160,80000,500
+25-533749,cat2,"werkplaats Burelen",145,290000,2000
+25-533760,other,"Berekening nr 5 loods",624,452400,725
+25-533760,other,"houten hangende",64,28800,450
+25-533760,other,"tussenvloer loods gescheiden van de eerste loods door",652,472700,725
+25-533760,other,"door sandwichpanele n meerprijs kantoren met",87,87000,1000
+25-533760,other,"tussenvloer meerprijs betonnen",60,30000,500
+25-533760,cat1,"tussenvloer kantooraanbou w 2021",83,199200,2400
+25-533760,other,"nr 7 loods met inwendige gemeenschap",470,340750,725
+25-533760,cat2,"gemeenschap met nr 5 meerprijs kantoren en berging met houten",147,88200,600
+25-533837,other,"Berekening Gebouw 1 Stal",1195,896250,750
+25-533837,other,"Tussenvloer",239.2,71760,300
+25-533837,other,"Luifel",85,25500,300
+25-533859,other,"Berekening atelier stoffeer atelier met etalage",157.5,165375,1050
+25-533859,other,"met etalage tussenverdiepin g",47.25,15120,320
+25-533859,cat2,"g Garage, berging",47.25,37800,800
+25-533859,cat1,"woning leefruimtes",180,432000,2400
+25-534011,other,"Berekening Gebouw 1 Pand met kamers voor",78,205920,2640
+25-534011,cat1,"tijdelijke verhuur kamer met badkamer toilet.",78,205920,2640
+25-534011,cat2,"berging kamer",53,139920,2640
+25-534011,other,"kamer",42,110880,2640
+25-534034,cat2,"Berekening Gebouw 1 Garage",38,68400,1800
+25-534034,cat1,"Gemene delen",11,23100,2100
+25-534034,cat2,"Doorrit",17,20400,1200
+25-534034,cat1,"Appartement/ge mene delen",59,132750,2250
+25-534034,cat1,"mene delen Appartement/ge mene delen",59,132750,2250
+25-534034,cat1,"mene delen Duplex/Gemene delen",48,108000,2250
+25-534038,cat1,"Berekening Restaurant met woonhuis restaurant, zaal, bar, keuken,",224,560000,2500
+25-534038,cat1,"toiletgroep leefruimtes woning",93,209250,2250
+25-534038,cat2,"woning garage, berging",42,50400,1200
+25-534038,cat1,"slaapkamers, badkamers,",165,371250,2250
+25-534038,cat2,"dressing zolder",60,51000,850
+25-534038,other,"overkapping",13,11700,900
+25-534064,cat1,"Berekening Woonhuis leefruimtes, woonkamer, keuken,",124,396800,3200
+25-534064,cat3,"keuken, berging, entree terras overkapping",10,9500,950
+25-534064,cat1,"overkapping slaapkamers, badkamer",85,272000,3200
+25-534064,cat1,"Polyvalente ruimte, recreatiewoning polyvalente ruimte eigen",119,130900,1100
+25-534064,other,"gebruik zoldering",91,49140,540
+25-534064,cat1,"recreatiewoning, verblijfsruimte",42,92400,2200
+25-534064,cat1,"verblijfsruimte slaapkamers, badkamer",42,92400,2200
+25-534467,other,"Berekening Cafetaria frituur met verbruiksruimte",72,144000,2000
+25-534467,other,"verbruiksruimte verbruiksruimte",60,120000,2000
+25-534467,cat2,"berging",26,23400,900
+25-534884,cat1,"Berekening Gebouw 1 Restaurant/keuk en/sanitair",200,420000,2100
+25-534884,cat2,"en/sanitair Berging achteraan",30,36000,1200
+25-534884,cat2,"achteraan kelder",98,93100,950
+25-534884,cat1,"Appartement",138,269100,1950
+25-534884,cat1,"Appartement",140,238000,1700
+25-534884,cat3,"Terras",55,11000,200
+25-534955,cat2,"Berekening Sacrtamento Blok C gelijkvloers parking en",933,933000,1000
+25-534955,cat2,"bergingen appartementen",150,315000,2100
+25-534955,cat3,"terras en tuin",39,11700,300
+25-534955,other,"groene aanplanting",170,25500,150
+25-534955,cat1,"aanplanting appartementen",379,795900,2100
+25-534955,cat3,"terrassen",94,79900,850
+25-534955,cat3,"groendak op parking",528,87120,165
+25-534955,cat2,"parking appartementen",351,737100,2100
+25-534955,cat3,"terrassen",96,81600,850
+25-534955,cat1,"appartementen",235,493500,2100
+25-534955,cat3,"terrassen",90,76500,850
+25-534963,other,"Berekening Gebouw showroom haarden en",215,387000,1800
+25-534963,cat2,"natuursteen werkplaats",1139,854250,750
+25-534963,cat1,"keukenshowroo m",855,1368000,1600
+25-534963,cat1,"m kantoren in keukenshowroo",165,297000,1800
+25-534963,cat1,"m toonzaalverdiepi ng in keukenshowroo",199,194025,975
+25-534967,cat1,"Berekening Woonhuis leefruimtes, slaakamer,",175.73,571122.5,3250
+25-534967,cat2,"badkamer zolder (casco, niet afgewerkt, niet",175.73,140584,800
+25-534967,cat2,"niet toegankelijk) berging technieken",26,31200,1200
+25-534967,cat2,"technieken overkapping",18,10800,600
+25-534967,other,"schuur schuur",90,94500,1050
+25-534967,cat2,"carport (tussen schuur en",49,15680,320
+25-534967,other,"koestal) aanbouw",22,6600,300
+25-534967,cat2,"koestal koestal (berging)",126,144900,1150
+25-534967,other,"hangaar hangaar",240,52800,220
+25-535097,other,"Berekening Gebouw kantoren",140,248500,1775
+25-535097,other,"kantoren",140,248500,1775
+25-535097,cat1,"appartement",120,240000,2000
+25-535097,cat3,"terras",20,14000,700
+25-535097,other,"loods en nachtsas",388,316220,815
+25-535099,cat2,"Berekening Opslagloods opslagloods (te behouden, in gebruik te",475,285000,600
+25-535099,other,"af te breken bebouwing, casco slooprisico diverse geschakelde gebouwen, deels ontmanteld,",1090,163500,150
+25-535131,cat2,"Berekening Bel etage woning garage + gastenverblijf",75,240000,3200
+25-535131,cat1,"gastenverblijf leefruimte",68.75,220000,3200
+25-535131,cat3,"terrassen",12.5,8125,650
+25-535131,cat1,"slaapkamers, badkamer",62.5,200000,3200
+25-535131,cat1,"badkamer balcon",4,3800,950
+25-535156,cat1,"Berekening Gebouw 1 Handelspand",115,287500,2500
+25-535156,cat2,"Kelder (handelspand)",80,160000,2000
+25-535156,cat1,"(handelspand) Appartement/ge mene delen",73,219000,3000
+25-535156,cat1,"mene delen Appartement/ge mene delen",73,219000,3000
+25-535156,cat1,"mene delen Appartement/ge mene delen",73,255500,3500
+25-535156,other,"mene delen Mezzanine",30,45000,1500
+25-535159,cat2,"Berekening woonhuis met kantoorruimte (voormalige praktijk) garage + kantoorruimte,",370,684500,1850
+25-535159,cat1,"leefruimtes slaapkamers, badkamers",240,444000,1850
+25-535159,cat2,"badkamers kelder",20,19000,950
+25-535163,other,"Berekening loods loods",160,131200,820
+25-535163,other,"tussenverdiep",24,10200,425
+25-535163,cat2,"woonhuis leefruimtes, garage",89.25,200812.5,2250
+25-535163,cat2,"garage slaapkamers, badkamer",89.25,200812.5,2250
+25-535164,cat2,"Berekening Villa Leefruimtes, woonkamer, keuken, berging",152,532000,3500
+25-535164,cat2,"keuken, berging entree slaapkamers, badkamer",131,458500,3500
+25-535164,cat2,"Guesthouse Garage, verblijfsruimte,",120,270000,2250
+25-535164,cat2,"berging kelder",105.52,94968,900
+25-535164,cat2,"loods Loods, paardenstalling",105,86100,820
+25-535170,cat2,"Berekening Gebouw 1 Kelder",90,108000,1200
+25-535170,other,"Gelijkvloers",132,501600,3800
+25-535170,cat3,"Terras",22,19800,900
+25-535170,other,"Eerste verdiep",90,306000,3400
+25-535170,other,"Tweede verdiep",90,306000,3400
+25-535170,other,"Derde verdiep",90,279000,3100
+25-535171,other,"Berekening HAL 2 met kantoren hal 2",1958,1468500,750
+25-535171,other,"betonnen afdak",240,60000,250
+25-535171,other,"metalen afdak aan achterkant",196,38220,195
+25-535171,other,"aan achterkant afdak tussen loods en",33,6435,195
+25-535171,cat2,"kantoorgebouw kelder onder kantoren",180,171000,950
+25-535171,other,"kantoren kantoren",220,440000,2000
+25-535171,other,"kantoren",200,400000,2000
+25-535171,other,"HAL 3 hal 3",670,502500,750
+25-535171,other,"tussenvloer zonder",54,29700,550
+25-535171,other,"afwerking refter van metaal, met elektrische",114,142500,1250
+25-535171,other,"elektrische verwarming metalen luifel",180,35100,195
+25-535175,cat2,"Berekening woonhuis met inpandige garage leefruimtes",228,391704,1718
+25-535175,cat1,"slaapkamers, badkamers",160,275040,1719
+25-535175,cat2,"schuur schuur / berging",313,281700,900
+25-535175,cat2,"loods loods met opslag,",295,212400,720
+25-535175,cat1,"polyvalent bijgebouw polyvalent bijgebouw",72,86400,1200
+25-535188,cat2,"Berekening Gebouw kelder",50,50000,1000
+25-535188,cat1,"woning",145,348000,2400
+25-535188,other,"aanbouw",26,85800,3300
+25-535188,cat1,"woonverdieping",145,348000,2400
+25-535188,cat2,"zolder met luik",85,55250,650
+25-535188,cat3,"terras met breuksteen",47,18095,385
+25-535189,cat1,"Berekening Gebouw 1 Handelspand",130,455000,3500
+25-535189,other,"Openbare toiletten",34,102000,3000
+25-535189,other,"toiletten Overdekte doorgang",48,105600,2200
+25-535189,cat1,"doorgang Appartement",75,262500,3500
+25-535189,cat1,"Sanitair handelspand",28,70000,2500
+25-535189,cat1,"handelspand Appartement",44,154000,3500
+25-535189,cat2,"Zolder",34,102000,3000
+25-535189,cat2,"Zolder",44,132000,3000
+25-535189,other,"Casco gedeelte",96,480000,5000
+25-535416,cat2,"Berekening Gebouw kelder onder woning",40,34000,850
+25-535416,cat1,"woning woning",219,438000,2000
+25-535416,cat1,"woning",205,369000,1800
+25-535416,cat2,"woning berging",14,14000,1000
+25-535416,other,"kamer boven poort/ingang",30,45000,1500
+25-535416,cat1,"poort/ingang woning tussenverdiepin",48,26400,550
+25-535416,cat1,"g woning",85,127500,1500
+25-535416,other,"orangerie",103,247200,2400
+25-535416,other,"tussenvloer in orangerie",29,17400,600
+25-535416,other,"orangerie grote schuur open tot in de",264,224400,850
+25-535416,cat2,"nok berging onder bureau",80,54000,675
+25-535416,cat1,"bureau bureau",80,112000,1400
+25-535416,cat2,"berging onder ontspanningsrui",119,71400,600
+25-535416,other,"mte ontspanningsrui mte",72,68400,950
+25-535416,cat2,"mte zolder",53,26500,500
+25-535416,cat2,"zolder",72,36000,500
+25-535457,cat2,"Berekening appartementsgebouw parkeerkelder, garages,",942,989100,1050
+25-535457,cat2,"bergingen kelder installatie Veolia installatie",211,253200,1200
+25-535457,cat1,"warmtenet Handelsruimtes",462.88,740608,1600
+25-535457,cat3,"terrassen",136,20808,153
+25-535457,other,"gemeenschapp elijke ruimtes",84,162624,1936
+25-535457,cat2,"elijke ruimtes fietsberging",30,36000,1200
+25-535457,cat1,"appartementen",1571.43,3430431.69,2183
+25-535457,cat1,"appartementen",328.76,717683.08,2183
+25-535457,other,"gemeenschapp elijke ruimtes",210,406560,1936
+25-535457,other,"elijke ruimtes balcons",422.66,364438.59,862
+25-535522,other,"Berekening Loods 1 bedrijfsloods",474,388680,820
+25-535522,other,"surplus tussenverdiepin g met",80,54400,680
+25-535522,other,"Loods 2 loods",423,353205,835
+25-535522,other,"tussenverdiepin g",150,34500,230
+25-535524,other,"Berekening bedrijfsloods met drie units Bedrijfsloods met 3 units",837.2,692364.4,827
+25-535524,cat2,"kantoorruimte, instructie keuken, garage kantoorruimte, instructie",210.65,379170,1800
+25-535524,cat2,"keuken, garage garage",31.3,25040,800
+25-535538,cat1,"Berekening Hoofdgebouw Gelijkvloers ingerichte winkelruimte,",544,979200,1800
+25-535538,cat2,"kantoren en opslag privékeuken",50,105000,2100
+25-535538,cat2,"garage",49,58800,1200
+25-535538,other,"afdak/dakoverst eek aan",59,44250,750
+25-535538,cat1,"voorzijde appartement van de",112,257600,2300
+25-535538,cat2,"stal, berging stal, berging",39,21450,550
+25-535538,other,"tuinserre serre",18,5400,300
+25-535538,cat2,"berging berging",22,12100,550
+25-535666,other,"Berekening B&B - Stalgebouw Stalgedeelte",245,208250,850
+25-535666,other,"B&amp;B",336,806400,2400
+25-535666,cat1,"Woning",200,380000,1900
+25-535666,cat1,"Bestaande woning Gelijkvloers",150,285000,1900
+25-535666,cat2,"Zolder",120,108000,900
+25-535669,cat2,"Berekening Gebouw kelder",347,347000,1000
+25-535669,other,"kantoren",508,1524000,3000
+25-535669,other,"binnentuin",30,10500,350
+25-535669,other,"kantoren",324,972000,3000
+25-535669,cat3,"terrassen",39,33150,850
+25-535669,other,"kantoren",97,291000,3000
+25-535669,cat3,"terras",21,17850,850
+25-535755,cat2,"Berekening magazijn magazijn",205,168100,820
+25-535755,other,"hangaar hangaar",387,181890,470
+25-535755,cat1,"kantoorruimte (houtskeletbouw",87,139200,1600
+25-535859,cat1,"Berekening Woning Gelijkvloers",89,222500,2500
+25-535859,cat3,"Terras",34,10200,300
+25-535859,other,"Verdieping",58,145000,2500
+25-535859,other,"Mezzanine",22,20900,950
+25-535859,cat2,"Loods Carport",52,28600,550
+25-535859,other,"Sanitair/ontvang struimte/techn.r",109,196200,1800
+25-535859,cat2,"uimte Loods/berging",293,366250,1250
+25-535859,other,"Verdieping",360,540000,1500
+25-535895,cat2,"Berekening hoekpand met handelsruimte en appartementen (casco) kelder",64,51200,800
+25-535895,cat1,"handelsruimte",64,115200,1800
+25-535895,cat1,"appartementen",192,384000,2000
+25-535978,cat1,"Berekening kantoorruimte kantoor",125.24,313100,2500
+25-535978,other,"kap",125.24,53227,425
+25-535978,cat2,"magazijn magazijn",280,207200,740
+25-535978,cat2,"magazijn uitbreiding",175,147000,840
+25-535978,cat2,"(2005) magazijn (gelegen onder appartement",118,112100,950
+25-535978,cat1,"woonhuis leefruimtes",114,210900,1850
+25-535978,cat1,"slaapkamers, badkamer",71,131350,1850
+25-535978,cat2,"badkamer zolder",28,21000,750
+25-535978,cat2,"garage berging",31,24800,800
+25-535978,cat2,"kelder",19,15200,800
+25-535978,cat1,"duplex appartement leefruimtes",120,222000,1850
+25-535981,cat2,"Berekening Gebouw 1 Garage/bureel",200,260000,1300
+25-535981,cat1,"Appartement",150,225000,1500
+25-535981,cat2,"Zolder",75,52500,700
+25-535981,other,"Gebouw 2 Units",630,598500,950
+25-535986,other,"Berekening Bedrijfsunits",576,562176,976
+25-536042,cat2,"Berekening Gebouw 1 Kelder",92,87400,950
+25-536042,other,"Gelijkvloers",173,467100,2700
+25-536042,other,"Tweede verdiep",69,131100,1900
+25-536042,other,"Eerste verdiep",140,350000,2500
+25-536042,other,"Bijgebouw",41,82000,2000
+25-536084,cat1,"Berekening Gebouw 1 Brasserie+ keuken",160,320000,2000
+25-536084,cat1,"keuken Appartementen/ gemene delen",210,462000,2200
+25-536084,cat1,"gemene delen Appartementen/ gemene delen",360,792000,2200
+25-536084,cat3,"gemene delen Terras",30,16500,550
+25-536305,cat2,"Berekening woonhuis leefruimte, keuken, berging,",73.5,121275,1650
+25-536305,cat2,"berging, badkamer zolder met slaapkamer",73.5,121275,1650
+25-536305,cat1,"slaapkamer nieuwbouw uitbreiding",73.5,147000,2000
+25-536305,other,"uitbreiding overkapping teras",31.5,14175,450
+25-536305,cat1,"teras leefruimte",73.5,147000,2000
+25-536305,cat3,"dakterras",31.5,13545,430
+25-536305,cat2,"kelder",16,12800,800
+25-536305,other,"Schuur / bergruimte schuur",73.5,77175,1050
+25-536305,cat2,"schuur, stalling schuur",223.7,212515,950
+25-536305,other,"uitbreiding schuur",38,19760,520
+25-536464,cat1,"Berekening Gebouw 1 Appartement/ge mene delen",77,200200,2600
+25-536464,cat1,"mene delen Appartement/ge mene delen",77,192500,2500
+25-536464,cat1,"mene delen Appartement/ge mene delen",72,187200,2600
+25-536464,cat3,"mene delen Balkon",5,4750,950
+25-536464,cat1,"Appartement",27,70200,2600
+25-536464,cat3,"Terras",28,26600,950
+25-536464,cat2,"Kelder",77,80850,1050
+25-536467,cat2,"Berekening Opslagloodsen Opslagloodsen",3040,2325600,765
+25-536468,cat2,"Berekening VME VIVERO appartementen garage, kelders en inrit",1112,1056400,950
+25-536468,cat1,"en inrit appartementen",780,1638000,2100
+25-536468,other,"beplanting en bestrating",369,68265,185
+25-536468,cat3,"voorzijde beplanting, terrassen",369,129150,350
+25-536468,cat1,"achterzijde appartementen",755,1585500,2100
+25-536468,cat3,"terrassen",105,89250,850
+25-536468,cat3,"groendak",25,5000,200
+25-536468,other,"liftserres",60,156000,2600
+25-536468,cat3,"dakterras",145,50750,350
+25-536468,cat3,"groendak",549,109800,200
+25-536470,cat1,"Berekening Woning Gelijkvloers",170,510000,3000
+25-536470,other,"Verdieping",130,390000,3000
+25-536470,cat2,"Kelder",18,27000,1500
+25-536470,cat2,"Carport Carport",85,89250,1050
+25-536470,other,"Bijgebouw Bijgebouw",93.6,98280,1050
+25-536473,cat2,"Berekening kelder, bergingen, zwembad technieken kelder, zwembad,",400,360000,900
+25-536473,cat2,"technieken leefruimtes",178,489500,2750
+25-536473,cat1,"slaapkamers, badkamer",178,489500,2750
+25-536473,cat2,"badkamer berging garage",51,61200,1200
+25-536475,cat2,"Berekening Woning Kelder/ondergro ndse garage",135,121500,900
+25-536475,cat2,"ndse garage Gelijkvloers",160,352000,2200
+25-536475,other,"Eerste verdiep",140,294000,2100
+25-536475,cat2,"Zolder",140,154000,1100
+25-536475,other,"Atelier Atelier",215.6,237160,1100
+25-536542,cat2,"Berekening Gebouw kelders, garage en inrit",992,967200,975
+25-536542,other,"en inrit Blok 1",403,846300,2100
+25-536542,other,"Blok 1",390,819000,2100
+25-536542,other,"Blok 1",209,438900,2100
+25-536542,cat3,"Blok 1 terrassen",32,30400,950
+25-536542,cat3,"terrassen Blok 2",434,911400,2100
+25-536542,other,"Blok 2",416,873600,2100
+25-536542,other,"Blok 2",207,434700,2100
+25-536542,cat3,"Blok 2 terrassen",42,39900,950
+25-536626,other,"Berekening Gebouw gebouw/stallen",820,430500,525
+25-536626,cat3,"afdak/terras",59,17405,295
+25-536626,other,"meerprijs kantine",57,28500,500
+25-536626,cat1,"kantine meerprijs appartement",85,72250,850
+25-536626,cat2,"appartement zolder van beton",59,26550,450
+25-536626,other,"beton houten tussenvloer in",180,54000,300
+25-536851,other,"Berekening Gebouw 2 Hangaar hangaar",105,33600,320
+25-536851,cat2,"Gebouw 3 Hangaar met stro opslag, materieel hangaar, grenzend aan",285,71250,250
+25-536851,other,"Gebouw 4 melkstal Melkstal",338,226460,670
+25-536851,other,"Gebouw 5 jongveestal stal",278,152900,550
+25-536851,cat2,"Gebouw 7 hangaar, overkapping stalling materieel hangaar, materieel",100,27000,270
+25-537036,cat1,"Berekening Bedrijfsloods met kantoorruimte loods",345,269100,780
+25-537036,other,"surplus kantoren 2",45,36000,800
+25-537036,cat1,"bouwlagen surplus vergaderruimte",45,36000,800
+25-537036,other,"hangaar / overkapping hangaar/overka pping",600,210000,350
+25-537036,cat1,"woning met veranda leefruimtes",150,277500,1850
+25-537036,other,"aangebouwde veranda",40,60000,1500
+25-537036,cat1,"veranda slaapkamers, badkamer",108,199800,1850
+25-537106,cat2,"Berekening Garage/bergingen Garage",84.7,101643.84,1200
+25-537106,cat2,"Overkapping aan garage",166,124500,750
+25-537106,cat2,"Stallen/bergingen Laag gedeelte",167.02,158666.62,950
+25-537106,cat2,"Gedeelte met zolder",231.2,393040,1700
+25-537106,cat2,"zolder Schuin gedeelte",41.25,49500,1200
+25-537106,other,"Aanbouw achteraan",36.64,34809.33,950
+25-537106,cat2,"achteraan Gedeelte met zolder",231,103950,450
+25-537141,other,"Berekening Kippenstal (7) kippenstal",395,283610,718
+25-537141,other,"kippenstal (8) kippenstal",775,556450,718
+25-537141,other,"Machineloods, bergloods loods (te voorzien van",274,170702,623
+25-537176,cat1,"Berekening langgestrekte hoeve leefruimte, slaapkamer, badkamer,",224,401184,1791
+25-537176,cat1,"badkamer, keuken leefruimte, slaapkamer",200,358200,1791
+25-537224,cat2,"Berekening Winkelruimte met bakkerij kelder",20,18000,900
+25-537224,cat1,"winkel",165,231000,1400
+25-537326,cat2,"Berekening Villa kelders",210,189000,900
+25-537326,other,"leerfruimtes",210,630000,3000
+25-537326,cat1,"slaapkamers, badkamers",210,525000,2500
+25-537326,cat2,"badkamers zolder",120,99000,825
+25-537326,cat2,"garage berging garage, carport",90,65250,725
+25-537342,cat2,"Berekening Gebouw tiendenschuur kelder",43,43000,1000
+25-537342,cat2,"kelder tiendenschuur",380,418000,1100
+25-537342,other,"metalen afdak aan",87,15225,175
+25-537342,other,"tiendenschuur voormalige varkensstal",320,180800,565
+25-537342,other,"varkensstal metalenafdak aan stal",20,5000,250
+25-537342,cat2,"aan stal werkplaats",110,71500,650
+25-537342,other,"tussenvloer boven",110,55000,500
+25-537357,cat2,"Berekening Gebouw 1 Opslag",350,297500,850
+25-537357,cat1,"Winkel/burelen",950,1021250,1075
+25-537357,cat1,"Appartement",240,480000,2000
+25-537361,cat2,"Berekening Gebouw gemetselde gewelfde kelders onder",50,50000,1000
+25-537361,cat2,"kelders onder privé privéwoning",204,469200,2300
+25-537361,cat1,"privéwoning",204,438600,2150
+25-537361,cat1,"privéwoning",204,408000,2000
+25-537361,cat1,"ontbijtruimte, keuken",102,193800,1900
+25-537361,cat1,"keuken polyvalente ruimte",102,153000,1500
+25-537361,other,"ruimte wellness, zwembadruimte met",156,265200,1700
+25-537361,cat1,"met saunaruimte vergaderzaal",156,249600,1600
+25-537361,other,"verblijven",210,420000,2000
+25-537361,other,"verblijven",276,552000,2000
+25-537361,other,"stallen met boxen",98,63700,650
+25-537361,other,"boxen speelzolder boven stallen en",196,274400,1400
+25-537361,other,"verblijf verblijf",148,296000,2000
+25-537361,other,"verblijf",148,296000,2000
+25-537361,other,"onthaal",102,183600,1800
+25-537361,other,"verblijf",102,204000,2000
+25-537361,cat2,"garages",78,93600,1200
+25-537361,other,"verblijf",115,230000,2000
+25-537361,other,"verblijf",140,280000,2000
+25-537361,cat2,"fietsenstalling en kapel",25,25000,1000
+25-537361,other,"en kapel metalen afdak",246,45510,185
+25-537361,cat2,"houten berging",28,11200,400
+25-537361,cat1,"afdakje aan ontbijtruimte",10,2500,250
+25-537361,cat1,"ontbijtruimte technische ruimtes",66,72600,1100
+25-537451,cat2,"Berekening Bedrijfsloods nr 182 magazijn",600,432000,720
+25-537451,cat1,"appartement",170,178500,1050
+25-537451,cat2,"Garage",18,10800,600
+25-537451,cat2,"magazijn met kantoor en bedrijfswoning magazijn, kantoor",386,316520,820
+25-537451,cat1,"kantoor woning, leefruimtes",107,197950,1850
+25-537451,cat1,"leefruimtes woning slaapkamers,",107,197950,1850
+25-537476,cat2,"Berekening Nr 36 momenteel niet bewoonde woning kelder",120,132000,1100
+25-537476,cat1,"woning",130,299000,2300
+25-537476,other,"tuinkamer- veranda",53,143100,2700
+25-537476,cat1,"veranda woning",130,286000,2200
+25-537476,cat2,"afgewerkte zolder",82,123000,1500
+25-537476,cat2,"Nr 36 B privékantoor, appartement, garages, berging, gecompartimenteerde traiteurkeuken zonder oliebad Rf60 gecompartiment eerde",40,72000,1800
+25-537476,cat1,"trateurkeuken zonder oliebad privékantoor (zonder uitbating), inkom,",86,189200,2200
+25-537476,cat2,"inkom, inkomveranda 6 m² garages",86,116100,1350
+25-537476,other,"betegelde wasplaats",25,37500,1500
+25-537476,cat2,"wasplaats berging aan wasplaats",22,24200,1100
+25-537476,cat1,"wasplaats appartement",120,264000,2200
+25-537476,other,"trappenhal, overloop",12,24000,2000
+25-537476,cat1,"overloop polyvalente ruimte",54,89100,1650
+25-537622,cat2,"Berekening paardenstallingen, boxen en polyvalente zaal, barinrichting en keuken schuur met paardenstalling en polyvalente",480,475200,990
+25-537622,cat1,"en polyvalente zaal overkappingen",108,35100,325
+25-537622,cat2,"barinrichting en keuken Opslagruimte, opslag stro, materiaal open houten hangaar voor opslag van stro,",57,22629,397
+25-537622,other,"paardenboxen 2",18.6,11997,645
+25-537622,cat2,"Fietsenberging berging, fietsberging",32,10400,325
+25-537699,cat2,"Berekening Gebouw 1 Kelder",15,27000,1800
+25-537699,other,"Gelijkvloers",86.5,389250,4500
+25-537699,other,"Verdiep",49,196000,4000
+25-537699,other,"Verdiep",44,176000,4000
+25-537699,cat3,"Terras",18,15300,850
+25-537841,other,"Berekening Nr 14 snooker-darts-pool, RF 60 gescheiden van de rest horeca",405,648000,1600
+25-537841,cat2,"Nr 4-10 , RF 60 gescheiden van horeca: kelders",12,11400,950
+25-537841,cat1,"winkel en naaiatelier",1020,1734000,1700
+25-537841,other,"naaiatelier stockruimte",323,419900,1300
+25-537841,cat1,"trouw/feestkleding met naaiatelier en stockruimte Nr 2: winkelruimte, naaiatelier en appartementen winkel en naaiatelier",147,249900,1700
+25-537841,cat1,"naaiatelier inkomhal appartementen",15,28500,1900
+25-537841,cat1,"appartementen appartement",100,210000,2100
+25-537841,cat3,"terras",62,40300,650
+25-537841,other,"afdak",9,3600,400
+25-537841,cat1,"appartement",83,174300,2100
+25-537841,cat2,"Twaalf garageboxen achter nr 3-5 garageboxen",195,195000,1000
+25-537848,cat2,"Berekening Gebouw kruipkelder",320,272000,850
+25-537848,other,"shop",280,1022000,3650
+25-537848,cat2,"magazijn",46,105800,2300
+25-537848,other,"luifel",274,105490,385
+25-537854,cat2,"Berekening Gebouw kruipkelder",400,300000,750
+25-537854,other,"shop",395,1234375,3125
+25-537854,cat2,"opslagruimte",58,75400,1300
+25-537854,cat1,"kantoor, vergaderzalen",240,576000,2400
+25-537854,other,"vergaderzalen luifel",276,106260,385
+25-537854,cat3,"buitenterras",44,16940,385
+25-537920,cat1,"Berekening Woning woning",180,360000,2000
+25-537920,cat1,"woning",150,285000,1900
+25-537920,cat2,"Kelder",20,18000,900
+25-537920,cat2,"Garage Garage",80,144000,1800
+25-537920,other,"Stalgebouw 1 Gesloten gedeelte",325,227500,700
+25-537920,other,"gedeelte Open gedeelte",110,49500,450
+25-537920,other,"stalgebouw 2 Gesloten gedeelte",360,324000,900
+25-537921,cat2,"Berekening Appartement Garage",32,27200,850
+25-537921,cat1,"Woning",119,261800,2200
+25-537921,cat1,"Woning",210,525000,2500
+25-537921,cat2,"Gebouw 2: magazijn Magazijn",840,672000,800
+25-537921,other,"Showroom+burelen Showroom+bure el",690,1035000,1500
+25-537922,cat1,"Berekening Woning leefruimtes",140,311500,2225
+25-537922,cat2,"inpandige garage",20,30000,1500
+25-537922,cat2,"garage slaapkamer, badkamer",60,133500,2225
+25-537922,cat1,"badkamer slaapkamer",33,73425,2225
+25-537922,cat1,"polyvalente tuinkamer",72,70272,976
+25-537922,other,"sauna aanbouw met welness, sauna",101,227250,2250
+25-537939,cat1,"Berekening Woning deel 1 Gelijkvloers",60,138000,2300
+25-537939,other,"Eertste verdiep",50,115000,2300
+25-537939,cat2,"Kelder",5,4750,950
+25-537939,other,"Poolhouse Poolhouse",67,140700,2100
+25-537939,other,"Mezzanine",30,27000,900
+25-537939,other,"Stalgebouw Stalgebouw met rieten dak",90,162000,1800
+25-538035,cat2,"Berekening appartementsgebouw kelder",212,241680,1140
+25-538035,other,"gallerij",16,22400,1400
+25-538035,cat1,"handelsruimtes",176,352000,2000
+25-538035,other,"gemeenschapp elijke ruimtes",110,236500,2150
+25-538035,cat1,"elijke ruimtes appartementen",912,2508000,2750
+25-538035,other,"balcons",65,60125,925
+25-538035,cat3,"dakterrassen",60,45000,750
+25-538051,cat2,"Berekening Gebouw kelder",18,18000,1000
+25-538051,cat1,"handelsruimte",203,406000,2000
+25-538051,other,"veranda met dak van",38,57000,1500
+25-538051,cat1,"polycarbonaat 'woon'verdiepin g",74,148000,2000
+25-538051,cat2,"g zolder",74,48100,650
+25-538051,cat2,"losstaande garage",56,36400,650
+25-538074,cat2,"Berekening Loods 1 machineberging",1000,650000,650
+25-538074,other,"arbeider vertrekken",140,147000,1050
+25-538074,other,"vertrekken arbeider vertrekken",140,147000,1050
+25-538074,other,"Loods 2 loods met sorteerlijn",1267,995862,786
+25-538074,other,"loods 3 loods met verpakkingslijn",1000,786000,786
+25-538074,other,"verpakkingslijn arbeider vertrekken",160,168000,1050
+25-538074,other,"vertrekken arbeider vertrekken",160,168000,1050
+25-538085,cat2,"Berekening Gebouw kelder",538,484200,900
+25-538085,cat1,"winkelruimte",1573,1730300,1100
+25-538085,cat2,"houtwerkplaats en loods",573,429750,750
+25-538085,cat2,"en loods buitenopslag",671,301950,450
+25-538085,cat1,"winkelruimte",1399,1538900,1100
+25-538085,cat1,"appartementen",622,1244000,2000
+25-538085,cat2,"magazijn",254,215900,850
+25-538160,cat1,"Berekening Bedrijfsloods ingericht tot clubhuis van motorclub polyvalente /feest /",216,155520,720
+25-538160,other,"eventruimte verblijf /clubhuis met",95,68400,720
+25-538160,cat2,"barinrichting berging, vergaderruimte",80,57600,720
+25-538160,cat1,"vergaderruimte overkapping",30,6750,225
+25-538215,cat1,"Berekening Gebouw 1 Woning",66,211200,3200
+25-538215,cat1,"Woning",66,198000,3000
+25-538215,cat3,"Terras",18,17550,975
+25-538282,other,"Berekening Exposietieruimte, labo en testruimte expositie en kantoren",223,936600,4200
+25-538282,other,"kantoren labo, testruimte",246,664200,2700
+25-538596,cat1,"Berekening Gebouw 1 Keuken+inrivcht ing",95,266000,2800
+25-538596,other,"ing Gelijkvloers",334,701400,2100
+25-538596,cat1,"Hotelkamers",305,610000,2000
+25-538596,cat1,"Hotelkamers",275,550000,2000
+25-538596,cat1,"Hotelkamers",233,466000,2000
+25-538596,cat2,"Kelder",230,207000,900
+25-538596,other,"Liftkamer",22,33000,1500
+25-538598,other,"Berekening Gebouw 1 Gelijkvloers",289,809200,2800
+25-538598,cat2,"Kelder (keuken + inrichting)",218,545000,2500
+25-538598,cat1,"+ inrichting) Hotelkamers",173,328700,1900
+25-538598,cat1,"Hotelkamers",173,328700,1900
+25-538598,cat1,"Hotelkamers",216,432000,2000
+25-538598,other,"Liftkamer",17,25500,1500
+25-538599,cat1,"Berekening Gebouw 1 Ontbijtzaal/lobb y",183,512400,2800
+25-538599,cat2,"y Keuken+berging en",110,297000,2700
+25-538599,cat2,"en Kelder",233,349500,1500
+25-538599,cat1,"Hotelkamers",261,522000,2000
+25-538599,other,"Liftkamer",18,27000,1500
+25-538602,other,"Berekening KMO bedrijfsunit Bedrijfsunit",246.51,232951.95,945
+25-538602,other,"tussenverdiepin g",110,40150,365
+25-538603,other,"Berekening Gebouw loods",1235,926250,750
+25-538603,other,"meerprijs open tussenvloer",126,75600,600
+25-538603,other,"tussenvloer meerprijs kantoren",79,61225,775
+25-538603,other,"kantoren meerprijs kantoren",79,59250,750
+25-538679,cat2,"Berekening garagebedrijf showroom",240,336000,1400
+25-538679,other,"loods",793,650260,820
+25-538679,cat2,"burelen, sanitair, berging",60,49200,820
+25-538679,cat2,"sanitair, berging zoldering",60,27000,450
+25-538695,cat2,"Berekening Bedrijfsunit opslagruimte in bedrijfs KMO",277.16,252215.6,910
+25-538709,cat1,"Berekening Woonhuis leefruimtes, keuken,",66,148962,2257
+25-538709,cat2,"berging, garage slaapkamers, bureau,",62.82,141784.74,2257
+25-538709,cat1,"badkamer slaapkamers",62.4,140836.8,2257
+25-538709,cat2,"kelder",8,7200,900
+25-538709,cat1,"kinderdagverblijf leefruimtes",50,112850,2257
+25-538709,cat1,"slaapkamers",33.18,74887.26,2257
+25-538709,cat2,"Atelier berging atelier, berging",39.37,35433,900
+25-538748,cat2,"Berekening Gebouw kelder",56,56000,1000
+25-538748,cat1,"restaurant, ingang en",137,328800,2400
+25-538748,cat1,"keuken afdak",6,1800,300
+25-538748,other,"verdieping",119,273700,2300
+25-538748,cat3,"overdekt terras",8,7600,950
+25-538748,other,"hal en kamer op bovenverdieping",36,72000,2000
+25-538748,cat2,"bovenverdieping zolder",53,41605,785
+25-538751,other,"Berekening Gebouw 1 Units",3810,2857500,750
+25-539008,cat2,"Berekening appartemenstgebouw met ondergrondse parkeergarage parking, garage, bergingen",790,809750,1025
+25-539008,cat2,"bergingen inrit",55,18425,335
+25-539008,cat3,"terrassen",179.76,78195.6,435
+25-539008,other,"gemeenschapp elijke ruimte",80,154000,1925
+25-539008,cat1,"elijke ruimte appartementen",455,1057875,2325
+25-539008,cat3,"terrassen",62.31,51841.92,832
+25-539008,cat1,"appartementen",510,1185750,2325
+25-539008,other,"gemeenschapp elijke ruimte",32,61600,1925
+25-539008,cat3,"elijke ruimte terrassen",139.13,115756.16,832
+25-539008,cat1,"elijke ruimte appartementen",388,902100,2325
+25-539008,cat3,"terrassen",12.54,10433.28,832
+25-539008,cat3,"dakterrassen",122.56,66182.4,540
+25-539008,cat1,"appartementen",200,465000,2325
+25-539090,cat1,"Berekening Gebouw kantoorruimte",196,343000,1750
+25-539090,other,"atelier",382,315150,825
+25-539090,other,"tussenvloer in atelier",20,7500,375
+25-539090,cat2,"atelier opslagplaats",120,89400,745
+25-539090,other,"afdak",132,24420,185
+25-539091,cat1,"Berekening Vrijstaande villa leefruimtes",217,585900,2700
+25-539091,cat1,"slaapkamers, badkamers",170,459000,2700
+25-539091,cat2,"badkamers inpandige garage, berging",60,72000,1200
+25-539091,cat3,"garage, berging dakterras",14,7560,540
+25-539091,other,"zwembad, massageruimte, sauna zwembad",167,150300,900
+25-539131,cat2,"Berekening Villa kelder",30.71,27639,900
+25-539131,cat1,"leefruimtes",164.02,524864,3200
+25-539131,cat1,"slaapkamers, badkamers",118.56,379392,3200
+25-539131,cat2,"garage met afgewerkte zolder garage",56,40600,725
+25-539131,cat2,"afgewerkte zolder",56,40600,725
+25-539143,cat2,"Berekening Loods met inpandige woonrumte Garagebedrijf",500,400000,800
+25-539143,cat1,"woonruimte (surplus)",117.1,115929,990
+25-539143,cat1,"(surplus) woonruimte (surplus)",117.1,115929,990
+25-539157,cat2,"Berekening Gebouw kelder",138,151800,1100
+25-539157,cat1,"woning",166,381800,2300
+25-539157,cat1,"woning",118,259600,2200
+25-539157,cat2,"zolder, geïsoleerd",41,22550,550
+25-539157,cat2,"geïsoleerd garage",30,36000,1200
+25-539163,cat1,"Berekening Woning Gelijkvloers",110,209000,1900
+25-539163,other,"Eerste verdieping",100,190000,1900
+25-539163,other,"Loods Schapenmelkeri j",540,459000,850
+25-539163,cat2,"j Ijssalon/berging en",252,302400,1200
+25-539163,other,"en B&amp;B kamers",231,392700,1700
+25-539163,cat3,"kamers Terras",21,11550,550
+25-539298,cat2,"Berekening Vrijstaande bungalow met zwemvijver, tuinhuis en houtopslag leefruimtes, slaapkamers,",283,735800,2600
+25-539298,cat2,"badkamer garage inpandig",19.25,28875,1500
+25-539323,other,"Berekening traditionele schuur schuur",162.5,155187.5,955
+25-539323,other,"aanbouw",26,16250,625
+25-539323,cat2,"Hangaar hangaar (berging,",168,73080,435
+25-539323,other,"aanbouw aan schuur (zadelkamer) zadelkamer, aanbouw",130,53300,410
+25-539325,cat2,"Berekening historische burgerwoning gelegen centrum Brugge kelder",40,42000,1050
+25-539325,cat1,"leefruimtes",205,717500,3500
+25-539325,cat1,"slaapkamers, badkamers",200,700000,3500
+25-539325,cat2,"badkamers zolder, slaapkamers,",125,275000,2200
+25-539325,cat2,"Bergingen, poolhouse bergingen",70,84000,1200
+25-539325,other,"Poolhouse",34,51000,1500
+25-539611,other,"Berekening Loods 1 Loods",102.75,82200,800
+25-539611,other,"Loods 2 Loods",295.5,236400,800
+25-539611,other,"Meerprijs showroom/bure",94.56,70920,750
+25-539611,cat1,"Woning Woning",255,510000,2000
+25-540023,cat2,"Berekening woonhuis kelder",6,5700,950
+25-540023,cat1,"leefruimtes",78.75,168210,2136
+25-540023,cat2,"aanbouw keuken, berging",13.75,29370,2136
+25-540023,cat2,"keuken, berging verdieping, slaapkamers,",60,128160,2136
+25-540023,cat1,"badkamer zolderkamer",27,57672,2136
+25-540041,cat2,"Berekening hotel met winkel, zadelkamer, stalling paarden ontbijtruimte, winkelruimte, receptie,",615,1260750,2050
+25-540041,other,"receptie, zadelkamer Paardentalling",220,242000,1100
+25-540041,cat2,"garage, berging",216,286200,1325
+25-540041,cat1,"hotelkamers",415,850750,2050
+25-540041,cat1,"appartement",214,663400,3100
+25-540041,other,"binnenpiste binnepiste, boxen",860,252840,294
+25-540041,cat2,"Berekening hotel met winkel, zadelkamer, stalling paarden ontbijtruimte, winkelruimte, receptie,",615,1291500,2100
+25-540081,other,"Berekening Tankstation Luifel met bekleding",60,25500,425
+25-540081,cat2,"Ruimte technieken",10,15000,1500
+25-540087,cat2,"Berekening Vrijstaande villa met guesthouse / tuinkamer kelder",10,9500,950
+25-540087,cat1,"leefruimtes",148,518000,3500
+25-540087,cat1,"slaapkamers, badkamers",93,325500,3500
+25-540087,other,"tuinkamer / verblijfsruimte tuinkamer",29,72500,2500
+25-540111,cat2,"Berekening Burgenwoning / Herenhuis kelder",60,63000,1050
+25-540111,cat1,"leefruimtes",100,320000,3200
+25-540111,cat2,"garage",22,26400,1200
+25-540111,other,"doorgang",45,24300,540
+25-540111,cat1,"slaapkamers, badkamer",157,502400,3200
+25-540111,cat1,"badkamer masterbedroom met dressing,",109,228900,2100
+25-540111,cat3,"badkamer dakterras",20,10800,540
+25-540113,cat2,"Berekening Bedrijfsgebouwe met showroom, kantoren en opslagruimte opslagruimte",1282,980730,765
+25-540113,other,"showroom, personeelsruimt",210,325500,1550
+25-540113,other,"es doorgang",40,22400,560
+25-540113,other,"kantoren",200,310000,1550
+25-540177,cat2,"Berekening Vrijstaande woning / landhuis dubbele garage",63.48,79350,1250
+25-540177,cat1,"leefruimtes, woonkamer,",228,530100,2325
+25-540177,cat2,"keuken, berging slaapkamers, badkamer",135,313875,2325
+25-540177,cat1,"badkamer overkapping",12,3900,325
+25-540177,cat2,"Stalling met paardenboxen, bergruimte stalling",242,185130,765
+25-540177,cat2,"Loods met stalling, boxen, vrachtwagen standplaats stalling",402,297480,740
+25-540177,cat2,"half open stalling",194,65960,340
+25-540177,other,"Overkapte vangbox vangbox",154,35420,230
+25-540246,other,"Berekening Gebouw 1 Wellnescentrum /schoonheidssal",202,606000,3000
+25-540246,cat2,"on Garage/privége deelte",48,100800,2100
+25-540246,cat1,"deelte Appartement",149.1,417480,2800
+25-540246,cat3,"Terras",103,92700,900
+25-540246,cat3,"Terras",163,57050,350
+25-540246,other,"Tuinhuis",34,40800,1200
+25-540246,cat2,"Carport",32.66,26128,800
+25-540248,other,"Berekening Gebouw 1 Bureelruimte",95,180500,1900
+25-540248,cat2,"Opslagplaats",289,209525,725
+25-540248,other,"Tussenvloer",148,77700,525
+25-540338,cat2,"Berekening appartementsgebouw met drie appartementen kelder",25,20000,800
+25-540338,cat1,"appartement",58,153120,2640
+25-540338,cat1,"appartement",60,158400,2640
+25-540338,cat1,"appartement",74,195360,2640
+25-540739,cat2,"Berekening Kapelstraat 57 kelder",135,118125,875
+25-540739,cat1,"winkel",144,360000,2500
+25-540739,cat2,"winkel, opslag",129,283800,2200
+25-540739,cat3,"terras",15,9750,650
+25-540739,cat2,"opslagruimte",71,106500,1500
+25-540739,cat3,"terras",44,33000,750
+25-540928,cat1,"Berekening Afrikalaan 44 entree, toilet, kantoor",50,75000,1500
+25-540928,cat1,"kantoor kantooruimte",50,75000,1500
+25-540928,cat1,"Afrikalaan 48 entree, toilet, kantoor",50,75000,1500
+25-540928,cat1,"kantoor kantoorruimte",50,75000,1500
+25-541165,cat1,"Berekening IJssalon, ontbijt restaurant Ontbijt restaurant,",100,220000,2200
+25-541352,cat1,"Berekening Woonhuis leefruimte",150,315000,2100
+25-541352,cat1,"slaapkamers, badkamer",115,241500,2100
+25-541352,cat2,"badkamer garage, berging",40,48000,1200
+25-541352,cat2,"landbouw gebouwen, bewaarloodsen, schuren, hangaar loods 1 werkplaats",700,355600,508
+25-541352,cat2,"werkplaats Loods 2 aardappelbewa",700,369600,528
+25-541352,cat2,"arplaats loods 3 opslag graan, materiaal",375,195000,520
+25-541352,other,"graan, materiaal Loods 4 plantersloods",300,189600,632
+25-541352,other,"plantersloods schuur 5",80,72000,900
+25-541352,cat2,"loods 6 opslag banden",294,73500,250
+25-541352,cat2,"banden Loods 7 machineberging",940,357200,380
+25-541352,cat2,"machineberging Loods 9 aardappelbewa",3000,1386000,462
+25-541352,other,"arloods loods 10 sorteerlijn,",1000,600000,600
+25-541352,other,"koeling loods 11",1150,531300,462
+25-541352,other,"loods 11 tussenbouw",340,108800,320
+25-541352,other,"tussenbouw Hangaar 12",580,133400,230
+25-541352,cat2,"schuur 13 berging",77,69300,900
+25-541397,other,"Berekening Gebouw showroom",499,623750,1250
+25-541397,other,"meerprijs kantoren in",90,58500,650
+25-541397,cat1,"showroom appartement boven showroom (inwendige",130,299000,2300
+25-541397,cat2,"(inwendige gemeenschap, onbewoond) werkplaats en magazijnen",941,705750,750
+25-541397,cat2,"magazijnen tussenvloer in magazijn en werkplaats 120",138,75900,550
+25-541397,cat2,"werkplaats 120 m² + 18 m² smeerput",13,9750,750
+25-541397,other,"afdak",224,48160,215
+25-541397,other,"loods bandenhotel",283,212250,750
+25-541397,other,"bandenhotel smeerput",21,15750,750
+25-541397,other,"metalen tussenvloer met",144,93600,650
+25-541397,cat2,"trap kelder in werkplaats",58,49300,850
+25-541397,cat2,"werkplaats polyester afdaken aan de werkplaats 20",26,3900,150
+25-541399,other,"Berekening Gebouw gebouw",316,410800,1300
+25-541400,other,"Berekening Gebouw showroom met kantoren",460,851000,1850
+25-541400,cat2,"kantoren werkplaats",684,513000,750
+25-541400,other,"meerprijs afleverruimte",55,30250,550
+25-541400,other,"afleverruimte luifel",98,24500,250
+25-541400,cat2,"meerprijs magazijn met",66,66000,1000
+25-541400,cat2,"verdieping keuken en berging",32,38400,1200
+25-541400,cat2,"berging open betonnen tussenvloer",56,36400,650
+25-541400,cat2,"tussenvloer metalen tussenvloer in werkplaats 71",109,59950,550
+25-541400,cat2,"werkplaats 71 m² en 38 m² dakoversteek showroom",55,22000,400
+25-541400,other,"showroom smeerput",12,9000,750
+25-541413,other,"Berekening Gebouw showroom , receptie en",630,960750,1525
+25-541413,other,"kantoren luifel/dakoverste ek",118,29500,250
+25-541413,cat1,"ek kantoren en keuken",75,63750,850
+25-541413,cat2,"keuken magazijn",180,117000,650
+25-541413,other,"passerel in showroom",22,12100,550
+25-541413,cat2,"showroom magazijn 70 m² en werkplaats",1095,821250,750
+25-541413,other,"luifel",250,62500,250
+25-541413,cat2,"tussenvloeren in werkplaats (140",165,107250,650
+25-541413,other,"m² en 25 m²) betonnen afdak aan achterkant",53,13250,250
+25-541431,cat2,"Berekening Restaurant met bovenwoning kelder",100,90000,900
+25-541431,cat1,"restaurant",261,835200,3200
+25-541431,other,"aanbouw",60,165000,2750
+25-541431,cat1,"leefruimtes",132.5,278250,2100
+25-541431,cat1,"slaapkamers",46,96600,2100
+25-541431,cat2,"houten garage houten garage",18,6300,350
+25-541523,cat2,"Berekening restaurant kelder",27,29700,1100
+25-541523,cat1,"restaurant",180,492300,2735
+25-541523,cat1,"restaurant, toiletten",180,492300,2735
+25-541523,other,"toiletten personeelsruimt e",36,72000,2000
+25-541523,cat1,"e keuken",57,114000,2000
+25-541574,other,"Berekening KMO bedrijfsunits KMO units",2500,2062500,825
+25-541574,other,"KMO units",1800,1485000,825
+25-541582,cat2,"Berekening Villa Rozenhof Casco waardering kelders",156.25,150781.25,965
+25-541582,cat1,"leefruimtes, woonkamer, zitkamer,",219.25,427537.5,1950
+25-541582,cat1,"bibliotheek, bureau, keuken slaapkamers, badkamer",156.25,304687.5,1950
+25-541582,cat1,"badkamer slaapkamers",105,204750,1950
+25-541582,cat2,"garage berging garages, bijkeuken",55,57750,1050
+25-541612,cat2,"Berekening Garagebedrijf Werkplaats",1500,1185000,790
+25-541612,other,"burelen",442,730626,1653
+25-541612,other,"kantine, kleedruimten,",442,530400,1200
+25-541612,cat2,"sanitair Werkplaats RF voor CNC",578,482630,835
+25-541612,other,"vrachtwagens staalconstructie met",230,52900,230
+25-541613,cat2,"Berekening Bedrijfsloodsen magazijn",285,210900,740
+25-541613,cat2,"werkplaats",672,514080,765
+25-541613,other,"overkapping",248,102920,415
+25-542022,cat2,"Berekening KMO bedrijfsunit opslagruimte",252.24,283770,1125
+25-542022,other,"tussenverdiepin g",124.78,77363.6,620
+25-542026,cat2,"Berekening KMO bedrijfsunit opslagruimte",250.8,282150,1125
+25-542026,other,"tussenverdiepin g",124.3,77066,620
+25-542028,cat2,"Berekening KMO bedrijfsunit opslagruimte (showroom)",272.92,312493.4,1145
+25-542028,other,"(showroom) Mezzanine",152.52,85411.2,560
+25-542043,other,"Berekening Loods loods bouwjaar",790,685720,868
+25-542043,other,"loods bouwjaar",790,766300,970
+25-542043,cat1,"kantoorruimte",165,297000,1800
+25-542044,other,"Berekening B&B Gelijkvloers",222,588300,2650
+25-542044,other,"Eerste verdieping",200,500000,2500
+25-542044,other,"verdieping Tweede verdieping",105,262500,2500
+25-542044,cat1,"Landbouwschuur (feestzaal) Feestzaal",330,726000,2200
+25-542044,cat1,"Polyvalente zaal",166.5,299700,1800
+25-542044,other,"Ingerichte ruimte",69,138000,2000
+25-542044,other,"ruimte Zolderruimte",60,57000,950
+25-542044,other,"Watersnip Gelijkvloers",270,648000,2400
+25-542044,other,"Eerste verdiep",175,420000,2400
+25-542072,cat2,"Berekening woonhuis met garage, aangebouwde veranda en berging. leefruimtes",99,201465,2035
+25-542072,cat1,"slaapkamers, badkamer",90,183150,2035
+25-542072,cat2,"badkamer zolder",48,33600,700
+25-542072,other,"aangebouwde veranda",22,27500,1250
+25-542072,cat2,"veranda garage",26,31200,1200
+25-542078,cat2,"Berekening appartementsgebouw kelders, bergingen, stookruimte",94,89300,950
+25-542078,cat2,"stookruimte technieken gemeenschapp elijke ruimte",25,48750,1950
+25-542078,cat2,"elijke ruimte parking",215,258000,1200
+25-542078,cat2,"parking",230,276000,1200
+25-542078,other,"gemeenschapp elijke ruimte",10,19500,1950
+25-542078,cat1,"elijke ruimte appartementen",481.62,1167928.5,2425
+25-542078,other,"gemeenschapp elijke ruimtes",70,136500,1950
+25-542078,other,"elijke ruimtes balcons",22.38,19023,850
+25-542213,cat2,"Berekening historisch handelspand in centrum Brugge kelder",120,144000,1200
+25-542213,cat1,"winkelruimte",120,230400,1920
+25-542213,cat1,"leefruimte",120,324000,2700
+25-542213,cat1,"slaapkamers badkamer",120,324000,2700
+25-542213,cat2,"badkamer zolder",63,170100,2700
+25-542213,cat3,"dakterras",45,36000,800
+25-542213,cat1,"Gouden handrei 6 slaapkamers",45,105750,2350
+25-542213,cat1,"woonkamer, toilet",50,117500,2350
+25-542224,cat2,"Berekening Stadsvilla kelder",23,23575,1025
+25-542224,cat1,"leefruimtes, keuken, woonkamer,",97,310400,3200
+25-542224,cat3,"woonkamer, zitkamer, bar overdekt terras",12,4200,350
+25-542224,cat1,"slaapkamers, badkamers",97,310400,3200
+25-542224,cat1,"badkamers masterbedroom, badkamer, dressing,",90,288000,3200
+25-542224,cat1,"dressing, slaapkamer zolderkamer met badkamer",45,112500,2500
+25-542224,cat2,"garage garage, berging",31,18600,600
+25-542231,cat2,"Berekening De Boomhut Laan Op Vurten 57 kelders",173,164350,950
+25-542231,other,"gelijkvloers",173,397900,2300
+25-542231,cat2,"zolder",173,116775,675
+25-542232,cat2,"Berekening Sporthal en leslokalen Laan Op Vurten 55 kelders in gebruik als ontspanningslok",286,314600,1100
+25-542232,other,"ontspanningslok aal sporthal met hoog plafond en",286,572000,2000
+25-542232,other,"trappenhal leslokalen",308,708400,2300
+25-542234,cat2,"Berekening Torengebouw Laan Op Vurten 39 kelders",222,210900,950
+25-542234,other,"werkplekken",222,510600,2300
+25-542234,other,"werkplekken",121,278300,2300
+25-542234,other,"zolders",101,68175,675
+25-542234,cat2,"zolder",121,81675,675
+25-542317,cat1,"Berekening leefruimtes",96,194400,2025
+25-542317,cat1,"slaapkamers, badkamer",96,194400,2025
+25-542317,cat1,"badkamer aanbouw, bureau,",25,50625,2025
+25-542317,other,"schuur",239,244975,1025
+25-542317,other,"aanbouw",53,34450,650
+25-542317,other,"aanbouw",30,19500,650
+25-542317,other,"varkensstal",535,440840,824
+25-542317,cat2,"machineloods, werkplaats",315,119385,379
+25-542319,cat2,"Berekening Berging, kleedruimtes, sanitair kleedruimtes, sanitair, berging",100,120000,1200
+25-542319,cat2,"sanitair, berging sanitair blok",16,22400,1400
+25-542319,cat2,"overdekte fietsstalling",16,12800,800
+25-542319,other,"piste wielerpiste",1100,368500,335
+25-542319,other,"houten ballustrade",200,25000,125
+25-542319,other,"ballustrade binnenplein",1400,105000,75
+25-542328,other,"Berekening biggenstal",186,204042,1097
+25-542328,other,"stal",310,340070,1097
+25-542328,other,"stal",530,517280,976
+25-542328,other,"batterij, kraamstal",629,613904,976
+25-542328,other,"mestvarkens",580,566080,976
+25-542329,other,"Berekening varkensstal",480,526560,1097
+25-542329,other,"varkensstal",480,526560,1097
+25-542329,other,"varkensstal varkensstal",401,439897,1097
+25-542329,other,"varkensstal",646,673132,1042
+25-542329,other,"biggenstal",600,625200,1042
+25-542330,other,"Berekening varkensstal varkensstal",406,445382,1097
+25-542380,other,"Berekening Gebouw A Kippenstal",2650,1060000,400
+25-542380,other,"Geobuw B Kippenstal",2650,1060000,400
+25-542380,other,"Gebouw C Kippenstal",1000,350000,350
+25-542380,other,"Gebouw D Kippenstal",975,341250,350
+25-542387,other,"Berekening Gebouw 2 Loods A",550,220000,400
+25-542387,other,"Gebouw 1 Kippenstal",1200,480000,400
+25-542387,other,"Gebouw 3 Loods C",460,184000,400
+25-542422,other,"Berekening A Loods",608,243200,400
+25-542422,other,"B Kippenstal",1980,792000,400
+25-542422,other,"C Kippenstal",928,371200,400
+25-542422,other,"D Varkensstal",696,295800,425
+25-542422,other,"E varkensstal",696,295800,425
+25-542424,cat2,"Berekening Hoofdgebouw met sporthal en cafetaria kelders",61,54900,900
+25-542424,other,"school",736,1656000,2250
+25-542424,cat2,"afdak aan fietsenstalling",154,30800,200
+25-542424,cat2,"fietsenstalling fietsenstalling",55,41250,750
+25-542424,other,"school",535,1203750,2250
+25-542424,other,"passerel",34,17000,500
+25-542424,other,"sporthal",388,407400,1050
+25-542424,cat2,"berging",38,53200,1400
+25-542424,other,"cafetaria",205,481750,2350
+25-542424,other,"afdak",39,7800,200
+25-542424,other,"kleedruimtes",205,410000,2000
+25-542424,other,"Kleuterschool kleuterschool",556,1306600,2350
+25-542424,other,"afdak tussen kleuterschool en",66,13200,200
+25-542426,cat2,"Berekening Schoolstraat 5 kelders",336,302400,900
+25-542426,cat2,"berging",96,96000,1000
+25-542426,other,"doorgang",55,27500,500
+25-542426,other,"schoolgebouw 1",808,1777600,2200
+25-542426,cat2,"zolder",959,431550,450
+25-542426,other,"betonnen afdak",150,82500,550
+25-542426,other,"schoolgebouw 2",538,1183600,2200
+25-542426,other,"afdak aan schoolgebouw 2",42,14700,350
+25-542426,cat2,"schoolgebouw 2 zolder",360,162000,450
+25-542426,other,"houten mezzanines in",66,49500,750
+25-542426,cat2,"Schoolstraat 6 kelders",290,261000,900
+25-542426,other,"school",934,2148200,2300
+25-542426,other,"afdak",12,4500,375
+25-542427,cat2,"Berekening Villa kelder",20,19000,950
+25-542427,cat1,"leefruimtes",110,304920,2772
+25-542427,cat1,"slaapkamers, badkamer",110,304920,2772
+25-542427,cat2,"badkamer slaapkamers, zolder",55,152460,2772
+25-542653,cat2,"Berekening Gebouw 1 kantoren, technieken",167,334000,2000
+25-542653,cat2,"technieken kantoren",189,661500,3500
+25-542653,other,"kantoren",100,350000,3500
+25-542653,cat3,"groendak",45,7920,176
+25-542653,other,"kantoren",62,217000,3500
+25-542653,cat2,"technieken kantoren",189,552825,2925
+25-542653,other,"kantoren",100,292500,2925
+25-542653,other,"kantoren",62,181350,2925
+25-542654,cat2,"Berekening Kantoorvilla kelder",109,87200,800
+25-542654,other,"kantoren, receptie",270,594000,2200
+25-542654,cat1,"receptie kantoorruimtes, archiefruimte,",237,521400,2200
+25-542654,cat3,"badkamer balkon",9,6300,700
+25-542654,cat2,"zolder",125,68750,550
+25-542808,cat2,"Berekening Spoorstraat 5 shop met magazijn en",206,751900,3650
+25-542919,cat2,"Berekening Gebouw 1 Kelder",76,64600,850
+25-542919,cat1,"Restaurant/keuk en",212,551200,2600
+25-542919,cat1,"en Appartement",85.5,162450,1900
+25-542919,cat1,"Appartement",75.05,142595,1900
+25-542919,cat2,"Garage/berging",42,37800,900
+25-542993,cat2,"Berekening kelder",50,41250,825
+25-542993,cat1,"leefruimtes",100,189900,1899
+25-542993,cat1,"leefruimtes casco",105,147000,1400
+25-542993,other,"casco zolderruimte casco",205,153750,750
+25-542993,cat2,"stallingen schuren, deels gerenoveerd in",560,532000,950
+25-542993,other,"gerenoveerd in u opstelling aanbouw schuur, ingericht met",315,183645,583
+25-542993,other,"melkstal",800,380000,475
+25-542993,cat2,"mestkelders",1500,201000,134
+25-542993,other,"stalinrichting",800,47200,59
+25-542994,cat2,"Berekening Opslagruimte Opslag hotel en gedeelte opslag",400,440000,1100
+25-542994,cat1,"voor Pizzahut Ontbijtruimte hotel + receptie",445,934500,2100
+25-542994,other,"en Pizzahut",400,1040000,2600
+25-542998,cat1,"Berekening Gebouw winkelruimte",1547,1856400,1200
+25-542998,cat2,"magazijn 411 m² en 188 m²",599,569050,950
+25-542998,cat1,"m² en 188 m² luifel voor winkelkarretjes",22,7700,350
+25-542998,cat2,"winkelkarretjes overdekking parking",550,165000,300
+25-542998,cat2,"parking open tussenvloer in",36,23400,650
+25-542998,cat2,"magazijn kantoren in magazijn",70,59500,850
+25-542999,other,"Berekening Pittazaak Pittazaak",103,236900,2300
+25-543002,cat2,"Berekening supermarkt met appartement kelders",204,214200,1050
+25-543002,other,"supermarkt",442,884000,2000
+25-543002,cat1,"appartement",204,462060,2265
+25-543002,cat3,"dakterras",80,16000,200
+25-543003,cat1,"Berekening Gebouw kantoren 197 m², ingang appartement 17",214,411950,1925
+25-543003,cat1,"appartement 17 m² loods",711,558135,785
+25-543003,cat1,"meerprijs kantoor in loods",23,11500,500
+25-543003,cat1,"kantoor in loods afdak aan loods",32,8800,275
+25-543003,cat1,"appartement",191,417335,2185
+25-543003,cat3,"terras",14,9100,650
+25-543003,other,"tussenvloeren in loods 159 m² en",270,175500,650
+25-543006,cat2,"Berekening Gebouw opslagplaats",198,217800,1100
+25-543006,cat1,"gelijkvloerse kantoorverdiepi",170,391000,2300
+25-543006,cat1,"ng appartement",170,442000,2600
+25-543008,cat2,"Berekening Gebouw kelder",91,81900,900
+25-543008,cat1,"handelszaak",251,464350,1850
+25-543665,cat1,"Berekening Gebouw A zaaltjes en kantoren,",328,787200,2400
+25-543665,cat1,"keuken technische ruimte",38,41800,1100
+25-543665,other,"ruimte afdak",78,19500,250
+25-543665,cat1,"Gebouw B zalen , sanitair en keuken",299,717600,2400
+25-543665,cat1,"en keuken technische ruimte",33,36300,1100
+25-543665,other,"ruimte afdak",18,4500,250
+25-543665,other,"gebouwdeel verhuurd voor",194,349200,1800
+25-543701,cat2,"Berekening Gebouw smeerkelder",38,32300,850
+25-543701,other,"showroom",1144,1372800,1200
+25-543701,other,"showroomgebo uw: meerprijs kantoren, refter,",158,86900,550
+25-543701,cat2,"kantoren, refter, keukentje magazijn",60,51000,850
+25-543701,cat2,"werkplaats",777,602175,775
+25-543701,other,"metalen afdak achterkant",126,31500,250
+25-543701,cat2,"werkplaats polyester afdak achter",32,4800,150
+25-543701,cat2,"showroom garage van staalplaat achter",19,7125,375
+25-543701,other,"achter showroom houten tussenvloer in",205,102500,500
+25-543701,cat2,"garage metalen boogloods met betonnen",228,68400,300
+25-543701,cat1,"betonnen vloerplaat appartement",210,483000,2300
+25-543897,cat2,"Berekening magazijnen, atelier magazijn",1132,1100304,972
+25-543897,other,"receptie, administratie",60,42000,700
+25-543897,cat1,"administratie vergaderruimte",60,42000,700
+25-543903,cat2,"Berekening Gebouw 1 kelderverdiepin g",100,120000,1200
+25-543903,other,"g Gelijkvloers",130,325000,2500
+25-543903,other,"Slaapvertrekken",120,264000,2200
+25-543903,cat1,"slaapvertrekken en badkamer",80,176000,2200
+25-543903,cat1,"en badkamer slaapvertrekken , badkamer en",80,168000,2100
+25-543903,cat2,"sauna Zolder",40,30000,750
+25-543903,other,"Gebouw 2 achteraan tuin Overkapping",18,7200,400
+25-544323,cat1,"Berekening Villa leefruimtes",294,940800,3200
+25-544323,cat3,"overkapping terras",82,98400,1200
+25-544323,cat3,"terras Carport",47,56400,1200
+25-544342,other,"Berekening Hoofdgebouw loods",921,690750,750
+25-544342,other,"meerprijs gelijkvloerse inpandige",124,130200,1050
+25-544342,cat1,"inpandige ruimtes meerprijs inpandige kantoorverdiepi",124,161200,1300
+25-544342,cat1,"kantoorverdiepi ng dakovertseek",15,7500,500
+25-544349,other,"Berekening Voormalig kerkgebouw (casco) kerk",2250,1473750,655
+25-544349,other,"tussenverdiepin g (koor)",35,18900,540
+25-544351,other,"Berekening H Kippenstal",1975,790000,400
+25-544351,other,"C Jongveestal",684,239400,350
+25-544351,other,"D Melkveestal",1050,409500,390
+25-544351,other,"A Melkveestal",2009,904050,450
+25-544351,cat2,"I Opslag",390,312000,800
+25-544390,other,"Berekening Gebouw 1 Atelier",460,368000,800
+25-544390,cat1,"kantoorruimte",20,30000,1500
+25-544390,cat2,"opslagruimte",115,96600,840
+25-544449,cat2,"Berekening Gebouw 1 winkel en opslagruimte",595,304342.5,512
+25-544449,cat2,"opslagruimte appartement",165,145777.5,884
+25-544449,cat2,"opslag en ruimte voor groepslessen",420,195300,465
+25-544494,cat1,"Berekening Voetbalkantine kantine, sanitair, vergaderruimte",857,1475754,1722
+25-544494,cat1,"vergaderruimte viproom",186,320292,1722
+25-544494,other,"kleedruimtes, sanitair, bergruimtes kleedruimtes",208,300976,1447
+25-544494,other,"tribune tribune",206,172010,835
+25-544684,cat2,"Berekening Gebouw 1 Kelder",90,162000,1800
+25-544684,cat1,"Handelspand",148,473600,3200
+25-544684,cat1,"Handelspand",136,435200,3200
+25-544684,cat3,"Terras",15,14250,950
+25-544697,cat1,"Berekening Gebouw 1 Handelspanden",242,338800,1400
+25-544697,cat1,"Gemene delen",9,17100,1900
+25-544697,cat1,"Appartementen/ gemene delen",140.64,246120,1750
+25-544697,cat1,"gemene delen Appartementen/ gemene delen",123.06,209202,1700
+25-544697,cat1,"gemene delen Appartementen/ gemene delen",58.6,64460,1100
+25-544697,cat3,"gemene delen Terras",12,13200,1100
+25-544799,cat2,"Berekening woonhuis met aangebouwde garage leefruimtes",100,185000,1850
+25-544799,cat2,"zolder",100,72500,725
+25-544799,cat2,"garage",30,12600,420
+25-544799,other,"koestallen koestal",356,264152,742
+25-544799,other,"Bergplaats, schuur bergplaats, schuur",195,142350,730
+25-544799,other,"schuur aanbouw overkapping",32,11680,365
+25-544799,other,"overkapping aanbouw overkapping",63,22995,365
+25-544814,cat2,"Berekening Slagerij kelder 1",249,273900,1100
+25-544814,cat2,"kelder 2",218,239800,1100
+25-544814,cat1,"winkel",140,308000,2200
+25-544814,cat2,"werkplaats",702,912600,1300
+25-544822,cat2,"Berekening Gebouw 1 Garage",480,336000,700
+25-544822,cat2,"Gebouw 2 Garage",480,336000,700
+25-544822,cat2,"Afdak Garage",47,16450,350
+25-544822,cat1,"Toonzaal Toonzaal",143,185900,1300
+25-544823,cat1,"Berekening Gebouw 1 inkom, badkamer en",39.9,129675,3250
+25-544823,cat1,"slaapkamer leefruimte",50,175000,3500
+25-544824,other,"Berekening Gebouw hoofdconstructi e",3700,2405000,650
+25-544824,other,"e meerprijs gelijkvloers:",176,132000,750
+25-544824,cat1,"sanitair, kantoor meerprijs cafetaria",176,220000,1250
+25-544992,cat2,"Berekening appartementsgebouw parkeerkelder",499,519958,1042
+25-544992,cat2,"garage, fietsenberging,",275,286550,1042
+25-544992,cat2,"bergingen appartement",107,281624,2632
+25-544992,other,"gemeenschapp elijke ruimte",63,123795,1965
+25-544992,cat3,"elijke ruimte terras",16.87,2530.5,150
+25-544992,cat1,"appartementen",249,655368,2632
+25-544992,other,"gemeenschapp elijke ruimte",30,58950,1965
+25-544992,other,"elijke ruimte balcons",43.45,35629,820
+25-544992,cat3,"groendak",174,32364,186
+25-544992,other,"elijke ruimte balcons",17.52,14366.4,820
+25-545137,cat2,"Berekening Bedrijfsgebouw met kantoren, showroom en werkplaats. kantoorruimte, met showroorm",1404,1425060,1015
+25-545137,cat2,"en werkplaats tussenverdiepin g",108,36720,340
+25-545137,cat2,"g tussenverdiepin g, magazijn",72,24480,340
+25-545253,cat2,"Berekening Ferdinand Pauwelsstraat 12 kelders en garages",438,416100,950
+25-545253,cat2,"garages verzekeringskan toor en",402,844200,2100
+25-545253,cat2,"inkomhal garages",28,33600,1200
+25-545253,other,"inrit ondergrondse",23,23000,1000
+25-545253,cat2,"garage appartement",319,733700,2300
+25-545253,cat3,"terras",107,69550,650
+25-545253,cat3,"terrasoverkappi ng",32,11200,350
+25-545253,cat1,"ng appartement",262,602600,2300
+25-545253,cat3,"terras",61,39650,650
+25-545254,cat2,"Berekening nr 14 kelder",58,55100,950
+25-545254,cat1,"verhuurd appartement",87,200100,2300
+25-545254,cat3,"appartement terras",20,7000,350
+25-545254,other,"afdak",11,2750,250
+25-545254,cat1,"polyvalente ruimte hoort eigenlijk bij nr",93,204600,2200
+25-545254,cat1,"inwendige gemeenschap verhuurd appartement",93,213900,2300
+25-545254,cat2,"nr 16 kelder",33,31350,950
+25-545254,cat2,"doorrit garage",27,17550,650
+25-545254,cat1,"appartement",27,62100,2300
+25-545254,other,"veranda",21,52500,2500
+25-545254,cat3,"terras",27,9450,350
+25-545254,cat1,"appartement bewoond door dochter van de",54,124200,2300
+25-545254,cat3,"dochter van de eigenares balkon",4,5200,1300
+25-545254,cat1,"appartement",54,113400,2100
+25-545255,cat1,"Berekening Gebouw 1 Handelsruimte",167,167000,1000
+25-545255,cat1,"Appartement/ge mene delen",80,184000,2300
+25-545255,cat1,"mene delen Appartementen/ gemene delen",215,473000,2200
+25-545255,cat1,"gemene delen Appartementen/ gemene delen",105,231000,2200
+25-545255,cat1,"gemene delen Appartementen/ gemene delen",54,118800,2200
+25-545255,cat3,"gemene delen Terras",9,7200,800
+25-545255,cat3,"Terras",22,17600,800
+25-545255,cat2,"Kelder",55,49500,900
+25-545255,cat1,"Berekening Gebouw 1 Handelsruimte",167,501000,3000
+25-545313,cat2,"Berekening vrijstaande villa leefruimtes, garage",239.3,1005060,4200
+25-545313,cat2,"garage overkapping, buitenkeuken",53.1,118147.5,2225
+25-545313,cat1,"buitenkeuken verdieping",73.7,309540,4200
+25-545313,cat3,"groendak",76,17100,225
+25-545313,cat2,"Garage, tuinverblijf garage tuinverblijf",60,150000,2500
+25-545328,cat1,"Berekening Vrijstaande villa leefruimtes, woonkamer,",150,316650,2111
+25-545328,cat1,"keuken slaapkamers, badkamer",125,263875,2111
+25-545328,cat2,"badkamer zolder",90,108000,1200
+25-545328,cat1,"Catering keuken keuken",100,163400,1634
+25-545386,cat1,"Berekening vrijstaande villa leefruimtes, praktijkruimte",197,411139,2087
+25-545386,cat2,"praktijkruimte garage, berging",44,52800,1200
+25-545386,cat1,"slaapkamers, badkamer",148,308876,2087
+25-545388,cat1,"Berekening Vrijstaande woning wasruimte, bureau, entree",64.43,134465.41,2087
+25-545388,cat2,"berging verhuurde ruimte",56.05,116976.35,2087
+25-545388,cat1,"ruimte leefruimtes",88.02,183697.74,2087
+25-545388,other,"veranda",16.06,32120,2000
+25-545388,cat3,"dakterras",21,11340,540
+25-545388,cat1,"slaapkamers, badkamer",76.66,146037.3,1905
+25-545388,other,"zomerhuisje zomerhuisje",21,23625,1125
+25-545388,other,"aanbouw",30,18300,610
+25-545388,cat2,"garage / berging garage",18,14436,802
+25-545427,cat2,"Berekening Gebouw gemetste gewelfde kelder",72,79200,1100
+25-545427,cat2,"gewelfde kelder gelijkvloerse handelsruimte",145,340750,2350
+25-545427,cat1,"handelsruimte appartement",60,153000,2550
+25-545427,cat1,"sanitair van de handelszaak",35,66500,1900
+25-545493,cat2,"Berekening Bedrijfsloods, garagewerkplaats werkplaats, sanitari, personeels",525,661500,1260
+25-545493,cat2,"verblijfsruimte, magazijn luifel",49,4410,90
+25-545502,cat1,"Berekening Polyvalente ruimte met therapie / retreat ruimte en B&B slaapkamers met badkamer, polyvalente",322.2,688853.55,2138
+25-545502,cat1,"polyvalente ruimte veranda",18.73,46816,2500
+25-545502,other,"verdieping",125.76,268869.75,2138
+25-545505,cat2,"Berekening Magazijn stockage Loods",317,285300,900
+25-545505,other,"Productiehal 1 Productiehal 1",735,624750,850
+25-545505,other,"Productiehal 2 Productiehal 2",515,437750,850
+25-545505,other,"Burelen",145,261000,1800
+25-545505,other,"Burelen",162,275400,1700
+25-545505,other,"Productiehal 3 Productiehal 3",550,467500,850
+25-545510,cat2,"Berekening hoofdgebouw kelder",28,26600,950
+25-545510,other,"gelijkvloers",195,487500,2500
+25-545510,other,"verdieping",101,242400,2400
+25-545510,cat2,"zolder",59,40415,685
+25-545510,other,"afdakje",8,3600,450
+25-545510,cat2,"opslagloods loods",136,125800,925
+25-545514,cat1,"Berekening appartementsgebouw met horecagelegenheid op het gelijkvloers restaurant (casco)",945,1323000,1400
+25-545514,cat1,"(casco) entree appartementen",20,38900,1945
+25-545514,cat1,"appartementen appartementen",580,1382140,2383
+25-545514,other,"gemeenschapp elijke ruimte",60,116700,1945
+25-545514,other,"elijke ruimte balcons",12,10200,850
+25-545514,cat1,"appartement",120,285960,2383
+25-545514,cat3,"dakterras",42,22680,540
+25-545514,other,"gemeenschapp elijke ruimte",15,29175,1945
+25-545516,cat2,"Berekening appartementsgebouw kelders, bergingen,",160,148000,925
+25-545516,cat2,"fietsenstalling appartementen",140,370020,2643
+25-545516,other,"gemeenschapp elijke ruimte",20,39300,1965
+25-545516,cat2,"elijke ruimte garage",20,16500,825
+25-545516,cat1,"appartementen",960,2537280,2643
+25-545516,other,"balcons",60,49500,825
+25-545516,cat1,"appartement",80,211440,2643
+25-545516,cat3,"dakterras",80,43200,540
+25-545518,cat2,"Berekening Burgerwoning met garage kelder",44.63,40162.5,900
+25-545518,cat1,"leefruimtes, keuken",84,168000,2000
+25-545518,cat1,"keuken slaapkamers, badkamer",84,168000,2000
+25-545518,cat1,"badkamer bergzolder",84,58800,700
+25-545518,cat2,"garage",46.75,43243.75,925
+25-545518,cat2,"zolder garage",46.75,19868.75,425
+25-545518,cat2,"aanbouw tuinberging",20,14500,725
+25-545524,other,"Berekening Gebouw 1 Tradiotionele landbouwschuur, voormalige koestal koestal in gebruik als",168,172200,1025
+25-545524,other,"koestal Gebouw 2 bergschuur, tussenbouw, overkapping overkapping tussen twee",128.75,45062.5,350
+25-545524,cat2,"Gebouw 3 voormalige aardappelloods, (verhuurd als machineberging) aardappelloods",412.5,255750,620
+25-545524,cat2,"machineberging) Gebouw 4 hangaar (deels dichtgebouwd) hangaar",170,69700,410
+25-545524,other,"Gebouw 5 Traditionele schuur met aanbouw schuur",191.25,215156.25,1125
+25-545524,other,"aanbouw",200,87000,435
+25-545565,cat1,"Berekening Centraal woonhuis inclusief cafétje gelijkvloers",174,382800,2200
+25-545565,cat2,"Kelder",24,21600,900
+25-545565,cat2,"slaapkamer en opslag zolder",90,108000,1200
+25-545569,cat2,"Berekening kantoor met werkplaats, wasplaats en overkapping kantoorruimte",208,316576,1522
+25-545569,cat2,"werkplaats",609,510951,839
+25-545569,other,"wasplaats",336,281904,839
+25-545569,other,"overkapping",366,109800,300
+25-545569,cat1,"appartement",130,240500,1850
+25-545569,cat3,"terras",28,22960,820
+25-545569,cat1,"uitbreiding bureau",53,80666,1522
+25-545571,cat2,"Berekening Gebouw 1 Bergingen",60,66000,1100
+25-545571,cat1,"gelijkvloers duplex en",84,176400,2100
+25-545571,cat2,"garage slaapvertrekken dublex",83,174300,2100
+25-545571,cat1,"dublex appartement",82,180400,2200
+25-545571,cat1,"appartement",82,180400,2200
+25-545571,other,"voorgevel bijkomend",180,144000,800
+25-545576,cat2,"Berekening Opbrengsteigendom, handelsruimte/restaurant met hotel kelder",120,123000,1025
+25-545576,cat1,"Handelsruimte (restaurant,",120,294960,2458
+25-545576,other,"tattoo) entree hotel",61,149938,2458
+25-545576,cat1,"hotelkamers",135,331830,2458
+25-545576,cat1,"hotelkamers",130,319540,2458
+25-545653,other,"Berekening Gebouw kantoren en onthaal",240,480000,2000
+25-545653,cat2,"onthaal opslagplaats",720,720000,1000
+25-545653,other,"Technische ruimte, Rf-hokje met betonnen",17,12750,750
+25-545697,cat2,"Berekening Woning Leefruimtes + garage",190,456000,2400
+25-545697,cat2,"garage Slaapvertrekken",138.84,347100,2500
+25-545697,other,"Zolderverdiepin g",80,56000,700
+25-545714,cat2,"Berekening Gebouw kelder",354,389400,1100
+25-545714,other,"apotheek",344,997600,2900
+25-545714,cat1,"appartement",154,462000,3000
+25-545714,cat3,"terras",17,12750,750
+25-545714,cat1,"studio",95,237500,2500
+25-545714,cat3,"terras",12,9000,750
+25-545726,other,"Berekening Gebouw 1 Bedrijfsloods",1250,1301250,1041
+25-545742,other,"Berekening Gebouw loods",1709,1709000,1000
+25-545742,other,"meerprijs kantoren in",86,60200,700
+25-545742,other,"loods meerprijs kantoren in",80,56000,700
+25-545742,cat2,"loods vloeistofdichte kelder in de",88,79200,900
+25-545742,cat2,"loods kelder woning",136,122400,900
+25-545742,cat1,"woning",136,353600,2600
+25-545742,cat2,"carport met bovenliggend",79,90850,1150
+25-545742,cat3,"terras woning",115,322000,2800
+25-545742,cat3,"overdekt terras",23,21850,950
+25-545742,cat1,"woning",106,296800,2800
+25-545742,other,"betonnen afdak aan",46,46000,1000
+25-546185,cat2,"Berekening Woning kelderverdiepin g",60,72000,1200
+25-546185,cat1,"g leefruimtes",75,240000,3200
+25-546185,other,"slaapvertrekken",75,195000,2600
+25-546185,other,"slaapvertrekken",60,138000,2300
+25-546185,cat1,"slaapkamer zoon",30,84000,2800
+25-546187,cat2,"Berekening Gebouw 1 kelder",130,169000,1300
+25-546187,cat1,"restaurant",200,500000,2500
+25-546187,cat1,"privé woning",165,396000,2400
+25-546187,cat1,"privé woning",160,368000,2300
+25-546187,other,"loft",120,288000,2400
+25-546187,cat2,"Buitengebouw opslag en overkapping",50,12500,250
+25-546189,other,"Berekening Gebouw loods",876,657000,750
+25-546225,other,"Berekening Gebouw gebouw van metselwerk met",200,153000,765
+25-546225,other,"zadeldak tussenvloer van beton 0% en",200,100000,500
+25-546225,other,"hout 20% loods met spanten van gelamelleerd",842,618870,735
+25-546225,other,"gelamelleerd hout houten binnengebouwtj e 15 m² met houten",30,19500,650
+25-546238,other,"Berekening Gebouw kantoren",175,350000,2000
+25-546238,other,"kantoren",238,476000,2000
+25-546238,other,"loods met atelier",626,500800,800
+25-546238,other,"tussenvloer in loods",350,157500,450
+25-546274,cat2,"Berekening Woonhuis kelder",42,63000,1500
+25-546274,cat1,"leefruimte",45,122625,2725
+25-546274,other,"bibliotheek, zitkamer",37,100825,2725
+25-546274,cat3,"zitkamer dakterras",7.27,3925.8,540
+25-546274,other,"bibliotheek",37,100825,2725
+25-546274,cat1,"slaapkamer, badkamer",37,100825,2725
+25-546277,cat1,"Berekening Gebouw 1 Wijnwinkel",66.5,179550,2700
+25-546277,cat1,"Appartement",194,339500,1750
+25-546277,other,"Verhuurd gedeelte ( casco",47.5,71250,1500
+25-546277,cat2,") Opslag + keuken +",210,273000,1300
+25-546277,other,"traphal",21,17850,850
+25-546277,cat2,"Kelder",48,38400,800
+25-546333,cat2,"Berekening clubgebouw, motoclub garage, berging, toiletgroep, jury",288,574848,1996
+25-546333,other,"ruimte kantine",288,574848,1996
+25-546378,cat2,"Berekening Vrijstaande villa met dubbele garage leefruimtes, slaapkamers",241,488266,2026
+25-546378,cat2,"badkamer dubbele garage",57,71250,1250
+25-546378,cat1,"verdieping, slaapkamers,",217.5,440655,2026
+25-546378,cat1,"badkamer veranda",9,13500,1500
+25-546378,other,"aangebouwde overkappingen",60,19500,325
+25-546378,other,"vrijstaand bijgebouw, hobbyruimte, bergruimte hobby bergruimte",35.75,28671.5,802
+25-546378,cat2,"bergruimte zolder",35.75,19305,540
+25-546442,cat1,"Berekening Villa leefruimtes",158,495330,3135
+25-546442,cat1,"slaapkamers, badkamer",136,426360,3135
+25-546442,cat1,"badkamer afdak",7.68,11520,1500
+25-546442,cat2,"Schuur, garage, berging bergschuur, materieel",111,164502,1482
+25-546442,other,"materieel afdak",17.6,22000,1250
+25-546442,cat2,"landbouwschuur, staling dieren, stalling materieel stalling",176.55,252819.6,1432
+25-546442,other,"hooizolder",109.38,156632.16,1432
+25-546442,other,"tussenverdiep",30,16200,540
+25-546442,cat2,"machineberging , werkplaats",167.44,239774.08,1432
+25-546442,cat2,", werkplaats stalling",16.3,23341.6,1432
+25-546442,other,"overkapping",13.6,17000,1250
+25-546499,cat2,"Berekening Bedrijfsgebouw met kantoren, atelier en magazijn kantooruimte",190,353210,1859
+25-546499,cat1,"kantoorruimte",190,353210,1859
+25-546499,cat2,"atelier, magazijn",585,535275,915
+25-546510,cat1,"Berekening Woning woning",110,264000,2400
+25-546510,cat2,"bergingen",32,70400,2200
+25-546510,cat1,"woning",100,240000,2400
+25-546510,other,"afgewerkte dakverdieping",70,112000,1600
+25-546510,other,"dakverdieping technische ruimte op",4,4000,1000
+25-546559,cat2,"Berekening Nr 22 kelder",25,25000,1000
+25-546559,cat1,"woning",152,347320,2285
+25-546559,other,"veranda",8,16000,2000
+25-546559,cat1,"woning",185,351500,1900
+25-546559,other,"schuur met zadeldak",88,57200,650
+25-546559,other,"zadeldak schuur met hellend dak van",78,35100,450
+25-546561,other,"Berekening A Nieuwbouw machineloods machineloods",420,282660,673
+25-546561,other,"B Aardappelbewaarloods Aardappelloods, aangebouwd aan",420,346500,825
+25-546561,other,"C Runderstal met ligboxen stal met ligboxen",1053,563355,535
+25-546561,cat2,"ligboxen tussenverdiepin g. stro opslag,",234,17550,75
+25-546561,cat2,"D overdekte silo Voeropslag, stro overdekte silo",390,170820,438
+25-546561,other,"E Machineloods machineloods",400,161200,403
+25-546561,cat2,"tussenverdieping. stro opslag,",234,17550,75
+25-546609,other,"Berekening Gebouw 1 Gelijkvloers",115,345000,3000
+25-546609,other,"Eerste verdiep",52.44,131100,2500
+25-546609,other,"Tweede verdiep",52.44,131100,2500
+25-546609,other,"Derde verdiep",52.44,104880,2000
+25-546609,cat2,"Kelder",55,60500,1100
+25-546630,cat1,"Berekening woonhuis (casco) leefruimtes",129,154800,1200
+25-546630,cat2,"zolder",129,96750,750
+25-546630,cat2,"traditionele landbouwschuur schuur met stallingen",255,261375,1025
+25-546630,cat2,"stallingen aanbouw",34,14280,420
+25-546630,cat2,"Stalling jongvee stalling",126,76860,610
+25-546631,other,"Berekening runderstal stal",1840,702880,382
+25-546631,other,"stalinrichting",1840,119600,65
+25-546631,cat1,"bedrijfswoning (surplus)",100,118800,1188
+25-546631,cat2,"machineloods, mestopslag machineloods",194,90986,469
+25-546631,cat2,"mestopslag",388,131920,340
+25-546633,cat1,"Berekening Gebouw 1 Handelspand",185,481000,2600
+25-546633,other,"Traphal",15,30000,2000
+25-546633,cat1,"Handelspand",155,310000,2000
+25-546633,other,"Traphal",10,22000,2200
+25-546633,cat1,"Appartement/ge mene delen",120,336000,2800
+25-546633,cat3,"mene delen Terras",38,34200,900
+25-546633,cat1,"Appartement/ge mene delen",95,266000,2800
+25-546633,cat2,"mene delen Kelder",20,22000,1100
+25-546636,cat2,"Berekening Gebouw kelder met binnenzwembad",165,396000,2400
+25-546636,cat1,"en sauna woning",165,495000,3000
+25-546636,cat2,"garage",37,51800,1400
+25-546636,cat1,"woning",198,594000,3000
+25-546636,cat3,"terrassen",33,33000,1000
+25-546902,cat1,"Berekening Vrijstaande woning leefruimtes",176,481360,2735
+25-546902,cat1,"slaapkamers, badkamer",132,361020,2735
+25-546902,cat1,"badkamer aangebouwde overkapping",36,11700,325
+25-547049,cat1,"Berekening Vrijstaande woning, luxe afwerking leefruimtes, slaapkamers, badkamer. zitkamer,",264.13,845216,3200
+25-547049,cat1,"zitkamer, eetkamer, keuken overkapping",8.52,8094,950
+25-547049,cat2,"berging / garage / stalling berging, stalling, garge",67,75375,1125
+25-547049,cat2,"garge overkapping, houtopslag",17,5950,350
+25-547134,other,"Berekening Gebouw loodsen",2910,2313450,795
+25-547134,cat2,"meerprijs kantoren, berging in loods",67,43550,650
+25-547134,cat2,"berging in loods meerprijs kantoren in loods 2,",73,58400,800
+25-547134,other,"gelijkvloers, verdieping houten tussenvloer in",136,57800,425
+25-547134,other,"loods 2 meerprijs sanitair blok met tussenvloer in",50,32500,650
+25-547134,other,"tussenvloer in loods 2 luifel",410,143500,350
+25-547145,cat1,"Berekening Handelsruimte 1 Handelsruimte 1",468,374400,800
+25-547145,other,"Stockage",445,333750,750
+25-547145,cat1,"Handelsruimte 2 Handelsruimte 2",640,512000,800
+25-547145,cat1,"Handelsruimte 3 (10B) Handelsruimte 3",630,472500,750
+25-547281,cat1,"Berekening kantoorruimte kantoren, ontvangstruimte",396,914760,2310
+25-547281,cat1,"bovenwoning, appartement leefruimtes, slaapkamers,",389,738711,1899
+25-547281,cat1,"badkamers entree trapopgang",20,37980,1899
+25-547281,cat2,"trapopgang tuinberging",40,60000,1500
+25-547281,cat3,"dakterras",40,21600,540
+25-547281,other,"loggia",7.5,6000,800
+25-547281,other,"mezzanine",40,48000,1200
+25-547386,cat1,"Berekening Cateringkeuken met kantoorruimte cateringkeuken vloeistofdichte vloeren, koelingen,",411,377709,919
+25-547386,cat2,"toiletten kleedruimtes, technieken magazijn",80,92000,1150
+25-547386,other,"kantoren",274,438400,1600
+25-547386,cat3,"dakterras",25,11250,450
+25-547386,cat2,"technieken",15,13785,919
+25-547386,other,"overkapping",30,6750,225
+25-547432,cat1,"Berekening Gebouw 1 winkelruimte",48,95520,1990
+25-547432,cat1,"entree woning, keuken",32,69504,2172
+25-547432,cat1,"keuken leefruimtes",84,182448,2172
+25-547432,cat2,"zolder",84,100800,1200
+25-547432,cat2,"atelier, magazijn",376.55,562565.7,1494
+25-547432,cat2,"ingeriche zolder",75,59850,798
+25-547432,cat1,"afwaskeuken",63,94122,1494
+25-547432,cat2,"garage, magazijn",80.44,64510.88,802
+25-547432,cat2,"magazijn zolder, garage",36.25,15406.25,425
+25-547491,cat2,"Berekening Gebouw 1 Loods, berging Loods, berging",141,132681,941
+25-547491,other,"Gebouw 2 voormalige varkensstal. kalverstal (deels leeg, te herbestemmen) stallen",860,546100,635
+25-547491,cat2,"te herbestemmen) Gebouw 3 varkensstal varkensstal, kelders, ventilatieplafond",670,789260,1178
+25-547491,cat2,"Gebouw 4 Hangaar, machineberging, groepshuisvesting jongvee. Loods, machineberging , groepsboxen.",1032,370488,359
+25-547491,other,"open inrichting boxen, tussenverdiepin",450,110700,246
+25-547491,cat2,"g kelders",400,53600,134
+25-547491,other,"jongvee. Gebouw 5 melkveestal melkveestal",2500,1207500,483
+25-547499,other,"Berekening jongveestal jongvee stal",560,330400,590
+25-547499,other,"stalinrichting",560,69244,124
+25-547499,cat2,"kelders",427,104188,244
+25-547499,other,"Machineloods machineloods",485,270145,557
+25-547499,other,"Hangaar hangaar, stro, machines",360,151920,422
+26-547596,other,"Berekening Gebouw brasserie enkel gelijkvloers",330,1320000,4000
+26-547596,cat1,"gelijkvloers keuken",151,271800,1800
+26-547596,other,"gemeenschapp elijk aandeel in",65,130000,2000
+26-547598,cat1,"Berekening Winkelruimte winkel",578,1213800,2100
+26-547598,other,"afdak",79,27650,350
+26-547598,other,"loods",264,180840,685
+26-547598,other,"houten tussenvloer in",137,80145,585
+26-547602,cat2,"Berekening Bedrijfsgebouw met showroom, magazijn en woning showroom",307,395416,1288
+26-547602,other,"showroom",280,360640,1288
+26-547602,cat2,"magazijn",100,80000,800
+26-547602,cat1,"woning, leefruimtes",213,472860,2220
+26-547602,cat1,"leefruimtes woning, slaapkamers,",98,217560,2220
+26-547660,cat1,"Berekening Handelspand met kapsalon winkel kapsalon",220,337700,1535
+26-547660,cat2,"berging, garage",56,44688,798
+26-547660,cat2,"winkel met magazijn sportwinkel winkelruimte",650,735800,1132
+26-547660,cat1,"bovenwoning leefruimtes",108,219780,2035
+26-547660,cat1,"slaapkamers",75,152625,2035
+26-547660,other,"aangebouwde veranda",24,22800,950
+26-547732,other,"Berekening Gebouw A Gebouw A",190,133000,700
+26-547732,other,"Gebouw B Gebouw B",112,106400,950
+26-547732,other,"Gebouw C Gebouw C",112,61600,550
+26-547732,other,"Gebouw D Gebouw D",391,273700,700
+26-547734,cat1,"Berekening appartement / studio",123.5,296400,2400
+26-547734,cat1,"studio balcons",37,30525,825
+26-547736,cat1,"Berekening kantoorgebouw ontvangsthal, kantoren, kantoorruim,",486,1168830,2405
+26-547736,cat1,"algemene ruimtes kantoren, kantoortuin, directie kamer,",501.6,1206348,2405
+26-547736,other,"directie kamer, refter, sanitair technische verdieping",75,82500,1100
+26-547784,cat1,"Berekening Gebouw 1: woning gelijkvloers",400,1120000,2800
+26-547784,cat2,"Gebouw 2: garages garages",345,414000,1200
+26-547784,cat2,"Gebouw 3: werkplaats schuur",454,181600,400
+26-547784,cat2,"Gebouw 4: opslag aardappelen voor Kroky Loods voor opslag",1684,673600,400
+26-547810,cat2,"Berekening werkplaats kelder",64,54400,850
+26-547810,cat2,"werkplaats",272,189040,695
+26-547810,cat2,"opslagloods loods",90,40500,450
+26-547810,other,"afdak aan loods",32,8000,250
+26-548229,cat2,"Berekening Gebouw kelder",104,104000,1000
+26-548229,other,"gelijkvloers",166,398400,2400
+26-548229,other,"patio",14,14000,1000
+26-548229,other,"verdieping 1",166,398400,2400
+26-548229,cat3,"terras",14,14000,1000
+26-548229,other,"dakverdieping",92,220800,2400
+26-548897,cat2,"Berekening restaurant met aangebouwde keuken kelder",64,60800,950
+26-548897,cat1,"keuken aanbouw",64,121536,1899
+26-548897,cat1,"aanbouw restaurant",300,569700,1899
+26-548897,other,"tussenverdiepin g",60,75000,1250
+26-548923,cat2,"Berekening Restaurant, met aangebouwde veranda, feestzalen kelders",526,473400,900
+26-548923,cat1,"restaurant",260,688740,2649
+26-548923,other,"aangebouwde veranda",95,166250,1750
+26-548923,cat1,"constructie aanbouw, restaurant, open te schuiven",87,261000,3000
+26-548923,cat1,"te schuiven glaswand feestzaal",255,675495,2649
+26-548923,cat1,"feestzaal",94.5,250330.5,2649
+26-548923,other,"uitbouw voorgevel",45,90000,2000
+26-548923,other,"voorgevel verdieping casco",75,112500,1500
+26-548969,cat1,"Berekening Gebouw nr 34 appartementen + gemene",220,517000,2350
+26-548969,cat1,"+ gemene inkomhal appartementen",200,470000,2350
+26-548969,cat1,"+ gemene delen",150,382500,2550
+26-548969,cat3,"terrassen",36,10800,300
+26-548969,cat3,"terrassen",42,37800,900
+26-548969,cat1,"Gebouw nr 40 appartementen",317.25,745537.5,2350
+26-548969,cat1,"appartementen appartementen",310,728500,2350
+26-548969,cat1,"appartementen appartementen",216,507600,2350
+26-548969,cat3,"appartementen terras",26,7800,300
+26-548969,cat3,"terrassen",77,69300,900
+26-549907,cat2,"Berekening Cafe cafe met verbruiksruimte, toilet groep, berging (deel",145,357860,2468
+26-550183,other,"Berekening Fitness, sportschool verbruiksruimte, personeelsruimt e vergader",297,454410,1530
+26-550183,other,"e vergader ruimte spinningruimte",72.25,88723,1228
+26-550183,other,"verdieping met sportzalen",247,133380,540
+26-550183,cat1,"sportzalen zaal met fitness, voormalige",1120,1375360,1228
+26-550183,other,"squash banen tussenverdiepin g",336,181440,540
+26-550183,other,"g kleedruimtes, sanitair",336,420000,1250
+26-550192,other,"Berekening Gebouw 1 bedrijfsruimte",304,177232,583
+26-550240,other,"Berekening Gebouw showroom",1162,1626800,1400
+26-550240,other,"meerprijs kantoren",120,84000,700
+26-550240,cat1,"kantoren ontvangstzaal en kantoor op",110,242000,2200
+26-550240,cat2,"verdieping werkplaats en magazijn 1.048 m² en",1114,891200,800
+26-550240,cat2,"afleverruimte 66 m² magazijn",345,207000,600
+26-550240,other,"afdaken",77,21175,275
+26-550244,cat1,"Berekening kantoorruimte in een kantorengebouw parkeerplaatsen in ondergrondse",250,237500,950
+26-550244,cat2,"in ondergrondse parking kantoorruimte (casco)",400,600000,1500
+26-550244,cat1,"(casco) kantoorruimte (casco)",900,1350000,1500
+26-550244,other,"(casco) afwerking en vaste inrichting katoorruimte",400,290400,726
+26-550244,cat1,"(uitgevoerd door aanbieder) afwerking en vaste inrichitng kantoorruimte",900,653400,726
+26-550379,cat1,"Berekening Appartementsgebouw appartementen",269.57,709238.67,2631
+26-550379,other,"gemeenschapp elijke ruimtes",51,99450,1950
+26-550379,cat2,"elijke ruimtes bergingen, technische",36,43200,1200
+26-550379,other,"ruimtes doorgang",60,32400,540
+26-550379,cat3,"terrassen",30,4500,150
+26-550379,cat3,"terrassen voorzijde",24,10800,450
+26-550379,cat1,"voorzijde appartementen",892.76,2348851.56,2631
+26-550379,other,"gemeenschapp elijke ruimte",68,132600,1950
+26-550379,cat3,"elijke ruimte terrassen",119.18,101303,850
+26-550379,cat1,"appartementen",346.6,911904.6,2631
+26-550379,other,"gemeenschapp elijke ruimte",34,66300,1950
+26-550379,other,"elijke ruimte balcons",32,27200,850
+26-550380,cat1,"Berekening Gebouw 1 Appartementen/ gemene delen",290,667000,2300
+26-550380,cat3,"gemene delen Terras",60,66000,1100
+26-550380,cat1,"Appartementen/ gemene delen",310,713000,2300
+26-550380,cat2,"gemene delen Doorrit",30,36000,1200
+26-550380,cat3,"gemene delen Terras",30,33000,1100
+26-550380,cat1,"Appartementen/ gemene delen",265,609500,2300
+26-550380,cat3,"gemene delen Terras",50,55000,1100
+26-550380,other,"Stookplaats",21,23100,1100
+26-550380,cat1,"Woning",60,138000,2300
+26-550380,cat1,"Woning",49,122500,2500
+26-550380,cat2,"Fietsenberging",60,108000,1800
+26-550452,cat1,"Berekening Gebouw A ( woning) Woning",336,672000,2000
+26-550452,other,"Gebouw B (open) Open loods",499.2,149760,300
+26-550452,other,"Gebouw C (open) Afdak (open)",510,153000,300
+26-550452,other,"Varkensstal",210,115500,550
+26-550453,cat2,"Berekening Gebouw 1 voormalige varkensstal, aan te passen tot banden opslagruimte opslagruimte voor banden",680,440640,648
+26-550453,cat2,"banden opslagruimte Gebouw 2 werkplaats, opslag banden werkplaats bandenopslag",700,393400,562
+26-550453,cat2,"Gebouw 3 voormalige varkensstal, aan te passen tot banden opslagruinte banden opslag",720,466560,648
+26-550572,other,"Berekening kippenstallen kippenstal",2047,1228200,600
+26-550572,other,"kippenstal",2047,1228200,600
+26-550572,other,"stalinrichting",4094,450340,110
+26-550572,cat2,"tussenbouw met technieken",125,131250,1050
+26-550645,cat2,"Berekening Garagewerkplaats kelder",10,9000,900
+26-550645,cat2,"werkplaats",187,240856,1288
+26-550645,cat2,"woning kelder",12,10800,900
+26-550645,cat1,"woonruimte, hobbyruimte, woonkamer, keuken,",152.35,373257.5,2450
+26-550645,cat1,"wasplaats, slaapkamer, dressing slaapkamer, badkamer",27,66150,2450
+26-550645,cat1,"duplex appartement leefruimte, badkamer",70,135940,1942
+26-550645,cat1,"badkamer slaapkamers",70,135940,1942
+26-550651,cat1,"Berekening Gebouw 1 Huigeveldstraat 16 Winkelruimte winkelruimte, handelsruimte",450,952650,2117
+26-550651,cat1,"handelsruimte",98,49000,500
+26-550651,cat2,"berging",35,17500,500
+26-550651,cat1,"Gebouw 2 Huigevelstraat 16 101 Eigenaar bewoner leefruimtes",92,201480,2190
+26-550651,cat1,"slaapkamers, badkamer",80,175200,2190
+26-550651,cat3,"badkamer terras",20,10800,540
+26-550651,cat1,"Gebouw 3 Huigeveldstraat 16 102 eigenaar, verhuurder, leefruimtes",92,201480,2190
+26-550651,cat3,"badkamer Terras",20,10800,540
+26-550656,cat2,"Berekening Bedrijfsloods, KMO unit Opslag unit",810,844020,1042
+26-550811,other,"Berekening Kerkgebouw kerkgebouw",2550,1988464.5,780
+26-550811,other,"toren",189,222453,1177
+26-550811,other,"gemeenschapsruimte (voormalige school) verblijfsruimte met bar",105,280770,2674
+26-550811,cat2,"met bar kelder",18,16200,900
+26-550811,cat1,"keuken",20,53480,2674
+26-550811,other,"toiletgebouw",28,74872,2674
+26-550866,cat2,"Berekening Woonhuis kelder",6,5400,900
+26-550866,cat1,"leefruimtes, woonkamer, keuken, entree,",147.5,285560,1936
+26-550866,cat1,"keuken, entree, bureel slaapkamers, badkamer",76.5,148104,1936
+26-550866,cat1,"badkamer zolderkamer",76.5,148104,1936
+26-550866,cat2,"werkplaats, atelier, opslagruimte werkplaats, opslag, berging",335,301500,900
+26-550899,cat1,"Berekening woonhuis met aangebouwde, veranda en schuur leefruimtes",118,216294,1833
+26-550899,cat1,"slaapkamers",100,183300,1833
+26-550899,other,"schuur",278,250200,900
+26-550899,cat2,"zolder, kap",278,139000,500
+26-550899,cat2,"kelders",32,28800,900
+26-550960,cat1,"Berekening Gebouw winkelruimte",432,604800,1400
+26-550960,cat2,"magazijn",90,90000,1000
+26-552026,cat2,"Berekening Gebouw 1 Loods voor opslag",480,216000,450
+26-552178,cat2,"Berekening Gebouw kelder",68,68000,1000
+26-552178,cat2,"kelderbar",52,67600,1300
+26-552178,cat1,"woning",369,1070100,2900
+26-552178,cat2,"berging",39,39000,1000
+26-552178,other,"afdak",41,30750,750
+26-552178,cat1,"woning",284,823600,2900
+26-552178,cat2,"zolder",39,33150,850
+26-552233,other,"Berekening NORDEX Deel 1",320,288000,900
+26-552233,other,"Deel 2",360,324000,900
+26-552233,other,"Burelen",145,261000,1800
+26-552233,other,"Wycksandt Automatenshop ( casco)",38,57000,1500
+26-552233,cat2,"( casco) Opslag",110,104500,950
+26-552233,cat1,"Woning",150,292500,1950
+26-552233,cat1,"Woning",95,185250,1950
+26-552710,cat2,"Berekening residentiele appartementsvilla. ondergrondse parkeergarage, bergingen,",498,510450,1025
+26-552710,cat2,"bergingen, technieken appartementen, studios",265,792085,2989
+26-552710,cat1,"studios appartementen, studio;s",265,792085,2989
+26-552710,cat1,"studio;s appartementen",254,759206,2989
+26-552710,other,"dakopbouw",35,42000,1200
+26-552710,cat3,"terrassen",82.4,74160,900
+26-552710,cat3,"terrassen",64.8,58320,900
+26-552748,cat2,"Berekening Restaurant kelder",75,71250,950
+26-552748,cat1,"Restaurant",177,344442,1946
+26-552748,cat1,"koude keuken/ koelingen",177,344442,1946
+26-552748,cat2,"koelingen bureau, opslagruimte, personeelsruimt",115,223790,1946
+26-552784,cat1,"Berekening Gebouw 1 : Woning + burelen Gelijkvloers",279,697500,2500
+26-552784,other,"Eerste verdiep",224,492800,2200
+26-552784,cat2,"Kelder",15,14250,950
+26-552784,other,"Gebouw 2: Paardenstallen Stalgebouw",974,754850,775
+26-552784,other,"Gebouw 3a : Koetshuis + sanitair Gelijkvloers",336,436800,1300
+26-553021,other,"Berekening Kerkhofweg 34 vijf serviceflats",315,819000,2600
+26-553021,cat2,"berging en technisch lokaal",77,96250,1250
+26-553021,cat3,"technisch lokaal terrassen",40,14000,350
+26-553021,other,"trappenhuis, lifttoren",28,36400,1300
+26-553021,other,"lifttoren zes serviceflats",380,988000,2600
+26-553021,cat3,"terrassen",52,44200,850
+26-553021,other,"passerel",77,65450,850
+26-553021,other,"lifttoren vijf serviceflats",315,819000,2600
+26-553021,cat3,"terrassen",40,34000,850
+26-553021,other,"lifttoren afdak op gelijkvloers",16,5600,350
+26-553027,other,"Berekening Dienstencentrum Oud-Strijdersplein 1 dienstencentru m",620,1674000,2700
+26-553087,cat2,"Berekening Gebouw kelder als toonzaal",259,323750,1250
+26-553087,cat2,"toonzaal kelder",103,87550,850
+26-553087,cat1,"toonzaal en kantoren",668,968600,1450
+26-553087,cat1,"kantoren woning",100,230000,2300
+26-553087,cat1,"toonzaal",619,897550,1450
+26-553087,cat1,"woning",70,161000,2300
+26-553087,cat2,"zolder, zadeldak",300,135000,450
+26-553088,cat2,"Berekening VOLVO-garage showroom en kantoren",1019,1324700,1300
+26-553088,other,"kantoren afdak",125,36875,295
+26-553088,cat2,"werkplaats",1016,762000,750
+26-553088,other,"refter en sanitair",84,100800,1200
+26-553088,other,"open showroomverdie",884,574600,650
+26-553088,other,"ping kantoren",89,115700,1300
+26-553088,cat2,"werkplaats 746 m² en magazijn",929,603850,650
+26-553088,cat1,"appartement",84,155400,1850
+26-553088,cat3,"terras",31,20925,675
+26-553088,other,"afdak aan ingang",13,8450,650
+26-553088,cat2,"bandenopslagplaats loods zonder verwarming",2400,1560000,650
+26-553318,cat2,"Berekening Gebouw 1 woonhuis woning met berging",212,307400,1450
+26-553318,cat2,"berging zolder",80,40000,500
+26-553318,cat2,"Gebouw 2 machineloods, werkplaats loods",209,100529,481
+26-553318,other,"aanbouw",65,48100,740
+26-553318,cat2,"aanbouw, garage",183,120780,660
+26-553318,cat2,"garage loods",290,139490,481
+26-553318,other,"gebouw 3 varkensstal mestvarkens met hokinrichting,",542,384820,710
+26-553318,other,"Gebouw 4 varkensstal stal met hokinrichting,",555,407925,735

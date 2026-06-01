@@ -1,0 +1,255 @@
+# Transcription of Annotation Boxes — Gebouw A
+
+---
+
+## PAGE 3 (PDF page 3) — Sheet UV/4/D
+
+### Bottom Left Floor Plan: **Nivo +01** (1st Floor)
+
+**Apartment A 1.01 — LEFT annotation box:**
+```
+App. A 1.01
+Bruto 120 m2
+```
+
+**Apartment A 1.01 — RIGHT annotation box:**
+```
+App. A 1.01
+Netto 104 m2
+```
+
+**Apartment A 1.02 — LEFT annotation box:**
+```
+App. A 1.02
+Bruto 114 m2
+```
+
+**Apartment A 1.02 — RIGHT annotation box:**
+```
+App. A 1.02
+Netto 99 m2
+```
+
+**Common/Circulation area annotation:**
+```
+GEM BRUTO
+13 m2
+```
+```
+GEM NETTO
+3 m2
+```
+
+**Terras annotations (on plan, not in boxes):**
+```
+rwa terras 27,13 m²
+```
+```
+rwa terras 28.96 m²
+```
+
+**Room area labels (on plan):**
+```
+21,65 m²
+```
+```
+23,04 m²
+```
+
+---
+
+### Bottom Right Floor Plan: **Nivo +02** (2nd Floor)
+
+**Apartment A 2.01 — LEFT annotation box:**
+```
+App. A 2.01
+Bruto 118 m2
+```
+
+**Apartment A 2.01 — RIGHT annotation box:**
+```
+App. A 2.01
+Netto 104 m2
+```
+
+**Apartment A 2.02 — LEFT annotation box:**
+```
+App. A 2.02
+Bruto 114 m2
+```
+
+**Apartment A 2.02 — RIGHT annotation box:**
+```
+App. A 2.02
+Netto 99 m2
+```
+
+**Terras annotation boxes:**
+```
+Terras
+Opp.: 17 m2
+```
+```
+Terras
+Opp.: 16 m2
+```
+
+**Common/Circulation area annotation:**
+```
+GEM BRUTO
+13 m2
+```
+```
+GEM NETTO
+3 m2
+```
+
+**Terras annotations (on plan):**
+```
+rwa terras 16,21 m²
+```
+```
+rwa terras 16,58 m²
+```
+
+**Room area labels (on plan):**
+```
+17,6m²
+```
+```
+18m²
+```
+
+---
+
+## PAGE 5 (PDF page 5) — Sheet UV/5/D
+
+### Bottom Left Floor Plan: **Nivo +02** (2nd Floor — repeated from page 3)
+
+*(Identical annotation boxes as Nivo +02 on Page 3)*
+
+**Apartment A 2.01 — LEFT annotation box:**
+```
+App. A 2.01
+Bruto 118 m2
+```
+
+**Apartment A 2.01 — RIGHT annotation box:**
+```
+App. A 2.01
+Netto 104 m2
+```
+
+**Apartment A 2.02 — LEFT annotation box:**
+```
+App. A 2.02
+Bruto 114 m2
+```
+
+**Apartment A 2.02 — RIGHT annotation box:**
+```
+App. A 2.02
+Netto 99 m2
+```
+
+**Terras annotation boxes:**
+```
+Terras
+Opp.: 17 m2
+```
+```
+Terras
+Opp.: 16 m2
+```
+
+**Common/Circulation area annotation:**
+```
+GEM BRUTO
+13 m2
+```
+```
+GEM NETTO
+3 m2
+```
+
+**Terras annotations (on plan):**
+```
+rwa terras 16,21 m²
+```
+```
+rwa terras 16,58 m²
+```
+
+**Room area labels (on plan):**
+```
+17,6m²
+```
+```
+18m²
+```
+
+---
+
+### Bottom Right Floor Plan: **Nivo +03** (3rd Floor / Top Floor)
+
+**Apartment A 3.01 — LEFT annotation box:**
+```
+App. A 3.01
+Bruto 120 m2
+```
+
+**Apartment A 3.01 — RIGHT annotation box:**
+```
+App. A 3.01
+Netto 98 m2
+```
+
+**Common/Circulation area annotation:**
+```
+GEM BRUTO
+13 m2
+```
+```
+GEM NETTO
+3 m2
+```
+
+**Terras/area annotation (on plan):**
+```
+rwa 32,92 m²
+```
+
+**Additional area label visible on plan:**
+```
+Netto 79 m2
+```
+*(this appears to label the terras/outdoor area separately)*
+
+**Room/terras area labels (on plan):**
+```
+22 m2
+```
+```
+23 m2
+```
+
+---
+
+### Additional Annotations — Both Pages (Compartiment labels, visible on elevation/legend area):
+
+```
+1 COMPARTIMENT
+Opp.: 96,56 m2
+```
+```
+1 COMPARTIMENT
+Opp.: 90,00 m2
+```
+```
+1 COMPARTIMENT
+Opp.: 96,56 m2
+```
+```
+1 EVACUATIE
+Opp.: 10,00 m2
+```

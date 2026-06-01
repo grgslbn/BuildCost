@@ -1,0 +1,47 @@
+[
+ {
+  "ref": "24-516605",
+  "type": "appartementsgebouw",
+  "conf": 0.93,
+  "has_schedule": false,
+  "sched": 0,
+  "unitNet": 1643,
+  "roomSum": 740,
+  "total": null,
+  "measured": null,
+  "n_units": 15,
+  "n_floors": 3,
+  "heated": 3968,
+  "notes": "Unit areas read directly from bold printed labels on each apartment outline. 3 floor sheets present (niveau +1 sheet 205"
+ },
+ {
+  "ref": "24-519406",
+  "type": "appartementsgebouw",
+  "conf": 0.15,
+  "has_schedule": false,
+  "sched": 0,
+  "unitNet": 0,
+  "roomSum": 0,
+  "total": null,
+  "measured": null,
+  "n_units": 0,
+  "n_floors": 5,
+  "heated": 5690,
+  "notes": "These images are notarial/legal deed pages (basisakte), not architectural floor plans. The numbers printed (e.g. 1.825/1"
+ },
+ {
+  "ref": "25-537092",
+  "type": "appartementsgebouw",
+  "conf": 0.6,
+  "has_schedule": false,
+  "sched": 0,
+  "unitNet": 0,
+  "roomSum": 0,
+  "total": 730,
+  "measured": null,
+  "n_units": 0,
+  "n_floors": 1,
+  "heated": 6244,
+  "notes": "These images are not architectural floor plans but an insurance/inspection report (CED/AXA). The only area figure presen"
+ }
+]

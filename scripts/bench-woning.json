@@ -1,0 +1,334 @@
+[
+ {
+  "ref": "26-550673",
+  "file": "26-55067300033VerzamelPDF_20260429_0027.pdf",
+  "building_type": "woning",
+  "total": 1043380,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 324,
+    "val": 433620
+   },
+   "cat2": {
+    "opp": 205,
+    "val": 221400
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 344,
+    "val": 388360
+   }
+  },
+  "woonEur": 1338,
+  "rows": [
+   {
+    "omschrijving": "leefruimtes",
+    "niveau": "0",
+    "opp_m2": 200,
+    "waarde_eur": 284200
+   },
+   {
+    "omschrijving": "slaapkamers, badkamer",
+    "niveau": "1",
+    "opp_m2": 140,
+    "waarde_eur": 198940
+   },
+   {
+    "omschrijving": "schuren, stalling, bergingen",
+    "niveau": "0",
+    "opp_m2": 205,
+    "waarde_eur": 221400
+   },
+   {
+    "omschrijving": "aangebouwde veranda",
+    "niveau": "0",
+    "opp_m2": 80,
+    "waarde_eur": 40000
+   },
+   {
+    "omschrijving": "kantoorruimte, opslagruimte",
+    "niveau": "0",
+    "opp_m2": 124,
+    "waarde_eur": 149420
+   },
+   {
+    "omschrijving": "kantoren, atelier",
+    "niveau": "1",
+    "opp_m2": 124,
+    "waarde_eur": 149420
+   }
+  ]
+ },
+ {
+  "ref": "26-552366",
+  "file": "26-55236600031VerzamelPDF_20260428_2113.pdf",
+  "building_type": "woning",
+  "total": 868280,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 262.2,
+    "val": 626280
+   },
+   "cat2": {
+    "opp": 16,
+    "val": 17600
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 104,
+    "val": 224400
+   }
+  },
+  "woonEur": 2389,
+  "rows": [
+   {
+    "omschrijving": "Handelszaak",
+    "niveau": "0",
+    "opp_m2": 55,
+    "waarde_eur": 110000
+   },
+   {
+    "omschrijving": "Woongedeelte",
+    "niveau": "0",
+    "opp_m2": 95,
+    "waarde_eur": 247000
+   },
+   {
+    "omschrijving": "Kelder",
+    "niveau": "-1",
+    "opp_m2": 16,
+    "waarde_eur": 17600
+   },
+   {
+    "omschrijving": "Slaapvertrekken",
+    "niveau": "1",
+    "opp_m2": 76,
+    "waarde_eur": 182400
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 5.0",
+    "niveau": "",
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "leefruimte met 2 slaapkamers",
+    "niveau": "0",
+    "opp_m2": 112.2,
+    "waarde_eur": 269280
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 1.0",
+    "niveau": "",
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "Poolhouse",
+    "niveau": "0",
+    "opp_m2": 28,
+    "waarde_eur": 42000
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 4.0",
+    "niveau": "",
+    "opp_m2": null,
+    "waarde_eur": 0
+   }
+  ]
+ },
+ {
+  "ref": "26-552470",
+  "file": "26-55247000024VerzamelPDF_20260428_2110.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 510650,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 117,
+    "val": 409500
+   },
+   "cat2": {
+    "opp": 18,
+    "val": 49500
+   },
+   "cat3": {
+    "opp": 70,
+    "val": 48650
+   },
+   "other": {
+    "opp": 0,
+    "val": 3000
+   }
+  },
+  "woonEur": 3500,
+  "rows": [
+   {
+    "omschrijving": "appartement",
+    "niveau": "1",
+    "opp_m2": 117,
+    "waarde_eur": 409500
+   },
+   {
+    "omschrijving": "terras",
+    "niveau": "1",
+    "opp_m2": 70,
+    "waarde_eur": 48650
+   },
+   {
+    "omschrijving": "aandeel in de gemeenschappelijke inkomhal, trappenhal met lift",
+    "niveau": "0,1",
+    "opp_m2": 18,
+    "waarde_eur": 49500
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 12.0",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "6 zonnepanelen",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 3000
+   }
+  ]
+ },
+ {
+  "ref": "26-552901",
+  "file": "26-55290100025VerzamelPDF_20260501_2017.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 985660.5,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat2": {
+    "opp": 0,
+    "val": 0
+   },
+   "cat3": {
+    "opp": 16.05,
+    "val": 13642.5
+   },
+   "other": {
+    "opp": 342,
+    "val": 972018
+   }
+  },
+  "woonEur": null,
+  "rows": [
+   {
+    "omschrijving": "Gelijkvloers",
+    "niveau": "0",
+    "opp_m2": 182,
+    "waarde_eur": 473018
+   },
+   {
+    "omschrijving": "Eerste verdiep",
+    "niveau": "1",
+    "opp_m2": 160,
+    "waarde_eur": 384000
+   },
+   {
+    "omschrijving": "Terras",
+    "niveau": "1",
+    "opp_m2": 16.05,
+    "waarde_eur": 13642.5
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 1.0",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "Buitenaanleg",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 85000
+   },
+   {
+    "omschrijving": "Hydraulische lift",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 30000
+   },
+   {
+    "omschrijving": "Vetusteit onroerende inrichting (%) 1.0",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   }
+  ]
+ },
+ {
+  "ref": "26-553000",
+  "file": "26-55300000025VerzamelPDF_20260428_1303.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 3482300,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 1406,
+    "val": 3443300
+   },
+   "cat2": {
+    "opp": 52,
+    "val": 39000
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 0,
+    "val": 0
+   }
+  },
+  "woonEur": 2449,
+  "rows": [
+   {
+    "omschrijving": "4 wooneenheden",
+    "niveau": "0",
+    "opp_m2": 348,
+    "waarde_eur": 1009200
+   },
+   {
+    "omschrijving": "Handelspand en kantoren",
+    "niveau": "0",
+    "opp_m2": 325,
+    "waarde_eur": 682500
+   },
+   {
+    "omschrijving": "4 wooneenheden",
+    "niveau": "1",
+    "opp_m2": 408,
+    "waarde_eur": 1101600
+   },
+   {
+    "omschrijving": "Handelspand en kantoor",
+    "niveau": "1",
+    "opp_m2": 325,
+    "waarde_eur": 650000
+   },
+   {
+    "omschrijving": "Fietsenberging",
+    "niveau": "0",
+    "opp_m2": 52,
+    "waarde_eur": 39000
+   }
+  ]
+ }
+]

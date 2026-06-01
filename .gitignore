@@ -27,6 +27,15 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.*
+
+# secrets / pulled env / temp / local tooling (never commit)
+/worker/node_modules
+temp-*
+.superpowers/
+.claude/worktrees/
+.claude/scheduled_tasks.lock
 
 # vercel
 .vercel

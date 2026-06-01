@@ -48,6 +48,27 @@ export function interpolatePrice(
   return priceMin + ratio * (priceMax - priceMin);
 }
 
+/**
+ * Whether cat2 (enclosed non-livable) and cat3 (outdoor) prices scale with the
+ * finishing coefficient F.
+ *
+ * cat2 (garage/storage) and cat3 (terrace) are priced INDEPENDENTLY of the
+ * apartment's finishing level — a luxury apartment does not make its garage more
+ * expensive. Coupling F to all three categories over-predicted garage-heavy
+ * buildings. When decoupled, cat2/cat3 use a fixed BASIS rate (P50), not the min.
+ *
+ * Basis rates MAE-optimized on the apartment benchmark (bench-selectie.json,
+ * 20-22 dossiers, docs/benchmark-2026-05-31.md):
+ *   cat2 (garage/kelder/berging): median €1.227, MAE-optimal €1.200 (vs €900→411, €1100→278, €1200→247)
+ *   cat3 (terras/balkon):         median €750,   MAE-optimal €700  (vs €500→237, €700→215, €900→253)
+ * (The eenheidsprijzen overview's €1100/€900 P50 were close; the per-dossier MAE
+ *  on the curated apartment set lands at €1200/€700.)
+ */
+export const DECOUPLE_CAT2_CAT3 = true;
+/** Fixed decoupled prices — MAE-optimal on the apartment benchmark. */
+export const CAT2_DECOUPLED_BASIS = 1200;
+export const CAT3_DECOUPLED_BASIS = 700;
+
 export function getFinishingLabel(f: number): string {
   for (const t of FINISHING_THRESHOLDS) {
     if (f <= t.max) return t.label;
@@ -63,8 +84,14 @@ export function calculateCost(
   abexFactor: number
 ): CostBreakdown {
   const cat1Price = interpolatePrice(finishingCoeff, pricing.cat1_min, pricing.cat1_max);
-  const cat2Price = interpolatePrice(finishingCoeff, pricing.cat2_min, pricing.cat2_max);
-  const cat3Price = interpolatePrice(finishingCoeff, pricing.cat3_min, pricing.cat3_max);
+  // cat2/cat3 are finish-independent (basis P50 rate) when decoupled — see DECOUPLE_CAT2_CAT3.
+  // Clamp the basis to the configured [min,max] so Settings still bounds it.
+  const cat2Price = DECOUPLE_CAT2_CAT3
+    ? Math.min(pricing.cat2_max, Math.max(pricing.cat2_min, CAT2_DECOUPLED_BASIS))
+    : interpolatePrice(finishingCoeff, pricing.cat2_min, pricing.cat2_max);
+  const cat3Price = DECOUPLE_CAT2_CAT3
+    ? Math.min(pricing.cat3_max, Math.max(pricing.cat3_min, CAT3_DECOUPLED_BASIS))
+    : interpolatePrice(finishingCoeff, pricing.cat3_min, pricing.cat3_max);
 
   const cat1Cost = areas.cat1_sqm * cat1Price;
   const cat2Cost = areas.cat2_sqm * cat2Price;

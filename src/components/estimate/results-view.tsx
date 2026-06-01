@@ -276,6 +276,85 @@ function CostBreakdownTable({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+/**
+ * Manual SQM confirmation — shown when the automated SQM is low-confidence (bare /
+ * dimension-only plans that vision cannot measure reliably). The user confirms or
+ * corrects the m²; the cost is recomputed server-side from the stored F + pricing.
+ */
+function SqmCorrectionPanel({ result }: { result: EstimationResult }) {
+  const [open, setOpen] = useState(false);
+  const [cat1, setCat1] = useState(String(Math.round(result.sub_areas?.cat1_sqm ?? result.total_livable_sqm ?? 0)));
+  const [cat2, setCat2] = useState(String(Math.round(result.sub_areas?.cat2_sqm ?? 0)));
+  const [cat3, setCat3] = useState(String(Math.round(result.sub_areas?.cat3_sqm ?? 0)));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/estimate/${result.id}/correct-sqm`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          cat1_sqm: Number(cat1.replace(",", ".")),
+          cat2_sqm: Number(cat2.replace(",", ".")),
+          cat3_sqm: Number(cat3.replace(",", ".")),
+        }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || "Correctie mislukt");
+      window.location.reload();
+    } catch (e) {
+      setError((e as Error).message);
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-left">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between text-sm font-medium text-amber-800"
+      >
+        <span>⚠ Oppervlakte onzeker — bevestig of corrigeer de m²</span>
+        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {open && (
+        <div className="mt-3 space-y-3">
+          <p className="text-xs text-amber-700">
+            Dit plan bevat geen leesbare oppervlaktetabel of m²-labels, dus de oppervlakte is
+            geschat (gemeten). Vul de juiste <strong>bruto vloeroppervlakte</strong> in (buitenmuren,
+            incl. circulatie) — de kost wordt automatisch herberekend.
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { lbl: "Bewoonbaar (CAT1) m²", v: cat1, set: setCat1 },
+              { lbl: "Garage/berging (CAT2) m²", v: cat2, set: setCat2 },
+              { lbl: "Terras/balkon (CAT3) m²", v: cat3, set: setCat3 },
+            ].map((f) => (
+              <label key={f.lbl} className="block text-xs text-amber-800">
+                {f.lbl}
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={f.v}
+                  onChange={(e) => f.set(e.target.value)}
+                  className="mt-1 w-full rounded border border-amber-300 bg-white px-2 py-1 text-sm text-foreground"
+                />
+              </label>
+            ))}
+          </div>
+          {error && <p className="text-xs font-medium text-red-600">{error}</p>}
+          <Button size="sm" onClick={submit} disabled={saving}>
+            {saving ? "Herberekenen…" : "Herbereken met deze m²"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ResultsView({
   result,
   postcodeMeta,
@@ -335,6 +414,9 @@ export function ResultsView({
           </p>
         )}
       </div>
+
+      {/* ── Manual SQM confirmation (only when the automated SQM is low-confidence) ── */}
+      {(result.sqm_confidence ?? 1) < 0.65 && <SqmCorrectionPanel result={result} />}
 
       {/* ── Two-column cards ── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

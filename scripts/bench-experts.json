@@ -1,0 +1,844 @@
+[
+ {
+  "ref": "25-542042",
+  "file": "25-54204200049VerzamelPDF_20260501_0239.pdf",
+  "building_type": "winkel",
+  "total": 1818000,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 537,
+    "val": 1588000
+   },
+   "cat2": {
+    "opp": 115,
+    "val": 230000
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 0,
+    "val": 0
+   }
+  },
+  "woonEur": 2957,
+  "rows": [
+   {
+    "omschrijving": "Winkel",
+    "niveau": "0",
+    "opp_m2": 310,
+    "waarde_eur": 930000
+   },
+   {
+    "omschrijving": "Winkel",
+    "niveau": "1",
+    "opp_m2": 112,
+    "waarde_eur": 336000
+   },
+   {
+    "omschrijving": "Burelen",
+    "niveau": "1",
+    "opp_m2": 115,
+    "waarde_eur": 322000
+   },
+   {
+    "omschrijving": "Opslag",
+    "niveau": "2",
+    "opp_m2": 115,
+    "waarde_eur": 230000
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 5.0",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   }
+  ]
+ },
+ {
+  "ref": "25-542077",
+  "file": "25-54207700055VerzamelPDF_20260501_0231.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 6453095.5,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 1875.6,
+    "val": 5401728
+   },
+   "cat2": {
+    "opp": 443.9,
+    "val": 667663.5
+   },
+   "cat3": {
+    "opp": 271.4,
+    "val": 286204
+   },
+   "other": {
+    "opp": 0,
+    "val": 97500
+   }
+  },
+  "woonEur": 2880,
+  "rows": [
+   {
+    "omschrijving": "privatieve bergingen, technieken, fietsberging, afvalberging",
+    "niveau": "-1",
+    "opp_m2": 209,
+    "waarde_eur": 240350
+   },
+   {
+    "omschrijving": "garages",
+    "niveau": "0",
+    "opp_m2": 101.9,
+    "waarde_eur": 145207.5
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "0",
+    "opp_m2": 101.9,
+    "waarde_eur": 293472
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimte",
+    "niveau": "0",
+    "opp_m2": 34.6,
+    "waarde_eur": 73006
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "1-8",
+    "opp_m2": 1657.6,
+    "waarde_eur": 4773888
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimtes",
+    "niveau": "1-8",
+    "opp_m2": 98.4,
+    "waarde_eur": 209100
+   },
+   {
+    "omschrijving": "terrassen",
+    "niveau": "1-8",
+    "opp_m2": 193.6,
+    "waarde_eur": 212960
+   },
+   {
+    "omschrijving": "appartement",
+    "niveau": "9",
+    "opp_m2": 116.1,
+    "waarde_eur": 334368
+   },
+   {
+    "omschrijving": "terrassen",
+    "niveau": "9",
+    "opp_m2": 2.2,
+    "waarde_eur": 2420
+   },
+   {
+    "omschrijving": "dakterrassen",
+    "niveau": "8-9",
+    "opp_m2": 75.6,
+    "waarde_eur": 40824
+   },
+   {
+    "omschrijving": "groendak 156 m2",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 30000
+   },
+   {
+    "omschrijving": "liftinstallatie",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 85000
+   },
+   {
+    "omschrijving": "zonnepanelen",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 12500
+   }
+  ]
+ },
+ {
+  "ref": "25-546287",
+  "file": "25-54628700066VerzamelPDF_20260426_2309.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 4999377.5,
+  "abex": 1056,
+  "cats": {
+   "cat1": {
+    "opp": 1501,
+    "val": 3204635
+   },
+   "cat2": {
+    "opp": 45,
+    "val": 28575
+   },
+   "cat3": {
+    "opp": 492,
+    "val": 591435
+   },
+   "other": {
+    "opp": 918,
+    "val": 1174733
+   }
+  },
+  "woonEur": 2135,
+  "rows": [
+   {
+    "omschrijving": "Binnen de gebouwen",
+    "niveau": "Kelder",
+    "opp_m2": 718,
+    "waarde_eur": 646200
+   },
+   {
+    "omschrijving": "Buiten de gebouwen",
+    "niveau": "Kelder",
+    "opp_m2": 200,
+    "waarde_eur": 240000
+   },
+   {
+    "omschrijving": "Appartementen + circulatie",
+    "niveau": "Blok A - Gelijkvloers",
+    "opp_m2": 225,
+    "waarde_eur": 480375
+   },
+   {
+    "omschrijving": "Inrit parking",
+    "niveau": "Blok A - Gelijkvloers",
+    "opp_m2": 45,
+    "waarde_eur": 28575
+   },
+   {
+    "omschrijving": "Terrassen",
+    "niveau": "Blok A - Gelijkvloers",
+    "opp_m2": 34,
+    "waarde_eur": 17225
+   },
+   {
+    "omschrijving": "Appartementen + circulatie + inpandige terrassen",
+    "niveau": "Blok A - Nivo 1",
+    "opp_m2": 211,
+    "waarde_eur": 450485
+   },
+   {
+    "omschrijving": "Dakterrassen",
+    "niveau": "Blok A - Nivo 1",
+    "opp_m2": 49,
+    "waarde_eur": 24615
+   },
+   {
+    "omschrijving": "Appartementen + circulatie",
+    "niveau": "Blok A - Nivo 2",
+    "opp_m2": 174,
+    "waarde_eur": 371490
+   },
+   {
+    "omschrijving": "Appartementen + circulatie",
+    "niveau": "Blok B - Gelijkvloers",
+    "opp_m2": 448,
+    "waarde_eur": 956480
+   },
+   {
+    "omschrijving": "Terrassen",
+    "niveau": "Blok B - Gelijkvloers",
+    "opp_m2": 143,
+    "waarde_eur": 71575
+   },
+   {
+    "omschrijving": "Appartementen + circulatie",
+    "niveau": "Blok B - Nivo 1",
+    "opp_m2": 380,
+    "waarde_eur": 811300
+   },
+   {
+    "omschrijving": "Dakterrassen",
+    "niveau": "Blok B - Nivo 1",
+    "opp_m2": 55,
+    "waarde_eur": 27535
+   },
+   {
+    "omschrijving": "Appartementen + circulatie",
+    "niveau": "Blok B - Nivo 2",
+    "opp_m2": 274,
+    "waarde_eur": 584990
+   },
+   {
+    "omschrijving": "Buitenaanleg",
+    "niveau": "",
+    "opp_m2": null,
+    "waarde_eur": 150000
+   },
+   {
+    "omschrijving": "3x Liftinstallaties",
+    "niveau": "Onroerende inrichting",
+    "opp_m2": null,
+    "waarde_eur": 117000
+   },
+   {
+    "omschrijving": "45 Zonnepanelen (435 Wp per paneel)",
+    "niveau": "Onroerende inrichting",
+    "opp_m2": null,
+    "waarde_eur": 21533
+   }
+  ]
+ },
+ {
+  "ref": "25-547560",
+  "file": "25-54756000022VerzamelPDF_20260429_2157.pdf",
+  "building_type": "appartementsgebouw met parkeerkelder, supermarkt en appartementen",
+  "total": 7284362,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 2661,
+    "val": 5679312
+   },
+   "cat2": {
+    "opp": 1160,
+    "val": 1347600
+   },
+   "cat3": {
+    "opp": 40,
+    "val": 21600
+   },
+   "other": {
+    "opp": 198,
+    "val": 235850
+   }
+  },
+  "woonEur": 2134,
+  "rows": [
+   {
+    "omschrijving": "ondergrondse parkeergarage",
+    "niveau": "-1",
+    "opp_m2": 1016,
+    "waarde_eur": 1066800
+   },
+   {
+    "omschrijving": "winkelruimte (supermarkt, casco)",
+    "niveau": "0",
+    "opp_m2": 963,
+    "waarde_eur": 1444500
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimte",
+    "niveau": "0",
+    "opp_m2": 54,
+    "waarde_eur": 105300
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "1-6",
+    "opp_m2": 1698,
+    "waarde_eur": 4234812
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimtes",
+    "niveau": "1-5",
+    "opp_m2": 90,
+    "waarde_eur": 175500
+   },
+   {
+    "omschrijving": "balcons",
+    "niveau": "2-5",
+    "opp_m2": 198,
+    "waarde_eur": 163350
+   },
+   {
+    "omschrijving": "dakterrassen",
+    "niveau": "1",
+    "opp_m2": 40,
+    "waarde_eur": 21600
+   },
+   {
+    "omschrijving": "liftinstallatie",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 72500
+   }
+  ]
+ },
+ {
+  "ref": "25-547561",
+  "file": "25-54756100037VerzamelPDF_20260429_2155.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 1981150,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 785,
+    "val": 1623000
+   },
+   "cat2": {
+    "opp": 200,
+    "val": 230000
+   },
+   "cat3": {
+    "opp": 0,
+    "val": 0
+   },
+   "other": {
+    "opp": 15,
+    "val": 128150
+   }
+  },
+  "woonEur": 2068,
+  "rows": [
+   {
+    "omschrijving": "Bergingen",
+    "niveau": "-1",
+    "opp_m2": 200,
+    "waarde_eur": 230000
+   },
+   {
+    "omschrijving": "Handelsgelijkvloers",
+    "niveau": "0",
+    "opp_m2": 185,
+    "waarde_eur": 333000
+   },
+   {
+    "omschrijving": "Gemene delen",
+    "niveau": "0",
+    "opp_m2": 15,
+    "waarde_eur": 32250
+   },
+   {
+    "omschrijving": "2 appartementen en gemene delen",
+    "niveau": "1",
+    "opp_m2": 200,
+    "waarde_eur": 430000
+   },
+   {
+    "omschrijving": "2 appartementen en gemene delen",
+    "niveau": "2",
+    "opp_m2": 200,
+    "waarde_eur": 430000
+   },
+   {
+    "omschrijving": "2 appartementen en gemene delen",
+    "niveau": "3",
+    "opp_m2": 200,
+    "waarde_eur": 430000
+   },
+   {
+    "omschrijving": "Vetusteit gebouw (%) 6.0",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 0
+   },
+   {
+    "omschrijving": "Lift",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 95900
+   }
+  ]
+ },
+ {
+  "ref": "25-547563",
+  "file": "25-54756300061VerzamelPDF_20260429_2154.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 57065550,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 14194,
+    "val": 35420000
+   },
+   "cat2": {
+    "opp": 11862.9,
+    "val": 17794350
+   },
+   "cat3": {
+    "opp": 1013,
+    "val": 833300
+   },
+   "other": {
+    "opp": 2589,
+    "val": 3017900
+   }
+  },
+  "woonEur": 2495,
+  "rows": [
+   {
+    "omschrijving": "Garage/kelder",
+    "niveau": "-2",
+    "opp_m2": 5931.45,
+    "waarde_eur": 8897175
+   },
+   {
+    "omschrijving": "Garage/kelder",
+    "niveau": "-1",
+    "opp_m2": 5931.45,
+    "waarde_eur": 8897175
+   },
+   {
+    "omschrijving": "Zaal/bibliotheek/café (verhuurd aan stad) (casco)",
+    "niveau": "0",
+    "opp_m2": 1265,
+    "waarde_eur": 1201750
+   },
+   {
+    "omschrijving": "Gemene delen appartementen (inkomhallen)",
+    "niveau": "0",
+    "opp_m2": 170,
+    "waarde_eur": 391000
+   },
+   {
+    "omschrijving": "Katoren (verhuurd aan stad) (casco)",
+    "niveau": "1",
+    "opp_m2": 927,
+    "waarde_eur": 880650
+   },
+   {
+    "omschrijving": "Gemene delen appartementen (inkomhallen)",
+    "niveau": "1",
+    "opp_m2": 155,
+    "waarde_eur": 356500
+   },
+   {
+    "omschrijving": "Binnenruimte",
+    "niveau": "2",
+    "opp_m2": 330,
+    "waarde_eur": 313500
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "2",
+    "opp_m2": 55,
+    "waarde_eur": 49500
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "2",
+    "opp_m2": 1060,
+    "waarde_eur": 2650000
+   },
+   {
+    "omschrijving": "Mulifunctionele evenementenruimte",
+    "niveau": "3",
+    "opp_m2": 67,
+    "waarde_eur": 134000
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "3",
+    "opp_m2": 1070,
+    "waarde_eur": 2675000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "3",
+    "opp_m2": 52,
+    "waarde_eur": 46800
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "4",
+    "opp_m2": 1244,
+    "waarde_eur": 3110000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "4",
+    "opp_m2": 68,
+    "waarde_eur": 61200
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "5",
+    "opp_m2": 1242,
+    "waarde_eur": 3105000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "5",
+    "opp_m2": 72,
+    "waarde_eur": 64800
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "6",
+    "opp_m2": 1225,
+    "waarde_eur": 3062500
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "6",
+    "opp_m2": 89,
+    "waarde_eur": 80100
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "7",
+    "opp_m2": 1132,
+    "waarde_eur": 2830000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "7",
+    "opp_m2": 71,
+    "waarde_eur": 63900
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "8",
+    "opp_m2": 1240,
+    "waarde_eur": 3100000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "8",
+    "opp_m2": 74,
+    "waarde_eur": 66600
+   },
+   {
+    "omschrijving": "Priva terrassen",
+    "niveau": "9",
+    "opp_m2": 68,
+    "waarde_eur": 61200
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "9",
+    "opp_m2": 1105,
+    "waarde_eur": 2762500
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "10",
+    "opp_m2": 1227,
+    "waarde_eur": 3067500
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "10",
+    "opp_m2": 87,
+    "waarde_eur": 78300
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "11",
+    "opp_m2": 1226,
+    "waarde_eur": 3065000
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "11",
+    "opp_m2": 88,
+    "waarde_eur": 79200
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "12",
+    "opp_m2": 1095,
+    "waarde_eur": 2737500
+   },
+   {
+    "omschrijving": "Terrassen/buite nruimte",
+    "niveau": "12",
+    "opp_m2": 224,
+    "waarde_eur": 123200
+   },
+   {
+    "omschrijving": "Appartementen/gemene delen",
+    "niveau": "13",
+    "opp_m2": 1003,
+    "waarde_eur": 2507500
+   },
+   {
+    "omschrijving": "Private terrassen",
+    "niveau": "13",
+    "opp_m2": 65,
+    "waarde_eur": 58500
+   },
+   {
+    "omschrijving": "Liften",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 452000
+   },
+   {
+    "omschrijving": "Huishoudlift",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 36000
+   }
+  ]
+ },
+ {
+  "ref": "26-550471",
+  "file": "26-55047100023VerzamelPDF_20260429_0107.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 5003086,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 1879,
+    "val": 4340546
+   },
+   "cat2": {
+    "opp": 392,
+    "val": 505400
+   },
+   "cat3": {
+    "opp": 66,
+    "val": 35640
+   },
+   "other": {
+    "opp": 135,
+    "val": 121500
+   }
+  },
+  "woonEur": 2310,
+  "rows": [
+   {
+    "omschrijving": "privatieve bergingen, technieken, parkeer garage",
+    "niveau": "-1",
+    "opp_m2": 280,
+    "waarde_eur": 287000
+   },
+   {
+    "omschrijving": "handelsruimte",
+    "niveau": "0",
+    "opp_m2": 240,
+    "waarde_eur": 384000
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimte",
+    "niveau": "0",
+    "opp_m2": 40,
+    "waarde_eur": 78000
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "1-9",
+    "opp_m2": 1521,
+    "waarde_eur": 3671694
+   },
+   {
+    "omschrijving": "gemeenschappelijke ruimte",
+    "niveau": "1-9",
+    "opp_m2": 72,
+    "waarde_eur": 140400
+   },
+   {
+    "omschrijving": "balcons",
+    "niveau": "1-9",
+    "opp_m2": 135,
+    "waarde_eur": 121500
+   },
+   {
+    "omschrijving": "appartement",
+    "niveau": "10",
+    "opp_m2": 118,
+    "waarde_eur": 284852
+   },
+   {
+    "omschrijving": "dakterras",
+    "niveau": "10",
+    "opp_m2": 66,
+    "waarde_eur": 35640
+   }
+  ]
+ },
+ {
+  "ref": "26-550795",
+  "file": "26-55079500033VerzamelPDF_20260429_0019.pdf",
+  "building_type": "appartementsgebouw",
+  "total": 4324301.9,
+  "abex": null,
+  "cats": {
+   "cat1": {
+    "opp": 1151.13,
+    "val": 3027471.9
+   },
+   "cat2": {
+    "opp": 662,
+    "val": 812125
+   },
+   "cat3": {
+    "opp": 35,
+    "val": 18900
+   },
+   "other": {
+    "opp": 475,
+    "val": 465805
+   }
+  },
+  "woonEur": 2630,
+  "rows": [
+   {
+    "omschrijving": "parkeergarage, bergingen, garages, parkeerplaatsen",
+    "niveau": "-1",
+    "opp_m2": 525,
+    "waarde_eur": 538125
+   },
+   {
+    "omschrijving": "appartementen",
+    "niveau": "1-4",
+    "opp_m2": 1151.13,
+    "waarde_eur": 3027471.9
+   },
+   {
+    "omschrijving": "gemeenschapp elijke ruimtes",
+    "niveau": "0-3",
+    "opp_m2": 137,
+    "waarde_eur": 274000
+   },
+   {
+    "omschrijving": "autoliftschacht",
+    "niveau": "0",
+    "opp_m2": 29,
+    "waarde_eur": 29725
+   },
+   {
+    "omschrijving": "terrassen",
+    "niveau": "0",
+    "opp_m2": 35,
+    "waarde_eur": 18900
+   },
+   {
+    "omschrijving": "stadstuinen met terrras",
+    "niveau": "0",
+    "opp_m2": 80,
+    "waarde_eur": 14000
+   },
+   {
+    "omschrijving": "balcons",
+    "niveau": "1-2",
+    "opp_m2": 108,
+    "waarde_eur": 90180
+   },
+   {
+    "omschrijving": "daktarras",
+    "niveau": "2-3",
+    "opp_m2": 258,
+    "waarde_eur": 116100
+   },
+   {
+    "omschrijving": "liftinstallaties",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 125000
+   },
+   {
+    "omschrijving": "autolift",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 80000
+   },
+   {
+    "omschrijving": "zonnepanelen",
+    "niveau": null,
+    "opp_m2": null,
+    "waarde_eur": 10800
+   }
+  ]
+ }
+]

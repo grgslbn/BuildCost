@@ -1,6 +1,6 @@
 # CLAUDE.md — PlanBase (planbased.xyz)
 
-> **Last updated: 2026-05-28** (Railway worker verified locally, env var bridge fix, deployment instructions)
+> **Last updated: 2026-06-01** (SQM ROUTER v2 + consolidated learnings — see "SQM — operational learnings". Core: vision READS printed numbers reliably, CANNOT MEASURE dimensions reliably. Tier1 area_table (niveau-aware, n=14 median 0%); Tier2 labeled_plan TILED per-page + BO/NO (Die Prince −0%) + net→gross ×1.12 for room areas (HOOST 547563 −11%→~0%); Tier3 dims/scanned → unreliable (6 variants, −49%..+291%) → manual m² confirmation. JPEG routed+tiled. Tests: HOOST −11%, Prestige 550471 dims-only→manual. Prior: Connect Value F model, intercept 1.2824, cat2/3 decoupled)
 
 ---
 
@@ -30,23 +30,25 @@ Update the `Last updated` date at the top whenever you touch this file.
 ## Core Formula (V2)
 
 ```
-CAT_price(F) = CAT_min + (F − 0.70) / 0.80 × (CAT_max − CAT_min)
+CAT1_price(F) = CAT1_min + (F − 0.70) / 0.80 × (CAT1_max − CAT1_min)   ← only CAT1 scales with F
+CAT2_price = CAT2_min  (fixed)   CAT3_price = CAT3_min  (fixed)         ← decoupled, see below
 
 Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3_price)
            × Regional Factor × ABEX Factor
 ```
 
-| Category | Rooms | Default Min | Default Max |
-|----------|-------|-------------|-------------|
-| **CAT1** — Livable | living, bedroom, kitchen, bathroom, office | €1 100/m² | €1 900/m² |
-| **CAT2** — Enclosed non-livable | garage, storage, utility | €550/m² | €950/m² |
-| **CAT3** — Outdoor built | terrace, balcony | €330/m² | €570/m² |
+| Category | Rooms | Live Min | Live Max |
+|----------|-------|----------|----------|
+| **CAT1** — Livable | living, bedroom, kitchen, bathroom, office | €1 600/m² | €2 900/m² |
+| **CAT2** — Enclosed non-livable | garage, storage, utility | €900/m² | €1 500/m² |
+| **CAT3** — Outdoor built | terrace, balcony | €500/m² | €900/m² |
 | EXCLUDED | garden | — | — |
 
-- **F (Finishing Coefficient)**: 0.70–1.50, derived from QQPs via ridge regression on reference dossiers
-- **Regional Factor**: `postcode_base_price / cat1_price_at_F1.0`
-- **ABEX Factor**: construction price index ÷ 1000 (semi-annual update)
-- **Cat prices** are configurable in Settings
+- **CAT2/CAT3 decoupled from F**: `DECOUPLE_CAT2_CAT3=true` in `calculate-cost.ts` — garage/storage/terrace use a fixed rate (`CAT2_DECOUPLED_BASIS=1200`, `CAT3_DECOUPLED_BASIS=700`, clamped to settings [min,max]); only CAT1 (living) scales with F. A luxury apartment does not make its garage more expensive. **MAE-optimized on the apartment benchmark** (bench-selectie.json, 2026-05-31): cat2 median €1227 → optimal €1200; cat3 median €750 → optimal €700. Result: m²-subtotal median error **4.8% → 2.6%** (was min €900/€500 = under-priced; overview P50 €1100/€900 → 2.9%). `backcalculateF` mirrors this.
+- **F (Finishing Coefficient)**: 0.70–1.50. Live model `connect-v1` (qqp_model_versions v101): **intercept 1.2824 + Connect-Value-derived weights** (NOT ridge regression — see "F Model" section). F=0.96 ≈ €2000/m² (lean standard), CED-median ≈ €2150 (F≈1.04).
+- **Regional Factor**: `postcode_base_price / cat1_price_at_F1.0` (regional-coefficients.ts, 0.92–1.0). Connect Value confirms postcode should NOT be double-counted.
+- **ABEX Factor**: `index / 1056` (ref 2026S1=1056). For new estimates factor = 1.0; older dossiers scale down. CAT prices are at the current-ABEX level.
+- **Cat prices** are configurable in Settings (system_settings).
 
 ## Tech Stack
 
@@ -89,6 +91,7 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 |-------|---------|
 | `/api/estimate-process` | **Main pipeline**: PDF → classify → render → SQM → QQP → cost. `maxDuration=300` |
 | `/api/estimate-status/[id]` | Poll estimation status (timeout detection built in) |
+| `/api/estimate/[id]/correct-sqm` | **Manual SQM confirmation** — recompute cost from user-entered cat1/2/3 m² (shown when `sqm_confidence<0.65`, i.e. bare/dimension-only plans vision can't measure) |
 | `/api/process-dossier` | Process reference dossiers (training data) |
 | `/api/report/[id]/pdf` | Generate PDF report via pdf-lib (no auth, UUID-as-secret) |
 | `/api/my/share-report` | Email report to recipient with "shared by" context |
@@ -110,15 +113,60 @@ Total Cost = (CAT1_sqm × CAT1_price + CAT2_sqm × CAT2_price + CAT3_sqm × CAT3
 ## Pipeline Architecture
 
 ```
-Upload PDF → classify pages → render PNG → SQM extraction (Claude + 10K thinking)
+Upload PDF → classify pages → render PNG → SQM ROUTER (per-dossier best signal)
 → QQP extraction (Claude) → F calculation (ridge regression weights)
 → cost calculation → store result
 ```
 
-- **SQM Extraction**: Claude Sonnet with extended thinking (10K budget). Processes rendered plan pages to identify rooms and calculate areas. Currently at v9 prompt: 18/24 perfect on test set.
+- **SQM ROUTER** (2026-06-01, wired in `run-estimation.ts` → also live in the Railway worker via shared pipeline): input is heterogeneous (PDF or **JPEG**, with/without an area table, with/without printed m² labels), so the pipeline picks the **best available signal per dossier** and is honest about confidence. Tiers, highest-reliability first:
+  - **Tier 1 — `area_table` (route A, ~exact).** `extractAreaTableViaVision()` is ALWAYS attempted on a PDF: it finds the berekening/oppervlaktestaat/meetstaat page via header markers (`Berekening`, `Opp/inhoud`, `meetstaat` — extractable even when the table VALUES are a non-extractable font), renders up to 6 marker pages, and reads them with VISION. The model returns a **per-row category using the niveau column** (so "Onder het gebouw" on a *Parkeerkelder* niveau → cat2, not cat1); `classifyAreaRow(omschrijving+niveau)` is the fallback. **Backtest (n=14 CED): median 0%, 13/14 within 10%, 14/14 within 15%** vs niveau-aware GT. `sqm_confidence` ≥0.9. (Vision detection lifts coverage far beyond the old text-only detector — 7/37; and the per-row categorisation fixed a bug where parking/kelder/atelier were counted as heated cat1, which also affects `scripts/sqm-groundtruth.json`.)
+  - **Tier 2 — `labeled_plan` (printed m² labels, tiled, per-page).** When no table: the floor-plan pages are rendered and **split into a 3×3 grid of overlapping tiles** (`renderPlanTilesToBase64`) — the Anthropic API downsamples every image to ~1568px, so tiling is what keeps small printed labels legible. Each floor page is extracted separately and **summed** (`aggregateVisionSqm`); a **BO/NO anti-double-count rule** in the prompt prevents adding a unit's gross total AND its interior rooms. Validated: a 12-floor apartment building (Die Prince) → cat1 **−0%** vs heated GT (was +43% before the BO/NO fix). Medium confidence (≤0.6) — accurate for clean residential, weaker for mixed-use (commercial/parking on other sheets). `extractSqmViaVision()` + `vision-extract.ts`.
+  - **Tier 3 — `bare_plan` (measured).** Only dimension lines / no printed areas → the v9 measurement + **confidence-gating** (`sqm-confidence.ts`) flags physically-implausible extractions. ~38% (vision limit), LOW confidence, honestly flagged for manual review.
+  - **JPEG/PNG uploads** now route through the same universal extractor (`planImagesB64` is captured for image uploads too) — previously they bypassed the router entirely.
+  - Files: `src/lib/sqm/vision-extract.ts` (universal classify+extract + `aggregateVisionSqm`), `extract-area-table.ts`, `sqm-router.ts`, `sqm-confidence.ts`, `render-plans.ts` (`renderPlanTilesToBase64`, `getPdfText`, `renderSpecificPagesToBase64`). Tests 27/27, tsc clean. See `docs/sqm-golive-strategy.md` + `docs/benchmark-2026-05-31.md`.
+  - **Honest limit**: a structured table → exact; clean residential labeled plans → ~±10% (tiled, per-page); mixed-use labeled → ±15–30%; bare/dimension-only plans → unreliable, flagged. Aggregating labels is noisier than reading a table, so **the table is the only exact source** — and **manual m² confirmation** (`/api/estimate/[id]/correct-sqm` + `SqmCorrectionPanel`, shown when `sqm_confidence<0.65`) covers the rest.
+
+### SQM — operational learnings (backtested, what works & what doesn't)
+
+**Core truth: vision can READ printed numbers reliably, but CANNOT MEASURE pixels/dimensions reliably.** Everything follows from this.
+
+**Decision tree (per dossier):**
+1. Area table present (berekening/oppervlaktestaat/meetstaat, in PDF text OR vision-detected) → **read the table** (Tier 1). Niveau-aware per-row cat. ~exact.
+2. Else plan has printed m² → **tile floor pages 3×3, read per floor, sum** (Tier 2). Prefer unit **BO** totals (already gross). If only **room (NO)** areas → net → apply ~**1.12 net→gross** factor. BO/NO anti-double-count is critical.
+3. Else only dimensions / scanned with no printed numbers → **measurement is unreliable → flag low confidence → manual m² confirmation.**
+
+**Per input type (MEASURED on real dossiers):**
+| input | accuracy | examples |
+|---|---|---|
+| area table | ~exact | 519406 +1%, 537092 −8%; n=14 median 0%, 14/14 ≤15% |
+| unit BO labels (tiled) | −0 to −8% | Die Prince 542077 −0%, 546287 −8% |
+| room NET areas (tiled) | −11% (→ ~0% ×1.12) | HOOST 547563 (33-sheet A0, no table, 14 floors) |
+| dimensions only | UNRELIABLE −49%..+291% | 542042 retail, 550471 Prestige (scanned) |
+
+**Dimension measurement is a proven dead end** — 6 variants tested (outer-chain w×d; +code-does-math; +tiling; +floor-enumeration; per-room sum; ensemble+sanity+consistency). The model cannot consistently pick which numbers are the building envelope: *same floor read 48 vs 2054 m²; same building 482 vs 198 m²*. The error is **number-association + spatial reconstruction, NOT arithmetic** — so decomposing it (model reads, code computes) does NOT fix it. Vector extraction (mupdf paths → real wall geometry) = a mini-CAD-interpreter, days of work, not pursued. **DO NOT wire dimension measurement as a primary SQM source — it degrades accuracy.**
+
+**Gotchas:**
+- **Anthropic downsamples every image to ~1568px** → small labels/dims on an A0/A1 sheet vanish. **Tiling (3×3 per page) is mandatory** to read labels on large sheets.
+- **Page selection is a top bottleneck**: bundles mix notarial deeds / CED reports / sections / elevations / floor plans. Feeding the wrong pages = 0 or garbage. Floor plans with labels usually sit deeper (e.g. pages 3–7), not page 0–2.
+- **Multi-floor buildings = one sheet per floor** → must enumerate every floor + sum (per-page aggregation).
+- **GT caveat**: `scripts/sqm-groundtruth.json` `heated_m2` over-counts on some dossiers (parking/kelder/atelier counted as cat1: 516605, 540184, 546287). The niveau-aware vision categorisation is more cost-correct; back-tests should compare against a niveau-aware corrected GT.
+- **Scanned/image PDFs** (e.g. 550471): `pdftotext` finds nothing → classify pages + extract via VISION only.
+- Backtest harness: `scripts/backtest-router.mjs`; per-method experiments: `scripts/sqm-*.mjs`, `scripts/measure-*.mjs`.
+
+- **SQM measurement (bare_plan tier)**: Claude Sonnet with extended thinking (10K budget). Processes rendered plan pages to identify rooms and calculate areas. v9 prompt: 18/24 perfect on test set.
 - **QQP Extraction**: Claude extracts finishing parameters from plan annotations (windows, doors, kitchen, bathroom, heating type, etc.)
-- **F Calculation**: Ridge regression model trained on reference dossiers. Maps QQP values → finishing coefficient.
+- **F Calculation**: `connect-v1` linear model (qqp_model_versions v101). `F = intercept(1.2824) + Σ(weight_i × qqp_score_i)`, clamped [0.70,1.50]. Weights are **Connect-Value-derived** (not ridge). See "F Model & Connect Value" section.
 - **Prompt Versioning**: `prompt_versions` table stores versioned SQM/QQP prompts. Active version used by pipeline. Managed via `/admin/prompts`.
+
+## F Model & Connect Value Calibration (2026-05-30)
+
+**Connect Value source decoded.** The Excel files behind the Connect Value tool (`M²Value/connect value/Excel achter connect Value/`) reveal the exact model: `€/m² = Σ(component coefficients)` per category at **ABEX 1000, excl btw, no postcode factor**. Apartment woon = **€1402 base** (gesloten ruwbouw 795 + afwerking 362 + elektrisch 91 + inrichting 86 + sanitair 68) + a yes/no finishing checklist up to **+€571** (cv +98, vloer/natuursteen +72, keuken inbouw +72, keuken>5 +72, inbouwkasten +72, vloerverw +48, airco +36, >1 toilet +36, bad+douche +36, domotica +29) → €1402–1973 excl = €1697–2387 incl. Garage €850–1200, terras €280–560, handelsgelijkvloers €973 — all finish-independent. **Authors' own note: Connect runs 15–20% too high for standard buildings** (per-m² finishing should be forfaitair). Helper scripts: `scripts/cv-*.py`, `scripts/connect-*.mjs`.
+
+**F model = Connect weights + apartment-centered intercept.** `scripts/build-connect-f-model.mjs` maps each Connect €/m² premium → ΔF and writes the model. The QQP→F weights are expert-sourced (not regressed). Intercept **1.2824** is an apartment-centering constant: the QQP extraction scores apartments systematically negative (~−0.32 mean), so centering = `0.96 − Σw·mean`. F=0.96 ≈ €2000 (lean standard). Validated on 207 CED dossiers (`scripts/test-price-level.mjs`): model band [€1600–2900] covers 83%, required-F median 1.04 (€2150). On 15 GT dossiers (`scripts/test-connect-f.mjs`): all median +19.2%, cat1-dominant +6.8%.
+
+**KNOWN ISSUE — QQP extraction bias (root cause of the centering hack).** The live QQP prompt (prompt_versions v1) explicitly tells Claude "absence of features → negative" + uses a "villa" anchor, so apartments score systematically negative. A **fixed apartment-anchored, absence-neutral prompt is STAGED as inactive v2** (`adaba4f4`, via `scripts/stage-qqp-prompt-v2.mjs`). Validated (`scripts/validate-prompt-fix.mjs` + `scripts/reextract-images.mjs`): de-biases (score-mean −0.23→+0.06) and preserves discrimination WITH plan images (sd 0.156; text-only collapses to ~0 — **QQP discrimination needs the images, not the SQM text**). NOT activated: crude offline re-extraction (3-page render) can't prove it beats the current live model. **To activate v2:** (1) set v2 active, (2) re-anchor `reference-ranges.ts` numeric guides to apartment norms, (3) re-extract dossiers via the real pipeline, (4) reset intercept to lean ~0.93 (€2000) or CED-match ~1.007 (€2150).
+
+**Note:** ABEX divisor 1056 is hardcoded in `run-estimation.ts:597` while the reference comes from `system_settings` — keep in sync if the reference semester changes.
 
 ## Prompt Lab (formerly Benchmark)
 
@@ -228,18 +276,21 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 | 2MB - 10MB | 86 | Likely has floor plans |
 | > 10MB | 46 | Definitely has floor plans |
 
-### Next Steps
-- [x] Railway worker built and tested locally
-- [x] Fix Next.js fetchCache bug (commit 8bec1e5)
-- [x] Fix stuck detection (commit dea71b2)
-- [x] LLM vs Expert comparison card (`llm-vs-expert-card.tsx`) with extraction detail view (commit f59fe27, f266195)
-- [x] GT extraction for 10 new dossiers (total: 15 with ground truth)
-- [x] Mini benchmark run to verify comparison card end-to-end
-- [ ] **Push pending commits** — `git push origin main` (3 commits: comparison card + extraction detail + CLAUDE.md)
+### F-model / pricing work (2026-05-30) — see "F Model & Connect Value Calibration"
+- [x] Decoded Connect Value source model (Excel) — exact woon/niet/terras rates + finishing checklist
+- [x] Built `connect-v1` F model (Connect-derived weights), replaced broken ridge model
+- [x] Apartment-centered intercept 1.2824 (fixes systematic negative QQP-score bias)
+- [x] Decoupled cat2/cat3 from F (`DECOUPLE_CAT2_CAT3`) — fixes garage-heavy over-prediction
+- [x] Validated on 207 CED dossiers (band covers 83%, required-F median 1.04) + 15 GT (all +19.2%, cat1-dom +6.8%)
+- [x] Diagnosed QQP-prompt bias ("absence→negative" + villa anchor) + staged fixed apartment prompt as inactive v2
+- [ ] **Activate prompt v2** (needs: re-anchor reference-ranges guides + pipeline re-extraction + intercept reset to ~0.93 lean or ~1.007 CED-match)
+- [ ] Re-extract the 5 suspect-GT dossiers (expert €/m² >€3000 = under-counted SQM): 525671, 528000, 538282, 553088, 544390
+- [ ] Decide lean (€2000) vs CED-match (€2150) standard pricing
+- **cat1_max stays €2900** (user decision 2026-05-30) — the 13% of CED dossiers above €2900 are the high-end tail; the cap is intentional, do NOT raise it.
+
+### Earlier next steps (still open)
 - [ ] Deploy worker to Railway (see deployment instructions below)
 - [ ] Extract GT for remaining ~120 dossiers with large plan files
-- [ ] Full benchmark run on all GT dossiers
-- [ ] Investigate cost error source: regional factor, ABEX correction, QQP weight calibration
 - [ ] Improve per-building comparison (needs per-building expert data from calculation PDFs)
 
 ---

@@ -8,7 +8,7 @@
  * This is a closed-form linear solve (no iteration needed).
  */
 
-import { type PricingConfig, F_MIN, F_MAX } from "@/lib/cost/calculate-cost";
+import { type PricingConfig, F_MIN, F_MAX, DECOUPLE_CAT2_CAT3, CAT2_DECOUPLED_BASIS, CAT3_DECOUPLED_BASIS } from "@/lib/cost/calculate-cost";
 
 type AreaInput = {
   cat1_sqm: number;
@@ -47,16 +47,25 @@ export function backcalculateF(
   // Strip external factors to get the raw building cost
   const costBeforeFactors = totalCost / externalFactors;
 
-  // Price ranges per category
+  // Price ranges per category. When cat2/cat3 are decoupled, only cat1 scales
+  // with F (cat2/cat3 stay fixed at their basis rate), so expert_f reflects the
+  // living-space finish level only — consistent with the forward calculation.
   const range1 = pricing.cat1_max - pricing.cat1_min;
-  const range2 = pricing.cat2_max - pricing.cat2_min;
-  const range3 = pricing.cat3_max - pricing.cat3_min;
+  const range2 = DECOUPLE_CAT2_CAT3 ? 0 : pricing.cat2_max - pricing.cat2_min;
+  const range3 = DECOUPLE_CAT2_CAT3 ? 0 : pricing.cat3_max - pricing.cat3_min;
+  // Fixed cat2/cat3 price used in the (decoupled) forward calc — mirror it here.
+  const cat2Fixed = DECOUPLE_CAT2_CAT3
+    ? Math.min(pricing.cat2_max, Math.max(pricing.cat2_min, CAT2_DECOUPLED_BASIS))
+    : pricing.cat2_min;
+  const cat3Fixed = DECOUPLE_CAT2_CAT3
+    ? Math.min(pricing.cat3_max, Math.max(pricing.cat3_min, CAT3_DECOUPLED_BASIS))
+    : pricing.cat3_min;
 
-  // Cost at F_MIN (all prices at minimum)
+  // Cost at F_MIN (cat1 at min; cat2/cat3 at their fixed/decoupled rate)
   const minCost =
     areas.cat1_sqm * pricing.cat1_min +
-    areas.cat2_sqm * pricing.cat2_min +
-    areas.cat3_sqm * pricing.cat3_min;
+    areas.cat2_sqm * cat2Fixed +
+    areas.cat3_sqm * cat3Fixed;
 
   // How much cost increases per unit of r = (F - F_MIN) / (F_MAX - F_MIN)
   const rangeSlope =

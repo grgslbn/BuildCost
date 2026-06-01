@@ -1,0 +1,129 @@
+[
+ {
+  "ref": "24-516605",
+  "exp": 3968,
+  "cat1": 1310,
+  "units": 10,
+  "levels": 4,
+  "net": 954,
+  "level": "high",
+  "score": 1,
+  "review": false,
+  "delta": -0.669858870967742,
+  "flags": []
+ },
+ {
+  "ref": "24-519406",
+  "exp": 5690,
+  "fail": true
+ },
+ {
+  "ref": "25-537092",
+  "exp": 6244,
+  "cat1": 0,
+  "units": 0,
+  "levels": 0,
+  "net": 0,
+  "level": "low",
+  "score": 0.4,
+  "review": true,
+  "delta": null,
+  "flags": [
+   "cat1 te laag"
+  ]
+ },
+ {
+  "ref": "25-540112",
+  "exp": 1042,
+  "cat1": 0,
+  "units": null,
+  "levels": null,
+  "net": 0,
+  "level": "low",
+  "score": 0.4,
+  "review": true,
+  "delta": null,
+  "flags": [
+   "cat1 te laag"
+  ]
+ },
+ {
+  "ref": "25-540243",
+  "exp": 1563,
+  "cat1": 1980,
+  "units": 11,
+  "levels": 3,
+  "net": 968,
+  "level": "high",
+  "score": 0.75,
+  "review": false,
+  "delta": 0.26679462571976975,
+  "flags": [
+   "ratio hoog"
+  ]
+ },
+ {
+  "ref": "25-542077",
+  "exp": 2009,
+  "cat1": 2700,
+  "units": 16,
+  "levels": 11,
+  "net": 1630,
+  "level": "high",
+  "score": 1,
+  "review": false,
+  "delta": 0.3439522150323544,
+  "flags": []
+ },
+ {
+  "ref": "25-542228",
+  "exp": 550,
+  "fail": true
+ },
+ {
+  "ref": "25-542310",
+  "exp": 2780,
+  "fail": true
+ },
+ {
+  "ref": "25-546287",
+  "exp": 2419,
+  "cat1": 2850,
+  "units": 16,
+  "levels": 3,
+  "net": 1287,
+  "level": "high",
+  "score": 0.75,
+  "review": false,
+  "delta": 0.1781727986771393,
+  "flags": [
+   "ratio hoog"
+  ]
+ },
+ {
+  "ref": "25-546795",
+  "exp": 1478,
+  "cat1": 795,
+  "units": 6,
+  "levels": 3,
+  "net": 620,
+  "level": "high",
+  "score": 1,
+  "review": false,
+  "delta": -0.4621109607577808,
+  "flags": []
+ },
+ {
+  "ref": "25-546796",
+  "exp": 2432,
+  "cat1": 1500,
+  "units": 10,
+  "levels": 3,
+  "net": 950,
+  "level": "high",
+  "score": 1,
+  "review": false,
+  "delta": -0.3832236842105263,
+  "flags": []
+ }
+]
