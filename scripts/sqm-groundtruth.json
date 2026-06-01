@@ -1,4 +1,14 @@
 {
+ "23-499978": {
+  "heated_m2": 3426,
+  "heated_eur": 1912,
+  "strict_cat1": 3158,
+  "cat2_m2": 1302,
+  "cat3_m2": 442,
+  "total": 8233397,
+  "abex": 1032,
+  "note": "expert berekening; cat1 = app 0/1/2/3 (816.79+841.53+841.53+658) + gemene delen (89+179); cat2 parkeergarage+bergingen 1161 + inrit 141; cat3 terras 76.07+366.02; onroerende inrichting 3x lift 201000 + fietsenberging 20000 = 221000; LIVE: cat1 3040 (-11%, gemene delen gemist), cat2 1507 (+16%), cat3 450 (+2%), cat1 eur/m2 +0.6%, total -7%"
+ },
  "23-499974": {
   "heated_m2": 1493,
   "heated_eur": 1975,
