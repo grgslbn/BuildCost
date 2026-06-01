@@ -30,7 +30,16 @@ export type SqmKind = "area_table" | "labeled_plan" | "bare_plan";
  * interior walls). Net room sums undercount the gross heated floor by ~10-15%, so they
  * get a net→gross factor. Validated: HOOST 547563 room-sum 14902 → ×1.12 ≈ GT 16783.
  */
-export type Cat1Basis = "unit_gross" | "room_net" | "mixed" | "unknown";
+export type Cat1Basis =
+  | "gross" // BRUTO / BO — includes interior walls (no factor)
+  | "net" // NETTO / NO / "netto vloeropp" — excludes walls (×1.12), whether per-unit or per-room
+  | "mixed"
+  | "unit_gross" // legacy alias for gross
+  | "room_net" // legacy alias for net
+  | "unknown";
+
+/** Bases that mean the cat1 figure is NET (excludes interior walls) → needs gross-up. */
+const NET_BASES = new Set(["net", "room_net"]);
 
 /** Net→gross multipliers applied to a room-NET cat1 (interior walls + structure). */
 export const NET_TO_GROSS = 1.12;
@@ -45,6 +54,7 @@ export type VisionSqmResult = {
   buildingType?: string;
   cat1Basis: Cat1Basis; // basis of the cat1 figure (drives the net→gross factor)
   cat1GrossFactor: number; // factor applied to raw cat1 (1.0 if none)
+  floorLabel?: string; // which floor this sheet is (used to dedup duplicate sheets)
   rows: Array<{ label: string; m2: number; cat: keyof CategoryAreas | "other" }>;
   raw: Record<string, unknown>;
 };
@@ -83,15 +93,16 @@ Return JSON:
  "kind": "area_table" | "labeled_plan" | "bare_plan",
  "building_type": "appartementsgebouw|woning|winkel|kantoor|...",
  "rows": [{"label":"...", "level":"...", "m2": <number>, "cat": "cat1|cat2|cat3|other"}],
+ "floor_label": "<which floor/level this sheet shows, e.g. Gelijkvloers, +2, Kelder>",
  "cat1_m2": <number>, "cat2_m2": <number>, "cat3_m2": <number>,
- "cat1_basis": "unit_gross" | "room_net" | "mixed",
+ "cat1_basis": "gross" | "net" | "mixed",
  "stated_total_m2": <number or null>,
  "confidence": <0..1>,
  "notes": "which signal you used and any uncertainty"
 }
-cat1_basis tells whether the cat1 figure is GROSS or NET:
-  • "unit_gross" = you summed whole-unit BRUTO areas ("app X BO 104 m²", "Opp. 104 m²", "bruto") — already includes walls.
-  • "room_net" = you summed individual ROOM areas (leefruimte/slaapkamer/badkamer/keuken NETTO) — excludes interior walls.
+cat1_basis tells whether the cat1 figure is GROSS or NET (drives a walls correction):
+  • "gross" = BRUTO / BO areas ("app X BO 104 m²", "bruto") — already includes interior walls.
+  • "net" = NETTO areas ("Netto Vloeropp.", "NO", room areas leefruimte/slaapkamer NETTO) — EXCLUDES walls. Use "net" for ANY netto figure, whether per-unit ("APP.0.1 Netto Vloeropp 67,3 m²") or per-room.
   • "mixed" = a mix of both.
 confidence guide: area_table fully read ≥0.9; labeled_plan with complete labels ~0.6; partial labels ~0.4; bare_plan measured ≤0.35.`;
 
@@ -137,13 +148,11 @@ export async function extractSqmViaVision(
   // Net→gross correction on cat1 ONLY for a labeled_plan whose cat1 came from room-level
   // NET areas (interior walls excluded). A table or unit-level BO figure is already gross.
   const basisRaw = String(data.cat1_basis ?? "");
-  const cat1Basis: Cat1Basis =
-    basisRaw === "unit_gross" || basisRaw === "room_net" || basisRaw === "mixed"
-      ? (basisRaw as Cat1Basis)
-      : "unknown";
+  const VALID_BASIS = ["gross", "net", "mixed", "unit_gross", "room_net"];
+  const cat1Basis: Cat1Basis = VALID_BASIS.includes(basisRaw) ? (basisRaw as Cat1Basis) : "unknown";
   let cat1GrossFactor = 1.0;
   if (kind === "labeled_plan") {
-    if (cat1Basis === "room_net") cat1GrossFactor = NET_TO_GROSS;
+    if (NET_BASES.has(cat1Basis)) cat1GrossFactor = NET_TO_GROSS;
     else if (cat1Basis === "mixed") cat1GrossFactor = NET_TO_GROSS_MIXED;
   }
   if (cat1GrossFactor !== 1.0) areas.cat1 = Math.round(areas.cat1 * cat1GrossFactor);
@@ -163,9 +172,19 @@ export async function extractSqmViaVision(
     buildingType: typeof data.building_type === "string" ? data.building_type : undefined,
     cat1Basis,
     cat1GrossFactor,
+    floorLabel: typeof data.floor_label === "string" ? data.floor_label : undefined,
     rows,
     raw: data,
   };
+}
+
+/** Normalise a floor label for duplicate-sheet detection ("Gelijkvloers / Rez-de-Chaussée" → "gelijkvloers"). */
+function normFloor(label?: string): string {
+  return String(label ?? "")
+    .toLowerCase()
+    .split(/[\/|–-]/)[0] // drop the FR half of bilingual labels
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 16);
 }
 
 /**
@@ -189,7 +208,24 @@ export function aggregateVisionSqm(results: Array<VisionSqmResult | null>): Visi
   }
 
   const labeled = ok.filter((r) => r.kind === "labeled_plan" && r.areas.cat1 >= 5);
-  const pool = labeled.length ? labeled : ok;
+  const poolRaw = labeled.length ? labeled : ok;
+  // Dedup DUPLICATE floor sheets (same plan bound twice, or NL+FR versions): keep the
+  // best read (max cat1) per distinct floor label. Block letters survive normalisation
+  // ("Gelijkvloers A" ≠ "Gelijkvloers B"), so distinct blocks are NOT merged; only true
+  // duplicates ("Gelijkvloers / Rez-de-Chaussée" twice) collapse. Pages with no label
+  // are each kept (cannot dedup). Validated: 23-499974 = 10 sheets → 5 unique floors.
+  const byFloor = new Map<string, VisionSqmResult>();
+  const pool: VisionSqmResult[] = [];
+  for (const r of poolRaw) {
+    const key = normFloor(r.floorLabel);
+    if (!key) {
+      pool.push(r);
+      continue;
+    }
+    const prev = byFloor.get(key);
+    if (!prev || r.areas.cat1 > prev.areas.cat1) byFloor.set(key, r);
+  }
+  pool.push(...Array.from(byFloor.values()));
   const areas = {
     cat1: pool.reduce((s, r) => s + r.areas.cat1, 0),
     cat2: pool.reduce((s, r) => s + r.areas.cat2, 0),

@@ -89,6 +89,25 @@ describe("extractSqmViaVision — assembly + categorization", () => {
     expect(r!.areas.cat1).toBe(1120); // 1000 × 1.12 (walls)
   });
 
+  it("applies ×1.12 for cat1_basis 'net' (per-unit netto vloeropp — the 23-499974 case)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      cat1_basis: "net",
+      cat1_m2: 1106, rows: [{ label: "APP.0.1 Netto Vloeropp", m2: 67, cat: "cat1" }],
+      confidence: 0.6,
+    }));
+    expect(r!.cat1Basis).toBe("net");
+    expect(r!.areas.cat1).toBe(Math.round(1106 * 1.12)); // 1239
+  });
+
+  it("does NOT gross up for cat1_basis 'gross'", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan", cat1_basis: "gross",
+      cat1_m2: 1000, rows: [{ label: "x", m2: 1000, cat: "cat1" }], confidence: 0.6,
+    }));
+    expect(r!.areas.cat1).toBe(1000);
+  });
+
   it("does NOT gross up when cat1 is unit-level BO (already gross)", async () => {
     const r = await extractSqmViaVision(["IMG"], fakeVision({
       kind: "labeled_plan",
@@ -149,6 +168,32 @@ describe("extractSqmViaVision — assembly + categorization", () => {
     expect(agg!.areas.cat1).toBe(1278);
     expect(agg!.areas.cat3).toBe(175);
     expect(agg!.confidence).toBeLessThanOrEqual(0.6);
+  });
+
+  it("dedups DUPLICATE floor sheets by floor label (the 23-499974 NL/FR-double case)", () => {
+    const sheet = (floorLabel: string, cat1: number): VisionSqmResult => ({
+      kind: "labeled_plan", areas: { cat1, cat2: 0, cat3: 0 }, statedTotal: null,
+      confidence: 0.6, method: "x", cat1Basis: "net", cat1GrossFactor: 1.12, floorLabel, rows: [], raw: {},
+    });
+    // 6 sheets = 3 unique floors each bound twice (e.g. NL + FR)
+    const agg = aggregateVisionSqm([
+      sheet("Gelijkvloers / Rez-de-Chaussée", 233),
+      sheet("1ste Verdieping - 1ier Étage", 308),
+      sheet("2de Verdieping - 2ième Étage", 258),
+      sheet("Gelijkvloers / Rez-de-Chaussée", 233),
+      sheet("1ste Verdieping - 1ier Étage", 308),
+      sheet("2de Verdieping - 2ième Étage", 258),
+    ]);
+    expect(agg!.areas.cat1).toBe(233 + 308 + 258); // 799, NOT doubled to 1598
+  });
+
+  it("does NOT merge distinct blocks that share a floor name (Gelijkvloers A vs B)", () => {
+    const sheet = (floorLabel: string, cat1: number): VisionSqmResult => ({
+      kind: "labeled_plan", areas: { cat1, cat2: 0, cat3: 0 }, statedTotal: null,
+      confidence: 0.6, method: "x", cat1Basis: "gross", cat1GrossFactor: 1.0, floorLabel, rows: [], raw: {},
+    });
+    const agg = aggregateVisionSqm([sheet("Gelijkvloers A", 200), sheet("Gelijkvloers B", 300)]);
+    expect(agg!.areas.cat1).toBe(500); // both kept (block letter survives normalisation)
   });
 
   it("a printed area table on any page wins outright (no summing of labeled pages)", () => {

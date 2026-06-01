@@ -1,0 +1,18 @@
+import * as mupdf from "mupdf"; import sharp from "sharp"; import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path"; import { fileURLToPath } from "node:url";
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const env = {}; for (const l of readFileSync(resolve(ROOT, ".env.local"), "utf8").split(/\r?\n/)) { const m = l.match(/^([^#=]+)=(.*)$/); if (m) env[m[1].trim()] = m[2].trim(); }
+const AKEY = env.ANTHROPIC_API_KEY; const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const FILE = "C:/Users/tieme/Desktop/testing 30_5/26-550471plannen.pdf"; const GT = 2126;
+// EXACT production prompt (VISION_SQM_INSTR essence)
+const SYS="You extract building floor areas (m²) from Belgian building documents. You PREFER printed numbers over measuring. You categorize every area and are honest about uncertainty. Return ONLY JSON.";
+const INSTR=`These overlapping TILES are ONE floor-plan sheet. Determine the BEST available area signal.
+STEP 1 area table? -> kind=area_table. STEP 2 printed m² labels (unit BO or room areas)? -> kind=labeled_plan, list them. STEP 3 only dimension lines / no printed areas -> kind=bare_plan, measure, low confidence.
+cat1=heated living incl circulation; cat2=garage/parking/kelder/berging; cat3=terras/balkon; other=non-floor.
+Return JSON: {"kind":"area_table|labeled_plan|bare_plan","cat1_m2":<n>,"cat2_m2":<n>,"cat3_m2":<n>,"cat1_basis":"unit_gross|room_net|mixed","confidence":<0..1>,"note":"what areal info is actually printed"}`;
+async function tiles(p){const doc=mupdf.Document.openDocument(readFileSync(FILE),"application/pdf");const pix=doc.loadPage(p).toPixmap(mupdf.Matrix.scale(200/72,200/72),mupdf.ColorSpace.DeviceRGB,false,true);const full=Buffer.from(pix.asPNG());const W=pix.getWidth(),H=pix.getHeight(),G=3,OV=0.1,out=[];for(let gy=0;gy<G;gy++)for(let gx=0;gx<G;gx++){const left=Math.max(0,Math.floor((gx/G-OV)*W)),top=Math.max(0,Math.floor((gy/G-OV)*H));const w=Math.min(W-left,Math.ceil((1/G+2*OV)*W)),h=Math.min(H-top,Math.ceil((1/G+2*OV)*H));let png=await sharp(full).extract({left,top,width:w,height:h}).png().toBuffer();if(Math.max(w,h)>1600)png=await sharp(png).resize(w>=h?{width:1568}:{height:1568}).png().toBuffer();if(png.length<=3.7e6)out.push(png.toString("base64"));}return out;}
+async function vision(imgs){await sleep(800);const content=[{type:"text",text:INSTR},...imgs.map(b=>({type:"image",source:{type:"base64",media_type:"image/png",data:b}}))];const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":AKEY,"anthropic-version":"2023-06-01","content-type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,system:SYS,messages:[{role:"user",content}]})});const j=await res.json();if(!res.ok)throw new Error(JSON.stringify(j).slice(0,150));const m=(j.content?.[0]?.text||"").match(/\{[\s\S]*\}/);return m?JSON.parse(m[0]):null;}
+let sumC1=0,kinds=[];
+for(const p of [0,1,3]){try{const r=await vision(await tiles(p));kinds.push(r.kind);sumC1+=(+r.cat1_m2||0);console.log(`p${p}: kind=${r.kind} cat1=${Math.round(r.cat1_m2||0)} basis=${r.cat1_basis||'-'} conf=${r.confidence}`);console.log(`   note: ${(r.note||'').slice(0,130)}`);}catch(e){console.log(`p${p} FOUT ${String(e.message).slice(0,90)}`);}}
+const labeled=kinds.filter(k=>k==='labeled_plan'||k==='area_table').length;
+console.log(`\nPRODUCTIE-GEDRAG: kinds=[${kinds}] → tier=${labeled&&sumC1>=20?'labeled':'plan_vision/bare'}; cat1≈${Math.round(sumC1)} (GT ${GT}); confidence laag → manual-panel ${sumC1<20||!labeled?'JA (sqm_confidence<0.65)':'mogelijk'}`);
