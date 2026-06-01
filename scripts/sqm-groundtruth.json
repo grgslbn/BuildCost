@@ -1,4 +1,13 @@
 {
+ "23-499974": {
+  "heated_m2": 1493,
+  "heated_eur": 1975,
+  "strict_cat1": 1493,
+  "cat2_m2": 605,
+  "cat3_m2": 154,
+  "total": 3766122,
+  "note": "expert berekening; cat1 = Gelijkvloers 389 + Nivo1 389 + Nivo2 389 + Nivo3 326; cat2 kelder 605; cat3 terras 154; 2x lift 130000"
+ },
  "24-516605": {
   "heated_m2": 3968,
   "heated_eur": 1551,

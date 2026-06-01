@@ -74,30 +74,44 @@ describe("extractSqmViaVision — assembly + categorization", () => {
     expect(r!.areas).toEqual({ cat1: 0, cat2: 0, cat3: 0 }); // the "cat9" row → other → excluded
   });
 
-  it("applies the net→gross factor when cat1 is room-level NET (labeled_plan)", async () => {
+  it("net floor WITH circulation rows → ×1.12 (HOOST case: rooms incl. gang/traphal)", async () => {
     const r = await extractSqmViaVision(["IMG"], fakeVision({
       kind: "labeled_plan",
-      cat1_basis: "room_net",
+      cat1_basis: "net",
       rows: [
         { label: "leefruimte", m2: 600, cat: "cat1" },
-        { label: "slaapkamer", m2: 400, cat: "cat1" },
+        { label: "slaapkamer", m2: 300, cat: "cat1" },
+        { label: "traphal", m2: 100, cat: "cat1" },
       ],
       cat1_m2: 1000, cat2_m2: 0, cat3_m2: 0,
       confidence: 0.55,
     }));
-    expect(r!.cat1Basis).toBe("room_net");
-    expect(r!.areas.cat1).toBe(1120); // 1000 × 1.12 (walls)
+    expect(r!.areas.cat1).toBe(1120); // circulation captured → walls only ×1.12
   });
 
-  it("applies ×1.12 for cat1_basis 'net' (per-unit netto vloeropp — the 23-499974 case)", async () => {
+  it("unit-only NET (no circulation rows) → ×1.35 (the 23-499974 case)", async () => {
     const r = await extractSqmViaVision(["IMG"], fakeVision({
       kind: "labeled_plan",
-      cat1_basis: "net",
-      cat1_m2: 1106, rows: [{ label: "APP.0.1 Netto Vloeropp", m2: 67, cat: "cat1" }],
+      cat1_basis: "unit_net",
+      cat1_m2: 1106,
+      rows: [
+        { label: "APP.0.1 Netto Vloeropp", m2: 67, cat: "cat1" },
+        { label: "APP.0.2 Netto Vloeropp", m2: 106, cat: "cat1" },
+      ],
       confidence: 0.6,
     }));
-    expect(r!.cat1Basis).toBe("net");
-    expect(r!.areas.cat1).toBe(Math.round(1106 * 1.12)); // 1239
+    expect(r!.cat1Basis).toBe("unit_net");
+    expect(r!.areas.cat1).toBe(Math.round(1106 * 1.35)); // 1493 ≈ expert GT 1493
+  });
+
+  it("net-family basis but NO circulation rows → ×1.35 (deterministic, ignores flaky self-label)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      cat1_basis: "net", // model said 'net' but no circulation row present
+      cat1_m2: 1000, rows: [{ label: "APP 1", m2: 100, cat: "cat1" }],
+      confidence: 0.6,
+    }));
+    expect(r!.areas.cat1).toBe(1350); // row-check overrides → unit-only ×1.35
   });
 
   it("does NOT gross up for cat1_basis 'gross'", async () => {
@@ -137,13 +151,14 @@ describe("extractSqmViaVision — assembly + categorization", () => {
 
   it("does not gross up cat2/cat3, only cat1", async () => {
     const r = await extractSqmViaVision(["IMG"], fakeVision({
-      kind: "labeled_plan", cat1_basis: "room_net",
+      kind: "labeled_plan", cat1_basis: "net",
       cat1_m2: 1000, cat2_m2: 500, cat3_m2: 200,
-      rows: [{ label: "x", m2: 1000, cat: "cat1" }], confidence: 0.5,
+      rows: [{ label: "leefruimte", m2: 900, cat: "cat1" }, { label: "traphal", m2: 100, cat: "cat1" }],
+      confidence: 0.5,
     }));
-    expect(r!.areas.cat1).toBe(1120);
-    expect(r!.areas.cat2).toBe(500);
-    expect(r!.areas.cat3).toBe(200);
+    expect(r!.areas.cat1).toBe(1120); // ×1.12 (circulation row present)
+    expect(r!.areas.cat2).toBe(500); // unchanged
+    expect(r!.areas.cat3).toBe(200); // unchanged
   });
 
   it("returns null on no images or null vision response", async () => {

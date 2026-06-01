@@ -31,18 +31,18 @@ export type SqmKind = "area_table" | "labeled_plan" | "bare_plan";
  * get a net→gross factor. Validated: HOOST 547563 room-sum 14902 → ×1.12 ≈ GT 16783.
  */
 export type Cat1Basis =
-  | "gross" // BRUTO / BO — includes interior walls (no factor)
-  | "net" // NETTO / NO / "netto vloeropp" — excludes walls (×1.12), whether per-unit or per-room
+  | "gross" // BRUTO / BO — includes walls + circulation (no factor)
+  | "net" // NET FLOOR incl. common circulation (all rooms summed) → ×1.12 (walls only)
+  | "unit_net" // ONLY dwelling-unit net areas, circulation NOT captured → ×1.35 (walls + circulation + common)
   | "mixed"
   | "unit_gross" // legacy alias for gross
   | "room_net" // legacy alias for net
   | "unknown";
 
-/** Bases that mean the cat1 figure is NET (excludes interior walls) → needs gross-up. */
-const NET_BASES = new Set(["net", "room_net"]);
-
-/** Net→gross multipliers applied to a room-NET cat1 (interior walls + structure). */
+/** net FLOOR (incl. circulation) → gross: interior walls only. */
 export const NET_TO_GROSS = 1.12;
+/** UNIT-only net (apartments, NO circulation captured) → gross: walls + circulation + common. */
+export const NET_TO_GROSS_UNIT = 1.35;
 export const NET_TO_GROSS_MIXED = 1.06;
 
 export type VisionSqmResult = {
@@ -80,6 +80,8 @@ STEP 3 — Else (only dimension lines / no printed areas):
 
 CRITICAL — do NOT double-count. Belgian plans label a unit's gross area ("BO", "bruto", "Opp.") AND the individual rooms inside it ("NO", "netto": leefruimte, slaapkamer, badkamer…). Report the UNIT-level area ONCE per unit; do NOT also add its interior rooms. Rule: if a unit/apartment has a BO/Opp total, use that and SKIP its NO room labels. Only sum room labels when there is no unit total for that space. Each terras/balkon is its own cat3 row (not part of the unit's living area).
 
+ALWAYS also read COMMON CIRCULATION areas as cat1 if they carry m² labels: gemene delen, traphal, trappenhal, inkomhal, hal, gang, lift lobby, gaanderij, sas. These are part of the heated floor and are easy to miss when only apartments are labelled.
+
 CATEGORIZE every row's "cat":
   - "cat1" = HEATED / LIVING / FINISHED floor: apartments, houses, studios, offices, shops/commercial, common circulation (gemene delen, traphal, inkomhal, lift lobby). This is the main number.
   - "cat2" = ENCLOSED UNHEATED: garage, parking, cellar (kelder), storage (berging), technical room, bicycle/waste storage.
@@ -95,15 +97,16 @@ Return JSON:
  "rows": [{"label":"...", "level":"...", "m2": <number>, "cat": "cat1|cat2|cat3|other"}],
  "floor_label": "<which floor/level this sheet shows, e.g. Gelijkvloers, +2, Kelder>",
  "cat1_m2": <number>, "cat2_m2": <number>, "cat3_m2": <number>,
- "cat1_basis": "gross" | "net" | "mixed",
+ "cat1_basis": "gross" | "net" | "unit_net" | "mixed",
  "stated_total_m2": <number or null>,
  "confidence": <0..1>,
  "notes": "which signal you used and any uncertainty"
 }
-cat1_basis tells whether the cat1 figure is GROSS or NET (drives a walls correction):
-  • "gross" = BRUTO / BO areas ("app X BO 104 m²", "bruto") — already includes interior walls.
-  • "net" = NETTO areas ("Netto Vloeropp.", "NO", room areas leefruimte/slaapkamer NETTO) — EXCLUDES walls. Use "net" for ANY netto figure, whether per-unit ("APP.0.1 Netto Vloeropp 67,3 m²") or per-room.
-  • "mixed" = a mix of both.
+cat1_basis drives a walls/circulation correction — pick carefully:
+  • "gross" = BRUTO / BO areas ("app X BO 104 m²", "bruto") — already includes walls + circulation.
+  • "net" = NET FLOOR areas that INCLUDE the common circulation (you summed dwelling rooms AND the traphal/hal/gemene delen/gaanderij m²). Excludes only walls.
+  • "unit_net" = ONLY the dwelling units' netto area ("APP.0.1 Netto Vloeropp 67,3 m²") and the common circulation is NOT labelled / NOT included in your cat1. (This needs a bigger gross-up.)
+  • "mixed" = a mix.
 confidence guide: area_table fully read ≥0.9; labeled_plan with complete labels ~0.6; partial labels ~0.4; bare_plan measured ≤0.35.`;
 
 const ALLOWED: Array<keyof CategoryAreas | "other"> = ["cat1", "cat2", "cat3", "other"];
@@ -148,12 +151,23 @@ export async function extractSqmViaVision(
   // Net→gross correction on cat1 ONLY for a labeled_plan whose cat1 came from room-level
   // NET areas (interior walls excluded). A table or unit-level BO figure is already gross.
   const basisRaw = String(data.cat1_basis ?? "");
-  const VALID_BASIS = ["gross", "net", "mixed", "unit_gross", "room_net"];
+  const VALID_BASIS = ["gross", "net", "unit_net", "mixed", "unit_gross", "room_net"];
   const cat1Basis: Cat1Basis = VALID_BASIS.includes(basisRaw) ? (basisRaw as Cat1Basis) : "unknown";
+  // Does the cat1 sum already include circulation (in-unit gang/hal/sas OR common
+  // traphal/gaanderij/gemene delen)? Derive this DETERMINISTICALLY from the rows — the
+  // model's own "net" vs "unit_net" self-label proved unreliable (it called HOOST
+  // unit_net even though it had read the gaanderij). If circulation is present, the sum
+  // is a near-complete net floor → walls only (×1.12). If only dwelling-unit totals were
+  // read (no circulation rows), the common+circulation area is missing → ×1.35.
+  const CIRC_RE = /traphal|trappenhal|inkom|gemene\s*del|gaanderij|\bgang\b|\bhal\b|nachthal|circulat|lobby|\bsas\b/i;
+  const hasCirculation = rows.some((r) => r.cat === "cat1" && CIRC_RE.test(r.label));
+  const NET_FAMILY = new Set(["net", "room_net", "unit_net"]);
   let cat1GrossFactor = 1.0;
   if (kind === "labeled_plan") {
-    if (NET_BASES.has(cat1Basis)) cat1GrossFactor = NET_TO_GROSS;
-    else if (cat1Basis === "mixed") cat1GrossFactor = NET_TO_GROSS_MIXED;
+    if (cat1Basis === "mixed") cat1GrossFactor = NET_TO_GROSS_MIXED;
+    else if (NET_FAMILY.has(cat1Basis))
+      cat1GrossFactor = hasCirculation ? NET_TO_GROSS : NET_TO_GROSS_UNIT;
+    // gross / unit_gross / unknown → 1.0 (no gross-up)
   }
   if (cat1GrossFactor !== 1.0) areas.cat1 = Math.round(areas.cat1 * cat1GrossFactor);
 
