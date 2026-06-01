@@ -74,6 +74,59 @@ describe("extractSqmViaVision — assembly + categorization", () => {
     expect(r!.areas).toEqual({ cat1: 0, cat2: 0, cat3: 0 }); // the "cat9" row → other → excluded
   });
 
+  it("applies the net→gross factor when cat1 is room-level NET (labeled_plan)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      cat1_basis: "room_net",
+      rows: [
+        { label: "leefruimte", m2: 600, cat: "cat1" },
+        { label: "slaapkamer", m2: 400, cat: "cat1" },
+      ],
+      cat1_m2: 1000, cat2_m2: 0, cat3_m2: 0,
+      confidence: 0.55,
+    }));
+    expect(r!.cat1Basis).toBe("room_net");
+    expect(r!.areas.cat1).toBe(1120); // 1000 × 1.12 (walls)
+  });
+
+  it("does NOT gross up when cat1 is unit-level BO (already gross)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      cat1_basis: "unit_gross",
+      rows: [{ label: "app 07A BO", m2: 1000, cat: "cat1" }],
+      cat1_m2: 1000, confidence: 0.55,
+    }));
+    expect(r!.cat1Basis).toBe("unit_gross");
+    expect(r!.areas.cat1).toBe(1000);
+  });
+
+  it("applies a smaller factor for a mixed basis", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan", cat1_basis: "mixed",
+      cat1_m2: 1000, rows: [{ label: "x", m2: 1000, cat: "cat1" }], confidence: 0.5,
+    }));
+    expect(r!.areas.cat1).toBe(1060); // ×1.06
+  });
+
+  it("NEVER grosses up an area_table (table values are already gross)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "area_table", cat1_basis: "room_net", // even if mislabeled
+      cat1_m2: 1000, rows: [{ label: "x", m2: 1000, cat: "cat1" }], confidence: 0.9,
+    }));
+    expect(r!.areas.cat1).toBe(1000);
+  });
+
+  it("does not gross up cat2/cat3, only cat1", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan", cat1_basis: "room_net",
+      cat1_m2: 1000, cat2_m2: 500, cat3_m2: 200,
+      rows: [{ label: "x", m2: 1000, cat: "cat1" }], confidence: 0.5,
+    }));
+    expect(r!.areas.cat1).toBe(1120);
+    expect(r!.areas.cat2).toBe(500);
+    expect(r!.areas.cat3).toBe(200);
+  });
+
   it("returns null on no images or null vision response", async () => {
     expect(await extractSqmViaVision([], fakeVision({ kind: "area_table" }))).toBeNull();
     expect(await extractSqmViaVision(["IMG"], fakeVision(null))).toBeNull();
@@ -86,6 +139,8 @@ describe("extractSqmViaVision — assembly + categorization", () => {
       statedTotal: null,
       confidence: 0.6,
       method: "x",
+      cat1Basis: "unit_gross",
+      cat1GrossFactor: 1.0,
       rows: [],
       raw: {},
     });
@@ -99,11 +154,11 @@ describe("extractSqmViaVision — assembly + categorization", () => {
   it("a printed area table on any page wins outright (no summing of labeled pages)", () => {
     const table: VisionSqmResult = {
       kind: "area_table", areas: { cat1: 2009, cat2: 264, cat3: 459 }, statedTotal: 2732,
-      confidence: 0.92, method: "x", rows: [], raw: {},
+      confidence: 0.92, method: "x", cat1Basis: "unit_gross", cat1GrossFactor: 1.0, rows: [], raw: {},
     };
     const labeled: VisionSqmResult = {
       kind: "labeled_plan", areas: { cat1: 800, cat2: 0, cat3: 0 }, statedTotal: null,
-      confidence: 0.5, method: "x", rows: [], raw: {},
+      confidence: 0.5, method: "x", cat1Basis: "unit_gross", cat1GrossFactor: 1.0, rows: [], raw: {},
     };
     const agg = aggregateVisionSqm([labeled, table, labeled]);
     expect(agg!.kind).toBe("area_table");

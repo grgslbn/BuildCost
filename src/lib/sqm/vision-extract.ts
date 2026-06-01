@@ -24,6 +24,18 @@ import type { CategoryAreas } from "./sqm-router";
 
 export type SqmKind = "area_table" | "labeled_plan" | "bare_plan";
 
+/**
+ * Whether the cat1 figure is a unit-level GROSS area (BO/bruto/Opp — already includes
+ * walls) or a sum of room-level NET areas (NO/netto leefruimte/slaapkamer — excludes
+ * interior walls). Net room sums undercount the gross heated floor by ~10-15%, so they
+ * get a net→gross factor. Validated: HOOST 547563 room-sum 14902 → ×1.12 ≈ GT 16783.
+ */
+export type Cat1Basis = "unit_gross" | "room_net" | "mixed" | "unknown";
+
+/** Net→gross multipliers applied to a room-NET cat1 (interior walls + structure). */
+export const NET_TO_GROSS = 1.12;
+export const NET_TO_GROSS_MIXED = 1.06;
+
 export type VisionSqmResult = {
   kind: SqmKind;
   areas: CategoryAreas; // cat1 (heated/living), cat2 (enclosed unheated), cat3 (outdoor built)
@@ -31,6 +43,8 @@ export type VisionSqmResult = {
   confidence: number; // 0..1, model self-assessment (gated downstream)
   method: string; // short human-readable description
   buildingType?: string;
+  cat1Basis: Cat1Basis; // basis of the cat1 figure (drives the net→gross factor)
+  cat1GrossFactor: number; // factor applied to raw cat1 (1.0 if none)
   rows: Array<{ label: string; m2: number; cat: keyof CategoryAreas | "other" }>;
   raw: Record<string, unknown>;
 };
@@ -70,10 +84,15 @@ Return JSON:
  "building_type": "appartementsgebouw|woning|winkel|kantoor|...",
  "rows": [{"label":"...", "level":"...", "m2": <number>, "cat": "cat1|cat2|cat3|other"}],
  "cat1_m2": <number>, "cat2_m2": <number>, "cat3_m2": <number>,
+ "cat1_basis": "unit_gross" | "room_net" | "mixed",
  "stated_total_m2": <number or null>,
  "confidence": <0..1>,
  "notes": "which signal you used and any uncertainty"
 }
+cat1_basis tells whether the cat1 figure is GROSS or NET:
+  • "unit_gross" = you summed whole-unit BRUTO areas ("app X BO 104 m²", "Opp. 104 m²", "bruto") — already includes walls.
+  • "room_net" = you summed individual ROOM areas (leefruimte/slaapkamer/badkamer/keuken NETTO) — excludes interior walls.
+  • "mixed" = a mix of both.
 confidence guide: area_table fully read ≥0.9; labeled_plan with complete labels ~0.6; partial labels ~0.4; bare_plan measured ≤0.35.`;
 
 const ALLOWED: Array<keyof CategoryAreas | "other"> = ["cat1", "cat2", "cat3", "other"];
@@ -115,6 +134,20 @@ export async function extractSqmViaVision(
     cat3: pickNum(data.cat3_m2, sumRows("cat3")),
   };
 
+  // Net→gross correction on cat1 ONLY for a labeled_plan whose cat1 came from room-level
+  // NET areas (interior walls excluded). A table or unit-level BO figure is already gross.
+  const basisRaw = String(data.cat1_basis ?? "");
+  const cat1Basis: Cat1Basis =
+    basisRaw === "unit_gross" || basisRaw === "room_net" || basisRaw === "mixed"
+      ? (basisRaw as Cat1Basis)
+      : "unknown";
+  let cat1GrossFactor = 1.0;
+  if (kind === "labeled_plan") {
+    if (cat1Basis === "room_net") cat1GrossFactor = NET_TO_GROSS;
+    else if (cat1Basis === "mixed") cat1GrossFactor = NET_TO_GROSS_MIXED;
+  }
+  if (cat1GrossFactor !== 1.0) areas.cat1 = Math.round(areas.cat1 * cat1GrossFactor);
+
   const statedTotal = data.stated_total_m2 != null ? num(data.stated_total_m2) : null;
   const confidence = clamp01(num(data.confidence) || defaultConfidence(kind));
 
@@ -123,8 +156,13 @@ export async function extractSqmViaVision(
     areas,
     statedTotal: statedTotal && statedTotal > 0 ? statedTotal : null,
     confidence,
-    method: methodLabel(kind),
+    method:
+      cat1GrossFactor !== 1.0
+        ? `${methodLabel(kind)} (×${cat1GrossFactor} net→gross)`
+        : methodLabel(kind),
     buildingType: typeof data.building_type === "string" ? data.building_type : undefined,
+    cat1Basis,
+    cat1GrossFactor,
     rows,
     raw: data,
   };
@@ -161,6 +199,14 @@ export function aggregateVisionSqm(results: Array<VisionSqmResult | null>): Visi
   // confidence: mean of the contributing pages, but never above the per-kind ceiling
   const meanConf = pool.reduce((s, r) => s + r.confidence, 0) / pool.length;
   const confidence = kind === "labeled_plan" ? Math.min(0.6, meanConf) : Math.min(0.35, meanConf);
+  // The net→gross factor was already applied per page in extractSqmViaVision, so the
+  // summed cat1 is already gross — don't re-apply. Report the dominant page basis.
+  const basisCounts = pool.reduce<Record<string, number>>((m, r) => {
+    m[r.cat1Basis] = (m[r.cat1Basis] ?? 0) + 1;
+    return m;
+  }, {});
+  const cat1Basis = (Object.entries(basisCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+    "unknown") as Cat1Basis;
   return {
     kind,
     areas,
@@ -168,6 +214,8 @@ export function aggregateVisionSqm(results: Array<VisionSqmResult | null>): Visi
     confidence,
     method: kind === "labeled_plan" ? `Printed m² labels summed across ${pool.length} sheet(s)` : methodLabel(kind),
     buildingType: ok.find((r) => r.buildingType)?.buildingType,
+    cat1Basis,
+    cat1GrossFactor: 1.0, // already applied per page
     rows: pool.flatMap((r) => r.rows),
     raw: { perPage: ok.length, pooled: pool.length },
   };
