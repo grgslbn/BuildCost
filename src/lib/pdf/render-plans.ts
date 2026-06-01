@@ -244,6 +244,58 @@ export async function renderPlanTilesToBase64(
 }
 
 /**
+ * Downscale a rendered PNG to ≤ maxEdge px on the long side for an Anthropic request.
+ * The API downsamples every image to ~1568px anyway, so capping here is LOSSLESS for the
+ * model and prevents oversized requests (the 413 "request_too_large" on big A0/A1 multi-
+ * page plans rendered at 5000px). Returns base64.
+ */
+export async function apiSafeBase64(png: Buffer, maxEdge = 1568): Promise<string> {
+  await ensureDeps();
+  const sharp = sharpMod!;
+  try {
+    const meta = await sharp(png).metadata();
+    if ((meta.width ?? 0) <= maxEdge && (meta.height ?? 0) <= maxEdge && png.length < 4_200_000) {
+      return png.toString("base64");
+    }
+    const out = await sharp(png)
+      .resize({ width: maxEdge, height: maxEdge, fit: "inside", withoutEnlargement: true })
+      .png()
+      .toBuffer();
+    return out.toString("base64");
+  } catch {
+    return png.toString("base64");
+  }
+}
+
+/**
+ * Like apiSafeBase64 but for an arbitrary upload (JPEG/PNG/WebP): returns the base64 AND
+ * the correct media_type. Downscales (to PNG) only when oversized; otherwise keeps the
+ * original bytes + format. Prevents 413 on large phone-photo uploads.
+ */
+export async function apiSafeImage(
+  buffer: Buffer,
+  maxEdge = 1568,
+): Promise<{ data: string; mediaType: "image/png" | "image/jpeg" | "image/webp" }> {
+  await ensureDeps();
+  const sharp = sharpMod!;
+  try {
+    const meta = await sharp(buffer).metadata();
+    const mt: "image/png" | "image/jpeg" | "image/webp" =
+      meta.format === "jpeg" ? "image/jpeg" : meta.format === "webp" ? "image/webp" : "image/png";
+    if ((meta.width ?? 0) <= maxEdge && (meta.height ?? 0) <= maxEdge && buffer.length < 4_200_000) {
+      return { data: buffer.toString("base64"), mediaType: mt };
+    }
+    const out = await sharp(buffer)
+      .resize({ width: maxEdge, height: maxEdge, fit: "inside", withoutEnlargement: true })
+      .png()
+      .toBuffer();
+    return { data: out.toString("base64"), mediaType: "image/png" };
+  } catch {
+    return { data: buffer.toString("base64"), mediaType: "image/png" };
+  }
+}
+
+/**
  * Tile a single raster image (a JPEG/PNG upload) into an overlapping NxN grid, same
  * idea as renderPlanTilesToBase64 but for an already-rastered image instead of a PDF
  * page. Makes labels/dimensions on a photographed or exported plan legible past the

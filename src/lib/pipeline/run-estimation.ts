@@ -22,6 +22,8 @@ import {
   renderSpecificPagesToBase64,
   renderPlanTilesToBase64,
   tileImageToBase64,
+  apiSafeBase64,
+  apiSafeImage,
   getPdfText,
   type RenderedImage,
 } from "@/lib/pdf/render-plans";
@@ -265,19 +267,30 @@ export async function runEstimationPipeline(
 
         const floorContext = buildFloorContext(planImages);
 
-        planImageBlocks = planImages.flatMap(
-          (img): Anthropic.ContentBlockParam[] => [
+        // Cap each image to ≤1568px (the API downsamples there anyway — lossless) and
+        // bound the total request payload, so big A0/A1 multi-page plans don't trip
+        // Anthropic's "request_too_large" (413). Drops surplus pages beyond the budget.
+        const MAX_REQ_BYTES = 26_000_000;
+        let reqBytes = 0;
+        planImageBlocks = [];
+        for (const img of planImages) {
+          const b64 = await apiSafeBase64(img.png);
+          const approxBytes = Math.ceil((b64.length * 3) / 4);
+          if (reqBytes + approxBytes > MAX_REQ_BYTES && planImageBlocks.length > 0) {
+            console.warn(
+              `[pipeline] SQM image budget reached (${Math.round(reqBytes / 1e6)}MB) — sent ${planImageBlocks.length / 2} of ${planImages.length} images`,
+            );
+            break;
+          }
+          reqBytes += approxBytes;
+          planImageBlocks.push(
             { type: "text" as const, text: `\n--- Image: ${img.name} ---` },
             {
               type: "image" as const,
-              source: {
-                type: "base64" as const,
-                media_type: "image/png" as const,
-                data: img.png.toString("base64"),
-              },
+              source: { type: "base64" as const, media_type: "image/png" as const, data: b64 },
             },
-          ],
-        );
+          );
+        }
 
         sqmContent = [
           {
@@ -378,18 +391,16 @@ export async function runEstimationPipeline(
         sqmExtraction = parseClaudeJson(retryRaw) as Record<string, unknown>;
       }
     } else {
-      // Image file
-      const base64 = Buffer.from(arrayBuffer).toString("base64");
-      const mediaType = getImageMediaType(est.plan_file_name ?? "plan.jpg");
-
+      // Image file — downscale oversized uploads (≤1568px) to avoid a 413.
+      const safe = await apiSafeImage(Buffer.from(arrayBuffer));
       planImageBlocks = [
         { type: "text" as const, text: "\n--- Image: plan ---" },
         {
           type: "image" as const,
           source: {
             type: "base64" as const,
-            media_type: mediaType,
-            data: base64,
+            media_type: safe.mediaType,
+            data: safe.data,
           },
         },
       ];
