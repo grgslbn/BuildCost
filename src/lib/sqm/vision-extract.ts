@@ -75,6 +75,7 @@ STEP 1 — Is there an AREA TABLE / berekening / oppervlaktestaat / meetstaat an
   → If YES: set "kind":"area_table" and transcribe EVERY row into "rows".
 STEP 2 — Else, do units/rooms carry PRINTED m² labels ("Opp.: 74,76 m²", "BO 104,3 m²", "Leefruimte 32 m²")?
   → If YES: set "kind":"labeled_plan" and list every labeled area in "rows" (count each ONCE across sheets).
+  → COMPLETENESS IS CRITICAL: capture EVERY apartment/unit on EVERY floor — do not skip any. A residential floor usually has 4–10 units (APP 0.1, 0.2, 0.3 … or app x.y); scan the WHOLE sheet, including the edges/corners, and list them ALL. Missing units is the #1 error. State n_units you found so it can be sanity-checked.
 STEP 3 — Else (only dimension lines / no printed areas):
   → set "kind":"bare_plan", measure the gross floor per level from dimensions, and put your best estimate in "rows" with low confidence.
 

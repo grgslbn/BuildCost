@@ -150,6 +150,7 @@ Upload PDF → classify pages → render PNG → SQM ROUTER (per-dossier best si
 - **Page selection is a top bottleneck**: bundles mix notarial deeds / CED reports / sections / elevations / floor plans. Feeding the wrong pages = 0 or garbage. Floor plans with labels usually sit deeper (e.g. pages 3–7), not page 0–2.
 - **Multi-floor buildings = one sheet per floor** → must enumerate every floor + sum (per-page aggregation).
 - **Duplicate floor sheets** (same plan bound twice, or NL+FR versions — e.g. 23-499974: 10 sheets = 5 unique floors) → `aggregateVisionSqm` dedups by `floor_label` (block letters survive normalisation, so "Gelijkvloers A" ≠ "Gelijkvloers B"; only true duplicates collapse). Without this the labeled route DOUBLES the area.
+- **Gemene delen / common areas are usually NOT labelled with m²** (the cores/traphal/lift are drawn + named but carry no area; the expert MEASURES them, e.g. 23-499978 89+179 m²). So they CANNOT be read — the net→gross factor absorbs them (validated: apartments×1.12 ≈ heated when commons are small; ×1.35 when large/unit-only). The real residual on labeled plans is therefore **apartment CAPTURE COMPLETENESS** (missing a few units on dense floors → cat1 ~−10%, e.g. 23-499978 live captured ~2714 of 3158 apartment m²), NOT the commons. Mitigations: prompt emphasis on capturing EVERY unit + 0.12 tile overlap.
 - **net→gross factor is CONDITIONAL on whether circulation was captured** (determined deterministically from the cat1 rows, NOT the model's self-label which proved unreliable): `gross`/BO → ×1.0; net-family AND cat1 rows include circulation (gang/hal/traphal/gaanderij/sas) → ×1.12 (walls only); net-family with ONLY dwelling-unit totals (no circulation rows) → **×1.35** (walls + circulation + common). Validated against expert GT: 23-499974 unit-only 1106 ×1.35 = **1493 = expert exactly**; HOOST (rooms incl. gaanderij/traphal) → ×1.12. `NET_TO_GROSS_UNIT=1.35` in `vision-extract.ts`.
 - **GT caveat**: `scripts/sqm-groundtruth.json` `heated_m2` over-counts on some dossiers (parking/kelder/atelier counted as cat1: 516605, 540184, 546287). The niveau-aware vision categorisation is more cost-correct; back-tests should compare against a niveau-aware corrected GT.
 - **Scanned/image PDFs** (e.g. 550471): `pdftotext` finds nothing → classify pages + extract via VISION only.
@@ -320,7 +321,7 @@ Evaluates pipeline accuracy against expert ground truth. 637 reference dossiers 
 In Railway project settings:
 - **Root Directory:** `/` (blank / repo root)
 - **Dockerfile Path:** `worker/Dockerfile`
-- **Watch Paths:** `worker/**`, `src/lib/pipeline/**`, `src/lib/ai/**`, `src/lib/supabase/**`
+- **Watch Paths:** `worker/**`, `src/lib/pipeline/**`, `src/lib/ai/**`, `src/lib/supabase/**` — **TODO: also add `src/lib/sqm/**` + `src/lib/pdf/**`** (the SQM router + renderers live there; without them, a change ONLY to sqm/pdf does NOT trigger a worker rebuild — touch `run-estimation.ts` to force one until the watch paths are widened).
 
 **Environment variables to set in Railway:**
 - `SUPABASE_URL` = `https://sqmpgzzjxsmywmpsplmu.supabase.co`

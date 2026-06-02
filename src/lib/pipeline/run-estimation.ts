@@ -602,6 +602,11 @@ export async function runEstimationPipeline(
           // sheet, so we tile + extract EACH floor page and sum (validated −0% on a
           // 12-floor apartment building). The API downsamples to ~1568px, so tiling is
           // what keeps the small printed m² labels legible. Capped to bound cost/time.
+          // NOTE: the dominant residual on labeled plans is APARTMENT CAPTURE
+          // COMPLETENESS (missing a few units on dense floors → cat1 ~−10%), not the
+          // gemene-delen (unlabeled; the net→gross factor handles those). The prompt +
+          // 0.12 tile overlap target this. (Railway watches src/lib/pipeline/** — this
+          // file's edit triggers a worker rebuild that recompiles sqm/ + pdf/ too.)
           const FLOOR_PAGE_CAP = 8;
           const pagesToScan = floorPlanPageNums.slice(0, FLOOR_PAGE_CAP);
           const perPage: Array<VisionSqmResult | null> = [];

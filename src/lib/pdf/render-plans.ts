@@ -193,7 +193,9 @@ export async function renderPlanTilesToBase64(
   await ensureDeps();
   const mupdf = mupdfMod!;
   const sharp = sharpMod!;
-  const { dpi = 200, grid = 3, overlap = 0.08, maxTiles = 18 } = opts;
+  // 0.12 overlap (was 0.08): an apartment label sitting on a tile boundary would
+  // otherwise be cut in both tiles and missed — the #1 cause of unit under-capture.
+  const { dpi = 200, grid = 3, overlap = 0.12, maxTiles = 18 } = opts;
   const doc = mupdf.Document.openDocument(pdfBuffer, "application/pdf");
   const total = doc.countPages();
   const out: string[] = [];
