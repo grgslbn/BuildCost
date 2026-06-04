@@ -33,17 +33,17 @@ const NAV: NavItem[] = [
   { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "New Estimation", href: "/estimate", icon: PlusCircle },
   { label: "Estimations", href: "/estimations", icon: ClipboardList },
-  { label: "Dossiers", href: "/admin/dossiers", icon: FolderOpen, group: "Admin" },
-  { label: "QQP Model", href: "/admin/qqp", icon: BrainCircuit, group: "Admin" },
-  { label: "Prompts", href: "/admin/prompts", icon: Terminal, group: "Admin" },
-  { label: "Settings", href: "/admin/settings", icon: Settings, group: "Admin" },
-  { label: "Prompt Lab", href: "/admin/prompt-lab", icon: FlaskConical, group: "Admin" },
-  { label: "Leads", href: "/admin/leads", icon: Users, group: "Admin" },
-  { label: "Tenants", href: "/admin/tenants", icon: Building2, group: "Admin" },
-  { label: "Billing",  href: "/admin/billing",  icon: BarChart3, group: "Admin" },
-  { label: "Roadmap",  href: "/admin/roadmap",  icon: Map,       group: "Admin" },
-  { label: "Email test",    href: "/admin/email-test",    icon: Mail,        group: "Admin" },
-  { label: "Pipeline test", href: "/admin/pipeline-test", icon: Cpu,         group: "Admin" },
+  { label: "Dossiers",      href: "/admin/dossiers",      icon: FolderOpen,  group: "Engine" },
+  { label: "Prompt Lab",    href: "/admin/prompt-lab",    icon: FlaskConical, group: "Engine" },
+  { label: "Prompts",       href: "/admin/prompts",       icon: Terminal,    group: "Engine" },
+  { label: "QQP Model",     href: "/admin/qqp",           icon: BrainCircuit, group: "Engine" },
+  { label: "Settings",      href: "/admin/settings",      icon: Settings,    group: "Engine" },
+  { label: "Leads",         href: "/admin/leads",         icon: Users,       group: "Business" },
+  { label: "Tenants",       href: "/admin/tenants",       icon: Building2,   group: "Business" },
+  { label: "Billing",       href: "/admin/billing",       icon: BarChart3,   group: "Business" },
+  { label: "Roadmap",       href: "/admin/roadmap",       icon: Map,         group: "System" },
+  { label: "Email test",    href: "/admin/email-test",    icon: Mail,        group: "System" },
+  { label: "Pipeline test", href: "/admin/pipeline-test", icon: Cpu,         group: "System" },
 ];
 
 export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
@@ -77,7 +77,7 @@ export function Sidebar({ useQueue = false }: { useQueue?: boolean }) {
       {/* Logo */}
       <div className="flex h-14 items-center gap-2 border-b px-4">
         <Building2 className="h-5 w-5 text-primary" />
-        <span className="font-semibold tracking-tight">PlanBase</span>
+        <span className="font-semibold tracking-tight">PlanBased</span>
       </div>
 
       {/* Nav */}
