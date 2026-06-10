@@ -222,5 +222,15 @@
   "cat3_m2": 17,
   "total": 3774960.52,
   "note": "expert berekening hoek Hendrik I Lei / J Van de Vondelstraat (blind.pdf SPLIT_V2, dossiernr onbekend); cat1: GVL app+circ 369 + commercieel 92 + nivo1 448 + nivo2 448 + nivo3 339 (app+circ+INPANDIGE terrassen in de lijn); kelder 453 onder + 127 buiten; terras GVL 17 @306; 2x lift 130k + laadpaal 2.5k; woon eur1848 (F~0.86); FABLE blind: cat2 0.0% EXACT, cat1 +18% (factor x1.3 ipv x1.12 — netto-lezingen per laag waren exact: 401x1.12=449 vs 448), totaal +27%"
+ },
+ "24-522268": {
+  "heated_m2": 1115,
+  "heated_eur": null,
+  "strict_cat1": 916,
+  "cat2_m2": 765,
+  "cat3_m2": 0,
+  "total": 6942844.2,
+  "abex": 1048,
+  "note": "expert berekening ultra-luxe villa (CED/Allia): woning 317+212 @5300/m2(!), poolhouse 254.32+132.40 @4000/3000, schuur 168+31.03 @3200/3000, garage -1 168 @2000, kelder -1 597 @2500; inrichting autolift 110k+zwembad 90k+sauna 25k+personenlift 40.5k=265.5k; vetusteit 2% (0); FABLE blind op ONVOLLEDIG uittreksel (1 plan-blad, geen kelder/gevels): bovengronds -30%, kelder 765 m2 volledig gemist, totaal -75% — segment boven cat1-cap 2900 + partial-excerpt les"
  }
 }
