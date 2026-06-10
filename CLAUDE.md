@@ -126,6 +126,16 @@ Upload PDF → classify pages → render PNG → SQM ROUTER (per-dossier best si
   - Files: `src/lib/sqm/vision-extract.ts` (universal classify+extract + `aggregateVisionSqm`), `extract-area-table.ts`, `sqm-router.ts`, `sqm-confidence.ts`, `render-plans.ts` (`renderPlanTilesToBase64`, `getPdfText`, `renderSpecificPagesToBase64`). Tests 27/27, tsc clean. See `docs/sqm-golive-strategy.md` + `docs/benchmark-2026-05-31.md`.
   - **Honest limit**: a structured table → exact; clean residential labeled plans → ~±10% (tiled, per-page); mixed-use labeled → ±15–30%; bare/dimension-only plans → unreliable, flagged. Aggregating labels is noisier than reading a table, so **the table is the only exact source** — and **manual m² confirmation** (`/api/estimate/[id]/correct-sqm` + `SqmCorrectionPanel`, shown when `sqm_confidence<0.65`) covers the rest.
 
+### BLIND-TEST PROTOCOL (verplicht bij SQM-accuracytests)
+
+When the user says **"blinde test"** (or supplies a plan to estimate), the answer key is often within reach — a `*_Berekening.pdf` next to the plan, `scripts/sqm-groundtruth.json`, `benchmark_ground_truth` in Supabase, or values recorded in this file. **Looking at any of these before committing an estimate invalidates the test (anchoring).** Rules:
+
+1. **NO ground-truth lookup before the estimate.** Do not read the GT json, the DB, or any `*Berekening*` file. Do not grep for the dossier number. Commit the full estimate (cat1/cat2/cat3 + reasoning) in the response FIRST; only then may the expert calculation be opened/compared — and only if the user provides or asks for it.
+2. **Burned dossiers stay burned.** Any dossier whose expert values appear in this file, in `scripts/sqm-groundtruth.json`, or in memory (542077, 546287, 547563, 550471, 499974, 499978, 552710, 483997, …) can never be tested blind again — say so instead of pretending.
+3. **Auditability is the guarantee**: every tool call is visible in the transcript. The user verifies cleanliness by checking that no Berekening/GT access precedes the estimate.
+4. Advise the user to harden the setup: rename the file (strip the dossier number), place it in a folder without the Berekening, and paste the expert calculation into the chat only AFTER the estimate.
+5. Disclosure precedent: the 26-552710 test (−0.5%) was anchored (GT was read before the plan); 23-483997 (−4.2%) followed the correct order.
+
 ### SQM — operational learnings (backtested, what works & what doesn't)
 
 **Core truth: vision can READ printed numbers reliably, but CANNOT MEASURE pixels/dimensions reliably.** Everything follows from this.
