@@ -213,5 +213,14 @@
   "groendak_m2": 1036,
   "total": 13259283,
   "note": "expert berekening Vallei Houtkauter Liedekerke; cat1=app+circ per nivo (-3:499,-2:742,-1:1008,GVL:1008,+1:1010,+2:428); INPANDIGE terrassen (39+119+123+119=400) aan VOLLE woonprijs eur2000/m2 (niet cat3!); gewone terrassen 114+52+135=301 @502; groendak 1036 @200; parkeerkelder 1902 @1155; inrichting 3xlift+84pv+meerwaarden 475k; FABLE blind: cat1 -4.2%, cat2 +5.2%"
+ },
+ "blind-hendrik-I-lei": {
+  "heated_m2": 1696,
+  "heated_eur": 1848,
+  "strict_cat1": 1696,
+  "cat2_m2": 580,
+  "cat3_m2": 17,
+  "total": 3774960.52,
+  "note": "expert berekening hoek Hendrik I Lei / J Van de Vondelstraat (blind.pdf SPLIT_V2, dossiernr onbekend); cat1: GVL app+circ 369 + commercieel 92 + nivo1 448 + nivo2 448 + nivo3 339 (app+circ+INPANDIGE terrassen in de lijn); kelder 453 onder + 127 buiten; terras GVL 17 @306; 2x lift 130k + laadpaal 2.5k; woon eur1848 (F~0.86); FABLE blind: cat2 0.0% EXACT, cat1 +18% (factor x1.3 ipv x1.12 — netto-lezingen per laag waren exact: 401x1.12=449 vs 448), totaal +27%"
  }
 }
