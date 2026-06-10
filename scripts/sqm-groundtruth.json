@@ -232,5 +232,14 @@
   "total": 6942844.2,
   "abex": 1048,
   "note": "expert berekening ultra-luxe villa (CED/Allia): woning 317+212 @5300/m2(!), poolhouse 254.32+132.40 @4000/3000, schuur 168+31.03 @3200/3000, garage -1 168 @2000, kelder -1 597 @2500; inrichting autolift 110k+zwembad 90k+sauna 25k+personenlift 40.5k=265.5k; vetusteit 2% (0); FABLE blind op ONVOLLEDIG uittreksel (1 plan-blad, geen kelder/gevels): bovengronds -30%, kelder 765 m2 volledig gemist, totaal -75% — segment boven cat1-cap 2900 + partial-excerpt les"
+ },
+ "blind-eupener-strasse": {
+  "heated_m2": 1929,
+  "heated_eur": 2300,
+  "strict_cat1": 1929,
+  "cat2_m2": 1050,
+  "cat3_m2": 0,
+  "total": 5646205,
+  "note": "expert calcul (FR sjabloon, m3-methode!) appartementen Eupener Strasse N68/Eynattener Str (Raeren/Eynatten, 16 Wohnungen 4 oost + 12 west): sous-sol 1050 m2 @1048; Batiment1 (oost) 8x23 niveau 0>1 = 1104 m3 @750/m3; Batiment3 (west) ailes 10.15x16.80 + 12.15x28.80 niveau 0>2 = 4424 m3 @750/m3; concentration equipements 16x25000=400k; vetuste 5% (0); bovengronds vloer-equiv ~1929 m2, effectief ~2300-2500 eur/m2; FABLE blind MET nieuwe circulatie-methode: cat1 1850 = -4% (eerste blinde validatie circulation_m2!), units 16/16 exact, sous-sol 800 = -24%, totaal -17% (prijspeil +15% onderschat)"
  }
 }
