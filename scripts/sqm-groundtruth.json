@@ -203,5 +203,15 @@
   "heated_eur": 1726,
   "strict_cat1": 213,
   "total": 1476278
+ },
+ "23-483997": {
+  "heated_m2": 4695,
+  "heated_eur": 2008,
+  "strict_cat1": 4695,
+  "cat2_m2": 1902,
+  "cat3_m2": 701,
+  "groendak_m2": 1036,
+  "total": 13259283,
+  "note": "expert berekening Vallei Houtkauter Liedekerke; cat1=app+circ per nivo (-3:499,-2:742,-1:1008,GVL:1008,+1:1010,+2:428); INPANDIGE terrassen (39+119+123+119=400) aan VOLLE woonprijs eur2000/m2 (niet cat3!); gewone terrassen 114+52+135=301 @502; groendak 1036 @200; parkeerkelder 1902 @1155; inrichting 3xlift+84pv+meerwaarden 475k; FABLE blind: cat1 -4.2%, cat2 +5.2%"
  }
 }
