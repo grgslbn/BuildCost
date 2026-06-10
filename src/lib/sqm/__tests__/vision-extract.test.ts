@@ -104,6 +104,40 @@ describe("extractSqmViaVision — assembly + categorization", () => {
     expect(r!.areas.cat1).toBe(Math.round(1106 * 1.35)); // 1493 ≈ expert GT 1493
   });
 
+  it("unit-only + explicit circulation estimate → (nets+circ)×1.12 (the Hendrik I Lei fix)", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan",
+      cat1_basis: "unit_net",
+      cat1_m2: 401, // printed unit nets per level
+      circulation_m2: 30, // model counted 2 compact cores from the drawing
+      n_cores: 2,
+      rows: [{ label: "APP 1.1", m2: 105, cat: "cat1" }],
+      confidence: 0.6,
+    }));
+    expect(r!.circulationM2).toBe(30);
+    expect(r!.areas.cat1).toBe(Math.round((401 + 30) * 1.12)); // 483 — not 401×1.35=541
+  });
+
+  it("suspicious circulation estimate (≥50% of nets) → fall back to ×1.35", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan", cat1_basis: "unit_net",
+      cat1_m2: 400, circulation_m2: 250, // implausible: 62% of nets
+      rows: [{ label: "APP 1", m2: 400, cat: "cat1" }], confidence: 0.5,
+    }));
+    expect(r!.circulationM2).toBeUndefined();
+    expect(r!.areas.cat1).toBe(Math.round(400 * 1.35));
+  });
+
+  it("circulation rows present → ×1.12, explicit estimate ignored", async () => {
+    const r = await extractSqmViaVision(["IMG"], fakeVision({
+      kind: "labeled_plan", cat1_basis: "net",
+      cat1_m2: 1000, circulation_m2: 99, // should be ignored: rows already include traphal
+      rows: [{ label: "leefruimte", m2: 900, cat: "cat1" }, { label: "traphal", m2: 100, cat: "cat1" }],
+      confidence: 0.5,
+    }));
+    expect(r!.areas.cat1).toBe(1120); // 1000×1.12, no double-add
+  });
+
   it("net-family basis but NO circulation rows → ×1.35 (deterministic, ignores flaky self-label)", async () => {
     const r = await extractSqmViaVision(["IMG"], fakeVision({
       kind: "labeled_plan",

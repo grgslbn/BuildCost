@@ -53,7 +53,8 @@ export type VisionSqmResult = {
   method: string; // short human-readable description
   buildingType?: string;
   cat1Basis: Cat1Basis; // basis of the cat1 figure (drives the net→gross factor)
-  cat1GrossFactor: number; // factor applied to raw cat1 (1.0 if none)
+  cat1GrossFactor: number; // effective factor applied to raw cat1 (1.0 if none)
+  circulationM2?: number; // model's explicit circulation estimate (unit_net case), if used
   floorLabel?: string; // which floor this sheet is (used to dedup duplicate sheets)
   rows: Array<{ label: string; m2: number; cat: keyof CategoryAreas | "other" }>;
   raw: Record<string, unknown>;
@@ -99,6 +100,7 @@ Return JSON:
  "floor_label": "<which floor/level this sheet shows, e.g. Gelijkvloers, +2, Kelder>",
  "cat1_m2": <number>, "cat2_m2": <number>, "cat3_m2": <number>,
  "cat1_basis": "gross" | "net" | "unit_net" | "mixed",
+ "circulation_m2": <number or null>, "n_cores": <int or null>,
  "stated_total_m2": <number or null>,
  "confidence": <0..1>,
  "notes": "which signal you used and any uncertainty"
@@ -108,6 +110,7 @@ cat1_basis drives a walls/circulation correction — pick carefully:
   • "net" = NET FLOOR areas that INCLUDE the common circulation (you summed dwelling rooms AND the traphal/hal/gemene delen/gaanderij m²). Excludes only walls.
   • "unit_net" = ONLY the dwelling units' netto area ("APP.0.1 Netto Vloeropp 67,3 m²") and the common circulation is NOT labelled / NOT included in your cat1. (This needs a bigger gross-up.)
   • "mixed" = a mix.
+circulation_m2: when the common circulation is NOT among your cat1 rows (unit_net case), ESTIMATE its floor area on this sheet from the DRAWING: count the cores → n_cores (traphal + lift + landing ≈ 12–25 m² per core per floor, read the core dimensions if printed) and add common corridors/gangen. Report the estimate in circulation_m2. If circulation IS already in your rows, or none visible, use null. Do NOT guess a percentage — derive it from the visible geometry.
 confidence guide: area_table fully read ≥0.9; labeled_plan with complete labels ~0.6; partial labels ~0.4; bare_plan measured ≤0.35.`;
 
 const ALLOWED: Array<keyof CategoryAreas | "other"> = ["cat1", "cat2", "cat3", "other"];
@@ -164,13 +167,32 @@ export async function extractSqmViaVision(
   const hasCirculation = rows.some((r) => r.cat === "cat1" && CIRC_RE.test(r.label));
   const NET_FAMILY = new Set(["net", "room_net", "unit_net"]);
   let cat1GrossFactor = 1.0;
+  let circulationM2: number | undefined;
   if (kind === "labeled_plan") {
     if (cat1Basis === "mixed") cat1GrossFactor = NET_TO_GROSS_MIXED;
-    else if (NET_FAMILY.has(cat1Basis))
-      cat1GrossFactor = hasCirculation ? NET_TO_GROSS : NET_TO_GROSS_UNIT;
+    else if (NET_FAMILY.has(cat1Basis)) {
+      if (hasCirculation) cat1GrossFactor = NET_TO_GROSS;
+      else {
+        // Unit-only nets. The fixed ×1.35 proved NOT constant (blind test Hendrik I Lei:
+        // compact cores needed ×1.12; Schaarbeek genuinely ×1.35 — span 1.12…1.35 with
+        // the circulation share). Prefer the model's EXPLICIT circulation estimate from
+        // the drawing: cat1 = (unit nets + circulation) × 1.12 (walls only). Sanity: the
+        // estimate must be positive and < 50% of the nets; otherwise fall back to ×1.35.
+        const circ = num(data.circulation_m2);
+        if (circ > 0 && areas.cat1 > 0 && circ < areas.cat1 * 0.5) {
+          circulationM2 = circ;
+          const grossed = Math.round((areas.cat1 + circ) * NET_TO_GROSS);
+          cat1GrossFactor = +(grossed / areas.cat1).toFixed(3);
+          areas.cat1 = grossed;
+        } else {
+          cat1GrossFactor = NET_TO_GROSS_UNIT;
+        }
+      }
+    }
     // gross / unit_gross / unknown → 1.0 (no gross-up)
   }
-  if (cat1GrossFactor !== 1.0) areas.cat1 = Math.round(areas.cat1 * cat1GrossFactor);
+  if (cat1GrossFactor !== 1.0 && circulationM2 === undefined)
+    areas.cat1 = Math.round(areas.cat1 * cat1GrossFactor);
 
   const statedTotal = data.stated_total_m2 != null ? num(data.stated_total_m2) : null;
   const confidence = clamp01(num(data.confidence) || defaultConfidence(kind));
@@ -181,12 +203,15 @@ export async function extractSqmViaVision(
     statedTotal: statedTotal && statedTotal > 0 ? statedTotal : null,
     confidence,
     method:
-      cat1GrossFactor !== 1.0
-        ? `${methodLabel(kind)} (×${cat1GrossFactor} net→gross)`
-        : methodLabel(kind),
+      circulationM2 !== undefined
+        ? `${methodLabel(kind)} (+${Math.round(circulationM2)} m² circulation est ×${NET_TO_GROSS})`
+        : cat1GrossFactor !== 1.0
+          ? `${methodLabel(kind)} (×${cat1GrossFactor} net→gross)`
+          : methodLabel(kind),
     buildingType: typeof data.building_type === "string" ? data.building_type : undefined,
     cat1Basis,
     cat1GrossFactor,
+    circulationM2,
     floorLabel: typeof data.floor_label === "string" ? data.floor_label : undefined,
     rows,
     raw: data,
@@ -267,6 +292,7 @@ export function aggregateVisionSqm(results: Array<VisionSqmResult | null>): Visi
     buildingType: ok.find((r) => r.buildingType)?.buildingType,
     cat1Basis,
     cat1GrossFactor: 1.0, // already applied per page
+    circulationM2: pool.reduce((s, r) => s + (r.circulationM2 ?? 0), 0) || undefined,
     rows: pool.flatMap((r) => r.rows),
     raw: { perPage: ok.length, pooled: pool.length },
   };
