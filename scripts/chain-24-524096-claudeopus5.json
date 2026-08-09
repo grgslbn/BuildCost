@@ -1,0 +1,150 @@
+{
+  "ref": "24-524096",
+  "model": "claude-opus-5",
+  "turns": 15,
+  "toolCalls": 24,
+  "minutes": 6.7,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -1 (sous-sol: parking, caves, techniek)",
+        "page": 40,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 387,
+        "width_total": 29.89,
+        "width_chain": [
+          15.15,
+          6.8,
+          7.94
+        ],
+        "depth_total": 13.75,
+        "depth_chain": [
+          11.9,
+          13.75
+        ],
+        "shape": [
+          {
+            "w_m": 29.89,
+            "d_m": 12.1,
+            "sign": 1
+          },
+          {
+            "w_m": 29.89,
+            "d_m": 0.9,
+            "sign": 1
+          },
+          {
+            "w_m": 5,
+            "d_m": 5,
+            "sign": 1
+          }
+        ],
+        "notes": "Geen gedrukte totaaloppervlakte. Envelop bepaald via gekalibreerde meting (schaalbalk + gecontroleerde keten 15.15 m => 36,5 px/m) : trapezium 29,89 m lang, diepte 11,9 m (west) tot 13,75 m (oost) => 368 m², min nis trappenhuis ~7 m² = 362 m². Methode gevalideerd op RDC (332,6 m² gemeten vs 335 m² in verslag). Daarbij 3 'ZONE SPA' nissen in de historische muur (9,39+10,90+4,79 = 25 m²). Som gedrukte ruimtes (parking 186,34 + fosse asc 20,74 + cabine HT 13,91 + poubelle 16,23 + circulatie 13,55 + 13 bergingen/technische lokalen) = 311,7 m² netto, consistent met 362 m² bruto."
+      },
+      {
+        "label": "gelijkvloers (RDC)",
+        "page": 41,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 246.96,
+          "cat2": 85.64,
+          "cat3": 0
+        },
+        "method": "printed_label",
+        "area_m2": 332.6,
+        "notes": "Gedrukt: APPARTEMENT 0.1 SURFACE EXTRAMUROS 88,89 + APP 0.2 143,75 + COMMUN EXTRAMUROS 14,32 = 246,96 m² (cat1). Bruto voetafdruk gemeten 332,6 m² (verslag: 'surface bâtie +/- 335 m², porche couvert compris'). Verschil 85,6 m² = overdekt porche/entree (gedrukt 70,78 m²) + koker autolift naar sous-sol (~6,20x3,10) => cat2. Tuinterrassen op maaiveld (15,69/14,68 m²) niet meegeteld."
+      },
+      {
+        "label": "verdieping +1",
+        "page": 42,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 284.72,
+          "cat2": 0,
+          "cat3": 34.45
+        },
+        "method": "printed_label",
+        "area_m2": 319.17,
+        "notes": "Gedrukt: APP 1.1 135,05 + APP 1.2 138,14 + COMMUN 11,53 = 284,72 m² extramuros (cat1). Terrassen op dak RDC: 15,72 + 18,73 = 34,45 m² (cat3)."
+      },
+      {
+        "label": "verdieping +2",
+        "page": 43,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 214.1,
+          "cat2": 0,
+          "cat3": 29.57
+        },
+        "method": "printed_label",
+        "area_m2": 243.67,
+        "notes": "Gedrukt: APP 2.1 92,68 + APP 2.2 109,89 + COMMUN 11,53 = 214,10 m² (cat1). Terrassen 14,14 + 15,43 = 29,57 m² (cat3)."
+      },
+      {
+        "label": "verdieping +3",
+        "page": 44,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 204.58,
+          "cat2": 0,
+          "cat3": 24.89
+        },
+        "method": "printed_label",
+        "area_m2": 229.47,
+        "notes": "Gedrukt: APP 3.1 92,66 + APP 3.2 100,39 + COMMUN 11,53 = 204,58 m² (cat1). Balkons 10,59 + 14,30 = 24,89 m² (cat3)."
+      },
+      {
+        "label": "verdieping +4 (mansarde, topverdieping)",
+        "page": 45,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 144.13,
+          "cat2": 0,
+          "cat3": 39.85
+        },
+        "method": "printed_label",
+        "area_m2": 183.98,
+        "notes": "Gedrukt: APP 4.1 132,60 + COMMUN 11,53 = 144,13 m² (cat1). Dakterras 39,85 m² (cat3). Bovenste bouwlaag volgens gevel (+11,94) en snede."
+      },
+      {
+        "label": "dak (groendak + PV, liftopbouw)",
+        "page": 46,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 0,
+        "notes": "Toiture végétal 81,52 m² + panelen: groendak = excluded. Enkel liftopbouw 3,03 m² (verwaarloosd)."
+      }
+    ],
+    "cat1_m2": 1094.5,
+    "cat2_m2": 472.6,
+    "cat3_m2": 128.8,
+    "floor_count_from_sections": 6,
+    "flags": [
+      "Sous-sol heeft geen gedrukte oppervlakte: envelop gemeten via gekalibreerde schaal (schaalbalk + keten 15.15 m); methode gevalideerd op RDC (332,6 gemeten vs 335 m² in het expertiseverslag) — onzekerheid ca. ±5%.",
+      "'ZONE SPA' nissen (25 m²) in de bestaande historische muur ten westen van het sous-sol meegeteld als cat2; mogelijk niet-gerealiseerd/ruwbouw.",
+      "Bladen 3-32: expertiseverslag NL/FR duplicaat (2x hetzelfde CED/AXA-rapport) — slechts één keer gebruikt voor functiecontrole (8 appartementen, 6 niveaus, 1 ondergronds parkingniveau).",
+      "Apparte­ments­oppervlaktes zijn 'EXTRAMUROS' (buitenwerks per entiteit); mogelijk lichte dubbeltelling van gemene binnenwanden (<1%).",
+      "Gebouw was ten tijde van de inspectie nog in afwerking; functies volgens plan = functies volgens verslag (wonen)."
+    ],
+    "confidence": 0.78,
+    "notes": "Residentie 'Clou Doré', Mont Saint-Martin 33, Luik. 6 bouwlagen: sous-sol (parking 9 plaatsen + caves + techniek), RDC (2 app. + overdekt porche + fietsen + autolift), +1 t/m +4 (appartementen, 4e = mansarde). Bovengrondse verdiepingen gemeten via de gedrukte 'SURFACE EXTRAMUROS' per appartement + 'COMMUN EXTRAMUROS' (traphal/lift) = bruto per bouwlaag; terrassen/balkons apart geteld als cat3. Kelder gemeten via gekalibreerde envelop (kruiscontrole met som van gedrukte ruimtes 311,7 m² netto -> 362 m² bruto, ratio 1,16). Zelfcontrole grootste bouwlaag (RDC): pixel-envelop 332,6 m² vs verslag 'surface bâtie +/- 335 m²' => afwijking 0,7%."
+  },
+  "verification": {
+    "problems": [
+      "kelder -1 (sous-sol: parking, caves, techniek): diepte-keten som 25.65 ≠ eindmaat 13.75 (86.5%)",
+      "kelder -1 (sous-sol: parking, caves, techniek): shape-som 413.6 ≠ area 387"
+    ],
+    "floorSums": {
+      "cat1": 1094.4900000000002,
+      "cat2": 472.64,
+      "cat3": 128.76000000000002
+    }
+  },
+  "gt": {
+    "strict_cat1": 1099,
+    "cat2_m2": 457,
+    "cat3_m2": 231,
+    "source": "gt-auto"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "ref": "23-485568",
+  "model": "claude-opus-5",
+  "turns": 15,
+  "toolCalls": 28,
+  "minutes": 4.8,
+  "report": {
+    "floors": [
+      {
+        "label": "gelijkvloers",
+        "page": 16,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 485.75,
+          "cat2": 47.32,
+          "cat3": 0
+        },
+        "method": "printed_label",
+        "area_m2": 533.07,
+        "depth_total": 14.5,
+        "notes": "Gedrukte BVO-labels: handel Suikerplein 9 = 85.10; handel Suikerplein 11-12 = 196.05; appartement 1/0001 = 113.54; circulatie 40.46 + 50.60; fietsbergingen 10.31 + 37.01 (cat2). Tuinen (44.70/35.70/52.31) = excluded."
+      },
+      {
+        "label": "verdieping +1",
+        "page": 17,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 519.89,
+          "cat2": 0,
+          "cat3": 83
+        },
+        "method": "printed_label",
+        "area_m2": 602.89,
+        "notes": "App. 10/0101 98.53 + 10/0102 95.28 + 1/0101 92.07 + 1/0102 94.24 + 1/0103 108.50 = 488.62; circulatie 13.92 + 17.35 = 31.27 -> cat1 519.89. Terrassen 8.40+6.90+7.70+8.13+9.30+13.87+13.13+6.90+8.67 = 83.00 (deels overdekt/loggia, hier als cat3 buitenruimte)."
+      },
+      {
+        "label": "verdieping +2",
+        "page": 18,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 519.89,
+          "cat2": 0,
+          "cat3": 84.52
+        },
+        "method": "printed_label",
+        "area_m2": 604.41,
+        "notes": "Identiek aan +1 (10/0201 98.53, 10/0202 95.28, 1/0201 92.07, 1/0202 94.24, 1/0203 108.50, circulatie 13.92+17.35). Terrassen idem behalve zuidoost 10.19 i.p.v. 8.67 -> 84.52."
+      },
+      {
+        "label": "verdieping +3 (penthouses)",
+        "page": 19,
+        "cat": "mixed",
+        "cat_split": {
+          "cat1": 269.43,
+          "cat2": 0,
+          "cat3": 116.96
+        },
+        "method": "printed_label",
+        "area_m2": 386.39,
+        "notes": "App. 10/0301 108.36 + 1/0301 127.01 + circulatie 17.50 + 16.56 = 269.43 cat1. Dakterrassen 33.15+26.00+14.29+43.52 = 116.96 cat3. Kiezeldak 2x102.23 = excluded."
+      },
+      {
+        "label": "dak",
+        "page": 20,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 0,
+        "notes": "Dakenplan: kiezeldak 269 m2 boven +3 en 2x102.23 m2 boven +2 - geen vloeroppervlakte. Kiezeldak 269 m2 bevestigt de gemeten +3-vloer (269.43 m2)."
+      }
+    ],
+    "cat1_m2": 1794.96,
+    "cat2_m2": 47.32,
+    "cat3_m2": 284.48,
+    "floor_count_from_sections": -1,
+    "flags": [
+      "Geen snede/gevel in dossier - aantal bouwlagen afgeleid uit de 4 grondplannen (glv, +1, +2, +3) + dakenplan",
+      "Geen kelderplan aanwezig; CED-fiche vermeldt 5 bouwlagen terwijl slechts 4 bouwlagen getekend zijn -> eventuele ondergrondse laag onzichtbaar, resultaat is een ondergrens",
+      "Duplicaten: p21=p20, p22=p19, p23=p18, p24=p17, p25=p16 - elk plan slechts 1x geteld",
+      "Terrassen (+1/+2 deels 'overdekt terras', loggia-achtig) als cat3 geklasseerd; bij inpandige interpretatie zou ca. 168 m2 naar cat1 verschuiven"
+    ],
+    "confidence": 0.82,
+    "notes": "Project 'Suikerpark Veurne - Galerij 2' (13 appartementen + 2 handelsruimtes, bj. 2022). Alle plannen (schaal 1:100) dragen per ruimte/eenheid een GEDRUKT BVO-label; deze zijn gebruikt (method=printed_label) i.p.v. pixelschatting. Zelfcontrole: (a) +3 som van labels 269.43 m2 komt overeen met het kiezeldak 269 m2 op het dakenplan (afwijking 0.2%); (b) niveau +2 (519.89 + 84.52 = 604.41 m2) versus de oppervlaktes op dakniveau boven +2 (2x102.23 kiezeldak + 116.96 terras +3 + 269.83 voetafdruk +3 = 591 m2) -> afwijking 2.2%; (c) maatketens gelezen en gesloten: onderste keten 510+50+185+50+155+255+155+50+155+50+155+50+145+50+145+55 = 2215 cm (gedrukte eindmaat 2215) en dwarsmaat 1450 cm, wat een zuidoostblok van ca. 22.15 x 14.50 m geeft, consistent met de labelsommen. Handelsgelijkvloers en gemeenschappelijke circulatie = cat1; fietsbergingen = cat2; terrassen/dakterrassen = cat3; tuinen en kiezeldaken excluded."
+  },
+  "verification": {
+    "problems": [],
+    "floorSums": {
+      "cat1": 1794.96,
+      "cat2": 47.32,
+      "cat3": 284.47999999999996
+    }
+  },
+  "gt": {
+    "strict_cat1": 1832,
+    "cat2_m2": 0,
+    "cat3_m2": 283,
+    "source": "gt-auto"
+  }
+}

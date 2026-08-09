@@ -1,0 +1,16 @@
+{
+  "ref": "23-485568",
+  "target": "verdieping +2",
+  "primary_m2": 604.41,
+  "remeasured_m2": 519.89,
+  "deviation_pct": 14,
+  "target2": "verdieping +1",
+  "primary2_m2": 602.89,
+  "remeasured2_m2": 519.89,
+  "deviation2_pct": 13.8,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": false,
+  "notes": "Fase B: verdiepingen +1 en +2 zijn blijkens de plannen (p17/p18) volledig residentieel — 5 appartementen + 2 gemeenschappelijke circulatiekernen per verdieping, geen handels- of kantoorruimte. Een 'mixed'-label is dus enkel correct als de volledige 519,89 m² als woonfunctie (cat2) is toegekend; er is op deze verdiepingen geen grond voor cat1-oppervlakte. De verslag-/notapagina's (o.a. p2) bevatten geen aanwijzing van functiewijziging; het dossier is louter een waardebepaling van het appartementsgebouw.\n\nGelijkvloers (p16) is wél gemengd: handel Suikerplein 9 (85,10) + handel Suikerplein 11-12 (198,05) = 283,15 m² cat1, plus app. 1/0001 113,54 + circulaties 40,48 + 50,60 + fietsbergingen 10,31 + 37,01 = 251,94 m² cat2. Som 535,09 m² ≈ de opgegeven 533,07 m² — geen materieel verschil.\n\nAandachtspunt buiten mijn meetopdracht: verdieping +3 (p19) telt volgens de labels 10/0301 108,36 + 1/0301 127,01 + circulatie 17,50 + 16,96 = 269,83 m² omsloten. De lijst vermeldt 386,39 m², wat vrijwel exact overeenkomt met 269,83 + kiezeldak 102,23 + terras 14,29. Dat wijst erop dat daar (platte) dak-/terrasoppervlakte in de verdiepingsoppervlakte is opgenomen; potentieel ±117 m² te veel (≈€140k bij cat2), maar dit valt buiten de mij toegewezen doelverdiepingen en is daarom niet als formeel issue opgenomen."
+}

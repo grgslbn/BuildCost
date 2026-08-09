@@ -1,0 +1,505 @@
+{
+  "ref": "23-482928",
+  "model": "claude-opus-5",
+  "turns": 34,
+  "toolCalls": 60,
+  "minutes": 14.2,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -2 (N0.-02, parkeergarage)",
+        "page": 9,
+        "cat": "cat2",
+        "method": "inferred_from_other_floor",
+        "area_m2": 700,
+        "notes": "Geen kelderplan in dossier. Snede EE/DD (p9/p10) toont 2 ondergrondse bouwlagen (vloer -3,15 en -6,00; hoogtes 295 en 285 cm) die minstens de volledige voetafdruk beslaan en zelfs iets breder zijn dan het gebouw. Aangenomen = voetafdruk 689 m2 -> 700 m2. ONDERGRENS: gemeenschappelijke garage loopt vermoedelijk door onder plein/naburig blok.",
+        "depth_total": 17.79,
+        "width_total": 38.75
+      },
+      {
+        "label": "kelder -1 (N0.-01, parkeergarage)",
+        "page": 9,
+        "cat": "cat2",
+        "method": "inferred_from_other_floor",
+        "area_m2": 700,
+        "notes": "Idem: uit snede afgeleid, geen plan beschikbaar. Ondergrens.",
+        "depth_total": 17.79,
+        "width_total": 38.75
+      },
+      {
+        "label": "gelijkvloers +00",
+        "page": 29,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 689,
+        "cat_split": {
+          "cat1": 389,
+          "cat2": 300,
+          "cat3": 0
+        },
+        "width_chain": [
+          0.26,
+          2.94,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.7,
+          2.94,
+          0.26
+        ],
+        "width_total": 38.75,
+        "depth_chain": [
+          0.99,
+          3.21,
+          1.26,
+          4.56,
+          3.57,
+          3.21,
+          0.99
+        ],
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 38.75,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Oostketen sluit exact: 99+321+126+456+357+321+99=1779. Noordketen 26+294+12x270+294+26=3880 (gedrukt totaal 3874/3879). Inhoud: 4 app + inkomhallen/trappen (cat1 ~389 m2) en fietsenstallingen, helling ondergrondse parking (75 m2), technische ruimten/bergingen (cat2 ~300 m2). Terrassen op maaiveld (23,87+9,15+9,15+21,74) = tuinniveau, niet meegeteld."
+      },
+      {
+        "label": "verdieping +01",
+        "page": 28,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 721,
+        "cat_split": {
+          "cat1": 689,
+          "cat2": 0,
+          "cat3": 32
+        },
+        "width_total": 38.75,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 38.75,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Volle rechthoek 38,75x17,79=689 m2 (oostketen 1779 sluit). Zuidbalkons gelezen van plan: 12,80+3,08+3,08+12,80=31,8 m2 -> cat3. Inpandig terras NW (10,62 m2) zit in het volume = cat1."
+      },
+      {
+        "label": "verdieping +02",
+        "page": 27,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 721,
+        "cat_split": {
+          "cat1": 689,
+          "cat2": 0,
+          "cat3": 32
+        },
+        "width_total": 38.75,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 38.75,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Identiek grondvlak aan +01, steekproef ketens (294/270-raster, 1779 diepte) bevestigd."
+      },
+      {
+        "label": "verdieping +03",
+        "page": 26,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 721,
+        "cat_split": {
+          "cat1": 689,
+          "cat2": 0,
+          "cat3": 32
+        },
+        "width_total": 38.75,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 38.75,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Volle rechthoek, geen terugsprong."
+      },
+      {
+        "label": "verdieping +04",
+        "page": 25,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 721,
+        "cat_split": {
+          "cat1": 689,
+          "cat2": 0,
+          "cat3": 32
+        },
+        "width_total": 38.75,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 38.75,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Laatste volle verdieping; daarboven terugsprong aan westzijde (dak van +04 wordt intensief groendak op +05)."
+      },
+      {
+        "label": "verdieping +05",
+        "page": 24,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 556,
+        "cat_split": {
+          "cat1": 497,
+          "cat2": 0,
+          "cat3": 59
+        },
+        "width_chain": [
+          7.81,
+          0.28,
+          2.42,
+          0.28
+        ],
+        "width_total": 27.95,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 27.95,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Terugsprong west: keten vanaf westgevel 781+28+242+28=1079 cm groendak+terrasstrook; gesloten volume = 3875-1080 = 2795 cm breed x 1779 = 497 m2 (cat1). Dakterrassen west 2x22,83 + zuidterras 12,80 = 58,5 m2 cat3. Intensief groendak (781 cm strook) = excluded."
+      },
+      {
+        "label": "verdieping +06",
+        "page": 23,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 555,
+        "cat_split": {
+          "cat1": 497,
+          "cat2": 0,
+          "cat3": 58
+        },
+        "width_total": 27.95,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 27.95,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Zelfde terugspronglijn als +05 (terras 299 cm strook, gesloten gevel op ca. 1076 cm van westgevel). Terrassen 2x22,83 + ca. 13 = 58 m2 cat3."
+      },
+      {
+        "label": "verdieping +07",
+        "page": 34,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 509,
+        "cat_split": {
+          "cat1": 451,
+          "cat2": 0,
+          "cat3": 58
+        },
+        "width_total": 25.35,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 25.35,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Tweede terugsprong (1 travee van 270): gesloten gevel op ca. 1340 cm van westgevel -> 2535 cm x 1779 = 451 m2."
+      },
+      {
+        "label": "verdieping +08",
+        "page": 22,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 520,
+        "cat_split": {
+          "cat1": 452,
+          "cat2": 0,
+          "cat3": 68
+        },
+        "width_total": 25.4,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 25.4,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Gesloten gevel 475 cm oost van raster N4.4 -> 1335 cm van westgevel; 2540x1779 = 452 m2. Terrassen: 2x22,69 west + NO ca. 9,7 + ZO 12,8 = 68 m2 cat3."
+      },
+      {
+        "label": "verdieping +09",
+        "page": 21,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 444,
+        "cat_split": {
+          "cat1": 377,
+          "cat2": 0,
+          "cat3": 67
+        },
+        "width_total": 22.55,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 22.55,
+            "d_m": 4.24,
+            "sign": 1
+          },
+          {
+            "w_m": 19.65,
+            "d_m": 8.36,
+            "sign": 1
+          },
+          {
+            "w_m": 22.55,
+            "d_m": 5.19,
+            "sign": 1
+          }
+        ],
+        "notes": "Getrapte westgevel (terrasinham). Segmenten uit raster: noorddeel 2255 cm breed over 424 cm, middendeel 1965 over 836, zuiddeel 2255 over 519 (som diepte = 1779, sluit). 2 terrassen 33,53+33,54 = 67 m2 cat3."
+      },
+      {
+        "label": "verdieping +10",
+        "page": 20,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 444,
+        "cat_split": {
+          "cat1": 377,
+          "cat2": 0,
+          "cat3": 67
+        },
+        "width_total": 22.55,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 22.55,
+            "d_m": 4.24,
+            "sign": 1
+          },
+          {
+            "w_m": 19.65,
+            "d_m": 8.36,
+            "sign": 1
+          },
+          {
+            "w_m": 22.55,
+            "d_m": 5.19,
+            "sign": 1
+          }
+        ],
+        "notes": "Identiek aan +09 (steekproef raster/terraslabels bevestigd)."
+      },
+      {
+        "label": "verdieping +11",
+        "page": 19,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 400,
+        "cat_split": {
+          "cat1": 354,
+          "cat2": 0,
+          "cat3": 46
+        },
+        "width_total": 19.89,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 19.89,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Gesloten gevel 486 cm oost van N4.6 -> 1886 cm van westgevel; 1989x1779 = 354 m2. Terrassen 2x23,19 = 46,4 m2 cat3."
+      },
+      {
+        "label": "verdieping +12",
+        "page": 18,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 400,
+        "cat_split": {
+          "cat1": 354,
+          "cat2": 0,
+          "cat3": 46
+        },
+        "width_total": 19.89,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 19.89,
+            "d_m": 17.79,
+            "sign": 1
+          }
+        ],
+        "notes": "Identiek aan +11."
+      },
+      {
+        "label": "verdieping +13",
+        "page": 17,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 341,
+        "cat_split": {
+          "cat1": 233,
+          "cat2": 0,
+          "cat3": 108
+        },
+        "width_chain": [
+          2.85,
+          15.09,
+          2.24
+        ],
+        "width_total": 20.18,
+        "depth_chain": [
+          0.28,
+          4.28,
+          0.28,
+          3.92,
+          0.28,
+          3.92,
+          0.28,
+          4.28,
+          0.28
+        ],
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 15.09,
+            "d_m": 9.12,
+            "sign": 1
+          },
+          {
+            "w_m": 12.68,
+            "d_m": 6.64,
+            "sign": 1
+          },
+          {
+            "w_m": 1.79,
+            "d_m": 5.5,
+            "sign": 1
+          }
+        ],
+        "notes": "Pergolaraster 2018 cm breed (285+1509+224 sluit) x 1779 diep. Gesloten volume L-vormig: 1509x912 + 1268x664 + vluchttrap oost 11,4 m2 = 233 m2 cat1. Dakterras onder pergola 107,74 m2 = cat3."
+      },
+      {
+        "label": "verdieping +14",
+        "page": 16,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 341,
+        "cat_split": {
+          "cat1": 233,
+          "cat2": 0,
+          "cat3": 108
+        },
+        "width_total": 20.18,
+        "depth_total": 17.79,
+        "shape": [
+          {
+            "w_m": 15.09,
+            "d_m": 9.12,
+            "sign": 1
+          },
+          {
+            "w_m": 12.68,
+            "d_m": 6.64,
+            "sign": 1
+          },
+          {
+            "w_m": 1.79,
+            "d_m": 5.5,
+            "sign": 1
+          }
+        ],
+        "notes": "Zelfde plattegrond als +13 (ketens 285/1509/224 en 1268 gecontroleerd)."
+      },
+      {
+        "label": "verdieping +15 (technisch dakvolume)",
+        "page": 15,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 35,
+        "notes": "Niveau +15 is extensief groendak met enkel gesloten technisch volume (sas 1,92 m2 + traphuis/liftoverloop, ca. 516x288 cm) plus schachtopbouw -> ca. 35 m2 onverwarmd. Groendak zelf excluded."
+      },
+      {
+        "label": "dakverdieping (dak + pergola)",
+        "page": 14,
+        "cat": "excluded",
+        "method": "dimension_chains",
+        "area_m2": 0,
+        "notes": "Enkel dakvlak en houten pergolastructuur, geen vloerlaag."
+      }
+    ],
+    "cat1_m2": 6983,
+    "cat2_m2": 1735,
+    "cat3_m2": 813,
+    "floor_count_from_sections": 18,
+    "flags": [
+      "kelder: geen kelderplan in dossier - 2 ondergrondse niveaus (-3,15 en -6,00) enkel uit snedes p7/p9/p10 afgeleid; oppervlakte geraamd op de bovenbouwvoetafdruk (2x700 m2) = ONDERGRENS, gemeenschappelijke parkeergarage loopt vermoedelijk verder onder plein/buurblok",
+      "berekeningspagina van het CED-verslag ontbreekt (p4); enkel p5 (8e-14e verdiep) zichtbaar - niet gebruikt als bron, wel als plausibiliteitscheck",
+      "plannen dekken blok N4 'noordveld pergola' (16 bovengrondse lagen +00..+15 + dak); het verslag vermeldt 2 residenties (Pergola + Bijoux) - deze zitten samen in dit volume (60 app.), maar indien Bijoux een apart gebouw is ontbreken die plannen",
+      "terrassen/loggia's buiten de gesloten gevel als cat3 geboekt; inpandige (in het volume liggende) terrassen zitten in cat1",
+      "verdieping +07 staat buiten de plannenreeks gebonden (p34)"
+    ],
+    "confidence": 0.62,
+    "notes": "Methode: alle bovengrondse lagen gemeten uit de rasterketens (travees 294/270 cm, totaal 3874-3880 cm breed; diepteketen oostgevel 99+321+126+456+357+321+99 = 1779 cm, sluit exact op de gedrukte eindmaat). Terugsprongen per verdiepingspaar (+05/+06, +07/+08, +09/+10, +11/+12, +13/+14) bepaald via de gedrukte terrasketens (781/28/242/28, 299 = 28+242+28+1) en de rasterposities van de gesloten gevel. Zelfcontrole grootste laag (+01..+04): breedteketen 26+294+12x270+294+26 = 3880 cm vs gedrukte totalen 3874/3879 (afwijking 0,15%), diepte 1779 gesloten -> 689 m2, tweede meting via pixel/rasterkalibratie gaf 690 m2 (<1% afwijking). Cat1 = woonlagen incl. gemeenschappelijke circulatie en inpandige terrassen; cat2 = fietsenstallingen/technische ruimten/parkeerhelling op gelijkvloers, technisch dakvolume +15 en beide parkeerkelders; cat3 = balkons en dakterrassen (per verdieping uit de gedrukte terraslabels: 31,8 / 58-68 / 67 / 46 / 108 m2)."
+  },
+  "verification": {
+    "problems": [
+      "verdieping +05: breedte-keten som 10.79 ≠ eindmaat 27.95 (-61.4%)",
+      "verdieping +05: shape-som 497.2 ≠ area 556",
+      "verdieping +06: shape-som 497.2 ≠ area 555",
+      "verdieping +07: shape-som 451.0 ≠ area 509",
+      "verdieping +08: shape-som 451.9 ≠ area 520",
+      "verdieping +09: shape-som 376.9 ≠ area 444",
+      "verdieping +10: shape-som 376.9 ≠ area 444",
+      "verdieping +11: shape-som 353.8 ≠ area 400",
+      "verdieping +12: shape-som 353.8 ≠ area 400",
+      "verdieping +13: shape-som 231.7 ≠ area 341",
+      "verdieping +14: shape-som 231.7 ≠ area 341"
+    ],
+    "floorSums": {
+      "cat1": 6970,
+      "cat2": 1735,
+      "cat3": 813
+    }
+  },
+  "gt": {
+    "strict_cat1": 6057,
+    "cat2_m2": 2428,
+    "cat3_m2": 679,
+    "source": "gt-auto"
+  }
+}

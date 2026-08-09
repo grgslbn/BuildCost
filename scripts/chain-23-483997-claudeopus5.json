@@ -1,0 +1,283 @@
+{
+  "ref": "23-483997",
+  "model": "claude-opus-5",
+  "turns": 37,
+  "toolCalls": 52,
+  "minutes": 17.6,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder/niveau -3 (duplexen A1-A3, B1-B3, onderste laag)",
+        "page": 13,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 600,
+        "width_total": 22.49,
+        "depth_total": 13.2,
+        "shape": [
+          {
+            "w_m": 24.4,
+            "d_m": 13.2,
+            "sign": 1
+          },
+          {
+            "w_m": 22.1,
+            "d_m": 11.7,
+            "sign": 1
+          },
+          {
+            "w_m": 4.4,
+            "d_m": 3.7,
+            "sign": 1
+          }
+        ],
+        "notes": "Alleen de noordelijke strook is op -3 gebouwd (terrein helt af). Twee groepen duplex-woningen (DUPLEX A1-A3 en B1-B3). Rest van het niveau = fundering onder de parkeerlaag (p12), geen vloer. Schaal gekalibreerd op de gesloten maatketen 2249 cm (p11/p15/p17) en op parkeervak-steek 2,50 m."
+      },
+      {
+        "label": "niveau -2 — woonstrook noord (bovenlaag duplexen + APP C1/C2)",
+        "page": 14,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 772,
+        "shape": [
+          {
+            "w_m": 21.8,
+            "d_m": 6.9,
+            "sign": 1
+          },
+          {
+            "w_m": 22.4,
+            "d_m": 15.3,
+            "sign": 1
+          },
+          {
+            "w_m": 20.3,
+            "d_m": 13.5,
+            "sign": 1
+          }
+        ],
+        "notes": "Drie bouwdelen in de noordstrook: links 21,8x6,9 m (=150 m2), midden 22,4x15,3 m (=343 m2), rechts 20,3x13,5 m (=274 m2). Inpandige (overdekte) terrassen meegerekend."
+      },
+      {
+        "label": "niveau -2 — parkeerhal",
+        "page": 14,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 1174,
+        "width_total": 71.5,
+        "depth_total": 16.42,
+        "shape": [
+          {
+            "w_m": 71.5,
+            "d_m": 16.42,
+            "sign": 1
+          }
+        ],
+        "notes": "Rechthoekige parkeerhal, west-oost 71,5 m (gekalibreerd op parkeervak-steek 2,50 m: 47 vakken genummerd 1-47 + 48-52 op hellingzone). Diepte 16,42 m = vak 5 m + rijweg 6 m + vak 5 m (gedrukte maat 1605 cm tussen de vakrijen). Controle: 47 vakken x ~25 m2 = 1175 m2 ~ 1174 m2."
+      },
+      {
+        "label": "niveau -2 — zuidstrook: fietsenberging, privatieve bergingen, technieken, in-/uitrithelling",
+        "page": 14,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 684,
+        "shape": [
+          {
+            "w_m": 71.5,
+            "d_m": 9.6,
+            "sign": 1
+          }
+        ],
+        "notes": "Polygonale strook tussen de zuidwand van de parkeerhal en de keermuur; volgt de schuine perceelsgrens. Bevat afvallokaal, fietsenberging, ~37 privatieve bergingen (APP A1..C10, duplexen, penthouses), technische lokalen en de hellingbaan (16,85 % / 8,3 %). Hellingbaan hier eenmalig geteld (komt ook op -1 in beeld)."
+      },
+      {
+        "label": "verdieping -1 (3 blokken, APP A1-A3, B-blok, C-blok)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 1089,
+        "width_total": 22.49,
+        "depth_total": 21.24,
+        "shape": [
+          {
+            "w_m": 12.04,
+            "d_m": 6.65,
+            "sign": 1
+          },
+          {
+            "w_m": 18.39,
+            "d_m": 2.64,
+            "sign": 1
+          },
+          {
+            "w_m": 22.65,
+            "d_m": 9.41,
+            "sign": 1
+          },
+          {
+            "w_m": 9.73,
+            "d_m": 2.14,
+            "sign": 1
+          }
+        ],
+        "width_chain": [
+          0.41,
+          1.59,
+          1.43,
+          0.9,
+          2.3,
+          0.9,
+          2.16,
+          0.47,
+          2.705,
+          2.565,
+          0.85,
+          2.21,
+          3.575,
+          0.425
+        ],
+        "notes": "Drie identieke, getrapte blokken van elk ~363 m2. Breedteketen sluit exact op de gedrukte totaalmaat 2249 cm; diepte gedrukt 2124 cm. Inpandige terrassen (zwart gearceerd, binnen het volume) meegeteld als cat1."
+      },
+      {
+        "label": "gelijkvloers / niveau 00 (APP A4-A6 + B + C)",
+        "page": 11,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 1089,
+        "width_total": 22.49,
+        "depth_total": 21.24,
+        "shape": [
+          {
+            "w_m": 12.04,
+            "d_m": 6.65,
+            "sign": 1
+          },
+          {
+            "w_m": 18.39,
+            "d_m": 2.64,
+            "sign": 1
+          },
+          {
+            "w_m": 22.65,
+            "d_m": 9.41,
+            "sign": 1
+          },
+          {
+            "w_m": 9.73,
+            "d_m": 2.14,
+            "sign": 1
+          }
+        ],
+        "width_chain": [
+          0.41,
+          1.59,
+          1.43,
+          0.9,
+          2.3,
+          0.9,
+          2.16,
+          0.47,
+          2.705,
+          2.565,
+          0.85,
+          2.21,
+          3.575,
+          0.425
+        ],
+        "notes": "Identiek aan -1 en +1: 3 x 363 m2. Keten 41+159+143+90+230+90+216+47+270,5+256,5+85+221+357,5+42,5 = 2249 cm (gesloten op gedrukte eindmaat)."
+      },
+      {
+        "label": "verdieping +1 (APP A7-A9 + B + C)",
+        "page": 18,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 1089,
+        "width_total": 22.49,
+        "depth_total": 21.24,
+        "notes": "Zelfde plattegrond als niveau 00 (steekproef: zelfde blokgrenzen en zelfde 2249-keten)."
+      },
+      {
+        "label": "verdieping +2 — penthouses A, B1, B2, C (terugliggend)",
+        "page": 17,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 435,
+        "shape": [
+          {
+            "w_m": 9.47,
+            "d_m": 9.61,
+            "sign": 1
+          },
+          {
+            "w_m": 21.9,
+            "d_m": 9.07,
+            "sign": 1
+          },
+          {
+            "w_m": 17.6,
+            "d_m": 3.08,
+            "sign": 1
+          },
+          {
+            "w_m": 9.47,
+            "d_m": 9.61,
+            "sign": 1
+          }
+        ],
+        "notes": "Penthouse A ~91 m2 (9,47 x 9,61 m, gecontroleerd op binnenmaat 691 cm), middenblok met PENTH B1+B2 ~253 m2, penthouse C ~91 m2. Onderbouwd door dezelfde 2249-keten onderaan het blad."
+      },
+      {
+        "label": "verdieping +2 — dakterrassen penthouses",
+        "page": 17,
+        "cat": "cat3",
+        "method": "dimension_chains",
+        "area_m2": 150,
+        "notes": "Onoverdekte terrassen op het dak van +1 (pas +6,75 m), zwart gearceerd naast de penthouses. Groendak/extensief groendak = excluded."
+      },
+      {
+        "label": "dak / niveau +3",
+        "page": 16,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 0,
+        "notes": "Alleen dakenplan (groendak, technische kokers), geen bouwlaag."
+      }
+    ],
+    "cat1_m2": 5074,
+    "cat2_m2": 1858,
+    "cat3_m2": 150,
+    "floor_count_from_sections": 6,
+    "flags": [
+      "Schaal niet gedrukt in titelblok; kalibratie via gesloten maatketen 2249 cm (p11/p15/p17), losse maten 395/85/41 cm en parkeervak-steek 2,50 m — onderling consistent binnen 1 %.",
+      "Geen doorlopende buitenketen rond de volledige gebouwenvelop; blokvormen zijn gedecomponeerd uit deelketens + pixelmeting op gekalibreerde schaal (afwijking geschat +/-8 % op de onregelmatige delen).",
+      "Zuidstrook van niveau -2 (bergingen + hellingbaan) volgt de schuine keermuur/perceelsgrens; oppervlak via polygoon-benadering, geen gedrukte totaalmaat.",
+      "Hellingbaan verschijnt zowel op -1 als -2; eenmalig geteld op -2 om dubbeltelling te vermijden.",
+      "Niveau -3 heeft geen eigen maatketen voor de envelop; gemeten via gekalibreerde blokgrenzen (duplex A1-A3 / B1-B3).",
+      "Verslagpagina's (p4/p8) bevestigen: 6 bouwlagen, 37 wooneenheden, ondergrondse parking met 47 plaatsen, 3 liften — consistent met de gemeten plannen.",
+      "Duplicaat: p4/p5 en p8/p9 zijn identieke verslagbladen, slechts eenmaal gebruikt."
+    ],
+    "confidence": 0.62,
+    "notes": "Project 'Vallei Houtkauter', Houtmarktstraat 1770 Liedekerke — nieuwbouw van 37 woonunits in 3 getrapte blokken op een hellend terrein, met ondergrondse parking. Bouwlagen: -3, -2, -1, 00, +1, +2 (dak = +3, geen vloer). Kern van de meting: alle drie blokken hebben dezelfde gesloten breedteketen van 2249 cm (41+159+143+90+230+90+216+47+270,5+256,5+85+221+357,5+42,5) en een gedrukte diepte van 2124 cm; per blok ~363 m2 bruto, dus 1089 m2 per volwaardige woonlaag (-1, 00, +1). Op -3 en -2 is enkel de noordstrook bebouwd (terrein helt af) plus de volledige parkeerlaag. Parkeerhal 71,5 x 16,42 m = 1174 m2 (kruiscontrole 47 vakken x 25 m2 = 1175 m2). Inpandige terrassen (binnen het volume, met vloer erboven) zijn als cat1 meegerekend; enkel de onoverdekte dakterrassen bij de penthouses (+2) zijn cat3. Groendak en tuin = excluded. Totaal bruto ca. 7.082 m2."
+  },
+  "verification": {
+    "problems": [
+      "verdieping -1 (3 blokken, APP A1-A3, B-blok, C-blok): shape-som 362.6 ≠ area 1089",
+      "gelijkvloers / niveau 00 (APP A4-A6 + B + C): shape-som 362.6 ≠ area 1089"
+    ],
+    "floorSums": {
+      "cat1": 5074,
+      "cat2": 1858,
+      "cat3": 150
+    }
+  },
+  "gt": {
+    "heated_m2": 4695,
+    "heated_eur": 2008,
+    "strict_cat1": 4695,
+    "cat2_m2": 1902,
+    "cat3_m2": 701,
+    "groendak_m2": 1036,
+    "total": 13259283,
+    "note": "expert berekening Vallei Houtkauter Liedekerke; cat1=app+circ per nivo (-3:499,-2:742,-1:1008,GVL:1008,+1:1010,+2:428); INPANDIGE terrassen (39+119+123+119=400) aan VOLLE woonprijs eur2000/m2 (niet cat3!); gewone terrassen 114+52+135=301 @502; groendak 1036 @200; parkeerkelder 1902 @1155; inrichting 3xlift+84pv+meerwaarden 475k; FABLE blind: cat1 -4.2%, cat2 +5.2%"
+  }
+}

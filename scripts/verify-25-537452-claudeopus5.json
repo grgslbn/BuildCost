@@ -1,0 +1,16 @@
+{
+  "ref": "25-537452",
+  "target": "woning A - gelijkvloers",
+  "primary_m2": 369,
+  "remeasured_m2": 359,
+  "deviation_pct": 2.7,
+  "target2": "woning A - verdieping +1",
+  "primary2_m2": 188.4,
+  "remeasured2_m2": 188,
+  "deviation2_pct": 0.2,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Mijn hermeting: gelijkvloers ≈359 m², verdieping +1 ≈188 m² (samen ≈547 m² cat1).\n\nToewijzing: woning A cat1 en alle bijgebouwen (B, B2, C, D, E) cat2 stemmen overeen met het huidige gebruik zoals op het inplantingsplan (p.6): opslag/frigo's, afdak, privégarages, loods (pas later expositieruimte) en privéberging. De loods is nog géén expositieruimte (\"nadien voor expositieruimte – fruitteelt\", 2e fase), dus cat2 is correct; een eventuele cat1-inschaling zou pas na de functiewijziging aan de orde zijn.\n\nNiet-materiële punten (onder de 3%-drempel, ter info):\n• B2 \"afdak tractor + aanhangwagen\" (59 m²) is een open afdak; cat3 in plaats van cat2 zou ±€29.500 schelen op een totaal van ±€2,8 mio (≈1%) → niet materieel.\n• \"Sas\" (±10 m²) tussen woning en aansluitende vleugel: valt buiten de eindmaat 2909 van de woning; mogelijk al begrepen in bijgebouw B (289 m²). Impact ≤ €20k → niet materieel.\n• Het noordelijke terras van de woning (±90 m², open) zit terecht niet in de omsloten verdiepingsoppervlakte; in de aangeleverde lijst staat geen aparte terrasregel. Waarde-impact van een terras is beperkt (<3%), dus niet als materieel gebouwdeel gerapporteerd, maar het mag als aparte terrasregel toegevoegd worden."
+}

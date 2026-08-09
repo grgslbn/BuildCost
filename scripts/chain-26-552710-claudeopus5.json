@@ -1,0 +1,336 @@
+{
+  "ref": "26-552710",
+  "model": "claude-opus-5",
+  "turns": 18,
+  "toolCalls": 22,
+  "minutes": 8.6,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -1 (hoofdblok: parkings 1-4, garages 6-7, bergingen, stookplaats, tellers)",
+        "page": 8,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 262,
+        "width_chain": [
+          30,
+          490,
+          20,
+          120,
+          10,
+          620,
+          30
+        ],
+        "width_total": 13.2,
+        "depth_chain": [
+          30,
+          470,
+          47.5,
+          262.5,
+          55,
+          100,
+          225,
+          262.5,
+          47.5,
+          470,
+          30
+        ],
+        "depth_total": 20,
+        "shape": [
+          {
+            "w_m": 13.1,
+            "d_m": 20,
+            "sign": 1
+          }
+        ],
+        "notes": "Binnenketen 1940 + 2x30 muur = 2000 (sluit). Breedteketen 30+490+20+120+10+620+30=1320; envelop hoofdblok ~13,1x20,0."
+      },
+      {
+        "label": "kelder -1 (doorrit/manoeuvreerruimte onder gelijkvloers)",
+        "page": 8,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 112,
+        "width_total": 7.1,
+        "depth_total": 15.8,
+        "shape": [
+          {
+            "w_m": 7.1,
+            "d_m": 15.8,
+            "sign": 1
+          }
+        ],
+        "notes": "Gedrukte maat 710 tussen hoofdblok en garagevleugel; overdekt (snede 1-1: betonplaat met aarde/drainering erboven)."
+      },
+      {
+        "label": "kelder -1 (garagevleugel, garages 1-5)",
+        "page": 8,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "area_m2": 95,
+        "width_chain": [
+          20,
+          560,
+          20
+        ],
+        "width_total": 6,
+        "depth_chain": [
+          20,
+          300,
+          10,
+          300,
+          10,
+          300,
+          10,
+          300,
+          10,
+          300,
+          20
+        ],
+        "depth_total": 15.8,
+        "shape": [
+          {
+            "w_m": 6,
+            "d_m": 15.8,
+            "sign": 1
+          }
+        ],
+        "notes": "5 garages 300 breed + 10 tussenmuren; 20+5x300+4x10+20=1580."
+      },
+      {
+        "label": "open hellingbaan keldergarage (1320 x 380)",
+        "page": 8,
+        "cat": "excluded",
+        "method": "dimension_chains",
+        "area_m2": 0,
+        "notes": "In- en uitrit 22,5% helling, open — per conventie uitgesloten."
+      },
+      {
+        "label": "gelijkvloers (3 appartementen + gemeensch. hall)",
+        "page": 8,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 270,
+        "width_chain": [
+          120,
+          300,
+          130,
+          110,
+          140,
+          80,
+          420
+        ],
+        "width_total": 13,
+        "depth_chain": [
+          130,
+          500,
+          120,
+          500,
+          120,
+          500,
+          130
+        ],
+        "depth_total": 20,
+        "shape": [
+          {
+            "w_m": 13,
+            "d_m": 20,
+            "sign": 1
+          },
+          {
+            "w_m": 3.2,
+            "d_m": 3,
+            "sign": 1
+          }
+        ],
+        "notes": "Beide ketens sluiten exact (1300 en 2000). Uitbouw inkom/brievenbussen 3,2x3,0 toegevoegd."
+      },
+      {
+        "label": "terrassen gelijkvloers (op maaiveld)",
+        "page": 8,
+        "cat": "excluded",
+        "method": "dimension_chains",
+        "area_m2": 0,
+        "notes": "Zuidgevel toont gelijkvloers terras op maaiveldniveau (verharding), geen constructieve vloer -> uitgesloten."
+      },
+      {
+        "label": "verdieping +1 (3 appartementen)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 260,
+        "width_chain": [
+          130,
+          500,
+          120,
+          500,
+          120,
+          500,
+          130
+        ],
+        "width_total": 20,
+        "depth_chain": [
+          420,
+          80,
+          140,
+          110,
+          130,
+          300,
+          120
+        ],
+        "depth_total": 13,
+        "shape": [
+          {
+            "w_m": 20,
+            "d_m": 13,
+            "sign": 1
+          }
+        ],
+        "notes": "Controle binnenmaten dwarsas: 30+700+20+500+20+700+30 = 2000 (sluit exact)."
+      },
+      {
+        "label": "terrassen/balkons +1 (uitkragend)",
+        "page": 12,
+        "cat": "cat3",
+        "method": "dimension_chains",
+        "area_m2": 84,
+        "shape": [
+          {
+            "w_m": 6,
+            "d_m": 1.2,
+            "sign": 1
+          },
+          {
+            "w_m": 6,
+            "d_m": 1.2,
+            "sign": 1
+          },
+          {
+            "w_m": 20,
+            "d_m": 1.8,
+            "sign": 1
+          },
+          {
+            "w_m": 1.8,
+            "d_m": 9.3,
+            "sign": 1
+          },
+          {
+            "w_m": 1.8,
+            "d_m": 9.3,
+            "sign": 1
+          }
+        ],
+        "notes": "Doorlopend uitkragend balkon 180 diep rond de livings + 2 terrassen 600x120 aan slaapkamerzijde. Gevel bevestigt uitkragende balkonband."
+      },
+      {
+        "label": "dakverdieping +2 (3 appartementen)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 260,
+        "width_chain": [
+          130,
+          500,
+          120,
+          500,
+          120,
+          500,
+          130
+        ],
+        "width_total": 20,
+        "depth_chain": [
+          420,
+          80,
+          140,
+          110,
+          130,
+          300,
+          120
+        ],
+        "depth_total": 13,
+        "shape": [
+          {
+            "w_m": 20,
+            "d_m": 13,
+            "sign": 1
+          }
+        ],
+        "notes": "Zelfde plattegrond als +1, geverifieerd via bodemketen 2000 en zijketen 1300."
+      },
+      {
+        "label": "terrassen dakverdieping (inpandig, in dakvolume ingesneden)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 73,
+        "shape": [
+          {
+            "w_m": 5.1,
+            "d_m": 1.8,
+            "sign": 1
+          },
+          {
+            "w_m": 5.1,
+            "d_m": 1.8,
+            "sign": 1
+          },
+          {
+            "w_m": 5.4,
+            "d_m": 1.8,
+            "sign": 1
+          },
+          {
+            "w_m": 5.4,
+            "d_m": 1.8,
+            "sign": 1
+          },
+          {
+            "w_m": 19.7,
+            "d_m": 1.8,
+            "sign": 1
+          }
+        ],
+        "notes": "Gevel toont terrassen ingesneden in het dakvlak (loggia's) -> inpandig -> cat1."
+      }
+    ],
+    "cat1_m2": 863,
+    "cat2_m2": 469,
+    "cat3_m2": 84,
+    "floor_count_from_sections": 4,
+    "flags": [
+      "Kelder breedteketen sluit op 1320 terwijl gelijkvloers 1300 geeft (~1,5% verschil) — kelderenvelop op 13,1 m aangehouden",
+      "Lengte doorrit/garagevleugel (15,8 m) afgeleid uit garagematen 5x300+tussenmuren, geen doorlopende gedrukte totaalmaat",
+      "Terrassen gelijkvloers als maaiveldverharding uitgesloten (gevel bevestigt gelijkvloers op maaiveld)",
+      "Open hellingbaan keldergarage (13,20 x 3,80) uitgesloten conform conventie",
+      "Pagina's 15/16 zijn duplicaat inplantingsplan — 1x geteld; p.9/13/14 zijn detailuitsneden van dezelfde grondplannen"
+    ],
+    "confidence": 0.72,
+    "notes": "Meergezinsvilla Zegemeerpad (Knokke), bouwjaar 1982, 4 bouwlagen (kelder + gelijkvloers + verdieping + dakverdieping), 9 appartementen (3 per bovengrondse laag: 2 livings + 1 studio). Verslag p.5 bevestigt: 9 app., 1 lift, ondergrondse parking met 7 garages + 4 parkeerplaatsen + privatieve bergingen + fietsenstalling — dit stemt overeen met het kelderplan (garages 1-5 in vleugel, garages 6-7 en parkings 1-4 in hoofdblok, bergingen 1-10). Ketens gesloten: gelijkvloers 1300 (120+300+130+110+140+80+420) en 2000 (130+500+120+500+120+500+130); verdieping/dak 2000 horizontaal en 1300 verticaal; controlemeting via binnenmaten dwarsas (30+700+20+500+20+700+30=2000) sluit exact -> afwijking <1%. Kelderdiepte gecontroleerd via binnenketen 1940+2x30=2000, identiek aan bovenbouw. Snede 1-1 bevestigt dat doorrit en garagevleugel ondergronds/overdekt zijn (betonplaat met aarde erboven)."
+  },
+  "verification": {
+    "problems": [
+      "kelder -1 (hoofdblok: parkings 1-4, garages 6-7, bergingen, stookplaats, tellers): breedte-keten som 1320.00 ≠ eindmaat 13.2 (9900.0%)",
+      "kelder -1 (hoofdblok: parkings 1-4, garages 6-7, bergingen, stookplaats, tellers): diepte-keten som 2000.00 ≠ eindmaat 20 (9900.0%)",
+      "kelder -1 (garagevleugel, garages 1-5): breedte-keten som 600.00 ≠ eindmaat 6 (9900.0%)",
+      "kelder -1 (garagevleugel, garages 1-5): diepte-keten som 1580.00 ≠ eindmaat 15.8 (9900.0%)",
+      "gelijkvloers (3 appartementen + gemeensch. hall): breedte-keten som 1300.00 ≠ eindmaat 13 (9900.0%)",
+      "gelijkvloers (3 appartementen + gemeensch. hall): diepte-keten som 2000.00 ≠ eindmaat 20 (9900.0%)",
+      "verdieping +1 (3 appartementen): breedte-keten som 2000.00 ≠ eindmaat 20 (9900.0%)",
+      "verdieping +1 (3 appartementen): diepte-keten som 1300.00 ≠ eindmaat 13 (9900.0%)",
+      "dakverdieping +2 (3 appartementen): breedte-keten som 2000.00 ≠ eindmaat 20 (9900.0%)",
+      "dakverdieping +2 (3 appartementen): diepte-keten som 1300.00 ≠ eindmaat 13 (9900.0%)"
+    ],
+    "floorSums": {
+      "cat1": 863,
+      "cat2": 469,
+      "cat3": 84
+    }
+  },
+  "gt": {
+    "heated_m2": 819,
+    "heated_eur": 2913,
+    "strict_cat1": 784,
+    "total": 3086306
+  }
+}

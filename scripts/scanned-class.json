@@ -1,0 +1,549 @@
+{
+ "23-482829": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "other"
+  ]
+ },
+ "24-521426": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   13,
+   14
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "document_scan",
+   "floorplan",
+   "section",
+   "other"
+  ]
+ },
+ "24-522155": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "24-522273": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-522424": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-522431": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-522464": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   15,
+   29,
+   34,
+   39
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "24-522488": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "document_scan"
+  ]
+ },
+ "24-522497": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "document_scan"
+  ]
+ },
+ "24-522508": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-522511": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-522538": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "document_scan",
+   "photo",
+   "cadastral_map"
+  ]
+ },
+ "24-522557": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "document_scan",
+   "cadastral_map",
+   "photo",
+   "other"
+  ]
+ },
+ "24-522640": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "document_scan",
+   "other"
+  ]
+ },
+ "24-522703": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "document_scan",
+   "photo",
+   "other"
+  ]
+ },
+ "24-522704": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "document_scan",
+   "photo",
+   "cadastral_map"
+  ]
+ },
+ "24-522758": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "other"
+  ]
+ },
+ "24-522783": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "24-523420": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-523654": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   29
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "elevation",
+   "section",
+   "cadastral_map",
+   "other"
+  ]
+ },
+ "24-524066": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "24-524752": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   11,
+   12,
+   13
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "cadastral_map",
+   "floorplan",
+   "other"
+  ]
+ },
+ "25-525947": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "document_scan"
+  ]
+ },
+ "25-526646": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-527519": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   17,
+   32,
+   36,
+   40
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "document_scan"
+  ]
+ },
+ "25-528004": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-528661": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-529384": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "cadastral_map"
+  ]
+ },
+ "25-530046": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-530820": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "document_scan",
+   "cadastral_map",
+   "photo"
+  ]
+ },
+ "25-531936": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-532377": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   7,
+   12
+  ],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "floorplan",
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-533572": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   32
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "photo",
+   "elevation",
+   "floorplan",
+   "other"
+  ]
+ },
+ "25-535099": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "25-535666": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-536473": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   7,
+   12
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "document_scan"
+  ]
+ },
+ "25-537452": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   8,
+   9
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-538160": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-539090": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-540113": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-541523": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   5,
+   6,
+   7,
+   10,
+   11,
+   12,
+   15,
+   16
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "document_scan"
+  ]
+ },
+ "25-542231": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   6,
+   12
+  ],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "photo",
+   "floorplan",
+   "cadastral_map",
+   "other"
+  ]
+ },
+ "25-542804": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   31,
+   32,
+   33,
+   34,
+   35,
+   36
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "document_scan"
+  ]
+ },
+ "25-544323": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   6,
+   10
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "document_scan"
+  ]
+ },
+ "25-545253": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "25-545576": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   6,
+   7,
+   12,
+   13
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "floorplan",
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "25-546330": {
+  "has_floorplan": true,
+  "floorplan_pages": [
+   31,
+   32,
+   33,
+   34,
+   35,
+   36
+  ],
+  "has_dimensions_visible": true,
+  "content_types": [
+   "document_scan",
+   "floorplan",
+   "elevation",
+   "section",
+   "cadastral_map",
+   "other"
+  ]
+ },
+ "25-546630": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "photo",
+   "document_scan"
+  ]
+ },
+ "25-547134": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ },
+ "26-547810": {
+  "has_floorplan": false,
+  "floorplan_pages": [],
+  "has_dimensions_visible": false,
+  "content_types": [
+   "cadastral_map",
+   "document_scan"
+  ]
+ }
+}

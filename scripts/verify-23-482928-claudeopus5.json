@@ -1,0 +1,16 @@
+{
+  "ref": "23-482928",
+  "target": "verdieping +01",
+  "primary_m2": 721,
+  "remeasured_m2": 620,
+  "deviation_pct": 14,
+  "target2": "verdieping +02",
+  "primary2_m2": 721,
+  "remeasured2_m2": 657,
+  "deviation2_pct": 8.9,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": false,
+  "notes": "Aandachtspunten (elk afzonderlijk ONDER de materialiteitsdrempel van ±3% ≈ €0,7 mln ≈ 350 m² cat1, daarom niet als issue geboekt):\n1) De lijstwaarden voor +03/+04 (721 m²) liggen BOVEN de omsloten omhullende van 690 m². Dat kan alleen als de uitkragende zuidbalkons (180 cm diep, ca. 30–50 m²/laag) in de verdiepingsoppervlakte zijn meegerekend. Conform de opgegeven conventie horen die in aparte terras-regels (het verslag zelf doet dat ook: aparte \"Terras\"-regels van 43–111 m²/laag). Als terrassen binnen 'mixed' als cat1 i.p.v. cat3 zijn gewaardeerd, wordt dit over 15 lagen wél materieel (~600–800 m² × €1.340 verschil); dat is met de verstrekte samengevoegde 'mixed'-regels niet verifieerbaar — aanbevolen na te gaan.\n2) +01: de vide boven de inkomhal (ZO-hoek, ca. 42 m², plafondhoogte 5,50 m) heeft geen vloer; ik heb hem afgetrokken. Wie vides wél meetelt komt op ca. 662 m² voor +01 (i.p.v. 620). Impact ~€86k = 0,4% van het geheel.\n3) Inpandige (ingesloten) terrassen op +01/+02 (3 × ca. 10 m²) zijn open lucht en dus afgetrokken van de omsloten oppervlakte; ze horen in de terras-regels.\n4) Kelders: 2 × 700 m² komt overeen met de gebouwvoetafdruk (690 m²); de garage bedient echter 60 appartementen (≈50 plaatsen bij 1400 m²) en is gemeenschappelijk met residentie Bijoux — kelderplannen zaten niet in het dossier, extent niet verifieerbaar. Indien de garage buiten de gebouwcontour doorloopt, is dat wél een materieel ontbrekend gebouwdeel (elke 350 m² extra kelder ≈ €0,42 mln bij cat2).\n5) Groendak 190 m² (verslag p5, €16.650) valt onder \"dakverdieping 0 m² – excluded\"; verwaarloosbaar (0,07%)."
+}

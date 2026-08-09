@@ -1,0 +1,16 @@
+{
+  "ref": "24-521803",
+  "target": "gelijkvloers (kasteel)",
+  "primary_m2": 204,
+  "remeasured_m2": 213,
+  "deviation_pct": 4.4,
+  "target2": "verdieping +1 (kasteel)",
+  "primary2_m2": 123,
+  "remeasured2_m2": 136,
+  "deviation2_pct": 10.6,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": false,
+  "notes": "Fase B: er is GEEN inplantingsplan in het dossier; wel bevestigt de mail (p11) dat er plannen zijn van \"het kasteel, bijgebouwen en garage\". De opmetingsplannen dekken kasteel (p15 grondplannen, p18 gevels/sneden), bijhuis 1 + bijhuis 2 (p16) en garage (p17). Elk van die gebouwen én hun verdiepingen komt in de lijst voor: bijhuis 1 heeft blijkens p16 (gevels: één bouwlaag) en het ontbreken van een verdiepingsplan enkel een gelijkvloers; bijhuis 2 heeft GV + V1 (beide 57 m², platte bedaking → volle vloerplaat correct); garage heeft GV + zolder. Geen ontbrekende gebouwdelen vastgesteld.\nDakverdiepingen: zolder kasteel 45 m² tegenover 107 m² op +2, en garagezolder 28 m² tegenover 61 m² op GV — in beide gevallen duidelijk gereduceerd t.o.v. de volle vloerplaat, dus de conventie vrije hoogte ≥1,5 m lijkt toegepast. Geen materiële kwestie.\nCategorie-toewijzing: kasteel-woonlagen cat1, kelder en zolder cat2, garage cat2, bijhuis 2 cat2, terrassen/balkon cat3 — consistent met een als woning/kasteel gebruikt geheel. Geen verslagtekst met afwijkend huidig gebruik gevonden (dossier bevat enkel mails/nota's), dus geen aanwijzing voor functiewijziging.\nAandachtspunt (niet als issue geboekt): de beglaasde achtkante uitbouw aan de oostgevel (~12 m², VP 1.14/PP 4.52) heb ik als omsloten deel bij het gelijkvloers gerekend. Zit die bij de post \"veranda/serre 37 m²\", dan moet mijn gelijkvloers met ~12 m² verminderd worden (dan ca. 201 m²). De noordelijke veranda alleen meet ik binnen de beglazing ca. 31 m² (37 m² in de lijst = tot de buitenlijn), wat erop wijst dat de oostuitbouw inderdaad in het gelijkvloers hoort."
+}

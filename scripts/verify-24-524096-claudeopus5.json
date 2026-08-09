@@ -1,0 +1,16 @@
+{
+  "ref": "24-524096",
+  "target": "gelijkvloers (RDC)",
+  "primary_m2": 332.6,
+  "remeasured_m2": 247,
+  "deviation_pct": 25.7,
+  "target2": "verdieping +1",
+  "primary2_m2": 319.17,
+  "remeasured2_m2": 284,
+  "deviation2_pct": 11,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": false,
+  "notes": "Geen materiële kwesties gevonden.\nNiet-materieel, wel ter info:\n(1) De overdekte porche/inkom op RDC (70,78 m²) + open autolift-zone (±19 m²) horen niet bij de omsloten verdiepingsoppervlakte; als deze ergens als volwaardige bouwlaag zouden zijn meegeteld is dat een fout, maar als aparte overdekt-terrasregel (cat3) is de waarde-impact ±€50k ≈ 1% van de herbouwwaarde (€4,85 mio) → onder de 3%-drempel.\n(2) De binnenpatio van app. 0.2 (6,41 m²) is open naar de hemel maar ligt binnen de gevellijn; verschil 240,6 vs 247 m² (−2,6%) → niet materieel.\n(3) 'Bureau 12,05 m²' op RDC is een kamer binnen een woning, geen kantoorfunctie: verslag bevestigt 100% habitation, dus geen cat-wissel.\n(4) Verslag p5: 'présence de toit végétalisé: absent' terwijl de daklijn 'groendak + PV' vermeldt; daklijn staat op 0 m² → geen impact.\n(5) Sous-sol 387 m² als cat2 (€1.200/m²) is verdedigbaar voor een betonnen parkeerkelder met autolift + techniek; bij cat3 zou het verschil €193k zijn, maar er is geen aanwijzing dat cat3 hier van toepassing is.\n(6) Buitenzwembad op tuinterras (verslag p5) ligt buiten het gebouw en is geen verdiepingsoppervlakte."
+}

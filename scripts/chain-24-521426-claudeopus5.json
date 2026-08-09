@@ -1,0 +1,181 @@
+{
+  "ref": "24-521426",
+  "model": "claude-opus-5",
+  "turns": 29,
+  "toolCalls": 36,
+  "minutes": 13.7,
+  "report": {
+    "floors": [
+      {
+        "label": "gelijkvloers (nivo 0)",
+        "page": 13,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 377,
+        "width_chain": [
+          12.25,
+          3.2,
+          12.19
+        ],
+        "width_total": 27.64,
+        "depth_chain": [
+          0.2,
+          3.4,
+          0.19,
+          2.88,
+          0.19,
+          2.78,
+          0.19,
+          3.77,
+          0.29
+        ],
+        "depth_total": 14.2,
+        "shape": [
+          {
+            "w_m": 24.44,
+            "d_m": 14.2,
+            "sign": 1
+          },
+          {
+            "w_m": 4.74,
+            "d_m": 2.19,
+            "sign": -1
+          },
+          {
+            "w_m": 14.2,
+            "d_m": 4.9,
+            "sign": 1
+          }
+        ],
+        "notes": "Twee bouwdelen (12,25 + 12,19 m) gescheiden door open doorgang van 3,20 m (=27,64 m totaal voorgevel). Diepte 14,2 m (gecontroleerd via funderingsketen 20+340+19+288+19+278+19+377+29 = 13,89 m + gevelsteen, en via inplanting waar top-gevel 9,46 m als ijking dient). Achterhoek boven afgeschuind (driehoek 4,74x2,19 → -5,2 m²); onderaan trapeziumuitbreiding (½·14,2·4,9 = +34,8 m²). 4 appartementen."
+      },
+      {
+        "label": "verdieping +1",
+        "page": 13,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 422,
+        "width_chain": [
+          27.64
+        ],
+        "width_total": 27.64,
+        "depth_total": 14.2,
+        "shape": [
+          {
+            "w_m": 27.64,
+            "d_m": 14.2,
+            "sign": 1
+          },
+          {
+            "w_m": 4.74,
+            "d_m": 2.19,
+            "sign": -1
+          },
+          {
+            "w_m": 14.2,
+            "d_m": 4.9,
+            "sign": 1
+          }
+        ],
+        "notes": "Doorlopend over de doorgang (gecontroleerd: middenzone bevat keuken/badkamer/slaapkamers, geketende totaalmaat 27,64 m op het plan). 4 appartementen."
+      },
+      {
+        "label": "dakverdieping (nivo 2)",
+        "page": 13,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "area_m2": 422,
+        "width_chain": [
+          11.95,
+          3.8,
+          11.89
+        ],
+        "width_total": 27.64,
+        "depth_total": 14.2,
+        "shape": [
+          {
+            "w_m": 27.64,
+            "d_m": 14.2,
+            "sign": 1
+          },
+          {
+            "w_m": 4.74,
+            "d_m": 2.19,
+            "sign": -1
+          },
+          {
+            "w_m": 14.2,
+            "d_m": 4.9,
+            "sign": 1
+          }
+        ],
+        "notes": "Keten voorgevel 11,95 + 3,80 + 11,89 = 27,64 ✓. Volwaardige appartementen (living/keuken/slaapkamers) met dakkapellen/velux; ca. 1,5 m brede schuine dakzone langs beide lange gevels is in de bruto opp. begrepen."
+      },
+      {
+        "label": "nivo 3 (bovenste daklaag / duplex)",
+        "page": 13,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 165,
+        "depth_total": 5.5,
+        "shape": [
+          {
+            "w_m": 30,
+            "d_m": 5.5,
+            "sign": 1
+          }
+        ],
+        "notes": "Enkel de centrale strook tussen de dakschuinten is vloer (breedte gemeten 5,5 m, geijkt op de totale gebouwdiepte 14,2 m in hetzelfde plan); lengte ca. 30 m. Ruimtes: living, slaapkamers, hobbyruimte, berging → afgewerkt = cat1."
+      },
+      {
+        "label": "garageboxen op achterliggend terrein (17 st.)",
+        "page": 13,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 275,
+        "shape": [
+          {
+            "w_m": 3,
+            "d_m": 5.5,
+            "sign": 1
+          }
+        ],
+        "notes": "Inplanting 1/500: rijen van 8 + 3 + 14 bestaande garageboxen; volgens dossier behoren 17 boxen tot de VME. Box ca. 3,0 x 5,5 m ≈ 16,2 m² → 17 x ≈ 275 m². Onzeker (schaal 1/500, gekalibreerd op de gebouwmaat 9,46 m)."
+      }
+    ],
+    "cat1_m2": 1386,
+    "cat2_m2": 275,
+    "cat3_m2": 0,
+    "floor_count_from_sections": -1,
+    "flags": [
+      "Geen snede/gevel in het dossier — aantal bouwlagen afgeleid uit de plannen (glv + 1 verdieping + 2 daklagen) en bevestigd door het expertiseverslag ('2 bouwlagen, 2 lagen in het dak')",
+      "Geen kelderplan en geen snede; funderingsplan toont enkel zolen/balken → vermoedelijk geen kelder. Ondergrondse niveaus onzichtbaar — resultaat is ondergrens",
+      "Pagina's 13 en 14 zijn hetzelfde bouwplan (scan528/scan529, WeTransfer-duplicaat) — slechts één keer geteld",
+      "Doorgang/poort van 3,20 x 14,2 m (≈45 m²) op het gelijkvloers is open (niet meegeteld); bovenliggende verdiepingen overbruggen ze wel",
+      "Geen doorlopende diepteketen op de grondplannen: diepte 14,2 m bepaald via funderingsketen (13,89 m tot buitenkant fundering) én pixel-ijking op de gedrukte maten 27,64 m en 9,46 m (inplanting) — onzekerheid ±0,3 m (±2%)",
+      "Garageboxen (17 st.) op het achterliggende terrein meegeteld als cat2; sterk benaderend (schaal 1/500)",
+      "Bovenste daklaag (nivo 3): enkel de strook met stahoogte gerekend; schuine dakzones niet meegeteld op dat niveau"
+    ],
+    "confidence": 0.6,
+    "notes": "Residentie Saturnus, Blommekens 60-62, 9900 Eeklo (bouwjaar 1993), 14 appartementen. Enige bruikbare tekening: bouwaanvraagblad (schaal 1/50) met inplanting 1/500, gelijkvloers, 1e verdieping, dakverdieping, fundering en 'NIVO 03'. Gebouwvorm = trapezium: rechte voorgevel 27,64 m (12,25 + 3,20 doorgang + 12,19), diepte ca. 14,2 m, bovenaan afgeschuinde achterhoek (kopgevel slechts 9,46 m diep), onderaan trapeziumvormige uitbreiding (+4,9 m aan de achtergevel). Zelfcontrole grootste verdieping (+1): (a) 27,64 x 14,2 - 5,2 + 34,8 = 422 m²; (b) via afzonderlijke blokmeting glv 377 m² + brugzone 3,20 x 14,2 = 45 m² = 422 m² → afwijking <1%. Geen balkons of dakterrassen op de plannen aangetroffen → cat3 = 0."
+  },
+  "verification": {
+    "problems": [
+      "gelijkvloers (nivo 0): shape-som 406.2 ≠ area 377",
+      "verdieping +1: shape-som 451.7 ≠ area 422",
+      "dakverdieping (nivo 2): shape-som 451.7 ≠ area 422",
+      "garageboxen op achterliggend terrein (17 st.): shape-som 16.5 ≠ area 275"
+    ],
+    "floorSums": {
+      "cat1": 1386,
+      "cat2": 275,
+      "cat3": 0
+    }
+  },
+  "gt": {
+    "strict_cat1": 1280,
+    "cat2_m2": 352,
+    "cat3_m2": 0,
+    "source": "gt-auto"
+  }
+}

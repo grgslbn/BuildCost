@@ -1,0 +1,16 @@
+{
+  "ref": "24-523348",
+  "target": "gelijkvloers",
+  "primary_m2": 206.9,
+  "remeasured_m2": 207,
+  "deviation_pct": 0,
+  "target2": "verdieping +1",
+  "primary2_m2": 128.8,
+  "remeasured2_m2": 137,
+  "deviation2_pct": 6.4,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Inplantingsplan = p6 (volledig perceel 432 zichtbaar): er staat slechts ÉÉN gebouw (de villa met noordvleugel) plus een open carport (18 m²) en verhardingen/terrassen. Geen bijgebouw of tweede volume ontbreekt in de lijst. De opdrachtbrief (p8) vermeldt een buitenzwembad; dit is niet op plan getekend en is hoe dan ook geen m²-post (buitenaanleg).\n\nAandachtspunten (niet-materieel / niet verifieerbaar omdat de bestaande m² verborgen zijn):\n1) De BERGING in de noordvleugel is op plan gelabeld \"maakt geen deel uit van volume\" (≈ 4,54 × 2,62 = 11,9 m²). Ik heb ze als omsloten bijgebouwdeel wél meegeteld (cat2-waardig). Wordt ze uitgesloten, dan is het gelijkvloers ≈ 195 m². Samen met stookruimte/technieken (≈ 9,4 m²) en de vuilnis-/fietsenberging (≈ 4,39 × 2,55 = 11,2 m²) is er ca. 32 m² dat als cat2 (berging/techniek) i.p.v. cat1 hoort te staan; de rest van het gelijkvloers (≈ 175 m² woonruimte, incl. klein bureel dat als privé-kantoortje binnen de woning valt) is cat1. Aangezien beide doelverdiepingen als \"mixed\" gelabeld staan, ga ik ervan uit dat die splitsing al gemaakt is.\n2) Dakverdiepingsconventie: de verdieping is géén klassieke dakverdieping. De slaapkamervleugel (+3,16) heeft rechte gevels met normale ramen (TH 90 / RH 135) op noord- én zuidgevel, dus volle vloerplaat is correct. Voor de \"ZOLDER\" (+3,29) in het oostblok ontbreken doorsneden in het dossier; de omtrek is een volwaardig ommuurd volume (22-445-22 breed) met eigen gevels, zodat de volle plaat aanvaardbaar is. Indien uit een doorsnede zou blijken dat daar een hellend dak met knik staat, kan tot ca. 10-15 m² onder 1,50 m vrije hoogte vervallen – dit kon ik met de beschikbare stukken niet vaststellen.\n3) De vides/traphal in het oostblok (≈ 8 m²) heb ik als vloeroppervlak meegeteld (traphuis); wie vides afzondert komt op ≈ 129 m² voor de verdieping.\n4) Meetmarge: ± ca. 3 m² per verdieping door leesonzekerheid op de oostgevellijn (2120 vs 2140) en de zuidgevel (1204 vs ca. 1230)."
+}

@@ -1,0 +1,165 @@
+{
+  "ref": "24-523348",
+  "model": "claude-opus-5",
+  "turns": 25,
+  "toolCalls": 29,
+  "minutes": 12.5,
+  "report": {
+    "floors": [
+      {
+        "label": "gelijkvloers",
+        "page": 6,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 206.9,
+        "cat_split": {
+          "cat1": 174.5,
+          "cat2": 32.4,
+          "cat3": 0
+        },
+        "width_chain": [
+          3.71,
+          4.54,
+          8.65,
+          4.5
+        ],
+        "width_total": 21.4,
+        "depth_chain": [
+          2.4,
+          5.59,
+          4.79
+        ],
+        "depth_total": 7.99,
+        "shape": [
+          {
+            "w_m": 21.4,
+            "d_m": 4.79,
+            "sign": 1
+          },
+          {
+            "w_m": 4.54,
+            "d_m": 7.99,
+            "sign": 1
+          },
+          {
+            "w_m": 9.39,
+            "d_m": 7.25,
+            "sign": 1
+          }
+        ],
+        "notes": "Hoofdbalk x0-2140 x y799-1278 (102,5 m2) + noordvleugel berging/stookruimte/badkamer x371-825 x y0-799 (36,3 m2) + zuidoostblok salon/keuken/eetplaats/fietsenberging x1201-2140 x y1278-2003 (68,1 m2). cat2 = berging+stookruimte 4,54x4,90=22,3 m2 en vuilnis-/fietsenberging 4,50x2,48=11,2 m2 (overdekt, onverwarmd). Terrassen 26 m2 + 25 m2 + 3 m2 liggen op maaiveld -> niet meegeteld."
+      },
+      {
+        "label": "verdieping +1",
+        "page": 7,
+        "cat": "mixed",
+        "method": "dimension_chains",
+        "area_m2": 128.8,
+        "cat_split": {
+          "cat1": 96.6,
+          "cat2": 32.2,
+          "cat3": 0
+        },
+        "width_chain": [
+          0.22,
+          2,
+          2.49,
+          0.22,
+          3.4,
+          0.11,
+          3.57,
+          0.22
+        ],
+        "width_total": 12.01,
+        "depth_chain": [
+          0.22,
+          2.82,
+          0.1,
+          2.3,
+          0.1,
+          6.37,
+          0.22
+        ],
+        "depth_total": 12.04,
+        "shape": [
+          {
+            "w_m": 12.01,
+            "d_m": 4.79,
+            "sign": 1
+          },
+          {
+            "w_m": 4.89,
+            "d_m": 12.04,
+            "sign": 1
+          },
+          {
+            "w_m": 3.41,
+            "d_m": 5.56,
+            "sign": 1
+          },
+          {
+            "w_m": 2.84,
+            "d_m": 2.3,
+            "sign": -1
+          }
+        ],
+        "notes": "Slaapkamerbalk x0-1201 x 4,79 = 57,5 m2 (+3.16, vensters TH90/RH135 -> volle hoogte, geen knikaftrek). Oostblok x1201-1690 x y799-2003 = 58,9 m2 (klein salon +1.98 = 15,4 m2; trap/vide-zone 11,7 m2 waarvan 6,5 m2 vide afgetrokken; ZOLDER +3.29 = 32,2 m2 -> cat2 onafgewerkte zolder). Badkamervolume noordvleugel 3,41x5,56 = 19,0 m2 (ingesprongen t.o.v. gelijkvloers, rest = plat dak)."
+      },
+      {
+        "label": "terrassen op maaiveld (26+25+3 m2)",
+        "page": 6,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 54,
+        "notes": "Verharding in kasseien / tegels op volle grond -> buitenaanleg, geen bruto vloeropp."
+      },
+      {
+        "label": "carport (open)",
+        "page": 6,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 18,
+        "notes": "Open carport op kolommen onder doorlopend dak -> aparte post, niet in m2 herbouwwaarde."
+      },
+      {
+        "label": "kelder",
+        "page": 6,
+        "cat": "excluded",
+        "method": "inferred_from_other_floor",
+        "area_m2": 0,
+        "notes": "Geen kelderplan en geen snede aanwezig; geen keldertrap zichtbaar op het gelijkvloers -> aangenomen: geen kelder."
+      }
+    ],
+    "cat1_m2": 271.1,
+    "cat2_m2": 64.6,
+    "cat3_m2": 0,
+    "floor_count_from_sections": -1,
+    "flags": [
+      "geen snede/gevel in dossier - aantal bouwlagen afgeleid uit de twee grondplannen (gelijkvloers + verdieping)",
+      "geen kelderplan en geen snede: eventuele ondergrondse niveaus onzichtbaar -> resultaat is ondergrens",
+      "duplicaten: p25/p26 = p6/p7 en p12/p13/p17/p18 zijn dezelfde plannen in het CED-rapport - eenmaal geteld",
+      "ZOLDER +3.29 (32,2 m2) als onafgewerkte zolder in cat2 gezet; indien afgewerkt bewoonbaar -> verschuift naar cat1",
+      "'BERGING (maakt geen deel uit van volume)' toch meegeteld als cat2 gebouwde oppervlakte",
+      "vuilnis- en fietsenberging (11,2 m2) is overdekt maar mogelijk open aan zuidzijde -> cat2 aangehouden",
+      "dakvorm onbekend zonder snede; vensters TH90/RH135 op de verdieping wijzen op volle verdiepingshoogte, dus geen knikaftrek toegepast"
+    ],
+    "confidence": 0.72,
+    "notes": "Zelfcontrole grootste laag (gelijkvloers): (1) envelopmethode via buitenketens = 102,5 + 36,3 + 68,1 = 206,9 m2. (2) Onafhankelijke hercontrole via de onderste keten 1201 + 489 + 450 = 2140 en de rechterketen 1204 (y799->2003): hoofdbalk 21,40 x 4,79 = 102,5 m2; oostvolume (1201->2140) x (1278->2003) = 9,39 x 7,25 = 68,1 m2; noordvleugel (371->825) x 7,99 = 36,3 m2 -> identiek (<1% afwijking). Verdieping gecontroleerd via binnenmaten: 22+200+249+22+340+11+357+22 = 1223 vs. gedrukte 1201 (1,8%), en oostblok 22+282+10+230+10+637+22 = 1213 vs. gedrukte 1204 (0,7%) - beide sluitend."
+  },
+  "verification": {
+    "problems": [
+      "gelijkvloers: diepte-keten som 12.78 ≠ eindmaat 7.99 (59.9%)"
+    ],
+    "floorSums": {
+      "cat1": 271.1,
+      "cat2": 64.6,
+      "cat3": 0
+    }
+  },
+  "gt": {
+    "strict_cat1": 272,
+    "cat2_m2": 11,
+    "cat3_m2": 0,
+    "source": "gt-auto"
+  }
+}

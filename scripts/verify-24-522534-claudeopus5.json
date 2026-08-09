@@ -1,0 +1,16 @@
+{
+  "ref": "24-522534",
+  "target": "gelijkvloers +0 (handel K0.1+K0.2 + inkomhal/traphallen/lift + technieken)",
+  "primary_m2": 500,
+  "remeasured_m2": 508,
+  "deviation_pct": 1.6,
+  "target2": "verdieping +1 (APP 1.1-1.4)",
+  "primary2_m2": 443,
+  "remeasured2_m2": 447,
+  "deviation2_pct": 0.9,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Niet-materieel maar gesignaleerd: op p11 staat in de tuinzone een afzonderlijk ommuurd bijgebouw \"collectieve fietsenstalling 24 plaatsen\" van 602 × 880 cm buitenwerks ≈ 53 m² (cat3, ±€37k ≈ 1,5% van het totaal) dat niet in de verdiepingslijst voorkomt — onder de 3%-drempel, maar toevoeging is wel correcter. De Proximus-cabine (aparte kadastrale sectie B 134e/21) is terecht buiten beschouwing gelaten, evenals de buitenparkings P25-P29 en de terrassen/verhardingen.\nGeen aanwijzing voor een kelder/ondergrondse parking op de beschikbare plannen (enkel +0 t/m +2 beschikbaar; -1 niet aanwezig); indien er toch een kelderniveau bestaat, is dat niet controleerbaar uit dit dossier.\nDe aangeleverde +2 (443 m²) sluit aan bij mijn hermeting van de identieke +1 (447 m²); het gelijkvloers is duidelijk ruimer dan de bovenbouw (20,40 m diep t.o.v. 16,64 m) — controleer dat de +0-lijn effectief ±508 m² bevat en niet enkel de handelsruimte zonder de zuidelijke helft."
+}

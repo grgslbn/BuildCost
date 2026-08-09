@@ -1,0 +1,16 @@
+{
+  "ref": "24-521426",
+  "target": "verdieping +1",
+  "primary_m2": 422,
+  "remeasured_m2": 425,
+  "deviation_pct": 0.7,
+  "target2": "dakverdieping (nivo 2)",
+  "primary2_m2": 422,
+  "remeasured2_m2": 418,
+  "deviation2_pct": 0.9,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Aandachtspunt (niet als formeel issue opgenomen, buiten mijn meetopdracht): het gelijkvloers heeft op plan dezelfde contour als de bovenliggende verdiepingen (~425 m² bruto), terwijl de lijst 377 m² vermeldt. Het gelijkvloers is als split-level in twee blokken getekend (niveauverschil terrein) en er kan een inrit/doorgang naar de 17 achterliggende garageboxen zijn die de omsloten oppervlakte reduceert; ik heb dat niet kunnen verifiëren. Indien er géén doorgang is, is het gelijkvloers ca. 45 m² (cat1) te laag ingeschat (~3% van het geheel, grensgeval).\nVerder: zwarte zones op dak-/nivo 3-plannen zijn dakschilden (velux GGL), geen dakterrassen — dus geen aparte terrasregels vereist."
+}

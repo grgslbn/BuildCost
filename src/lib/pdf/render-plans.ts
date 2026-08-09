@@ -378,3 +378,100 @@ export async function getPdfPageCount(pdfBuffer: Buffer): Promise<number> {
   const doc = mupdfMod!.Document.openDocument(pdfBuffer, "application/pdf");
   return doc.countPages();
 }
+
+/**
+ * Chain-reader rendering helpers (agentic Tier-3 extractor).
+ * Full-page and cropped-region renders as base64 JPEG (q82 — line drawings survive
+ * fine and stay ~3-5× smaller than PNG, which keeps a long tool-loop under the
+ * 32MB request cap). Crops use a CLIPPED mupdf render so a deep zoom on an A0
+ * sheet never rasterizes the whole page (memory-safe).
+ */
+export async function renderPageJpegB64(
+  pdfBuffer: Buffer,
+  pageIdx: number,
+  maxPx = 1568,
+): Promise<string> {
+  await ensureDeps();
+  const mupdf = mupdfMod!;
+  const sharp = sharpMod!;
+  const doc = mupdf.Document.openDocument(pdfBuffer, "application/pdf");
+  const page = doc.loadPage(pageIdx);
+  const [x0, y0, x1, y1] = page.getBounds();
+  const scale = Math.min(maxPx / (x1 - x0), maxPx / (y1 - y0), 8);
+  const pix = page.toPixmap(mupdf.Matrix.scale(scale, scale), mupdf.ColorSpace.DeviceRGB, false, true);
+  const jpg = await sharp(Buffer.from(pix.asPNG()))
+    .flatten({ background: "#ffffff" })
+    .jpeg({ quality: 82 })
+    .toBuffer();
+  return jpg.toString("base64");
+}
+
+export async function renderCropJpegB64(
+  pdfBuffer: Buffer,
+  pageIdx: number,
+  fx: number,
+  fy: number,
+  fw: number,
+  fh: number,
+): Promise<string> {
+  await ensureDeps();
+  const mupdf = mupdfMod!;
+  const sharp = sharpMod!;
+  const doc = mupdf.Document.openDocument(pdfBuffer, "application/pdf");
+  const page = doc.loadPage(pageIdx);
+  const [x0, y0, x1, y1] = page.getBounds();
+  const wPts = x1 - x0;
+  const hPts = y1 - y0;
+  fw = Math.min(Math.max(fw, 0.02), 1);
+  fh = Math.min(Math.max(fh, 0.02), 1);
+  fx = Math.min(Math.max(fx, 0), 1 - fw);
+  fy = Math.min(Math.max(fy, 0), 1 - fh);
+  const scale = Math.min(1500 / (fw * wPts), 1500 / (fh * hPts), 14);
+  const left = Math.floor((x0 + fx * wPts) * scale);
+  const top = Math.floor((y0 + fy * hPts) * scale);
+  const cw = Math.ceil(fw * wPts * scale);
+  const ch = Math.ceil(fh * hPts * scale);
+  let raw: Buffer;
+  try {
+    const pix = new mupdf.Pixmap(mupdf.ColorSpace.DeviceRGB, [left, top, left + cw, top + ch], false);
+    pix.clear(255);
+    const dev = new mupdf.DrawDevice(mupdf.Matrix.identity, pix);
+    page.run(dev, mupdf.Matrix.scale(scale, scale));
+    dev.close();
+    raw = Buffer.from(pix.asPNG());
+  } catch {
+    // fallback: bounded full render + extract
+    const s2 = Math.min(scale, Math.sqrt(8e7 / (wPts * hPts)));
+    const pix = page.toPixmap(mupdf.Matrix.scale(s2, s2), mupdf.ColorSpace.DeviceRGB, false, true);
+    const fullW = pix.getWidth();
+    const fullH = pix.getHeight();
+    const l2 = Math.min(Math.floor(fx * fullW), fullW - 2);
+    const t2 = Math.min(Math.floor(fy * fullH), fullH - 2);
+    const w2 = Math.max(2, Math.min(Math.ceil(fw * fullW), fullW - l2));
+    const h2 = Math.max(2, Math.min(Math.ceil(fh * fullH), fullH - t2));
+    raw = await sharpMod!(Buffer.from(pix.asPNG()))
+      .extract({ left: l2, top: t2, width: w2, height: h2 })
+      .png()
+      .toBuffer();
+  }
+  const jpg = await sharp(raw)
+    .resize({ width: 1568, height: 1568, fit: "inside", withoutEnlargement: true })
+    .flatten({ background: "#ffffff" })
+    .jpeg({ quality: 82 })
+    .toBuffer();
+  return jpg.toString("base64");
+}
+
+export async function renderThumbJpegB64(
+  pdfBuffer: Buffer,
+  pageIdx: number,
+  width = 340,
+): Promise<string> {
+  await ensureDeps();
+  const b64 = await renderPageJpegB64(pdfBuffer, pageIdx, 1000);
+  const jpg = await sharpMod!(Buffer.from(b64, "base64"))
+    .resize({ width })
+    .jpeg({ quality: 62 })
+    .toBuffer();
+  return jpg.toString("base64");
+}

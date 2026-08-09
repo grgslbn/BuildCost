@@ -1,0 +1,209 @@
+{
+  "ref": "24-523691",
+  "model": "claude-opus-5",
+  "turns": 14,
+  "toolCalls": 17,
+  "minutes": 7.5,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -1 (parking + bergingen)",
+        "page": 12,
+        "cat": "cat2",
+        "method": "dimension_chains",
+        "width_chain": [
+          2.84,
+          2.84,
+          2.84,
+          2.84,
+          2.84,
+          3.06
+        ],
+        "width_total": 17.26,
+        "depth_chain": [
+          2.4,
+          5.5,
+          7.2,
+          6,
+          2.4
+        ],
+        "depth_total": 24.7,
+        "shape": [
+          {
+            "w_m": 17.9,
+            "d_m": 24.7,
+            "sign": 1
+          }
+        ],
+        "area_m2": 442,
+        "notes": "Breedte gesloten: P-rij 5x2.84+3.06=17.26 binnenwerks = B-rij 5.61+5.53+5.83=16.97+scheidingen; buitenwerks ~17.9. Diepte: kelderplan valt exact samen met (groenzone 7.90 + gebouw 16.8)=24.7 — gecontroleerd door uitlijning kelder/gelijkvloers op het blad. Controle via netto: banden 43+99+128+108+43=421 +muren 22 = 443 (afwijking <1%). Inclusief inrit-helling 3.36x9.10 (eenmalig hier geteld)."
+      },
+      {
+        "label": "gelijkvloers (APP 0.1 + 0.2 + traphal)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "width_chain": [
+          9.85,
+          7.1
+        ],
+        "width_total": 17.9,
+        "depth_chain": [
+          16.2
+        ],
+        "depth_total": 16.8,
+        "shape": [
+          {
+            "w_m": 17.9,
+            "d_m": 16.8,
+            "sign": 1
+          },
+          {
+            "w_m": 3.36,
+            "d_m": 9.1,
+            "sign": -1
+          }
+        ],
+        "area_m2": 270,
+        "notes": "Binnenwerkse breedte 9.85+7.10=16.95 + 3 muren -> 17.9 buitenwerks; diepte 16.20 binnenwerks -> 16.8. Aftrek open autohelling naar kelder 3.36x9.10=30.6 m2 (geen vloer op dit niveau; wel geteld in kelder). Controle: netto 136.2+84.7=220.9 + gemeen traphal ~20 + muren ~11% = 272 (vs 270)."
+      },
+      {
+        "label": "verdieping +1 (APP 1.1 + 1.2)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "width_chain": [
+          9.85,
+          7.1
+        ],
+        "width_total": 17.9,
+        "depth_chain": [
+          12.2
+        ],
+        "depth_total": 12.8,
+        "shape": [
+          {
+            "w_m": 17.9,
+            "d_m": 12.8,
+            "sign": 1
+          },
+          {
+            "w_m": 2.6,
+            "d_m": 0.74,
+            "sign": 1
+          },
+          {
+            "w_m": 2.6,
+            "d_m": 0.74,
+            "sign": 1
+          }
+        ],
+        "area_m2": 233,
+        "notes": "Diepte 12.20 binnenwerks (linker- en rechterzijketen beide 12.20) + 0.6 muren. Twee erkers 2.60x0.74 toegevoegd. Controle: netto 105.2+88.8=194 + kern ~13 + muren ~11% = 232."
+      },
+      {
+        "label": "verdieping +1 — terrassen",
+        "page": 12,
+        "cat": "cat3",
+        "method": "printed_label",
+        "area_m2": 36.4,
+        "notes": "2 x 5.05x3.60 = 18.2 m2, gedrukt op plan; onoverdekte dakterrassen op het dak van het gelijkvloers (2de verd. staat verder terug)."
+      },
+      {
+        "label": "verdieping +2 / dakverdieping (APP 2.1)",
+        "page": 12,
+        "cat": "cat1",
+        "method": "dimension_chains",
+        "width_chain": [
+          3.34,
+          2.68,
+          4.63,
+          2.77,
+          3.85
+        ],
+        "width_total": 17.9,
+        "depth_chain": [
+          3.13,
+          6.46
+        ],
+        "depth_total": 10.4,
+        "shape": [
+          {
+            "w_m": 17.9,
+            "d_m": 10.4,
+            "sign": 1
+          },
+          {
+            "w_m": 2.72,
+            "d_m": 3.46,
+            "sign": -1
+          },
+          {
+            "w_m": 2.35,
+            "d_m": 2.79,
+            "sign": -1
+          },
+          {
+            "w_m": 3.56,
+            "d_m": 1.24,
+            "sign": -1
+          }
+        ],
+        "area_m2": 166,
+        "notes": "Diepteketens links 3.13+6.46=9.59 en rechts 2.60+7.00=9.60 sluiten op elkaar (+muren=10.4). Breedteketen onderaan 3.34+2.68+4.63+2.77+3.85=17.27 binnenwerks + muren = 17.9 (0.60/0.74-maten zijn erkerdieptes, niet in de keten). Terugspringingen linksvoor, rechtsvoor en terrasnis afgetrokken. Controle: netto 133.7 + gemeenschappelijke kern ~15 + muren ~10% = 166."
+      },
+      {
+        "label": "verdieping +2 — terrassen",
+        "page": 12,
+        "cat": "cat3",
+        "method": "printed_label",
+        "area_m2": 29.8,
+        "notes": "Voorterras 28.0 m2 (13.64x1.73 + nis 3.56x1.24) + 2 x 0.9 m2 franse balkons achteraan."
+      },
+      {
+        "label": "gelijkvloers — groenzone/terras op kelderdak",
+        "page": 12,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 131.9,
+        "notes": "77.5 + 54.4 m2 privatieve tuin/terras op het kelderdak — tuin/groendak, uitgesloten."
+      }
+    ],
+    "cat1_m2": 669,
+    "cat2_m2": 442,
+    "cat3_m2": 66.2,
+    "floor_count_from_sections": -1,
+    "flags": [
+      "Geen snede of gevel in het dossier — aantal bouwlagen (kelder + gelijkvloers + 2 verdiepingen) uit de plantitels op blad p12",
+      "Kelderdiepte niet als doorlopende keten gedrukt: rijafstand (rijweg ~7.2 m) afgeleid uit sluiting op groenzone 7.90 + gebouwdiepte 16.8 en gecontroleerd via netto-oppervlakten (afwijking <1%)",
+      "Buitenwerkse breedte niet gedrukt: gereconstrueerd uit binnenmaten + muurdiktes (17.9 m, ±0.3 m)",
+      "Autohelling naar kelder (3.36x9.10) eenmalig geteld op kelderniveau, afgetrokken van gelijkvloers",
+      "Terrasnis 2de verdieping (4.4 m2) is inpandig maar conservatief bij cat3 geteld",
+      "p6 en p10 zijn identieke kadasterkaarten (duplicaat), p4/p8 identieke verslagpagina's — niet meegeteld"
+    ],
+    "confidence": 0.68,
+    "notes": "Appartementsgebouw Wijnegemsteenweg 63, Schilde ('s-Gravenwezel). Plan bij gewijzigde basisakte, schaal 1/100, maten intra-muros. Bouwlagen: kelder (9 staanplaatsen + 6 bergingen + inrit), gelijkvloers (APP 0.1 en 0.2 + traphal), 1ste verdieping (APP 1.1 en 1.2 + terrassen), 2de/dakverdieping (APP 2.1 + terras). Elke verdieping is twee keer bepaald: (1) via de gedrukte maatketens/envelop en (2) via de som van de gedrukte netto-appartementsoppervlakten + circulatiekern + muurtoeslag; beide wegen komen telkens binnen 1-3% overeen. Cat1 = woonlagen incl. gemeenschappelijke traphal/lift; cat2 = volledige parkeerkelder; cat3 = onoverdekte (dak)terrassen. Tuin/groenzone op het kelderdak (131.9 m2) uitgesloten."
+  },
+  "verification": {
+    "problems": [
+      "kelder -1 (parking + bergingen): diepte-keten som 23.50 ≠ eindmaat 24.7 (-4.9%)",
+      "gelijkvloers (APP 0.1 + 0.2 + traphal): breedte-keten som 16.95 ≠ eindmaat 17.9 (-5.3%)",
+      "gelijkvloers (APP 0.1 + 0.2 + traphal): diepte-keten som 16.20 ≠ eindmaat 16.8 (-3.6%)",
+      "verdieping +1 (APP 1.1 + 1.2): breedte-keten som 16.95 ≠ eindmaat 17.9 (-5.3%)",
+      "verdieping +1 (APP 1.1 + 1.2): diepte-keten som 12.20 ≠ eindmaat 12.8 (-4.7%)",
+      "verdieping +2 / dakverdieping (APP 2.1): breedte-keten som 17.27 ≠ eindmaat 17.9 (-3.5%)",
+      "verdieping +2 / dakverdieping (APP 2.1): diepte-keten som 9.59 ≠ eindmaat 10.4 (-7.8%)"
+    ],
+    "floorSums": {
+      "cat1": 669,
+      "cat2": 442,
+      "cat3": 66.2
+    }
+  },
+  "gt": {
+    "strict_cat1": 679,
+    "cat2_m2": 449,
+    "cat3_m2": 127,
+    "source": "gt-auto"
+  }
+}

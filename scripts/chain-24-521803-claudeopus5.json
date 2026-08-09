@@ -1,0 +1,321 @@
+{
+  "ref": "24-521803",
+  "model": "claude-opus-5",
+  "turns": 17,
+  "toolCalls": 28,
+  "minutes": 11.4,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -1 (kasteel)",
+        "page": 15,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 125,
+        "shape": [
+          {
+            "w_m": 13.02,
+            "d_m": 5.44,
+            "sign": 1
+          },
+          {
+            "w_m": 10.99,
+            "d_m": 5.05,
+            "sign": 1
+          },
+          {
+            "w_m": 1.44,
+            "d_m": 0.84,
+            "sign": 1
+          },
+          {
+            "w_m": 2.5,
+            "d_m": 1,
+            "sign": -1
+          }
+        ],
+        "notes": "Geen maatketens op plan. Kalibratie: blad A2 (titelblok) op schaal 1/200 -> paginabreedte 594mm = 118,8 m. Gecontroleerd via snede BB (p18, A3) waar gedrukte peilen 0.00/13.84 exact de A3-breedte bevestigen. Kelder onder ca. 60% van gelijkvloers; wijnkelders + kelderruimtes 1-5."
+      },
+      {
+        "label": "gelijkvloers (kasteel)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 204,
+        "shape": [
+          {
+            "w_m": 14.17,
+            "d_m": 5.55,
+            "sign": 1
+          },
+          {
+            "w_m": 0.75,
+            "d_m": 2.7,
+            "sign": 1
+          },
+          {
+            "w_m": 3.52,
+            "d_m": 3.5,
+            "sign": 1
+          },
+          {
+            "w_m": 15.3,
+            "d_m": 4.4,
+            "sign": 1
+          },
+          {
+            "w_m": 10.61,
+            "d_m": 4.3,
+            "sign": 1
+          },
+          {
+            "w_m": 3,
+            "d_m": 1,
+            "sign": -1
+          }
+        ],
+        "notes": "Split-level (VP -0,06 / +1,14). Noordblok 14,17x5,55 + erker west + achthoekige serre-erker oost (12 m2) + middenband 15,30x4,40 (incl. linkervleugel) + voorbouw 10,61x4,30 minus schuine hoeken. Terrassen apart geteld. Zelfcontrole via 2 onafhankelijke zooms: 205 vs 203 m2."
+      },
+      {
+        "label": "veranda/serre gelijkvloers (kasteel)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 37,
+        "shape": [
+          {
+            "w_m": 9.2,
+            "d_m": 4.93,
+            "sign": 1
+          },
+          {
+            "w_m": 3,
+            "d_m": 3,
+            "sign": -1
+          }
+        ],
+        "notes": "Beglaasde koepelveranda (VP 0,74 / PP 4,28) aan noordzijde, op verhoogd terras; klaverbladvormige achthoek."
+      },
+      {
+        "label": "terrassen gelijkvloers (kasteel)",
+        "page": 15,
+        "cat": "cat3",
+        "method": "calibrated_element",
+        "area_m2": 61,
+        "notes": "Open terras noord (VP 0,40) 26 m2 + terrasrand rond veranda (VP 0,64/0,65) 15 m2 + terras oost met bordestrap (VP 0,96) 20 m2."
+      },
+      {
+        "label": "tussenverdieping (kasteel)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 52,
+        "shape": [
+          {
+            "w_m": 4.44,
+            "d_m": 4.51,
+            "sign": 1
+          },
+          {
+            "w_m": 5.94,
+            "d_m": 5.27,
+            "sign": 1
+          },
+          {
+            "w_m": 2.5,
+            "d_m": 2,
+            "sign": 1
+          },
+          {
+            "w_m": 2,
+            "d_m": 2,
+            "sign": -1
+          }
+        ],
+        "notes": "Partiële laag boven de lage voorbouw (VP 2,68 / 3,05 / 3,15). Enkel de ruimtes met vloerpeil op dat niveau geteld; de doorlopende hoge ruimtes (VP 1,04/1,18) niet dubbel geteld."
+      },
+      {
+        "label": "verdieping +1 (kasteel)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 123,
+        "shape": [
+          {
+            "w_m": 13.38,
+            "d_m": 5.22,
+            "sign": 1
+          },
+          {
+            "w_m": 10.99,
+            "d_m": 4.91,
+            "sign": 1
+          },
+          {
+            "w_m": 0.5,
+            "d_m": 1.66,
+            "sign": 1
+          },
+          {
+            "w_m": 2,
+            "d_m": 1,
+            "sign": -1
+          }
+        ],
+        "notes": "Kamers 1-4 + traphal, VP 5,01-5,15. Oostelijke achthoekige serre-erker is hier dak (niet geteld). Balkon VP 5,09 apart."
+      },
+      {
+        "label": "balkon +1 (kasteel)",
+        "page": 15,
+        "cat": "cat3",
+        "method": "calibrated_element",
+        "area_m2": 2.5,
+        "notes": "Uitkragend balkon noordgevel (VP 5,09)."
+      },
+      {
+        "label": "verdieping +2 (kasteel)",
+        "page": 15,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 107,
+        "shape": [
+          {
+            "w_m": 9.65,
+            "d_m": 5.32,
+            "sign": 1
+          },
+          {
+            "w_m": 10.98,
+            "d_m": 5.13,
+            "sign": 1
+          }
+        ],
+        "notes": "Kamers 1-4 + traphal, VP 8,49-8,51 / PP 11,03-11,06. Terugspringend t.o.v. +1 (dakvlakken west en oost)."
+      },
+      {
+        "label": "zolderverdieping (kasteel)",
+        "page": 15,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 45,
+        "shape": [
+          {
+            "w_m": 4.51,
+            "d_m": 9.37,
+            "sign": 1
+          },
+          {
+            "w_m": 1,
+            "d_m": 3,
+            "sign": 1
+          }
+        ],
+        "notes": "Zolderruimte VP 11,29 / PP 13,21 (nok 13,84). Enkel het deel tussen de knieschotten (vrije hoogte >1,5 m) geteld; onafgewerkte bergzolder -> cat2."
+      },
+      {
+        "label": "bijhuis 1 - gelijkvloers",
+        "page": 16,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 76,
+        "shape": [
+          {
+            "w_m": 7.17,
+            "d_m": 10.65,
+            "sign": 1
+          }
+        ],
+        "notes": "Vrijstaand bijhuis, 5 ruimtes, plafondhoogtes 2,36-2,84 m -> afgewerkt/bewoonbaar. Geen verdiepingsplan (leeg kader) -> enkel gelijkvloers; blad A3 1/200."
+      },
+      {
+        "label": "bijhuis 2 - gelijkvloers",
+        "page": 16,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 57,
+        "shape": [
+          {
+            "w_m": 8.16,
+            "d_m": 7.03,
+            "sign": 1
+          }
+        ],
+        "notes": "Poortgebouw/koetshuis met rondboogpoort; plafondhoogtes slechts 1,92-2,34 m -> niet-verwarmd bijgebouw."
+      },
+      {
+        "label": "bijhuis 2 - verdieping +1",
+        "page": 16,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 57,
+        "shape": [
+          {
+            "w_m": 8.16,
+            "d_m": 7.03,
+            "sign": 1
+          }
+        ],
+        "notes": "Zelfde voetafdruk, VP 2,19 / PP 4,33 (deel dubbelhoog boven poort)."
+      },
+      {
+        "label": "garage - gelijkvloers",
+        "page": 17,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 61,
+        "shape": [
+          {
+            "w_m": 7.87,
+            "d_m": 7.72,
+            "sign": 1
+          }
+        ],
+        "notes": "Dubbele garage (2 poorten), VP 0,00 / PP 2,59. Blad A4 1/200."
+      },
+      {
+        "label": "garage - zolder",
+        "page": 17,
+        "cat": "cat2",
+        "method": "calibrated_element",
+        "area_m2": 28,
+        "shape": [
+          {
+            "w_m": 4.06,
+            "d_m": 6.83,
+            "sign": 1
+          }
+        ],
+        "notes": "Zolderruimte VP 2,87 / nok 5,65; enkel deel tussen knieschotten geteld."
+      }
+    ],
+    "cat1_m2": 599,
+    "cat2_m2": 373,
+    "cat3_m2": 63.5,
+    "floor_count_from_sections": 6,
+    "flags": [
+      "GEEN ENKELE MAATKETEN op de opmetingsplannen (landmeter Van Eester) - alle maten zijn afgeleid uit papierformaat + schaal 1/200 uit het titelblok",
+      "Kalibratie geverifieerd: op p18 (A3, 1/200) leveren de gedrukte peilen 0.00 en 13.84 in de snede een bladbreedte van ~418 mm = A3 -> schaalaanname bevestigd binnen 2%",
+      "Geen inplantingsplan aanwezig: mogelijk bestaan nog andere bijgebouwen die niet getekend zijn",
+      "Bijhuis 1: geen verdiepingsplan getekend (leeg kader) - eventuele zolder niet meegeteld",
+      "Functie-toewijzing (cat1/cat2) op basis van plafondhoogtes en gevelbeeld; geen expertiseverslag met functiebeschrijving in dossier",
+      "Pagina's 24-26 zijn ongedimensioneerde handgetekende plannen - niet bruikbaar, niet dubbel geteld",
+      "Terrassen op maaiveldniveau als cat3 opgenomen conform conventie"
+    ],
+    "confidence": 0.55,
+    "notes": "Domein Kasteel Diepandael, Tervuursesteenweg 511, Zemst: hoofdgebouw (kasteel) met kelder, gelijkvloers (split-level), tussenverdieping, +1, +2 en zolder, aangebouwde koepelveranda en terrassen; daarnaast bijhuis 1 (1 bouwlaag), bijhuis 2 (2 bouwlagen) en een dubbele garage met zolder. Snede AA/BB (p18) bevestigt 6 bouwlagen in het kasteel (kelder -1,22/-0,57; 0,00/1,17; 2,91/3,15; 4,83/5,14; 8,10/8,51; 11,03/11,29; nok 13,84). Alle oppervlaktes buitenwerks gemeten via gekalibreerde pixelmeting (schaal 1/200, bladformaten A2/A3/A4 uit titelblok), met kruiscontrole tussen verdiepingen (traphal, muurposities) en tussen snede en plattegrond (afwijking <8%)."
+  },
+  "verification": {
+    "problems": [],
+    "floorSums": {
+      "cat1": 599,
+      "cat2": 373,
+      "cat3": 63.5
+    }
+  },
+  "gt": {
+    "strict_cat1": 840,
+    "cat2_m2": 229,
+    "cat3_m2": 87,
+    "source": "gt-auto"
+  }
+}

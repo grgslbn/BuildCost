@@ -1,0 +1,16 @@
+{
+  "ref": "26-552710",
+  "target": "gelijkvloers (3 appartementen + gemeensch. hall)",
+  "primary_m2": 270,
+  "remeasured_m2": 270,
+  "deviation_pct": 0,
+  "target2": "verdieping +1 (3 appartementen)",
+  "primary2_m2": 260,
+  "remeasured2_m2": 260,
+  "deviation2_pct": 0,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Mijn hermeting: gelijkvloers 270 m² (260 hoofdvolume + ~10 m² uitspringende gemeenschappelijke inkom), verdieping +1 260 m². Beide vallen binnen normale meettolerantie van een rechthoekig 20,00 × 13,00 m volume.\n\nAandachtspunt (niet als materieel issue geboekt): de 73 m² inpandige dakterrassen staan in cat1 (€2040/m²). Het zijn overdekte, in het dakvolume ingesneden terrassen — verdedigbaar hoger dan een uitkragend balkon (cat3), maar cat2 (€1200/m²) zou consistenter zijn met de conventie dat terrassen in aparte, lagere regels horen. Verschil cat1→cat2 ≈ €61k op een totaal van ca. €2,38 mio (~2,6%), dus onder de materialiteitsdrempel; enkel bij een sprong naar cat3 zou het net materieel worden (~4%). \n\nOverige controles zonder bevindingen: open hellingbaan (1320×380 ≈ 50 m²) terecht op 0 (open, onoverdekt); grondgebonden terrassen gelijkvloers terecht op 0; kelderoppervlaktes (262 + 112 + 95 = 469 m² cat2) sluiten aan bij de kelderplan-omtrek incl. de ondergrondse garagevleugel; geen kantoor-/handelsfunctie aanwezig (verslag p5), dus geen functiewijziging t.o.v. het oude plan."
+}

@@ -1,0 +1,16 @@
+{
+  "ref": "25-542042",
+  "target": "gelijkvloers (winkel)",
+  "primary_m2": 327,
+  "remeasured_m2": 314,
+  "deviation_pct": 4,
+  "target2": "verdieping +1",
+  "primary2_m2": 233,
+  "remeasured2_m2": 221,
+  "deviation2_pct": 5.2,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Onzekerheid op mijn metingen ca. ±4% (geen doorlopende buitenmaatketen op de plannen; enkel interne maatlijnen). Groendak (86 m²) terecht uitgesloten: label 'Enkel dak boven gelijkvloerse verdieping', geen terras/balkon. Gebruik volgens nota's (p2): detailhandel in schoenen / handelszaak -> GV winkel cat1 correct; +1 (bureau, fotostudio, stockage, kitchenette, sanitair) is ondersteunend kantoor/opslag bij de handelszaak -> cat1 verdedigbaar, verschil kantoor/handel is niet materieel. Aandachtspunt (niet kwantificeerbaar, dus niet als issue opgevoerd): kelder -1 en zolder staan beide op 0 m², terwijl de plannen aanwijzingen geven dat beide bestaan en toegankelijk zijn ('NOODVERLICHTING SIGNALISATIE - 1st. in kelder' op p14, '2st. op zolder' op p13, trap K11 met 20 treden). Er zitten géén plannen van -1 en zolder in het dossier, zodat een oppervlakte niet te meten valt; indien deze niveaus effectief benut worden (bv. stockage) kan dit een materiële onderschatting zijn (elke 30 m² kelder/zolder cat2 ≈ 3% van het geheel)."
+}

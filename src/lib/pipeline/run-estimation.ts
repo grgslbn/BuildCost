@@ -648,9 +648,14 @@ export async function runEstimationPipeline(
       cat2_sqm: a.cat2,
       cat3_sqm: a.cat3,
     });
-    type SqmTier = "area_table" | "area_table_vision" | "labeled_plan" | "plan_vision";
+    type SqmTier = "area_table" | "area_table_vision" | "labeled_plan" | "chain_reader" | "plan_vision";
     let resolvedTier: SqmTier;
     let areasForDisplay: { cat1_sqm: number; cat2_sqm: number; cat3_sqm: number };
+    // Agentic chain-reader (Tier-3 upgrade, 2026-08-09): only when no table and no
+    // usable labels. Runtime 5–20 min → worker-only (CHAIN_READER_ENABLED is set on
+    // Railway, never on Vercel where maxDuration=300 would kill it).
+    let chainAuto = false;
+    let chainAreas: { cat1_sqm: number; cat2_sqm: number; cat3_sqm: number } | null = null;
     if (useRouteA && areaTable) {
       resolvedTier = "area_table";
       areasForDisplay = mapAreas(areaTable.areas);
@@ -665,6 +670,38 @@ export async function runEstimationPipeline(
       // prefer the detailed v9 measurement; fall back to the universal measure if v9 gave ~0
       areasForDisplay =
         visionAreas.cat1_sqm >= 20 || !visionSqm ? visionAreas : mapAreas(visionSqm.areas);
+      if (process.env.CHAIN_READER_ENABLED === "true" && isPdf) {
+        try {
+          const { runChainReader } = await import("@/lib/sqm/chain-reader");
+          const chain = await runChainReader(Buffer.from(arrayBuffer), {
+            dossierLabel: estimationId,
+          });
+          if (chain.report && chain.report.cat1_m2 > 0) {
+            chainAreas = {
+              cat1_sqm: chain.report.cat1_m2,
+              cat2_sqm: chain.report.cat2_m2,
+              cat3_sqm: chain.report.cat3_m2,
+            };
+            areasForDisplay = chainAreas;
+            resolvedTier = "chain_reader";
+            // AUTO only when the deterministic checks close, the model is confident,
+            // and nothing was flagged as a lower bound (invisible basement etc.);
+            // otherwise confidence drops below the 0.65 manual-panel threshold.
+            chainAuto =
+              chain.verificationProblems.length === 0 &&
+              (chain.report.confidence ?? 0) >= 0.6 &&
+              !chain.lowerBound;
+            console.log(
+              `[pipeline] chain-reader (${estimationId}): cat1=${Math.round(chain.report.cat1_m2)} conf=${chain.report.confidence} verifProblems=${chain.verificationProblems.length} lowerBound=${chain.lowerBound} auto=${chainAuto} (${chain.minutes} min, ${chain.toolCalls} tool calls)`,
+            );
+          }
+        } catch (e) {
+          console.warn(
+            `[pipeline] chain-reader failed (${estimationId}):`,
+            (e as Error).message?.slice(0, 160),
+          );
+        }
+      }
     }
     console.log(
       `[pipeline] SQM source (${estimationId}): tier=${resolvedTier} textHint=${sqmSource} → cat1=${Math.round(areasForDisplay.cat1_sqm)} cat2=${Math.round(areasForDisplay.cat2_sqm)} cat3=${Math.round(areasForDisplay.cat3_sqm)} m²` +
@@ -730,6 +767,11 @@ export async function runEstimationPipeline(
         if (ratio >= 0.9 && ratio <= 1.15) gatedSqmConfidence = Math.max(gatedSqmConfidence, 0.72);
         else if (ratio < 0.7) gatedSqmConfidence = Math.min(gatedSqmConfidence, 0.4);
       }
+    } else if (resolvedTier === "chain_reader") {
+      // dev-set validated (12 dossiers): AUTO runs sit within ±10% cost-weighted;
+      // anything that fails the deterministic checks or self-reports low confidence
+      // drops under the 0.65 manual-panel threshold.
+      gatedSqmConfidence = chainAuto ? 0.8 : 0.45;
     } else gatedSqmConfidence = Math.min(sqmConfidence, sqmSanity.score);
     if (resolvedTier !== "area_table" && resolvedTier !== "area_table_vision" && sqmSanity.flags.length > 0) {
       console.warn(

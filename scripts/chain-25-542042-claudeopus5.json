@@ -1,0 +1,115 @@
+{
+  "ref": "25-542042",
+  "model": "claude-opus-5",
+  "turns": 11,
+  "toolCalls": 18,
+  "minutes": 5,
+  "report": {
+    "floors": [
+      {
+        "label": "kelder -1",
+        "page": 14,
+        "cat": "cat2",
+        "method": "inferred_from_other_floor",
+        "area_m2": 0,
+        "notes": "Bestaan bewezen door annotatie 'noodverlichting 1st. in kelder' op gelijkvloersplan, maar geen kelderplan en geen snede aanwezig -> niet meetbaar, 0 aangehouden (ondergrens)."
+      },
+      {
+        "label": "gelijkvloers (winkel)",
+        "page": 14,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 327,
+        "width_total": 31.7,
+        "depth_total": 10.3,
+        "width_chain": [
+          20.5,
+          11.2
+        ],
+        "depth_chain": [
+          10.3
+        ],
+        "shape": [
+          {
+            "w_m": 31.7,
+            "d_m": 10.3,
+            "sign": 1
+          }
+        ],
+        "notes": "Volledige voetafdruk bebouwd (winkelruimtes K1-K11, kassa, paskamers, trappen). Buitenwerks gemeten; achtergevel en voorgevel licht schuin (verwaarloosbaar). Kalibratie via gedrukte maten 934/517/512 cm + controle groendak 86 m2."
+      },
+      {
+        "label": "verdieping +1",
+        "page": 13,
+        "cat": "cat1",
+        "method": "calibrated_element",
+        "area_m2": 233,
+        "width_chain": [
+          11,
+          20.5
+        ],
+        "depth_chain": [
+          10.4,
+          5.7
+        ],
+        "shape": [
+          {
+            "w_m": 11,
+            "d_m": 10.4,
+            "sign": 1
+          },
+          {
+            "w_m": 20.5,
+            "d_m": 5.7,
+            "sign": 1
+          }
+        ],
+        "notes": "Voorbouw (BUREAU, FOTOSTUDIO, HAL, KITCHENETTE, TOILET 1&2, vloerpas 4,21 m) + achterbouw (BUREEL en STOCKAGE, vloerpas 3,13 m). Alles afgewerkt/verwarmd -> cat1."
+      },
+      {
+        "label": "groendak boven gelijkvloerse achterbouw",
+        "page": 13,
+        "cat": "excluded",
+        "method": "printed_label",
+        "area_m2": 86,
+        "notes": "Gedrukt op plan: 'GROENDAK - enkel dak boven gelijkvloerse verdieping - Oppervlakte = 86 m2'. Groendak = uitgesloten (tevens gebruikt als schaalcontrole)."
+      },
+      {
+        "label": "zolder",
+        "page": 13,
+        "cat": "cat2",
+        "method": "inferred_from_other_floor",
+        "area_m2": 0,
+        "notes": "Annotatie 'noodverlichting signalisatie - 2 st. op zolder' bij de trap in de hal; geen zolderplan/snede -> niet meetbaar, 0 aangehouden (ondergrens)."
+      }
+    ],
+    "cat1_m2": 560,
+    "cat2_m2": 0,
+    "cat3_m2": 0,
+    "floor_count_from_sections": -1,
+    "flags": [
+      "geen snede/gevel in dossier - aantal bouwlagen niet te kruisen",
+      "kelder aanwezig (annotatie 'noodverlichting 1st. in kelder') maar geen kelderplan -> totaal is ONDERGRENS",
+      "zolder aanwezig (annotatie '2st. op zolder') maar geen zolderplan -> totaal is ONDERGRENS",
+      "geen bouwkundige maatketens op de plannen; schaal afgeleid uit gedrukte tracématen (934/517/512 cm) en gecontroleerd met gedrukte groendakoppervlakte 86 m2",
+      "p7 en p12 zijn duplicaten van hetzelfde gelijkvloersplan - eenmaal geteld",
+      "voor- en achtergevel lopen licht schuin (niet-rechthoekig perceel); afwijking < 0,2 m verwaarloosd"
+    ],
+    "confidence": 0.55,
+    "notes": "Winkelpand (inrichtingsplan interieurarchitect, schaal 1/50). Gemeten bruto buitenwerks: gelijkvloers ca. 31,7 x 10,3 m = 327 m2; verdieping = voorbouw 11,0 x 10,4 m (114 m2) + achterbouw 20,5 x 5,7 m (117 m2) = 233 m2. Beide lagen zijn verwarmd/afgewerkt handels- en kantoorruimte => cat1 = 560 m2. Groendak (86 m2) uitgesloten. Geen balkons/terrassen => cat3 = 0. Kelder en zolder zijn aantoonbaar aanwezig maar niet getekend; werkelijke totalen liggen dus hoger (indicatief +100 a +200 m2 cat2 indien kelder/zolder de voorbouw beslaan)."
+  },
+  "verification": {
+    "problems": [],
+    "floorSums": {
+      "cat1": 560,
+      "cat2": 0,
+      "cat3": 0
+    }
+  },
+  "gt": {
+    "heated_m2": 652,
+    "heated_eur": 2788,
+    "strict_cat1": 537,
+    "total": 1818000
+  }
+}

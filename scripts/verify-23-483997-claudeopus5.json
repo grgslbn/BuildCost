@@ -1,0 +1,16 @@
+{
+  "ref": "23-483997",
+  "target": "verdieping -1 (3 blokken, APP A1-A3, B-blok, C-blok)",
+  "primary_m2": 1089,
+  "remeasured_m2": 1030,
+  "deviation_pct": 5.4,
+  "target2": "gelijkvloers / niveau 00 (APP A4-A6 + B + C)",
+  "primary2_m2": 1089,
+  "remeasured2_m2": 1030,
+  "deviation2_pct": 5.4,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Fase B: verslagpagina's (p8, p9) bevestigen zuiver residentieel gebruik: 37 appartementen, 0 kantoren, 0 handelszaken, 6 bouwlagen, 3 liften, ondergrondse parking 47 plaatsen. De cat-toewijzing in de lijst is daarmee consistent: alle woonlagen cat1, parkeerhal + fietsen/bergingen/technieken/helling cat2, dakterrassen cat3. Geen materiële toewijzingsfout gevonden.\nNiet-materiële observaties (elk < 3% van het geheel, ter info):\n(1) Op niveaus -1, 00 en +1 bevinden zich per verdieping ca. 119 m² overdekte privéterrassen/loggia's (blok A ca. 37, blok B ca. 45, blok C ca. 37 m²) die in de lijst nergens als terras-regel (cat3) voorkomen; enkel de +2-dakterrassen (150 m²) zijn opgenomen. Totaal ca. 355 m² cat3 ≈ €250k ≈ 2% van het geheel → onder de materialiteitsdrempel, maar wel een systematische omissie. Omgekeerd: indien de verborgen waarden voor -1/00 deze terrassen wél in cat1 meetellen, ligt de opgave ca. 110-120 m² per verdieping hoger dan mijn omsloten-bruto meting.\n(2) De opgegeven 1089 m² voor +1 is ca. 6% hoger dan mijn meting van de (qua footprint nagenoeg identieke) niveaus -1 en 00; mogelijk zit daar terrasoppervlak in. Niet nagemeten (geen doelverdieping).\n(3) Boven de gemeenschappelijke hal in blok B (en A/C) zit een 'vide'; die is in mijn meting meegerekend binnen de gevellijn."
+}

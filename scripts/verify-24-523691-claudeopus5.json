@@ -1,0 +1,16 @@
+{
+  "ref": "24-523691",
+  "target": "gelijkvloers (APP 0.1 + 0.2 + traphal)",
+  "primary_m2": 270,
+  "remeasured_m2": 269,
+  "deviation_pct": 0.4,
+  "target2": "verdieping +1 (APP 1.1 + 1.2)",
+  "primary2_m2": 233,
+  "remeasured2_m2": 230,
+  "deviation2_pct": 1.3,
+  "impact_pct": 0,
+  "allocation_issues": [],
+  "missing_parts": [],
+  "pass": true,
+  "notes": "Toewijzing: het geheel is een appartementsgebouw (APP 0.1/0.2, 1.1/1.2, 2.1) — woonverdiepingen terecht cat1, kelder met parking + bergingen terecht cat2, terrassen cat3, groenzone/terras op kelderdak (77.5 + 54.4 = 131.9 m²) terecht uitgesloten. Geen functiewijziging zichtbaar op plan of in dossier.\n\nKruiscontroles overige regels:\n- Kelder 442 m²: gebouwbreedte 17.9 m × totale kelderdiepte (16.85 gebouw + ca. 7.90 groenzone ≈ 24.75) ≈ 443 m² — klopt.\n- Terrassen +1: 2 × 18.2 = 36.4 m² ✓; terrassen +2: 28.0 + 0.9 + 0.9 = 29.8 m² ✓.\n- Verdieping +2: mijn ruwe hermeting (bounding ca. 17.8 × 10.3 = 183 m² min terrasinsprong ca. 7.6 m²) geeft ca. 175 m² t.o.v. 166 m² in de lijst; verschil ca. 9 m² cat1 (≈ €18k, < 1% van het geheel) — niet materieel, en mijn +2-meting is een nevencontrole met beperkte precisie.\n- De open inrit/helling naar de kelder (ca. 33 m², onoverdekt) is terecht niet als verdiepingsoppervlakte opgenomen; ook als cat3 zou dit slechts ca. €23k (≈1%) zijn — niet materieel."
+}
